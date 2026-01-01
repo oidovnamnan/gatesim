@@ -63,7 +63,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                             {/* Scrollable Container */}
                             <div className="fixed inset-0 z-10 overflow-y-auto">
-                                <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
+                                <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6 py-12">
                                     {/* Modal Card */}
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
