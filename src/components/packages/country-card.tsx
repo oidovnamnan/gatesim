@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { CountryData } from "@/lib/utils";
+export interface CountryData {
+    code: string;
+    name: string;
+    flag: string;
+}
 
 export function CountryList({ countries }: { countries: CountryData[] }) {
     return (
