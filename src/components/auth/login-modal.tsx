@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, Phone, Loader2, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,12 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phone, setPhone] = useState("");
+    const [mounted, setMounted] = useState(false);
+
+    // Portal requires client-side mounting
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleGoogleLogin = async () => {
         setLoading(true);
@@ -46,7 +53,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         }, 1000);
     };
 
-    return (
+    // Don't render on server
+    if (!mounted) return null;
+
+    const modalContent = (
         <AnimatePresence>
             {isOpen && (
                 <>
@@ -187,4 +197,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             )}
         </AnimatePresence>
     );
+
+    return createPortal(modalContent, document.body);
 }
