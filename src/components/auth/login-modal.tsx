@@ -67,7 +67,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl border border-white/50 ring-1 ring-black/5 mx-auto overflow-hidden"
+                                className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl border border-white/50 ring-1 ring-black/5 mx-auto pb-10"
                             >
                                 {/* Box Content Padded */}
                                 <div className="p-6 relative text-left">
