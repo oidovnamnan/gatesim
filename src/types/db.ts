@@ -17,7 +17,7 @@ export interface OrderItem {
     currency?: string;
     quantity: number;
     countryCode?: string; // For analytics
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 export interface Order {
@@ -43,6 +43,6 @@ export interface Order {
 
 export interface ProductCache {
     sku: string;
-    data: any; // Full JSON from MobiMatter
+    data: unknown; // Full JSON from MobiMatter
     updatedAt: number;
 }

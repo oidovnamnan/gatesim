@@ -31,13 +31,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [theme, setThemeState] = useState<ThemeName>(DEFAULT_THEME);
     const [mode, setModeState] = useState<Mode>("dark");
-    const [mounted, setMounted] = useState(false);
     // Keep track of active country internally to restore theme if country is cleared
     const [activeCountry, setActiveCountry] = useState<string | null>(null);
 
     useEffect(() => {
-        setMounted(true);
         const savedTheme = getSavedTheme();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setThemeState(savedTheme);
         applyTheme(savedTheme);
 
