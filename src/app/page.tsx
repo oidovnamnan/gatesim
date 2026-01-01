@@ -65,8 +65,8 @@ export default function HomePage() {
           <Globe size={1400} />
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#F4F7FC]/40 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#F4F7FC]/40 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--background))]/40 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--background))]/40 via-transparent to-transparent"></div>
       </div>
 
       {/* Hero Section */}
