@@ -49,14 +49,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     return (
         <AnimatePresence>
             {isOpen && (
-                <>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50"
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
                     />
 
                     {/* Modal Card */}
@@ -64,16 +64,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
+                        className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl overflow-hidden border border-white/50 ring-1 ring-black/5"
                     >
-                        <div className="bg-white rounded-[24px] p-8 shadow-2xl relative overflow-hidden border border-white/50 ring-1 ring-black/5">
+                        {/* Box Content Padded */}
+                        <div className="p-8 relative">
                             {/* Decorative Glow - RED THEMED */}
                             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500" />
                             <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 transition-colors p-2 hover:bg-slate-100 rounded-full"
+                                className="absolute top-4 right-4 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all p-2 rounded-full z-20"
+                                aria-label="Close"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -177,7 +179,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             </div>
                         </div>
                     </motion.div>
-                </>
+                </div>
             )}
         </AnimatePresence>
     );

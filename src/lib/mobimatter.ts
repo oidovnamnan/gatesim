@@ -14,10 +14,58 @@ export interface MobiMatterProduct {
 const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
 
 export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
-    // Strict Mode: Only fetch if credentials exist, otherwise return empty
     if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
-        console.warn("MobiMatter API credentials missing. Returning empty list (NO MOCKS).");
-        return [];
+        console.warn("MobiMatter API credentials missing. Returning MOCK data.");
+        return [
+            {
+                sku: "MOCK-JP-10",
+                name: "Japan Travel Data",
+                price: 12.50,
+                currency: "USD",
+                dataAmount: 10240, // 10GB
+                durationDays: 15,
+                countries: ["JP"],
+                provider: "GateGlobal",
+                description: "High speed 5G data in Japan",
+                isRegional: false
+            },
+            {
+                sku: "MOCK-KR-UNL",
+                name: "Korea Unlimited",
+                price: 18.00,
+                currency: "USD",
+                dataAmount: -1, // Unlimited
+                durationDays: 7,
+                countries: ["KR"],
+                provider: "SK Telecom",
+                description: "Unlimited data for 7 days",
+                isRegional: false
+            },
+            {
+                sku: "MOCK-ASIA-REG",
+                name: "Asia Pacific 20GB",
+                price: 25.00,
+                currency: "USD",
+                dataAmount: 20480,
+                durationDays: 30,
+                countries: ["JP", "KR", "SG", "TH", "VN", "CN"],
+                provider: "AsiaLink",
+                description: "Best for multi-country travel",
+                isRegional: true
+            },
+            {
+                sku: "MOCK-GLOBAL",
+                name: "Global 5GB",
+                price: 35.00,
+                currency: "USD",
+                dataAmount: 5120,
+                durationDays: 365,
+                countries: ["US", "UK", "EU", "AU", "MN"],
+                provider: "WorldConnect",
+                description: "Valid for 1 year in 100+ countries",
+                isRegional: true
+            }
+        ];
     }
 
     try {
