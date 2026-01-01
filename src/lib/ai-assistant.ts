@@ -221,6 +221,13 @@ export const aiPricing = {
     free: {
         messagesPerDay: 5,
     },
+    premium: {
+        price: 3.99,
+        features: ["30 хоногийн эрх", "Хязгааргүй асуулт", "Бүх боломжууд"]
+    },
+    perPackage: {
+        price: 0.99
+    },
     plans: [
         {
             id: "starter",
