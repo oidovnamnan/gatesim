@@ -253,24 +253,22 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     </div>
 
                     <div
-                        onClick={() => setPaymentMethod("stripe")}
                         className={cn(
-                            "flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all shadow-sm",
-                            paymentMethod === "stripe"
-                                ? "bg-blue-50 border-blue-500 shadow-md ring-1 ring-blue-500"
-                                : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50"
+                            "flex items-center justify-between p-4 rounded-xl border transition-all shadow-sm opacity-60 cursor-not-allowed bg-slate-50 border-slate-100"
                         )}
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                <CreditCard className="w-5 h-5 text-blue-700" />
+                            <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center">
+                                <CreditCard className="w-5 h-5 text-slate-500" />
                             </div>
                             <div>
-                                <div className="font-bold text-slate-900">Stripe / Card</div>
-                                <div className="text-xs text-slate-500">Олон улсын карт</div>
+                                <div className="font-bold text-slate-500 flex items-center gap-2">
+                                    Stripe / Card
+                                    <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full font-bold">Тун удахгүй</span>
+                                </div>
+                                <div className="text-xs text-slate-400">Олон улсын карт</div>
                             </div>
                         </div>
-                        {paymentMethod === "stripe" && <div className="w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />}
                     </div>
                 </div>
 

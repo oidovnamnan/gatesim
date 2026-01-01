@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
         if (!orderId || !amount) {
             return NextResponse.json(
-                { error: "Missing required fields: orderId, amount" },
+                { error: "Төлбөрийн мэдээлэл дутуу байна (orderId, amount)" },
                 { status: 400 }
             );
         }
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json(
-            { error: "Failed to create QPay invoice" },
+            { error: "QPay нэхэмжлэх үүсгэхэд алдаа гарлаа" },
             { status: 500 }
         );
     }
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
 
         if (!invoiceId) {
             return NextResponse.json(
-                { error: "Missing invoiceId" },
+                { error: "Нэхэмжлэхийн дугаар хоосон байна" },
                 { status: 400 }
             );
         }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json(
-            { error: "Failed to check payment status" },
+            { error: "Төлбөрийн төлөв шалгахад алдаа гарлаа" },
             { status: 500 }
         );
     }
