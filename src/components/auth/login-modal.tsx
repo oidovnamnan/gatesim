@@ -61,16 +61,16 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                     {/* Scrollable Container */}
                     <div className="fixed inset-0 z-10 overflow-y-auto">
-                        <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-6 py-12">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6 py-12">
                             {/* Modal Card */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl border border-white/50 ring-1 ring-black/5 mx-auto"
+                                className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl border border-white/50 ring-1 ring-black/5 mx-auto overflow-hidden"
                             >
                                 {/* Box Content Padded */}
-                                <div className="p-6 relative text-left overflow-hidden rounded-[24px]">
+                                <div className="p-6 relative text-left">
                                     {/* Decorative Glow - RED THEMED */}
                                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500" />
                                     <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
