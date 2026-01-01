@@ -21,7 +21,8 @@ function calculateOptimizedPrice(netPriceUSD: number, usdToMnt: number, marginPe
     return Math.ceil(rawPriceMNT / 100) * 100;
 }
 
-export const dynamic = 'force-dynamic';
+// Cache for 1 hour - dramatically faster page loads
+export const revalidate = 3600;
 
 export default async function PackagesPage() {
     // PARALLEL FETCHING: Fetch products and settings at the same time
