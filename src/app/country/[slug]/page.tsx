@@ -229,7 +229,7 @@ export default function CountryInfoPage() {
                                             <div className="flex items-center gap-2">
                                                 <h4 className="font-semibold text-white">{t.name}</h4>
                                                 {t.app && (
-                                                    <Badge variant="info" size="sm">App</Badge>
+                                                    <Badge variant="secondary" size="sm">App</Badge>
                                                 )}
                                             </div>
                                             <p className="text-sm text-white/60 mt-1">{t.description}</p>
