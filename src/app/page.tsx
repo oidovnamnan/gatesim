@@ -124,19 +124,15 @@ export default function HomePage() {
 
             return (
               <Link key={country.code} href={`/packages/${country.code}`}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  whileTap={{ scale: 0.98 }}
+                <div
                   className={`group relative rounded-3xl p-5 
-                                bg-white/80 backdrop-blur-xl
+                                bg-white/90
                                 border border-white/60
-                                shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)]
+                                shadow-md hover:shadow-lg
                                 ${theme.hoverShadow}
-                                transition-all duration-500 cursor-pointer
-                                flex flex-col items-center text-center min-h-[180px]`}
+                                transition-shadow duration-200 cursor-pointer
+                                flex flex-col items-center text-center min-h-[180px]
+                                hover:-translate-y-1`}
                 >
                   {/* Floating Price Badge */}
                   <div className={`absolute top-3 right-3 ${theme.badgeBg} ${theme.badgeText} px-3 py-1 rounded-full text-xs font-black shadow-lg`}>
@@ -145,23 +141,23 @@ export default function HomePage() {
 
                   {/* Large Flag */}
                   <div className="mt-2 mb-4">
-                    <span className="text-5xl drop-shadow-lg filter brightness-95 group-hover:brightness-100 group-hover:scale-110 inline-block transition-all duration-300">
+                    <span className="text-5xl">
                       {country.flag}
                     </span>
                   </div>
 
                   {/* Country Name */}
-                  <h3 className="text-xl font-black text-[hsl(var(--card-foreground))] leading-tight mb-2 line-clamp-1 w-full px-2">
+                  <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 line-clamp-1 w-full px-2">
                     {country.name}
                   </h3>
 
                   {/* Specs */}
-                  <div className="flex items-center gap-2 text-xs font-bold text-[hsl(var(--muted-foreground))] mt-auto">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 mt-auto">
                     <span className="bg-slate-100 px-2.5 py-1 rounded-lg">5GB</span>
                     <span className="text-slate-400">•</span>
                     <span className="bg-slate-100 px-2.5 py-1 rounded-lg">7 хоног</span>
                   </div>
-                </motion.div>
+                </div>
               </Link>
             );
           })}
