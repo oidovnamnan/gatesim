@@ -198,7 +198,6 @@ export async function createMobiMatterOrder(sku: string): Promise<any> {
         }
 
         // STEP 2: Complete Order (Capture)
-        console.log("Completing Order via /order/complete (PUT)...");
         const completeRes = await fetch(`${BASE_URL}/order/complete`, {
             method: 'PUT',
             headers,

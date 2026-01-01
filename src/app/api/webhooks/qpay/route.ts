@@ -10,7 +10,6 @@ export async function POST(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const orderId = searchParams.get("order_id");
 
-        console.log("QPay webhook received:", { orderId, body });
 
         if (!orderId) {
             console.error("QPay webhook: missing order_id");
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
             );
 
             if (!isPaid) {
-                console.log("QPay webhook: Payment not confirmed yet");
+                // Payment not confirmed yet
                 return NextResponse.json({
                     success: false,
                     message: "Payment not confirmed"
@@ -70,7 +69,7 @@ export async function POST(request: NextRequest) {
             // Provision eSIM from Airalo
             await provisionEsim(order.id, order.package.airaloPackageId);
 
-            console.log("QPay webhook: Order processed successfully:", orderId);
+            // Order processed successfully
         } catch (dbError) {
             console.error("QPay webhook: Database error:", dbError);
             // In development, just log the error
@@ -95,7 +94,6 @@ export async function POST(request: NextRequest) {
 // Provision eSIM from Airalo
 async function provisionEsim(orderId: string, packageId: string) {
     try {
-        console.log("Provisioning eSIM:", { orderId, packageId });
 
         // Create order with Airalo
         const airaloOrder = await airalo.createOrder({
@@ -121,7 +119,7 @@ async function provisionEsim(orderId: string, packageId: string) {
                 },
             });
 
-            console.log("eSIM provisioned successfully:", sim.iccid);
+            // eSIM provisioned successfully
 
             // TODO: Send email notification with QR code
             // await sendEsimEmail(order.userEmail, sim);
