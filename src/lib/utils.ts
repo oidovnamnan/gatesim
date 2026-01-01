@@ -34,8 +34,22 @@ export function generateOrderNumber(): string {
 }
 
 export function getCountryFlag(countryCode: string): string {
-    const codePoints = countryCode
-        .toUpperCase()
+    // Explicit mapping for common countries (more reliable than code calculation)
+    const flagMap: Record<string, string> = {
+        "JP": "🇯🇵", "KR": "🇰🇷", "CN": "🇨🇳", "TH": "🇹🇭",
+        "US": "🇺🇸", "SG": "🇸🇬", "MY": "🇲🇾", "VN": "🇻🇳",
+        "TR": "🇹🇷", "AE": "🇦🇪", "DE": "🇩🇪", "FR": "🇫🇷",
+        "GB": "🇬🇧", "AU": "🇦🇺", "CA": "🇨🇦", "IT": "🇮🇹",
+        "ES": "🇪🇸", "NL": "🇳🇱", "CH": "🇨🇭", "AT": "🇦🇹",
+        "MN": "🇲🇳", "RU": "🇷🇺", "IN": "🇮🇳", "ID": "🇮🇩",
+        "PH": "🇵🇭", "TW": "🇹🇼", "HK": "🇭🇰", "MO": "🇲🇴",
+    };
+
+    const code = countryCode.toUpperCase();
+    if (flagMap[code]) return flagMap[code];
+
+    // Fallback to code point calculation
+    const codePoints = code
         .split("")
         .map((char) => 127397 + char.charCodeAt(0));
     return String.fromCodePoint(...codePoints);
