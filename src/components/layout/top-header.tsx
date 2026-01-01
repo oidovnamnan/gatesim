@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Package, Smartphone, Home } from "lucide-react";
+import { User, Package, Smartphone, Home, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
+import { useTheme } from "@/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { LoginModal } from "@/components/auth/login-modal";
 import { useState } from "react";
@@ -17,6 +18,7 @@ const navItems = [
 
 export function TopHeader() {
     const { user } = useAuth();
+    const { mode, toggleMode } = useTheme();
     const pathname = usePathname();
     const [loginOpen, setLoginOpen] = useState(false);
 
@@ -56,8 +58,21 @@ export function TopHeader() {
                 })}
             </nav>
 
-            {/* Right Side: Auth */}
+            {/* Right Side: Theme Toggle + Auth */}
             <div className="flex items-center gap-3 flex-shrink-0">
+                {/* Theme Toggle */}
+                <button
+                    onClick={toggleMode}
+                    className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                    aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                    {mode === "dark" ? (
+                        <Sun className="w-5 h-5 text-amber-500" />
+                    ) : (
+                        <Moon className="w-5 h-5 text-slate-600" />
+                    )}
+                </button>
+
                 {user ? (
                     <Link href="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="flex flex-col items-end mr-1">
