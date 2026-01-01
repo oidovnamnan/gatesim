@@ -77,7 +77,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}
                             transition={{ duration: 0.2 }}
-                            className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl border border-white/50 ring-1 ring-black/5"
+                            className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl border border-white/50 ring-1 ring-black/5 overflow-hidden"
                         >
                             {/* Box Content Padded */}
                             <div className="p-6 relative" style={{ display: 'block' }}>
