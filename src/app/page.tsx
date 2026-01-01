@@ -70,17 +70,17 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-6 lg:px-12 pt-28 md:pt-40 relative z-10 text-slate-900">
+      <div className="container mx-auto px-6 lg:px-12 pt-28 md:pt-40 relative z-10">
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-12">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-left relative z-20">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-6 drop-shadow-sm">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-[hsl(var(--foreground))] leading-[1.1] tracking-tight mb-6 drop-shadow-sm">
                 Your Gateway to <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
                   Global Connection
                 </span>
               </h1>
-              <p className="text-slate-600 text-base md:text-xl font-medium max-w-md leading-relaxed">
+              <p className="text-[hsl(var(--muted-foreground))] text-base md:text-xl font-medium max-w-md leading-relaxed">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
@@ -92,7 +92,7 @@ export default function HomePage() {
                   <div className="relative z-10 w-8 h-8 rounded-full border border-red-400/30 flex items-center justify-center flex-shrink-0 bg-red-50/30 shadow-inner">
                     <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
                   </div>
-                  <div className="relative z-10 flex-1 ml-4 text-slate-700 text-base font-semibold group-hover:text-red-600 transition-colors">Таны очих газар...</div>
+                  <div className="relative z-10 flex-1 ml-4 text-[hsl(var(--foreground))] text-base font-semibold group-hover:text-red-600 transition-colors">Таны очих газар...</div>
                   <div className="relative z-10 bg-white/20 p-2.5 rounded-2xl shadow-sm border border-white/30 backdrop-blur-sm">
                     <Search className="h-6 w-6 text-slate-600" />
                   </div>
@@ -151,12 +151,12 @@ export default function HomePage() {
                   </div>
 
                   {/* Country Name */}
-                  <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 line-clamp-1 w-full px-2">
+                  <h3 className="text-xl font-black text-[hsl(var(--card-foreground))] leading-tight mb-2 line-clamp-1 w-full px-2">
                     {country.name}
                   </h3>
 
                   {/* Specs */}
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 mt-auto">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[hsl(var(--muted-foreground))] mt-auto">
                     <span className="bg-slate-100 px-2.5 py-1 rounded-lg">5GB</span>
                     <span className="text-slate-400">•</span>
                     <span className="bg-slate-100 px-2.5 py-1 rounded-lg">7 хоног</span>
@@ -174,7 +174,7 @@ export default function HomePage() {
           <div className="bg-red-50/50 backdrop-blur-sm p-2.5 rounded-2xl shadow-sm border border-red-100/50">
             <Sparkles className="w-5 h-5 text-red-600 fill-red-500" />
           </div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight drop-shadow-sm">Онцлох багцууд</h2>
+          <h2 className="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight drop-shadow-sm">Онцлох багцууд</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featuredPackages.map((pkg, index) => (
