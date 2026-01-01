@@ -72,7 +72,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         className="relative w-full max-w-md bg-white rounded-[24px] shadow-2xl overflow-hidden border border-white/50 ring-1 ring-black/5 mx-auto"
                                     >
                                         {/* Box Content Padded */}
-                                        <div className="p-8 relative text-left">
+                                        <div className="p-6 relative text-left">
                                             {/* Decorative Glow - RED THEMED */}
                                             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500" />
                                             <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
@@ -85,7 +85,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                 <X className="w-5 h-5" />
                                             </button>
 
-                                            <div className="text-center mb-8 relative z-10">
+                                            <div className="text-center mb-6 relative z-10">
                                                 <h2 className="text-2xl font-extrabold text-slate-900 mb-2 tracking-tight">
                                                     {mode === "login" ? "Эргэн тавтай морил" : "Шинээр бүртгүүлэх"}
                                                 </h2>
@@ -97,7 +97,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             {/* Google Button */}
                                             <Button
                                                 variant="outline"
-                                                className="w-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-all mb-6 h-12 rounded-xl font-bold shadow-sm"
+                                                className="w-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-all mb-4 h-12 rounded-xl font-bold shadow-sm"
                                                 onClick={handleGoogleLogin}
                                                 disabled={loading}
                                             >
@@ -109,7 +109,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                 Google-ээр үргэлжлүүлэх
                                             </Button>
 
-                                            <div className="relative mb-6">
+                                            <div className="relative mb-4">
                                                 <div className="absolute inset-0 flex items-center">
                                                     <div className="w-full border-t border-slate-100"></div>
                                                 </div>
