@@ -133,7 +133,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
     }, [initialPackages, searchQuery, selectedCountry, selectedDuration, sortBy]);
 
     return (
-        <div className="min-h-screen pb-24 md:pb-8 bg-[#F4F7FC]/50">
+        <div className="min-h-screen pb-24 md:pb-8 bg-background">
             {/* Header - Mobile Only (Desktop uses TopHeader from layout) */}
             <div className="md:hidden bg-white/30 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 shadow-sm">
                 <div className="h-14 flex items-center justify-center relative px-4">
@@ -142,16 +142,16 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             </div>
 
             {/* Search & Filters */}
-            <div className="sticky top-14 md:top-0 z-30 bg-white/60 backdrop-blur-xl px-4 py-3 border-b border-white/20 shadow-sm space-y-3">
+            <div className="sticky top-14 md:top-0 z-30 bg-background/80 backdrop-blur-xl px-4 py-3 border-b border-border shadow-sm space-y-3">
                 <div className="flex gap-2">
                     <div className="flex-1 relative">
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Улс, багц хайх..."
-                            className="w-full pl-4 pr-10 py-2.5 bg-white/40 border border-white/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 backdrop-blur-sm placeholder:text-slate-500"
+                            className="w-full pl-4 pr-10 py-2.5 bg-muted border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-red-500/20 placeholder:text-muted-foreground"
                         />
-                        <Filter className="absolute right-3 top-2.5 h-5 w-5 text-slate-400" />
+                        <Filter className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
                     </div>
                 </div>
 
@@ -163,7 +163,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                             "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                             !selectedDuration
                                 ? "bg-slate-800 text-white border-slate-800 shadow-md"
-                                : "bg-white/40 text-slate-600 border-white/50 hover:bg-white/60"
+                                : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
                         Бүгд
@@ -174,7 +174,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                             "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                             selectedDuration === "short"
                                 ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                                : "bg-white/40 text-slate-600 border-white/50 hover:bg-white/60"
+                                : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
                         1-7 хоног
@@ -185,7 +185,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                             "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                             selectedDuration === "medium"
                                 ? "bg-purple-600 text-white border-purple-600 shadow-md"
-                                : "bg-white/40 text-slate-600 border-white/50 hover:bg-white/60"
+                                : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
                         8-15 хоног
@@ -196,7 +196,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                             "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                             selectedDuration === "long"
                                 ? "bg-emerald-600 text-white border-emerald-600 shadow-md"
-                                : "bg-white/40 text-slate-600 border-white/50 hover:bg-white/60"
+                                : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
                         15+ хоног
@@ -211,7 +211,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                             "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                             !selectedCountry
                                 ? "bg-red-600 text-white border-red-600 shadow-lg shadow-red-500/20"
-                                : "bg-white/40 text-slate-600 border-white/50 hover:bg-white/60"
+                                : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
                         Бүх улс
@@ -224,7 +224,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                                 selectedCountry === country.code
                                     ? "bg-slate-800 text-white border-slate-800 shadow-lg"
-                                    : "bg-white/40 text-slate-600 border-white/50 hover:bg-white/60"
+                                    : "bg-muted text-foreground border-border hover:bg-accent"
                             )}
                         >
                             <span className="text-sm">{country.flag}</span>
@@ -236,7 +236,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
             <div className="px-4 py-4 space-y-4">
                 <div className="flex items-center justify-between">
-                    <p className="text-sm text-slate-900 font-bold pl-1">
+                    <p className="text-sm text-foreground font-bold pl-1">
                         {filteredPackages.length} багц олдлоо
                     </p>
 

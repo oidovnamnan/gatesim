@@ -42,7 +42,7 @@ export default function OrdersPage() {
     if (loading || !user) return null;
 
     return (
-        <div className="min-h-screen pb-24">
+        <div className="min-h-screen pb-24 bg-background">
             <MobileHeader title="Миний захиалгууд" showBack />
 
             <div className="px-4 pt-4 space-y-4">
