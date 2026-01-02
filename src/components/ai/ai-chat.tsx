@@ -12,7 +12,6 @@ import {
     Loader2,
     Lock,
     Crown,
-    Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,19 +51,8 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
     const [conversationState, setConversationState] = useState<"idle" | "awaiting_device">("idle");
-    const [showSettings, setShowSettings] = useState(false);
-    const [apiKey, setApiKey] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const storedKey = localStorage.getItem("openai_api_key");
-        if (storedKey) setApiKey(storedKey);
-    }, []);
-
-    const handleSaveKey = () => {
-        localStorage.setItem("openai_api_key", apiKey);
-        setShowSettings(false);
-    };
 
     const maxFreeMessages = aiPricing.free.messagesPerDay;
     const canSendMessage = isPremium || messageCount < maxFreeMessages;
@@ -138,8 +126,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: apiMessages,
-                        country: country,
-                        apiKey: apiKey
+                        country: country
                     })
                 });
 
@@ -216,30 +203,6 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         }
     };
 
-    const SettingsView = () => (
-        <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center gap-2 text-white font-semibold border-b border-white/10 pb-2">
-                <Settings className="w-5 h-5 text-blue-400" />
-                <span>AI Тохиргоо</span>
-            </div>
-            <div className="space-y-2">
-                <label className="block text-sm font-medium text-white/80">OpenAI API Key</label>
-                <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="sk-..."
-                    className="w-full p-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-white/30 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-mono"
-                />
-                <p className="text-xs text-white/50">
-                    Таны түлхүүр зөвхөн энэ төхөөрөмжид хадгалагдана. Хэрэв хоосон орхивол бидний default key-г ашиглана.
-                </p>
-            </div>
-            <Button onClick={handleSaveKey} className="w-full gradient-primary text-white border-0">
-                Хадгалах
-            </Button>
-        </div>
-    );
 
     return (
         <>
@@ -292,12 +255,6 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => setShowSettings(!showSettings)}
-                                    className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
-                                >
-                                    <Settings className="h-5 w-5" />
-                                </button>
-                                <button
                                     onClick={() => setIsOpen(false)}
                                     className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
                                 >
@@ -308,96 +265,92 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                            {showSettings ? <SettingsView /> : (
-                                <>
-                                    {messages.map((msg) => (
-                                        <motion.div
-                                            key={msg.id}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className={cn(
-                                                "flex gap-3",
-                                                msg.role === "user" && "flex-row-reverse"
-                                            )}
-                                        >
-                                            <div
-                                                className={cn(
-                                                    "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm",
-                                                    msg.role === "assistant"
-                                                        ? "bg-white border border-slate-200"
-                                                        : "gradient-primary"
-                                                )}
-                                            >
-                                                {msg.role === "assistant" ? (
-                                                    <Sparkles className="h-4 w-4 text-red-500" />
-                                                ) : (
-                                                    <User className="h-4 w-4 text-white" />
-                                                )}
-                                            </div>
-                                            <div
-                                                className={cn(
-                                                    "max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
-                                                    msg.role === "assistant"
-                                                        ? "bg-white border border-slate-200 rounded-tl-sm text-slate-800"
-                                                        : "gradient-primary rounded-tr-sm text-white"
-                                                )}
-                                            >
-                                                {msg.content.startsWith('__PACKAGES__:') ? (
-                                                    // Render package cards
-                                                    <div className="space-y-2">
-                                                        {JSON.parse(msg.content.replace('__PACKAGES__:', '')).map((pkg: any) => (
-                                                            <a
-                                                                key={pkg.id}
-                                                                href={`/package/${pkg.id}`}
-                                                                className="block p-3 rounded-xl bg-slate-50 hover:bg-white transition-all border border-slate-200 hover:border-red-200 hover:shadow-md group"
-                                                            >
-                                                                <div className="flex items-center justify-between mb-2">
-                                                                    <div>
-                                                                        <h4 className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors">{pkg.countryName}</h4>
-                                                                        <p className="text-xs text-slate-500">{pkg.provider}</p>
-                                                                    </div>
-                                                                    <div className="text-right">
-                                                                        <p className="text-lg font-black text-slate-900">₮{pkg.price.toLocaleString()}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex gap-2 text-xs">
-                                                                    <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">📊 {pkg.data}</span>
-                                                                    <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} хоног</span>
-                                                                </div>
-                                                            </a>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-sm whitespace-pre-line leading-relaxed">
-                                                        {msg.content}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </motion.div>
-                                    ))}
-
-                                    {isLoading && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="flex gap-3"
-                                        >
-                                            <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                                                <Loader2 className="h-4 w-4 text-red-500 animate-spin" />
-                                            </div>
-                                            <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                                                <p className="text-sm text-slate-500">Бодож байна...</p>
-                                            </div>
-                                        </motion.div>
+                            {messages.map((msg) => (
+                                <motion.div
+                                    key={msg.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={cn(
+                                        "flex gap-3",
+                                        msg.role === "user" && "flex-row-reverse"
                                     )}
+                                >
+                                    <div
+                                        className={cn(
+                                            "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm",
+                                            msg.role === "assistant"
+                                                ? "bg-white border border-slate-200"
+                                                : "gradient-primary"
+                                        )}
+                                    >
+                                        {msg.role === "assistant" ? (
+                                            <Sparkles className="h-4 w-4 text-red-500" />
+                                        ) : (
+                                            <User className="h-4 w-4 text-white" />
+                                        )}
+                                    </div>
+                                    <div
+                                        className={cn(
+                                            "max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
+                                            msg.role === "assistant"
+                                                ? "bg-white border border-slate-200 rounded-tl-sm text-slate-800"
+                                                : "gradient-primary rounded-tr-sm text-white"
+                                        )}
+                                    >
+                                        {msg.content.startsWith('__PACKAGES__:') ? (
+                                            // Render package cards
+                                            <div className="space-y-2">
+                                                {JSON.parse(msg.content.replace('__PACKAGES__:', '')).map((pkg: any) => (
+                                                    <a
+                                                        key={pkg.id}
+                                                        href={`/package/${pkg.id}`}
+                                                        className="block p-3 rounded-xl bg-slate-50 hover:bg-white transition-all border border-slate-200 hover:border-red-200 hover:shadow-md group"
+                                                    >
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <div>
+                                                                <h4 className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors">{pkg.countryName}</h4>
+                                                                <p className="text-xs text-slate-500">{pkg.provider}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-lg font-black text-slate-900">₮{pkg.price.toLocaleString()}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-2 text-xs">
+                                                            <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">📊 {pkg.data}</span>
+                                                            <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} хоног</span>
+                                                        </div>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm whitespace-pre-line leading-relaxed">
+                                                {msg.content}
+                                            </p>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
 
-                                    <div ref={messagesEndRef} />
-                                </>
+                            {isLoading && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="flex gap-3"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                                        <Loader2 className="h-4 w-4 text-red-500 animate-spin" />
+                                    </div>
+                                    <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                                        <p className="text-sm text-slate-500">Бодож байна...</p>
+                                    </div>
+                                </motion.div>
                             )}
+
+                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Quick questions */}
-                        {!showSettings && messages.length <= 2 && (
+                        {messages.length <= 2 && (
                             <div className="px-4 pb-3">
                                 <p className="text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">Түгээмэл асуултууд:</p>
                                 <div className="grid grid-cols-2 gap-2">
@@ -447,32 +400,30 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         )}
 
                         {/* Input */}
-                        {!showSettings && (
-                            <div className="px-4 pb-8 pt-3 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
-                                <div className="flex gap-2 relative">
-                                    <input
-                                        type="text"
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
-                                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                        placeholder={
-                                            canSendMessage
-                                                ? "Асуултаа бичнэ үү..."
-                                                : "Өдрийн хязгаар хүрлээ"
-                                        }
-                                        disabled={!canSendMessage || isLoading}
-                                        className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white focus:ring-4 focus:ring-red-500/10 transition-all font-medium disabled:opacity-50 disabled:bg-slate-100"
-                                    />
-                                    <Button
-                                        onClick={() => handleSend()}
-                                        disabled={!input.trim() || isLoading || !canSendMessage}
-                                        className="absolute right-1.5 top-1.5 bottom-1.5 w-10 h-auto rounded-xl gradient-primary shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 transition-all p-0 flex items-center justify-center"
-                                    >
-                                        <Send className="h-4 w-4 text-white ml-0.5" />
-                                    </Button>
-                                </div>
+                        <div className="px-4 pb-8 pt-3 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+                            <div className="flex gap-2 relative">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                                    placeholder={
+                                        canSendMessage
+                                            ? "Асуултаа бичнэ үү..."
+                                            : "Өдрийн хязгаар хүрлээ"
+                                    }
+                                    disabled={!canSendMessage || isLoading}
+                                    className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white focus:ring-4 focus:ring-red-500/10 transition-all font-medium disabled:opacity-50 disabled:bg-slate-100"
+                                />
+                                <Button
+                                    onClick={() => handleSend()}
+                                    disabled={!input.trim() || isLoading || !canSendMessage}
+                                    className="absolute right-1.5 top-1.5 bottom-1.5 w-10 h-auto rounded-xl gradient-primary shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 transition-all p-0 flex items-center justify-center"
+                                >
+                                    <Send className="h-4 w-4 text-white ml-0.5" />
+                                </Button>
                             </div>
-                        )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
