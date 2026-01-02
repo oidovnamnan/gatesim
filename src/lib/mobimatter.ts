@@ -42,6 +42,78 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
                 isRegional: false
             },
             {
+                sku: "MOCK-CN-15",
+                name: "China Premium 15GB",
+                price: 22.00,
+                currency: "USD",
+                dataAmount: 15360,
+                durationDays: 30,
+                countries: ["CN"],
+                provider: "China Unicom",
+                description: "Works with VPN, no restrictions",
+                isRegional: false
+            },
+            {
+                sku: "MOCK-TH-DTAC",
+                name: "Thailand Tourist 50GB",
+                price: 9.50,
+                currency: "USD",
+                dataAmount: 51200,
+                durationDays: 10,
+                countries: ["TH"],
+                provider: "DTAC",
+                description: "Best tourist sim in Thailand",
+                isRegional: false
+            },
+            {
+                sku: "MOCK-VN-VIN",
+                name: "Vietnam Local 4GB/Day",
+                price: 8.00,
+                currency: "USD",
+                dataAmount: 120000,
+                durationDays: 30,
+                countries: ["VN"],
+                provider: "Vinaphone",
+                description: "High speed local data",
+                isRegional: false
+            },
+            {
+                sku: "MOCK-US-30",
+                name: "USA T-Mobile 30GB",
+                price: 32.00,
+                currency: "USD",
+                dataAmount: 30720,
+                durationDays: 30,
+                countries: ["US"],
+                provider: "T-Mobile",
+                description: "Nationwide 5G coverage",
+                isRegional: false
+            },
+            {
+                sku: "MOCK-EU-10",
+                name: "Europe 35 Countries 10GB",
+                price: 14.00,
+                currency: "USD",
+                dataAmount: 10240,
+                durationDays: 30,
+                countries: ["FR", "DE", "IT", "ES", "NL"],
+                provider: "Orange",
+                description: "Covers standard EU countries",
+                isRegional: true
+            },
+            {
+                sku: "MOCK-TR-20",
+                name: "Turkey Holiday 20GB",
+                price: 19.50,
+                currency: "USD",
+                dataAmount: 20480,
+                durationDays: 15,
+                countries: ["TR"],
+                provider: "Turkcell",
+                description: "Best covergae in Turkey",
+                isRegional: false
+            },
+            {
                 sku: "MOCK-ASIA-REG",
                 name: "Asia Pacific 20GB",
                 price: 25.00,
