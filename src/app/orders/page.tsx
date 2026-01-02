@@ -48,26 +48,26 @@ export default function OrdersPage() {
             <div className="px-4 pt-4 space-y-4">
                 {fetching ? (
                     <div className="flex justify-center py-10">
-                        <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                 ) : orders.length === 0 ? (
                     <div className="text-center py-10">
-                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                            <Package className="h-8 w-8 text-white/30" />
+                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                            <Package className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-white font-medium mb-1">Захиалга алга</h3>
-                        <p className="text-white/50 text-sm mb-6">Та одоогоор ямар нэгэн багц худалдаж аваагүй байна.</p>
+                        <h3 className="text-foreground font-medium mb-1">Захиалга алга</h3>
+                        <p className="text-muted-foreground text-sm mb-6">Та одоогоор ямар нэгэн багц худалдаж аваагүй байна.</p>
                         <Button onClick={() => router.push("/packages")}>Багц сонгох</Button>
                     </div>
                 ) : (
                     orders.map((order) => {
                         const item = order.items[0];
                         return (
-                            <Card key={order.id} className="p-4">
+                            <Card key={order.id} className="p-4 bg-card">
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <h3 className="font-semibold text-white">{item?.name}</h3>
-                                        <p className="text-xs text-white/50 font-mono">{order.id.slice(0, 8)}...</p>
+                                        <h3 className="font-semibold text-foreground">{item?.name}</h3>
+                                        <p className="text-xs text-muted-foreground font-mono">{order.id.slice(0, 8)}...</p>
                                     </div>
                                     <Badge variant={order.status === 'completed' ? 'success' : 'default'}>
                                         {order.status === 'completed' ? 'Идэвхтэй' : order.status}
@@ -75,8 +75,8 @@ export default function OrdersPage() {
                                 </div>
 
                                 <div className="flex justify-between items-center text-sm mb-4">
-                                    <span className="text-white/60">{new Date(order.createdAt).toLocaleDateString()}</span>
-                                    <span className="text-white font-bold">{formatPrice(order.totalAmount, order.currency)}</span>
+                                    <span className="text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                    <span className="text-foreground font-bold">{formatPrice(order.totalAmount, order.currency)}</span>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
