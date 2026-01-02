@@ -14,154 +14,45 @@ export interface MobiMatterProduct {
 const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
 
 export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
-    if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
-        console.warn("MobiMatter API credentials missing. Returning MOCK data.");
-        return [
-            {
-                sku: "MOCK-JP-10",
-                name: "Japan Travel Data",
-                price: 12.50,
-                currency: "USD",
-                dataAmount: 10240, // 10GB
-                durationDays: 15,
-                countries: ["JP"],
-                provider: "GateGlobal",
-                description: "High speed 5G data in Japan",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-KR-UNL",
-                name: "Korea Unlimited",
-                price: 18.00,
-                currency: "USD",
-                dataAmount: -1, // Unlimited
-                durationDays: 7,
-                countries: ["KR"],
-                provider: "SK Telecom",
-                description: "Unlimited data for 7 days",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-CN-15",
-                name: "China Premium 15GB",
-                price: 22.00,
-                currency: "USD",
-                dataAmount: 15360,
-                durationDays: 30,
-                countries: ["CN"],
-                provider: "China Unicom",
-                description: "Works with VPN, no restrictions",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-TH-DTAC",
-                name: "Thailand Tourist 50GB",
-                price: 9.50,
-                currency: "USD",
-                dataAmount: 51200,
-                durationDays: 10,
-                countries: ["TH"],
-                provider: "DTAC",
-                description: "Best tourist sim in Thailand",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-VN-VIN",
-                name: "Vietnam Local 4GB/Day",
-                price: 8.00,
-                currency: "USD",
-                dataAmount: 120000,
-                durationDays: 30,
-                countries: ["VN"],
-                provider: "Vinaphone",
-                description: "High speed local data",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-US-30",
-                name: "USA T-Mobile 30GB",
-                price: 32.00,
-                currency: "USD",
-                dataAmount: 30720,
-                durationDays: 30,
-                countries: ["US"],
-                provider: "T-Mobile",
-                description: "Nationwide 5G coverage",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-EU-10",
-                name: "Europe 35 Countries 10GB",
-                price: 14.00,
-                currency: "USD",
-                dataAmount: 10240,
-                durationDays: 30,
-                countries: ["FR", "DE", "IT", "ES", "NL"],
-                provider: "Orange",
-                description: "Covers standard EU countries",
-                isRegional: true
-            },
-            {
-                sku: "MOCK-TR-20",
-                name: "Turkey Holiday 20GB",
-                price: 19.50,
-                currency: "USD",
-                dataAmount: 20480,
-                durationDays: 15,
-                countries: ["TR"],
-                provider: "Turkcell",
-                description: "Best covergae in Turkey",
-                isRegional: false
-            },
-            {
-                sku: "MOCK-ASIA-REG",
-                name: "Asia Pacific 20GB",
-                price: 25.00,
-                currency: "USD",
-                dataAmount: 20480,
-                durationDays: 30,
-                countries: ["JP", "KR", "SG", "TH", "VN", "CN"],
-                provider: "AsiaLink",
-                description: "Best for multi-country travel",
-                isRegional: true
-            },
-            {
-                sku: "MOCK-GLOBAL",
-                name: "Global 5GB",
-                price: 35.00,
-                currency: "USD",
-                dataAmount: 5120,
-                durationDays: 365,
-                countries: ["US", "UK", "EU", "AU", "MN"],
-                provider: "WorldConnect",
-                description: "Valid for 1 year in 100+ countries",
-                isRegional: true
-            }
-        ];
+    const apiKey = process.env.MOBIMATTER_API_KEY;
+    const merchantId = process.env.MOBIMATTER_MERCHANT_ID;
+
+    // Debug logs to verify keys are present
+    console.log("[MobiMatter] Fetching products...");
+    console.log("[MobiMatter] API Key Present:", !!apiKey);
+    console.log("[MobiMatter] Merchant ID Present:", !!merchantId);
+
+    // Warn but do not exit - behave as user requested "try API anyway"
+    if (!apiKey || !merchantId) {
+        console.warn("[MobiMatter] Warning: API credentials missing from process.env");
     }
 
     try {
         const res = await fetch(`${BASE_URL}/products`, {
             headers: {
-                'api-key': process.env.MOBIMATTER_API_KEY,
-                'merchantId': process.env.MOBIMATTER_MERCHANT_ID, // camelCase as required
+                'api-key': apiKey || "",
+                'merchantId': merchantId || "", // camelCase as required
                 'Accept': 'application/json'
             },
             next: { revalidate: 3600 } // Cache for 1 hour
         });
 
         if (!res.ok) {
-            console.error(`MobiMatter API Failed: ${res.status} ${res.statusText}`);
-            throw new Error("Failed to fetch products");
+            console.error(`[MobiMatter] API Request Failed: ${res.status} ${res.statusText}`);
+            // If failed, return empty array (or throw error if strictly necessary)
+            // Returning empty array allows the page to render "No packages found" instead of crashing
+            return [];
         }
 
         const rawData = await res.json();
         const productsList = Array.isArray(rawData) ? rawData : (rawData.result || []);
 
         if (productsList.length === 0) {
-            console.warn("MobiMatter API returned 0 products.");
+            console.warn("[MobiMatter] API returned 0 products.");
             return [];
         }
+
+        console.log(`[MobiMatter] Found ${productsList.length} products via API.`);
 
         // Map API response to our internal format
         const mappedProducts: MobiMatterProduct[] = productsList.map((p: any) => {
@@ -229,19 +120,22 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
         return mappedProducts;
 
     } catch (e) {
-        console.error("MobiMatter Fetch Error:", e);
-        return []; // Return empty on error, no mocks
+        console.error("[MobiMatter] Fetch Error:", e);
+        return [];
     }
 }
 
 export async function createMobiMatterOrder(sku: string): Promise<any> {
-    if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
+    const apiKey = process.env.MOBIMATTER_API_KEY;
+    const merchantId = process.env.MOBIMATTER_MERCHANT_ID;
+
+    if (!apiKey || !merchantId) {
         throw new Error("MobiMatter API credentials missing. Cannot create order.");
     }
 
     const headers = {
-        'api-key': process.env.MOBIMATTER_API_KEY,
-        'merchantId': process.env.MOBIMATTER_MERCHANT_ID,
+        'api-key': apiKey,
+        'merchantId': merchantId,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     };
