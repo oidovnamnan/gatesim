@@ -6,6 +6,7 @@ import { TopHeader } from "@/components/layout/top-header";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import { AuthProvider } from "@/providers/auth-provider";
+import { NextAuthProvider } from "@/providers/next-auth-provider";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -69,23 +70,25 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className={`${inter.className} antialiased min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]`}>
-        <AuthProvider>
-          <ThemeProvider>
-            <ToastProvider>
-              {/* Desktop Navigation */}
-              <div className="hidden md:block">
-                <TopHeader />
-              </div>
-              <div className="app-container min-h-screen relative z-10">
-                {children}
-              </div>
-              {/* Mobile Navigation */}
-              <div className="md:hidden">
-                <BottomNav />
-              </div>
-            </ToastProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <NextAuthProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                {/* Desktop & Mobile Header */}
+                <div className="relative z-50">
+                  <TopHeader />
+                </div>
+                <div className="app-container min-h-screen relative z-10 pb-24 md:pb-0">
+                  {children}
+                </div>
+                {/* Mobile Navigation */}
+                <div className="md:hidden">
+                  <BottomNav />
+                </div>
+              </ToastProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

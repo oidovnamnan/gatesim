@@ -32,7 +32,7 @@ type SortOption = "price-asc" | "price-desc" | "popular";
 
 export default function PackagesClient({ initialPackages }: PackagesClientProps) {
     const [searchQuery, setSearchQuery] = useState("");
-    const [viewMode, setViewMode] = useState<ViewMode>("grid");
+    const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [sortBy, setSortBy] = useState<SortOption>("popular");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null); // "short" | "medium" | "long"
@@ -236,29 +236,29 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
             <div className="px-4 py-4 space-y-4">
                 <div className="flex items-center justify-between">
-                    <p className="text-sm text-slate-500 font-medium pl-1">
+                    <p className="text-sm text-slate-900 font-bold pl-1">
                         {filteredPackages.length} багц олдлоо
                     </p>
 
                     {/* View Mode Toggle */}
-                    <div className="flex bg-white/40 rounded-lg p-0.5 border border-white/50">
+                    <div className="flex bg-white rounded-xl p-1 border border-slate-200 shadow-sm">
                         <button
                             onClick={() => setViewMode("grid")}
                             className={cn(
-                                "p-1.5 rounded-md transition-all",
-                                viewMode === "grid" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"
+                                "p-2 rounded-lg transition-all flex items-center justify-center w-9 h-9",
+                                viewMode === "grid" ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                             )}
                         >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                         </button>
                         <button
                             onClick={() => setViewMode("list")}
                             className={cn(
-                                "p-1.5 rounded-md transition-all",
-                                viewMode === "list" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"
+                                "p-2 rounded-lg transition-all flex items-center justify-center w-9 h-9",
+                                viewMode === "list" ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                             )}
                         >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                         </button>
                     </div>
                 </div>

@@ -17,7 +17,7 @@ interface LoginModalProps {
 type AuthMode = "login" | "register";
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
-    const { signInWithGoogle } = useAuth();
+    const { signInWithGoogle, signInWithEmail, registerWithEmail } = useAuth();
     const [mode, setMode] = useState<AuthMode>("login");
     const [loading, setLoading] = useState(false);
 
@@ -47,10 +47,23 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const handleEmailAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setTimeout(() => {
+        try {
+            if (mode === "register") {
+                await registerWithEmail(email, password, phone);
+            } else {
+                await signInWithEmail(email, password);
+            }
+            onClose();
+            // Reset form
+            setEmail("");
+            setPassword("");
+            setPhone("");
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message || "Алдаа гарлаа. Дахин оролдоно уу.");
+        } finally {
             setLoading(false);
-            alert("Имэйлээр нэвтрэх хэсэг хөгжүүлэлтийн шатанд байна. Google ашиглана уу.");
-        }, 1000);
+        }
     };
 
     // Don't render on server

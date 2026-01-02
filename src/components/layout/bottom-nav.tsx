@@ -58,9 +58,7 @@ export function BottomNav() {
                                         item.active ? "fill-red-600/10" : "fill-transparent"
                                     )}
                                 />
-                                {item.active && (
-                                    <span className="absolute -bottom-1 w-1 h-1 bg-red-600 rounded-full"></span>
-                                )}
+
                             </Link>
                         ))}
                     </div>

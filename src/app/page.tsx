@@ -53,7 +53,7 @@ const countryThemes: Record<string, {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen pb-24 md:pb-8 overflow-x-hidden font-sans relative">
+    <div className="min-h-screen pb-32 md:pb-8 overflow-x-hidden font-sans relative">
       {/* TopHeader is now in layout.tsx */}
 
       {/* COBE 3D GLOBE */}
@@ -80,7 +80,7 @@ export default function HomePage() {
                   Global Connection
                 </span>
               </h1>
-              <p className="text-[hsl(var(--muted-foreground))] text-base md:text-xl font-medium max-w-md leading-relaxed">
+              <p className="text-slate-900 dark:text-slate-100 text-base md:text-xl font-black max-w-md leading-relaxed drop-shadow-sm opacity-90">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
@@ -105,7 +105,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
                 <span className="text-base font-bold relative z-10">7 хоног</span>
               </div>
-              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-white/10 backdrop-blur-md border border-white/30 text-slate-800 font-bold cursor-pointer hover:bg-white/20 transition active:scale-95 shadow-sm relative overflow-hidden">
+              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-white/10 backdrop-blur-md border border-white/30 text-slate-800 dark:text-white font-bold cursor-pointer hover:bg-white/20 transition active:scale-95 shadow-sm relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
                 <span className="text-base relative z-10">15 хоног</span>
               </div>
@@ -117,7 +117,7 @@ export default function HomePage() {
       </div>
 
       {/* Popular Countries - FLOATING CARD DESIGN */}
-      <section className="container mx-auto px-6 lg:px-12 mt-4 md:mt-12 mb-16 relative z-10">
+      <section className="container mx-auto px-6 lg:px-12 mt-4 md:mt-12 mb-8 md:mb-16 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {popularCountries.slice(0, 4).map((country, index) => {
             const theme = countryThemes[country.code] || countryThemes["CN"];
@@ -165,14 +165,14 @@ export default function HomePage() {
       </section>
 
       {/* Featured Packages */}
-      <section className="container mx-auto px-6 lg:px-12 pb-20 relative z-10">
-        <div className="flex items-center gap-3 mb-8">
+      <section className="container mx-auto px-6 lg:px-12 pb-10 md:pb-20 relative z-10">
+        <div className="flex items-center gap-3 mb-6 md:mb-8">
           <div className="bg-red-50/50 backdrop-blur-sm p-2.5 rounded-2xl shadow-sm border border-red-100/50">
             <Sparkles className="w-5 h-5 text-red-600 fill-red-500" />
           </div>
           <h2 className="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight drop-shadow-sm">Онцлох багцууд</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {featuredPackages.map((pkg, index) => (
             <motion.div
               key={pkg.id}
@@ -191,51 +191,45 @@ export default function HomePage() {
       </section>
 
       {/* AI Assistant Section */}
-      <section className="container mx-auto px-6 lg:px-12 pb-20 relative z-10">
+      <section className="container mx-auto px-6 lg:px-12 pb-4 md:pb-20 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 md:p-12"
+          className="relative overflow-hidden rounded-3xl bg-white/30 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 p-6 md:p-12 shadow-2xl shadow-black/5 dark:shadow-black/20"
         >
           {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
             {/* AI Icon */}
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-xl shadow-red-500/30">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-                </svg>
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                <Sparkles className="w-10 h-10 text-white fill-white/20" />
               </div>
             </div>
 
             {/* Content */}
             <div className="flex-1 text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-black text-white mb-3">
-                AI Туслах 🤖
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">
+                Аяллын Ухаалаг Туслах 🤖
               </h2>
-              <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-4">
+              <p className="text-slate-600 dark:text-gray-200 text-sm md:text-base leading-relaxed mb-6 font-medium max-w-xl mx-auto md:mx-0">
                 Хаашаа явахаа хэлээд л, танд хамгийн тохиромжтой багцыг санал болгоно.
                 <br className="hidden md:block" />
-                <span className="text-slate-400">"Япон руу 2 долоо хоног" гэхэд л болно!</span>
+                <span className="text-slate-500 dark:text-slate-400 font-normal">"Япон руу 2 долоо хоног" гэхэд л болно!</span>
               </p>
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-medium">💬 Монгол хэлээр</span>
-                <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-medium">⚡ Шуурхай хариу</span>
-                <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-medium">🎯 Хувийн зөвлөгөө</span>
-              </div>
-            </div>
-
-            {/* CTA - Opens AI Chat */}
-            <div className="flex-shrink-0">
-              <p className="text-xs text-slate-400 mb-2 text-center">Баруун доод буланд</p>
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/30 animate-pulse">
-                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                <span className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/50 dark:border-white/10 text-slate-800 dark:text-white text-xs font-bold backdrop-blur-md shadow-sm">
+                  💬 Монгол хэлээр
+                </span>
+                <span className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/50 dark:border-white/10 text-slate-800 dark:text-white text-xs font-bold backdrop-blur-md shadow-sm">
+                  ⚡ Шуурхай хариу
+                </span>
+                <span className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/50 dark:border-white/10 text-slate-800 dark:text-white text-xs font-bold backdrop-blur-md shadow-sm">
+                  🎯 Хувийн зөвлөгөө
+                </span>
               </div>
             </div>
           </div>

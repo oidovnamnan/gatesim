@@ -40,7 +40,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
             role: "assistant",
             content: `Сайн байна уу! 👋 
 
-Би таны аялалын AI туслах. ${country ? `**${country}** руу аялахад туслах бэлэн байна!` : "Аливаа асуултаа асуугаарай!"}
+Би таны Аяллын Ухаалаг Туслах. ${country ? `**${country}** руу аялахад туслах бэлэн байна!` : "Аливаа асуултаа асуугаарай!"}
 
 💡 Жишээ нь: "Япон руу 2 долоо хоног явна" гэвэл танд тохирох багцуудыг санал болгоно.
 
@@ -280,14 +280,14 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                                        AI Туслах
+                                        Аяллын Ухаалаг Туслах
                                         {isPremium && (
                                             <Badge variant="warning" size="sm" className="shadow-none">
                                                 <Crown className="h-3 w-3 mr-1" /> Premium
                                             </Badge>
                                         )}
                                     </h3>
-                                    <p className="text-xs text-slate-500 font-medium">Аялалын зөвлөгөө</p>
+                                    <p className="text-xs text-slate-500 font-medium">Ухаалаг зөвлөгөө</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">

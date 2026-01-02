@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -11,7 +12,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             clientId: process.env.AUTH_GOOGLE_ID!,
             clientSecret: process.env.AUTH_GOOGLE_SECRET!,
         }),
-        // Email/Password (for development/testing)
         Credentials({
             name: "credentials",
             credentials: {
@@ -19,38 +19,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                // For development only - create/find user by email
-                if (process.env.NODE_ENV === "development") {
-                    const email = credentials?.email as string;
-                    if (!email) return null;
-
-                    try {
-                        let user = await prisma.user.findUnique({
-                            where: { email },
-                        });
-
-                        if (!user) {
-                            user = await prisma.user.create({
-                                data: {
-                                    email,
-                                    name: email.split("@")[0],
-                                },
-                            });
-                        }
-
-                        return {
-                            id: user.id,
-                            email: user.email,
-                            name: user.name,
-                            image: user.image,
-                        };
-                    } catch (error) {
-                        console.error("Auth error:", error);
-                        return null;
-                    }
+                if (!credentials?.email || !credentials?.password) {
+                    throw new Error("Имэйл болон нууц үгээ оруулна уу.");
                 }
 
-                return null;
+                const user = await prisma.user.findUnique({
+                    where: {
+                        email: credentials.email as string
+                    }
+                });
+
+                // If user doesn't exist or has no password (e.g. Google auth only)
+                if (!user || !(user as any).password) {
+                    throw new Error("Имэйл эсвэл нууц үг буруу байна.");
+                }
+
+                // Compare passwords
+                const isCorrectPassword = await bcrypt.compare(
+                    credentials.password as string,
+                    (user as any).password
+                );
+
+                if (!isCorrectPassword) {
+                    throw new Error("Имэйл эсвэл нууц үг буруу байна.");
+                }
+
+                return user;
             },
         }),
     ],
@@ -72,7 +66,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
         async session({ session, token }) {
             if (session.user && token.id) {
-                session.user.id = token.id as string;
+                (session.user as any).id = token.id as string;
             }
             return session;
         },
