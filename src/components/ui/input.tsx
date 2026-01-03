@@ -17,14 +17,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         return (
             <div className="relative w-full">
                 {Icon && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
                         <Icon className="h-5 w-5" />
                     </div>
                 )}
                 <input
                     type={type}
                     className={cn(
-                        "flex h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white placeholder:text-white/40 transition-all duration-200",
+                        "flex h-12 w-full rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground transition-all duration-200",
                         "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50",
                         "disabled:cursor-not-allowed disabled:opacity-50",
                         Icon && "pl-12",
@@ -41,7 +41,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     <button
                         type="button"
                         onClick={onClear}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                         <X className="h-5 w-5" />
                     </button>

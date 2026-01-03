@@ -52,8 +52,8 @@ export default function LoginPage() {
                     <div className="w-20 h-20 mx-auto mb-4 rounded-2xl gradient-primary flex items-center justify-center">
                         <Smartphone className="h-10 w-10 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold text-white">GateSIM</h1>
-                    <p className="text-white/60 mt-2">Дэлхийд холбогдоорой</p>
+                    <h1 className="text-3xl font-bold text-foreground">GateSIM</h1>
+                    <p className="text-muted-foreground mt-2">Дэлхийд холбогдоорой</p>
                 </motion.div>
 
                 {/* Login options */}
@@ -64,7 +64,7 @@ export default function LoginPage() {
                 >
                     {mode === "select" ? (
                         <Card className="p-6 space-y-4">
-                            <h2 className="text-lg font-semibold text-white text-center mb-4">
+                            <h2 className="text-lg font-semibold text-foreground text-center mb-4">
                                 Нэвтрэх
                             </h2>
 
@@ -92,7 +92,7 @@ export default function LoginPage() {
                                     <div className="w-full border-t border-white/10" />
                                 </div>
                                 <div className="relative flex justify-center text-xs">
-                                    <span className="px-2 bg-[hsl(var(--card))] text-white/40">эсвэл</span>
+                                    <span className="px-2 bg-[hsl(var(--card))] text-muted-foreground">эсвэл</span>
                                 </div>
                             </div>
 
@@ -112,12 +112,12 @@ export default function LoginPage() {
                         <Card className="p-6">
                             <button
                                 onClick={() => setMode("select")}
-                                className="text-sm text-white/60 mb-4 hover:text-white"
+                                className="text-sm text-muted-foreground mb-4 hover:text-foreground"
                             >
                                 ← Буцах
                             </button>
 
-                            <h2 className="text-lg font-semibold text-white mb-4">
+                            <h2 className="text-lg font-semibold text-foreground mb-4">
                                 И-мэйлээр нэвтрэх
                             </h2>
 
@@ -131,7 +131,7 @@ export default function LoginPage() {
                                     required
                                 />
 
-                                <p className="text-xs text-white/40">
+                                <p className="text-xs text-muted-foreground">
                                     Бид таны и-мэйл рүү нэвтрэх линк илгээнэ
                                 </p>
 
@@ -160,14 +160,14 @@ export default function LoginPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="text-center text-xs text-white/40 mt-6"
+                    className="text-center text-xs text-muted-foreground mt-6"
                 >
                     Нэвтрэснээр та манай{" "}
-                    <Link href="/terms" className="underline hover:text-white">
+                    <Link href="/terms" className="underline hover:text-foreground">
                         Үйлчилгээний нөхцөл
                     </Link>{" "}
                     болон{" "}
-                    <Link href="/privacy" className="underline hover:text-white">
+                    <Link href="/privacy" className="underline hover:text-foreground">
                         Нууцлалын бодлого
                     </Link>
                     -ыг зөвшөөрч байна.
@@ -182,7 +182,7 @@ export default function LoginPage() {
                 >
                     <Link
                         href="/"
-                        className="text-sm text-white/60 hover:text-white"
+                        className="text-sm text-muted-foreground hover:text-foreground"
                     >
                         Зочноор үргэлжлүүлэх →
                     </Link>

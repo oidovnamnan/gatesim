@@ -13,8 +13,8 @@ export function BottomNav() {
     const { user } = useAuth();
     const [loginOpen, setLoginOpen] = useState(false);
 
-    // Don't show on admin pages or pages with fixed bottom bars (package details, checkout)
-    if (pathname?.startsWith("/admin") || pathname?.startsWith("/package/") || pathname?.startsWith("/checkout")) {
+    // Don't show on admin pages, login, or pages with fixed bottom bars
+    if (pathname?.startsWith("/admin") || pathname?.startsWith("/package/") || pathname?.startsWith("/checkout") || pathname === "/login") {
         return null;
     }
 

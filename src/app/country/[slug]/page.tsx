@@ -73,8 +73,8 @@ export default function CountryInfoPage() {
                 <div className="relative flex items-center gap-4">
                     <div className="text-6xl">{country.flag}</div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{country.nameMn}</h1>
-                        <p className="text-white/60">{country.name}</p>
+                        <h1 className="text-2xl font-bold text-foreground">{country.nameMn}</h1>
+                        <p className="text-muted-foreground">{country.name}</p>
                         <div className="flex items-center gap-2 mt-2">
                             <Badge variant="default" size="sm">
                                 <MapPin className="h-3 w-3" />
@@ -94,19 +94,19 @@ export default function CountryInfoPage() {
                 <div className="grid grid-cols-2 gap-3">
                     <Card className="p-3">
                         <div className="flex items-center gap-2 mb-1">
-                            <Banknote className="h-4 w-4 text-white/50" />
-                            <span className="text-xs text-white/50">Валют</span>
+                            <Banknote className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">Валют</span>
                         </div>
-                        <p className="font-semibold text-white">
+                        <p className="font-semibold text-foreground">
                             {country.currencySymbol} {country.currency}
                         </p>
                     </Card>
                     <Card className="p-3">
                         <div className="flex items-center gap-2 mb-1">
-                            <Globe className="h-4 w-4 text-white/50" />
-                            <span className="text-xs text-white/50">Хэл</span>
+                            <Globe className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">Хэл</span>
                         </div>
-                        <p className="font-semibold text-white">{country.language}</p>
+                        <p className="font-semibold text-foreground">{country.language}</p>
                     </Card>
                 </div>
             </div>
@@ -116,23 +116,23 @@ export default function CountryInfoPage() {
                 <Card className="p-4 bg-red-500/10 border-red-500/30">
                     <div className="flex items-center gap-2 mb-3">
                         <AlertCircle className="h-5 w-5 text-red-400" />
-                        <h3 className="font-semibold text-white">Яаралтай дугаарууд</h3>
+                        <h3 className="font-semibold text-foreground">Яаралтай дугаарууд</h3>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
-                        <a href={`tel:${country.emergencyNumbers.police}`} className="text-center p-2 rounded-lg bg-white/5">
+                        <a href={`tel:${country.emergencyNumbers.police}`} className="text-center p-2 rounded-lg bg-muted/50">
                             <Phone className="h-4 w-4 mx-auto mb-1 text-blue-400" />
-                            <p className="text-xs text-white/50">Цагдаа</p>
-                            <p className="font-bold text-white">{country.emergencyNumbers.police}</p>
+                            <p className="text-xs text-muted-foreground">Цагдаа</p>
+                            <p className="font-bold text-foreground">{country.emergencyNumbers.police}</p>
                         </a>
-                        <a href={`tel:${country.emergencyNumbers.ambulance}`} className="text-center p-2 rounded-lg bg-white/5">
+                        <a href={`tel:${country.emergencyNumbers.ambulance}`} className="text-center p-2 rounded-lg bg-muted/50">
                             <Phone className="h-4 w-4 mx-auto mb-1 text-red-400" />
-                            <p className="text-xs text-white/50">Түргэн</p>
-                            <p className="font-bold text-white">{country.emergencyNumbers.ambulance}</p>
+                            <p className="text-xs text-muted-foreground">Түргэн</p>
+                            <p className="font-bold text-foreground">{country.emergencyNumbers.ambulance}</p>
                         </a>
-                        <a href={`tel:${country.emergencyNumbers.fire}`} className="text-center p-2 rounded-lg bg-white/5">
+                        <a href={`tel:${country.emergencyNumbers.fire}`} className="text-center p-2 rounded-lg bg-muted/50">
                             <Phone className="h-4 w-4 mx-auto mb-1 text-orange-400" />
-                            <p className="text-xs text-white/50">Гал</p>
-                            <p className="font-bold text-white">{country.emergencyNumbers.fire}</p>
+                            <p className="text-xs text-muted-foreground">Гал</p>
+                            <p className="font-bold text-foreground">{country.emergencyNumbers.fire}</p>
                         </a>
                     </div>
                 </Card>
@@ -148,8 +148,8 @@ export default function CountryInfoPage() {
                             className={cn(
                                 "flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all",
                                 activeTab === tab.id
-                                    ? "gradient-primary text-white"
-                                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                                    ? "gradient-primary text-foreground"
+                                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
                             )}
                         >
                             <span>{tab.icon}</span>
@@ -172,19 +172,19 @@ export default function CountryInfoPage() {
                         <Card className="p-4">
                             <div className="flex items-center gap-2 mb-3">
                                 <Wifi className="h-5 w-5 text-emerald-400" />
-                                <h3 className="font-semibold text-white">Интернет мэдээлэл</h3>
+                                <h3 className="font-semibold text-foreground">Интернет мэдээлэл</h3>
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between">
-                                    <span className="text-white/60 text-sm">Оператор</span>
+                                    <span className="text-muted-foreground text-sm">Оператор</span>
                                     <span className="text-white text-sm">{country.simInfo.networks.join(", ")}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/60 text-sm">Хамрах хүрээ</span>
+                                    <span className="text-muted-foreground text-sm">Хамрах хүрээ</span>
                                     <span className="text-white text-sm">{country.simInfo.coverage}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/60 text-sm">Хурд</span>
+                                    <span className="text-muted-foreground text-sm">Хурд</span>
                                     <span className="text-white text-sm">{country.simInfo.speed}</span>
                                 </div>
                             </div>
@@ -194,16 +194,16 @@ export default function CountryInfoPage() {
                         <Link href="/packages">
                             <Card className="p-4 gradient-primary">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                                        <Smartphone className="h-6 w-6 text-white" />
+                                    <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center">
+                                        <Smartphone className="h-6 w-6 text-foreground" />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-semibold text-white">eSIM авах</h3>
+                                        <h3 className="font-semibold text-foreground">eSIM авах</h3>
                                         <p className="text-sm text-white/80">
                                             {country.nameMn}-д зориулсан багц үзэх
                                         </p>
                                     </div>
-                                    <ChevronRight className="h-5 w-5 text-white" />
+                                    <ChevronRight className="h-5 w-5 text-foreground" />
                                 </div>
                             </Card>
                         </Link>
@@ -222,17 +222,17 @@ export default function CountryInfoPage() {
                             return (
                                 <Card key={index} className="p-4">
                                     <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                                        <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
                                             <Icon className="h-5 w-5 text-white/70" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                <h4 className="font-semibold text-white">{t.name}</h4>
+                                                <h4 className="font-semibold text-foreground">{t.name}</h4>
                                                 {t.app && (
                                                     <Badge variant="secondary" size="sm">App</Badge>
                                                 )}
                                             </div>
-                                            <p className="text-sm text-white/60 mt-1">{t.description}</p>
+                                            <p className="text-sm text-muted-foreground mt-1">{t.description}</p>
                                             {t.priceRange && (
                                                 <p className="text-sm text-emerald-400 mt-1">
                                                     {t.priceRange}
@@ -241,7 +241,7 @@ export default function CountryInfoPage() {
                                             {t.tips && t.tips.length > 0 && (
                                                 <div className="mt-2 space-y-1">
                                                     {t.tips.map((tip, i) => (
-                                                        <p key={i} className="text-xs text-white/40 flex items-start gap-1">
+                                                        <p key={i} className="text-xs text-muted-foreground flex items-start gap-1">
                                                             <span>•</span> {tip}
                                                         </p>
                                                     ))}
@@ -279,8 +279,8 @@ export default function CountryInfoPage() {
                                 <div className="flex items-start gap-3">
                                     <div className="text-2xl">{tip.icon || categoryIcons[tip.category]}</div>
                                     <div>
-                                        <h4 className="font-semibold text-white">{tip.title}</h4>
-                                        <p className="text-sm text-white/60 mt-1">{tip.description}</p>
+                                        <h4 className="font-semibold text-foreground">{tip.title}</h4>
+                                        <p className="text-sm text-muted-foreground mt-1">{tip.description}</p>
                                     </div>
                                 </div>
                             </Card>
@@ -298,7 +298,7 @@ export default function CountryInfoPage() {
                         <Card className="p-4 mb-4 bg-blue-500/10 border-blue-500/30">
                             <div className="flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-blue-400" />
-                                <p className="text-sm text-white">
+                                <p className="text-sm text-foreground">
                                     Эдгээр хэллэгийг аялалдаа ашиглаарай
                                 </p>
                             </div>
@@ -308,9 +308,9 @@ export default function CountryInfoPage() {
                             <Card key={index} className="p-4">
                                 <p className="font-semibold text-white text-lg">{phrase.phrase}</p>
                                 {phrase.pronunciation && (
-                                    <p className="text-xs text-white/40 mt-1">{phrase.pronunciation}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{phrase.pronunciation}</p>
                                 )}
-                                <p className="text-sm text-white/60 mt-2 flex items-center gap-2">
+                                <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400" />
                                     {phrase.meaning}
                                 </p>
