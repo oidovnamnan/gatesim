@@ -35,7 +35,10 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
                 'merchantId': process.env.MOBIMATTER_MERCHANT_ID, // camelCase as required
                 'Accept': 'application/json'
             },
-            next: { revalidate: 3600 } // Cache for 1 hour
+            next: {
+                revalidate: 3600, // Cache for 1 hour default
+                tags: ['products'] // Allow manual revalidation
+            }
         });
 
         if (!res.ok) {

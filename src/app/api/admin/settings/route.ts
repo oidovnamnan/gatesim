@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 
@@ -96,6 +97,9 @@ export async function POST(req: Request) {
         });
 
         console.log(`Admin ${adminCheck.user?.email} updated settings:`, { usdToMnt, marginPercent });
+
+        // Purge product cache so new pricing takes effect immediately
+        revalidateTag('products');
 
         return NextResponse.json(updated.value);
     } catch (error: any) {
