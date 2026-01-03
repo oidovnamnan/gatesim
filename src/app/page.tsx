@@ -80,7 +80,7 @@ export default function HomePage() {
                   Global Connection
                 </span>
               </h1>
-              <p className="text-slate-900 dark:text-slate-100 text-base md:text-xl font-black max-w-md leading-relaxed drop-shadow-sm opacity-90">
+              <p className="text-slate-700 dark:text-slate-100 text-base md:text-xl font-bold max-w-md leading-relaxed">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
@@ -105,8 +105,8 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
                 <span className="text-base font-bold relative z-10">7 хоног</span>
               </div>
-              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-white/10 backdrop-blur-md border border-white/30 text-slate-800 dark:text-white font-bold cursor-pointer hover:bg-white/20 transition active:scale-95 shadow-sm relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-slate-100 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/30 text-slate-700 dark:text-white font-bold cursor-pointer hover:bg-slate-200 dark:hover:bg-white/20 transition active:scale-95 shadow-sm relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent pointer-events-none"></div>
                 <span className="text-base relative z-10">15 хоног</span>
               </div>
             </motion.div>

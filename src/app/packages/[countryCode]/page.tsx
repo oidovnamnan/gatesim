@@ -69,10 +69,10 @@ export default async function CountryPackagesPage({ params }: Props) {
 
             <div className="p-4 space-y-4 pt-4">
                 <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-xl font-bold text-white">
+                    <h1 className="text-xl font-bold text-foreground">
                         {getCountryName(code)} eSIM Багцууд
                     </h1>
-                    <span className="text-xs text-white/50">{uiPackages.length} багц</span>
+                    <span className="text-xs text-muted-foreground">{uiPackages.length} багц</span>
                 </div>
 
                 {uiPackages.length > 0 ? (
@@ -82,8 +82,8 @@ export default async function CountryPackagesPage({ params }: Props) {
                         ))}
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-white/50 space-y-4">
-                        <div className="text-4xl text-gray-500">🏝</div>
+                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
+                        <div className="text-4xl">🏝</div>
                         <p>Энэ улсын багц одоогоор байхгүй байна.</p>
                     </div>
                 )}
