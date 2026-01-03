@@ -16,8 +16,8 @@ const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
 export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
     // Check credentials immediately
     if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
-        console.warn("[MobiMatter] API credentials missing. Returning MOCK data.");
-        return getMockProducts();
+        console.error("[MobiMatter] API credentials missing! Please check .env file.");
+        return [];
     }
 
     try {
@@ -33,16 +33,15 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
 
         if (!res.ok) {
             console.error(`[MobiMatter] API Request Failed: ${res.status} ${res.statusText}`);
-            // Fallback to mock data on API failure so screen isn't empty
-            return getMockProducts();
+            return [];
         }
 
         const rawData = await res.json();
         const productsList = Array.isArray(rawData) ? rawData : (rawData.result || []);
 
         if (productsList.length === 0) {
-            console.warn("[MobiMatter] API returned 0 products. Falling back to mock.");
-            return getMockProducts();
+            console.warn("[MobiMatter] API returned 0 products.");
+            return [];
         }
 
         console.log(`[MobiMatter] Successfully fetched ${productsList.length} products.`);
