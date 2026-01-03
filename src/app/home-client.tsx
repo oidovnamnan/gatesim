@@ -118,9 +118,8 @@ export default function HomeClient({ children }: HomeClientProps) {
                         return (
                             <Link key={country.code} href={`/packages/${country.code}`}>
                                 <div
-                                    className={`group relative rounded-3xl p-4 
-                                bg-white/90 dark:bg-slate-800/90
-                                border border-white/60 dark:border-white/10
+                                    className={`country-card group relative rounded-3xl p-4 
+                                border backdrop-blur-sm
                                 shadow-md hover:shadow-lg
                                 ${theme.hoverShadow}
                                 transition-all duration-200 cursor-pointer
@@ -135,12 +134,12 @@ export default function HomeClient({ children }: HomeClientProps) {
                                     </div>
 
                                     {/* Country Name */}
-                                    <h3 className="hero-text-title text-lg font-black leading-tight mb-3 line-clamp-1 w-full px-1">
+                                    <h3 className="country-card-title text-lg font-black leading-tight mb-3 line-clamp-1 w-full px-1">
                                         {country.name}
                                     </h3>
 
                                     {/* Call to Action */}
-                                    <div className="flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 mt-auto bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-full group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                                    <div className="country-card-btn flex items-center gap-1.5 text-xs font-bold mt-auto px-3 py-1.5 rounded-full transition-colors">
                                         <span>Багцуудыг үзэх</span>
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M5 12h14M12 5l7 7-7 7" />

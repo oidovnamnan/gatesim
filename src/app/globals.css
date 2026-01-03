@@ -440,3 +440,29 @@ select:focus {
 .dark .header-icon {
   color: #94a3b8 !important; /* slate-400 */
 }
+
+/* Country Card Fixes for Mobile Theme Consistency */
+.country-card {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+.dark .country-card {
+  background-color: rgba(30, 41, 59, 0.9) !important; /* slate-800 */
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.country-card-title {
+  color: #0f172a !important; /* slate-900 */
+}
+.dark .country-card-title {
+  color: #ffffff !important;
+}
+
+.country-card-btn {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+}
+.dark .country-card-btn {
+  background-color: rgba(127, 29, 29, 0.2) !important;
+  color: #f87171 !important;
+}
