@@ -22,14 +22,9 @@ export default async function CountryPackagesPage({ params }: Props) {
 
     const allProducts = await getMobiMatterProducts();
 
-    // Filter by country code
     const products = allProducts.filter(p =>
         p.countries.includes(code)
     );
-
-    // Reusable pricing logic (should be centralized ideally)
-    const USD_TO_MNT = 3450;
-    const MARGIN_MULTIPLIER = 1.25;
 
     const getCountryName = (c: string) => {
         const names: Record<string, string> = {
@@ -54,7 +49,7 @@ export default async function CountryPackagesPage({ params }: Props) {
         operatorTitle: pkg.provider,
         data: pkg.dataAmount === -1 ? "Unlimited" : (pkg.dataAmount >= 1024 ? `${(pkg.dataAmount / 1024).toFixed(0)} GB` : `${pkg.dataAmount} MB`),
         validityDays: pkg.durationDays,
-        price: Math.ceil((pkg.price * USD_TO_MNT * MARGIN_MULTIPLIER) / 100) * 100,
+        price: pkg.price, // Already calculated in MNT
         currency: "MNT",
         countries: pkg.countries,
         countryName: getCountryName(pkg.countries[0]),
