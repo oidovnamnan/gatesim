@@ -108,7 +108,7 @@ export function PackageCard({
                     className={cn(
                         "relative overflow-hidden rounded-[24px] transition-all duration-300 isolate",
                         "shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-red-900/20 hover:-translate-y-1 h-[280px] flex flex-col justify-end",
-                        !bgImage && "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800", // Fallback if no image
+                        !bgImage && "package-card border", // Use custom class here
                         className
                     )}
                 >
@@ -150,25 +150,25 @@ export function PackageCard({
                     )}
 
                     {/* Content */}
-                    <div className={cn("p-5 relative z-20", bgImage ? "text-white" : "text-slate-900 dark:text-slate-100")}>
+                    <div className={cn("p-5 relative z-20", bgImage ? "text-white" : "package-card-text")}>
                         {/* Header */}
                         <div className="flex items-center gap-3 mb-4">
                             <div className={cn(
                                 "flex items-center justify-center w-10 h-10 rounded-xl text-2xl backdrop-blur-md shadow-sm",
-                                bgImage ? "bg-white/20 text-white" : "bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
+                                bgImage ? "bg-white/20 text-white" : "package-badge border"
                             )}>
                                 {flag}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h3 className={cn(
                                     "text-xl font-black tracking-tight leading-tight",
-                                    bgImage ? "text-white" : "text-slate-800 dark:text-slate-100"
+                                    bgImage ? "text-white" : "package-card-text"
                                 )}>
                                     {countryName || title}
                                 </h3>
                                 <p className={cn(
                                     "text-xs font-medium truncate",
-                                    bgImage ? "text-white/70" : "text-slate-500 dark:text-slate-400"
+                                    bgImage ? "text-white/70" : "opacity-70"
                                 )}>
                                     {operatorTitle}
                                 </p>
@@ -179,14 +179,14 @@ export function PackageCard({
                         <div className="flex items-center gap-2 mb-4">
                             <div className={cn(
                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm",
-                                bgImage ? "bg-white/10 border-white/20 text-white" : "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Wifi className="w-3.5 h-3.5 opacity-70" />
                                 <span className="text-sm font-bold">{data}</span>
                             </div>
                             <div className={cn(
                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm",
-                                bgImage ? "bg-white/10 border-white/20 text-white" : "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Clock className="w-3.5 h-3.5 opacity-70" />
                                 <span className="text-sm font-bold">{validityDays} хоног</span>
@@ -194,12 +194,12 @@ export function PackageCard({
                         </div>
 
                         {/* Footer / Price */}
-                        <div className="flex items-center justify-between pt-3 border-t border-white/10 dark:border-white/5">
+                        <div className="flex items-center justify-between pt-3 border-t border-white/10 dark:border-white/5 relative z-20">
                             <div>
-                                <p className={cn("text-xs font-semibold line-through opacity-60 mb-0.5", bgImage ? "text-white" : "text-slate-400 dark:text-slate-500")}>
+                                <p className={cn("text-xs font-semibold line-through opacity-60 mb-0.5", bgImage ? "text-white" : "package-card-text opacity-50")}>
                                     ₮{(price + 5000).toLocaleString()}
                                 </p>
-                                <p className={cn("text-xl font-black", bgImage ? "text-white" : "text-slate-900 dark:text-white")}>
+                                <p className={cn("text-xl font-black", bgImage ? "text-white" : "package-card-text")}>
                                     ₮{price.toLocaleString()}
                                 </p>
                             </div>

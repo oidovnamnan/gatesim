@@ -466,3 +466,31 @@ select:focus {
   background-color: rgba(127, 29, 29, 0.2) !important;
   color: #f87171 !important;
 }
+
+/* Package Card Fixes for Mobile Theme Consistency */
+.package-card {
+  background-color: #ffffff !important;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+.dark .package-card {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.package-card-text {
+  color: #0f172a !important;
+}
+.dark .package-card-text {
+  color: #ffffff !important;
+}
+
+.package-badge {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+.dark .package-badge {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
