@@ -74,13 +74,13 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-12">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-left relative z-20">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 md:mb-6 text-black dark:text-white [text-shadow:_0_1px_12px_rgb(255_255_255_/_80%)] dark:[text-shadow:_0_1px_12px_rgb(0_0_0_/_50%)]">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 md:mb-6 text-black dark:text-white">
                 Your Gateway to <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
                   Global Connection
                 </span>
               </h1>
-              <p className="text-black dark:text-white text-base md:text-xl font-bold max-w-md leading-relaxed [text-shadow:_0_1px_8px_rgb(255_255_255_/_90%)] dark:[text-shadow:_0_1px_8px_rgb(0_0_0_/_50%)]">
+              <p className="text-black dark:text-white text-base md:text-xl font-bold max-w-md leading-relaxed">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
