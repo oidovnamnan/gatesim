@@ -40,13 +40,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setThemeState(savedTheme);
         applyTheme(savedTheme);
 
-        // Load mode from localStorage
+        // Load mode from localStorage - default to light if not set
         const savedMode = localStorage.getItem("gatesim-mode") as Mode;
-        if (savedMode) {
-            setModeState(savedMode);
-            if (savedMode === "dark") {
-                document.documentElement.classList.add("dark");
-            }
+        const actualMode = savedMode || "light";
+        setModeState(actualMode);
+
+        // Always explicitly set the class based on mode
+        if (actualMode === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
         }
     }, []);
 
