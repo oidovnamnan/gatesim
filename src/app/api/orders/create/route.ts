@@ -3,12 +3,22 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { Order } from "@/types/db";
+import { auth } from "@/lib/auth";
 
 // Force dynamic needed because we use simple fetch/responses
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
+        // 🔐 AUTHENTICATION CHECK
+        const session = await auth();
+        if (!session?.user) {
+            return NextResponse.json(
+                { error: "Нэвтрээгүй байна" },
+                { status: 401 }
+            );
+        }
+
         const body = await req.json();
 
         // Basic validation
@@ -16,6 +26,16 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { error: "Invalid order data" },
                 { status: 400 }
+            );
+        }
+
+        // 🔐 SECURITY: Ensure userId matches session user
+        const sessionUserId = (session.user as any).id;
+        if (body.userId && body.userId !== sessionUserId) {
+            console.warn(`User ${sessionUserId} attempted to create order for ${body.userId}`);
+            return NextResponse.json(
+                { error: "Хандах эрхгүй" },
+                { status: 403 }
             );
         }
 
@@ -31,6 +51,9 @@ export async function POST(req: Request) {
         const finalOrder: Order = {
             ...orderData,
             id: newOrderRef.id,
+            // 🔐 SECURITY: Always use session userId, not client-provided
+            userId: sessionUserId,
+            contactEmail: session.user.email || orderData.contactEmail,
             createdAt: Date.now(),
             updatedAt: Date.now(),
             // Ensure status starts correctly if not provided
@@ -55,3 +78,4 @@ export async function POST(req: Request) {
         );
     }
 }
+

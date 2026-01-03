@@ -1,8 +1,45 @@
-"use client";
-
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+// Admin emails that are allowed to access admin panel
+const ADMIN_EMAILS = [
+    'admin@gatesim.mn',
+    'suren@gatesim.mn',
+    // Add more admin emails here
+];
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+    // 🔐 AUTHENTICATION CHECK
+    const session = await auth();
+
+    if (!session?.user) {
+        // Not logged in - redirect to login
+        redirect("/login?callbackUrl=/admin");
+    }
+
+    // 🔐 AUTHORIZATION CHECK - Only admins can access
+    const userEmail = session.user.email;
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
+        // Not an admin - show access denied
+        return (
+            <div className="flex h-screen bg-[#0d111c] w-full items-center justify-center">
+                <div className="text-center p-8">
+                    <div className="text-6xl mb-4">🔒</div>
+                    <h1 className="text-2xl font-bold text-white mb-2">Хандах эрхгүй</h1>
+                    <p className="text-slate-400 mb-4">Таны хандах эрх хүрэлцэхгүй байна.</p>
+                    <p className="text-slate-500 text-sm">Имэйл: {userEmail}</p>
+                    <a
+                        href="/"
+                        className="inline-block mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                    >
+                        Нүүр хуудас руу буцах
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex h-screen bg-[#0d111c] w-full overflow-hidden">
             <AdminSidebar />
@@ -16,3 +53,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
     );
 }
+

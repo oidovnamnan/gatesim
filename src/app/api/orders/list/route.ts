@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { Order } from "@/types/db";
+import { auth } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,26 @@ export async function GET(req: Request) {
             return NextResponse.json(
                 { error: "User ID is required" },
                 { status: 400 }
+            );
+        }
+
+        // 🔐 AUTHENTICATION CHECK
+        const session = await auth();
+        if (!session?.user) {
+            return NextResponse.json(
+                { error: "Нэвтрээгүй байна" },
+                { status: 401 }
+            );
+        }
+
+        // 🔐 AUTHORIZATION CHECK - User can only see their own orders
+        // Compare session user ID with requested userId
+        const sessionUserId = (session.user as any).id;
+        if (sessionUserId !== userId) {
+            console.warn(`User ${sessionUserId} attempted to access orders for ${userId}`);
+            return NextResponse.json(
+                { error: "Хандах эрхгүй" },
+                { status: 403 }
             );
         }
 
@@ -39,3 +60,4 @@ export async function GET(req: Request) {
         );
     }
 }
+
