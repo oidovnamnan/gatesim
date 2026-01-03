@@ -32,6 +32,7 @@ interface PackageDetail {
     countryName: string;
     isUnlimited: boolean;
     isFeatured: boolean;
+    supportedCountries: { code: string; name: string }[];
     shortInfo: string;
     operatorInfo: string[];
 }
@@ -43,6 +44,7 @@ interface PackageClientProps {
 export default function PackageClient({ pkg }: PackageClientProps) {
     const router = useRouter();
     const [showDetails, setShowDetails] = useState(false);
+    const [showCountries, setShowCountries] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const flag = getCountryFlag(pkg.countries[0]);
@@ -148,6 +150,40 @@ export default function PackageClient({ pkg }: PackageClientProps) {
                 </Card>
             </div>
 
+            {/* Supported Countries (For Regional Packages) */}
+            {pkg.supportedCountries && pkg.supportedCountries.length > 1 && (
+                <div className="px-4 mt-4">
+                    <Card className="p-5 bg-white border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <Globe className="h-5 w-5 text-emerald-500" />
+                                <p className="text-base font-bold text-slate-900">
+                                    Хамрах улсууд ({pkg.supportedCountries.length})
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {pkg.supportedCountries.slice(0, showCountries ? undefined : 6).map((c) => (
+                                <div key={c.code} className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
+                                    <span className="text-lg leading-none">{getCountryFlag(c.code)}</span>
+                                    <span className="text-xs font-bold text-slate-700 truncate">{c.name}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {pkg.supportedCountries.length > 6 && (
+                            <button
+                                onClick={() => setShowCountries(!showCountries)}
+                                className="w-full mt-3 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                            >
+                                {showCountries ? "Хураах" : `Бүгдийг харах (+${pkg.supportedCountries.length - 6})`}
+                            </button>
+                        )}
+                    </Card>
+                </div>
+            )}
+
             {/* Operator Info */}
             <div className="px-4 mt-4">
                 <Card className="p-5 bg-white border-slate-200 shadow-sm">
@@ -177,7 +213,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
                     >
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                                <Smartphone className="h-4 w-4 text-slate-500" />
+                                <Smartphone className="h-4 w-4 text-slate-500 bg-transparent" />
                             </div>
                             <span className="text-sm font-bold text-slate-800">
                                 Нийцтэй төхөөрөмжүүд

@@ -91,6 +91,10 @@ export default async function PackagePage({ params }: Props) {
         countries: pkg.countries,
         countryName: countryName,
         // Ensuring all required fields for PackageClient
+        supportedCountries: pkg.countries.map(c => ({
+            code: c,
+            name: getCountryName(c)
+        })),
         isUnlimited: pkg.dataAmount === -1,
         isFeatured: pkg.countries.includes("CN") || pkg.provider.includes("Premium"),
         shortInfo: "eSIM QR код таны и-мэйл хаягаар 1-5 минутын дотор ирнэ. Та зөвхөн eSIM дэмждэг утастай байх шаардлагатай.",
