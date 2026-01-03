@@ -26,7 +26,7 @@ export function MobileHeader({
         <header
             className={cn(
                 "sticky top-0 z-40 safe-padding",
-                transparent ? "bg-transparent" : "header-blur border-b border-white/10",
+                transparent ? "bg-transparent" : "bg-background/80 backdrop-blur-md border-b border-border",
                 className
             )}
         >
@@ -36,16 +36,16 @@ export function MobileHeader({
                     {showBack && (
                         <button
                             onClick={() => router.back()}
-                            className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-white/10 transition-colors touch-manipulation"
+                            className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-muted transition-colors touch-manipulation"
                         >
-                            <ChevronLeft className="h-6 w-6 text-white" />
+                            <ChevronLeft className="h-6 w-6 text-foreground" />
                         </button>
                     )}
                 </div>
 
                 {/* Title */}
                 {title && (
-                    <h1 className="text-lg font-semibold text-white truncate">
+                    <h1 className="text-lg font-semibold text-foreground truncate">
                         {title}
                     </h1>
                 )}
@@ -71,9 +71,9 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
         <div className="px-4 py-6">
             <div className="flex items-start justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">{title}</h1>
+                    <h1 className="text-2xl font-bold text-foreground">{title}</h1>
                     {subtitle && (
-                        <p className="mt-1 text-sm text-white/60">{subtitle}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
                     )}
                 </div>
                 {action}

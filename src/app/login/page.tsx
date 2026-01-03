@@ -100,9 +100,8 @@ export default function LoginPage() {
                             <Button
                                 fullWidth
                                 size="lg"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => setMode("email")}
-                                className="border border-white/10"
                             >
                                 <Mail className="h-5 w-5" />
                                 И-мэйлээр нэвтрэх
