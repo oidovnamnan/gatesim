@@ -11,7 +11,8 @@ const DEFAULT_SETTINGS = {
 
 // Admin emails that are allowed to access admin APIs
 const ADMIN_EMAILS = [
-    'admin@gatesim.mn',
+    'admin@gatesim.mn', // Keep old one just in case
+    'admin@gatesim.travel', // New correct email
     'suren@gatesim.mn',
     // Add more admin emails here
 ];
