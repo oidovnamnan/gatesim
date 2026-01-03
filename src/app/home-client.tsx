@@ -6,14 +6,13 @@ import {
     Search,
     Sparkles
 } from "lucide-react";
-import { PackageCard } from "@/components/packages/package-card";
 import { AIChat } from "@/components/ai/ai-chat";
 import { popularCountries } from "@/config/site";
 import { Globe } from "@/components/ui/globe";
-import { MobiMatterProduct } from "@/lib/mobimatter";
+import { ReactNode } from "react";
 
 interface HomeClientProps {
-    featuredPackages: MobiMatterProduct[];
+    children?: ReactNode; // Used for injecting Featured Packages (Server Component)
 }
 
 // Floating Card color schemes
@@ -44,7 +43,7 @@ const countryThemes: Record<string, {
     }
 };
 
-export default function HomeClient({ featuredPackages }: HomeClientProps) {
+export default function HomeClient({ children }: HomeClientProps) {
     return (
         <div className="min-h-screen pb-32 md:pb-8 overflow-x-hidden font-sans relative">
             {/* TopHeader in layout */}
@@ -154,7 +153,7 @@ export default function HomeClient({ featuredPackages }: HomeClientProps) {
                 </div>
             </section>
 
-            {/* Featured Packages */}
+            {/* Featured Packages - Rendered via Children */}
             <section className="container mx-auto px-6 lg:px-12 pb-10 md:pb-20 relative z-10">
                 <div className="flex items-center gap-3 mb-6 md:mb-8">
                     <div className="bg-red-50/50 backdrop-blur-sm p-2.5 rounded-2xl shadow-sm border border-red-100/50">
@@ -162,30 +161,8 @@ export default function HomeClient({ featuredPackages }: HomeClientProps) {
                     </div>
                     <h2 className="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight drop-shadow-sm">Онцлох багцууд</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                    {featuredPackages.map((pkg, index) => (
-                        <motion.div
-                            key={pkg.sku}  // Use SKU for key
-                            initial={{ opacity: 0, x: -10 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                        >
-                            <PackageCard
-                                id={pkg.sku}
-                                title={pkg.name}
-                                data={`${pkg.dataAmount > 0 ? (pkg.dataAmount / 1024).toFixed(1) + " GB" : "Unlimited"}`}
-                                validityDays={pkg.durationDays}
-                                price={pkg.price} // This will be handled by PackageCard, make sure it handles currency if needed but here we pass raw price
-                                countryName={pkg.countries.join(", ")}
-                                countries={pkg.countries}
-                                operatorTitle={pkg.provider}
-                                isFeatured={true}
-                                className="bg-white/10 border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.02)]"
-                            />
-                        </motion.div>
-                    ))}
-                </div>
+
+                {children}
             </section>
 
             {/* AI Assistant Section */}
