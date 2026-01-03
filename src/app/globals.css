@@ -416,3 +416,27 @@ select:focus {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
 }
+
+/* Header Custom Classes to fix mobile theme issues */
+.header-bg {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-bottom-color: rgba(226, 232, 240, 0.5) !important;
+}
+.dark .header-bg {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.header-text {
+  color: #0f172a !important;
+}
+.dark .header-text {
+  color: #ffffff !important;
+}
+
+.header-icon {
+  color: #475569 !important; /* slate-600 */
+}
+.dark .header-icon {
+  color: #94a3b8 !important; /* slate-400 */
+}

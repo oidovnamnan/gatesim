@@ -24,14 +24,14 @@ export function TopHeader() {
     const [loginOpen, setLoginOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 px-6 py-4 flex items-center justify-between bg-white/80 dark:bg-black/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-white/10 shadow-sm transition-colors duration-300">
+        <header className="header-bg sticky top-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-lg border-b shadow-sm transition-colors duration-300">
             {/* Logo */}
             <Link href="/" className="pointer-events-auto group flex-shrink-0 flex items-center gap-3">
                 <div className="w-10 h-10 relative flex items-center justify-center">
                     <Logo className="w-full h-full" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="font-black text-2xl text-slate-900 dark:text-white tracking-tight group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+                    <span className="header-text font-black text-2xl tracking-tight transition-colors">
                         Gate<span className="text-red-600">SIM</span>
                     </span>
                     <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase -mt-1 ml-0.5 hidden md:block">
