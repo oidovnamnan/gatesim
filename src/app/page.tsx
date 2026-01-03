@@ -70,43 +70,45 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-6 lg:px-12 pt-28 md:pt-40 relative z-10">
+      <div className="container mx-auto px-6 lg:px-12 pt-24 md:pt-40 relative z-10">
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-12">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-left relative z-20">
-              <h1 className="hero-text-title text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 md:mb-6">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-left relative z-20">
+              <h1 className="hero-text-title text-3xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-2 md:mb-6">
                 Your Gateway to <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
                   Global Connection
                 </span>
               </h1>
-              <p className="hero-text-desc text-base md:text-xl font-bold max-w-md leading-relaxed">
+              <p className="hero-text-desc text-sm md:text-xl font-bold max-w-md leading-relaxed opacity-90">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-10 max-w-lg relative z-30">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 max-w-lg relative z-30">
               <Link href="/packages">
-                <div className="relative rounded-3xl flex items-center shadow-[0_8px_32px_0_rgba(185,28,28,0.05)] backdrop-blur-md border border-white/40 cursor-pointer overflow-hidden py-4 pl-4 pr-3 transition-all hover:scale-[1.01] group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-3xl pointer-events-none"></div>
-                  <div className="relative z-10 w-8 h-8 rounded-full border border-red-400/30 flex items-center justify-center flex-shrink-0 bg-red-50/30 shadow-inner">
-                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
+                <div className="relative rounded-2xl flex items-center shadow-[0_8px_32px_0_rgba(185,28,28,0.05)] backdrop-blur-md border border-white/40 cursor-pointer overflow-hidden py-3 pl-4 pr-2 transition-all hover:scale-[1.01] group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl pointer-events-none"></div>
+                  <div className="relative z-10 w-7 h-7 rounded-full border border-red-400/30 flex items-center justify-center flex-shrink-0 bg-red-50/30 shadow-inner">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
                   </div>
-                  <div className="relative z-10 flex-1 ml-4 text-[hsl(var(--foreground))] text-base font-semibold group-hover:text-red-600 transition-colors">Таны очих газар...</div>
-                  <div className="relative z-10 bg-white/20 p-2.5 rounded-2xl shadow-sm border border-white/30 backdrop-blur-sm">
-                    <Search className="h-6 w-6 text-slate-600" />
+                  <div className="relative z-10 flex-1 ml-3 header-text text-sm font-medium group-hover:text-red-600 transition-colors">Таны очих газар...</div>
+                  <div className="relative z-10 bg-white/20 p-2 rounded-xl shadow-sm border border-white/30 backdrop-blur-sm">
+                    <Search className="h-5 w-5 header-icon" />
                   </div>
                 </div>
               </Link>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex gap-4 mb-16 max-w-sm relative z-30">
-              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-gradient-to-b from-red-600/90 to-red-700/90 backdrop-blur-md text-white shadow-lg shadow-red-600/20 cursor-pointer hover:shadow-red-600/40 transition active:scale-95 border border-white/20 relative overflow-hidden">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3 mb-10 relative z-30">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-b from-red-600/90 to-red-700/90 backdrop-blur-md text-white shadow-lg shadow-red-600/20 cursor-pointer active:scale-95 border border-white/20 relative overflow-hidden transition-transform">
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
-                <span className="text-base font-bold relative z-10">7 хоног</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-white shadow-sm relative z-10" />
+                <span className="text-xs font-bold relative z-10">7 хоног</span>
               </div>
-              <div className="hero-btn-15 flex-1 flex items-center justify-center py-4 rounded-[20px] backdrop-blur-md border border-slate-200 dark:border-white/20 font-bold cursor-pointer hover:bg-white dark:hover:bg-white/20 transition active:scale-95 shadow-sm">
-                <span className="text-base">15 хоног</span>
+              <div className="hero-btn-15 flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border border-slate-200 dark:border-white/20 font-bold cursor-pointer hover:bg-white dark:hover:bg-white/20 transition active:scale-95 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                <span className="text-xs">15 хоног</span>
               </div>
             </motion.div>
           </div>
