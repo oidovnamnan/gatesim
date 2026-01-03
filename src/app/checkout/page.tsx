@@ -49,8 +49,8 @@ export default async function CheckoutPage({ searchParams }: Props) {
         redirect("/packages");
     }
 
-    // Calculate Price (Use Smart Strategy)
-    const { price: sellPrice } = await calculateSellPrice(p.price);
+    // Price is already calculated in MNT
+    const sellPrice = p.price;
 
     const pkg = {
         id: p.sku,

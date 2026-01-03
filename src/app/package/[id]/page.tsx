@@ -35,8 +35,9 @@ export default async function PackagePage({ params }: Props) {
         redirect("/packages");
     }
 
-    // Calculate Selling Price (Smart Strategy)
-    const { price: sellPrice } = await calculateSellPrice(pkg.price);
+    // Price is already calculated in MNT by getMobiMatterProducts (lib/mobimatter.ts)
+    // No need to recalculate or apply exchange rate again.
+    const sellPrice = pkg.price;
 
     // Helper to get country name
     const getCountryName = (code: string) => {
