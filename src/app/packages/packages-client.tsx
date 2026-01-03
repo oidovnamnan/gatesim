@@ -286,24 +286,24 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     </p>
 
                     {/* View Mode Toggle */}
-                    <div className="flex bg-white rounded-xl p-1 border border-slate-200 shadow-sm">
+                    <div className="flex bg-white/50 rounded-xl p-1">
                         <button
                             onClick={() => setViewMode("grid")}
                             className={cn(
-                                "p-2 rounded-lg transition-all flex items-center justify-center w-9 h-9",
-                                viewMode === "grid" ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                                "p-2 transition-all flex items-center justify-center w-9 h-9",
+                                viewMode === "grid" ? "text-red-600 scale-110" : "text-slate-400 hover:text-slate-600"
                             )}
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                         </button>
                         <button
                             onClick={() => setViewMode("list")}
                             className={cn(
-                                "p-2 rounded-lg transition-all flex items-center justify-center w-9 h-9",
-                                viewMode === "list" ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                                "p-2 transition-all flex items-center justify-center w-9 h-9",
+                                viewMode === "list" ? "text-red-600 scale-110" : "text-slate-400 hover:text-slate-600"
                             )}
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                         </button>
                     </div>
                 </div>
