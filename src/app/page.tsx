@@ -74,13 +74,13 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-12">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-left relative z-20">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight mb-4 md:mb-6">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 md:mb-6 text-black dark:text-white [text-shadow:_0_1px_12px_rgb(255_255_255_/_80%)] dark:[text-shadow:_0_1px_12px_rgb(0_0_0_/_50%)]">
                 Your Gateway to <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
                   Global Connection
                 </span>
               </h1>
-              <p className="text-slate-700 dark:text-white/90 text-base md:text-xl font-semibold max-w-md leading-relaxed">
+              <p className="text-black dark:text-white text-base md:text-xl font-bold max-w-md leading-relaxed [text-shadow:_0_1px_8px_rgb(255_255_255_/_90%)] dark:[text-shadow:_0_1px_8px_rgb(0_0_0_/_50%)]">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
@@ -105,8 +105,8 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
                 <span className="text-base font-bold relative z-10">7 хоног</span>
               </div>
-              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white font-bold cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-600 transition active:scale-95 shadow-sm relative overflow-hidden">
-                <span className="text-base relative z-10">15 хоног</span>
+              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-white/80 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/20 text-slate-700 dark:text-white font-bold cursor-pointer hover:bg-white dark:hover:bg-white/20 transition active:scale-95 shadow-sm">
+                <span className="text-base">15 хоног</span>
               </div>
             </motion.div>
           </div>
