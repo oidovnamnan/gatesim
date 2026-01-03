@@ -107,7 +107,7 @@ export function PackageCard({
                 <div
                     className={cn(
                         "relative overflow-hidden rounded-[24px] transition-all duration-300 isolate",
-                        "shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-red-900/20 hover:-translate-y-1 h-[280px] flex flex-col justify-end",
+                        "shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-red-900/20 hover:-translate-y-1 h-[220px] flex flex-col justify-end",
                         !bgImage && "package-card border", // Use custom class here
                         className
                     )}
