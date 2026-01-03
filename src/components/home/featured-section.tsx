@@ -19,39 +19,53 @@ export async function FeaturedSection() {
         return names[c] || c;
     }
 
-    // Filter logic: Include Regional now!
-    // We want a mix of popular countries.
-    // Let's deduplicate by country to show variety (1 per country)
+    // Curated Selection Logic
     const featuredPackages: typeof allProducts = [];
-    const seenCountries = new Set();
+    const usedSkus = new Set<string>();
 
-    // Sort by price first to get cheapest options
-    const sortedProducts = allProducts.sort((a, b) => a.price - b.price);
+    const sortedByPop = allProducts.sort((a, b) => a.price - b.price);
 
-    for (const p of sortedProducts) {
-        // Must contain one of popular codes
-        const relevantCode = popularCodes.find(code => p.countries.includes(code));
-        if (relevantCode) {
-            // New logic: Allow multiple per country if they are significantly different? 
-            // For now, let's just take top 6 cheap ones that match our popular list, ensuring variety if possible.
-            // Or just simple:
-            if (featuredPackages.length >= 6) break;
+    // 1. Force add 1 Europe Package
+    const euPackage = sortedByPop.find(p => p.countries.includes("EU") || (p.countries.includes("FR") && p.countries.length > 5));
+    if (euPackage) {
+        featuredPackages.push(euPackage);
+        usedSkus.add(euPackage.sku);
+    }
 
-            // Allow if it's regional OR if we haven't seen this country yet (for variety)
-            // Actually, let's just fill 6 spots with bestsellers.
-            if (!seenCountries.has(relevantCode) || p.isRegional) {
-                featuredPackages.push(p);
-                seenCountries.add(relevantCode);
-            }
+    // 2. Force add 1 Multi-Country Asia Package
+    const asiaCodes = ["SG", "TH", "MY", "ID", "VN", "PH"];
+    const asiaPackage = sortedByPop.find(p =>
+        !usedSkus.has(p.sku) &&
+        p.countries.length > 3 &&
+        asiaCodes.some(c => p.countries.includes(c))
+    );
+    if (asiaPackage) {
+        featuredPackages.push(asiaPackage);
+        usedSkus.add(asiaPackage.sku);
+    }
+
+    // 3. Fill the rest with Top Single Destinations
+    const singleDestinations = ["JP", "KR", "CN", "US", "TR", "VN", "TH"];
+    for (const code of singleDestinations) {
+        if (featuredPackages.length >= 6) break;
+        const pkg = sortedByPop.find(p =>
+            !usedSkus.has(p.sku) &&
+            p.countries.includes(code) &&
+            p.countries.length === 1
+        );
+        if (pkg) {
+            featuredPackages.push(pkg);
+            usedSkus.add(pkg.sku);
         }
     }
 
-    // Fallback if not enough
+    // 4. Fallback filler
     if (featuredPackages.length < 6) {
-        const remaining = sortedProducts
-            .filter(p => !featuredPackages.includes(p) && popularCodes.some(c => p.countries.includes(c)))
-            .slice(0, 6 - featuredPackages.length);
-        featuredPackages.push(...remaining);
+        const fillers = sortedByPop.filter(p =>
+            !usedSkus.has(p.sku) &&
+            popularCodes.some(c => p.countries.includes(c))
+        ).slice(0, 6 - featuredPackages.length);
+        featuredPackages.push(...fillers);
     }
 
     if (featuredPackages.length === 0) {
