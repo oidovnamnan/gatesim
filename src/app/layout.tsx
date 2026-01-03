@@ -60,6 +60,23 @@ export default function RootLayout({
   return (
     <html lang="mn" suppressHydrationWarning>
       <head>
+        {/* Theme script - runs BEFORE React hydration to prevent flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var mode = localStorage.getItem('gatesim-mode');
+                  if (mode === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         {/* Preconnect to external resources */}
 
         {/* PWA meta tags */}
