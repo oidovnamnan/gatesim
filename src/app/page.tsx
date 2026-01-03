@@ -74,15 +74,18 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-12">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-left relative z-20">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-[hsl(var(--foreground))] leading-[1.1] tracking-tight mb-6 drop-shadow-sm">
-                Your Gateway to <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
-                  Global Connection
-                </span>
-              </h1>
-              <p className="text-slate-700 dark:text-slate-100 text-base md:text-xl font-bold max-w-md leading-relaxed">
-                Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
-              </p>
+              {/* Text container with subtle background for mobile readability */}
+              <div className="md:bg-transparent bg-white/70 dark:bg-black/50 backdrop-blur-sm md:backdrop-blur-none rounded-2xl md:rounded-none p-4 md:p-0 -mx-4 md:mx-0">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight mb-4 md:mb-6">
+                  Your Gateway to <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
+                    Global Connection
+                  </span>
+                </h1>
+                <p className="text-slate-800 dark:text-slate-100 text-base md:text-xl font-bold max-w-md leading-relaxed">
+                  Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
+                </p>
+              </div>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-10 max-w-lg relative z-30">
@@ -105,8 +108,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
                 <span className="text-base font-bold relative z-10">7 хоног</span>
               </div>
-              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-slate-100 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/30 text-slate-700 dark:text-white font-bold cursor-pointer hover:bg-slate-200 dark:hover:bg-white/20 transition active:scale-95 shadow-sm relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent pointer-events-none"></div>
+              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white font-bold cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-600 transition active:scale-95 shadow-sm relative overflow-hidden">
                 <span className="text-base relative z-10">15 хоног</span>
               </div>
             </motion.div>
