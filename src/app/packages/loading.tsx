@@ -2,7 +2,7 @@ import { PackageCardSkeleton } from "@/components/ui/skeleton";
 
 export default function PackagesLoading() {
     return (
-        <div className="min-h-screen pb-24 bg-[#F4F7FC]">
+        <div className="min-h-screen pb-24 bg-background">
             {/* Header skeleton with better styling */}
             <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3">
                 <div className="flex items-center justify-between mb-4">

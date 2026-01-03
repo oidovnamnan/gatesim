@@ -54,7 +54,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
     };
 
     return (
-        <div className="min-h-screen pb-40 bg-[#F4F7FC]">
+        <div className="min-h-screen pb-48 md:pb-8 bg-background">
             <MobileHeader showBack title={pkg.countryName} />
 
             {/* Hero Section */}
@@ -237,7 +237,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
             </div>
 
             {/* Fixed bottom CTA */}
-            <div className="fixed bottom-[70px] left-0 right-0 p-4 safe-padding z-30 pointer-events-none">
+            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom)+70px)] md:pb-4 bg-gradient-to-t from-background via-background to-transparent z-30">
                 <div className="bg-white rounded-2xl p-4 shadow-xl shadow-blue-900/10 border border-slate-100 pointer-events-auto flex items-center justify-between gap-4">
                     <div>
                         <p className="text-xs text-slate-400 font-medium ml-1">Нийт төлөх</p>

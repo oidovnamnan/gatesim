@@ -30,7 +30,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [theme, setThemeState] = useState<ThemeName>(DEFAULT_THEME);
-    const [mode, setModeState] = useState<Mode>("dark");
+    const [mode, setModeState] = useState<Mode>("light");
     // Keep track of active country internally to restore theme if country is cleared
     const [activeCountry, setActiveCountry] = useState<string | null>(null);
 
@@ -44,8 +44,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         const savedMode = localStorage.getItem("gatesim-mode") as Mode;
         if (savedMode) {
             setModeState(savedMode);
-            if (savedMode === "light") {
-                document.documentElement.classList.add("light");
+            if (savedMode === "dark") {
+                document.documentElement.classList.add("dark");
             }
         }
     }, []);
@@ -62,10 +62,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const setMode = (newMode: Mode) => {
         setModeState(newMode);
         localStorage.setItem("gatesim-mode", newMode);
-        if (newMode === "light") {
-            document.documentElement.classList.add("light");
+        if (newMode === "dark") {
+            document.documentElement.classList.add("dark");
         } else {
-            document.documentElement.classList.remove("light");
+            document.documentElement.classList.remove("dark");
         }
     };
 

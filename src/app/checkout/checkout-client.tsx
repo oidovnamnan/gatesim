@@ -127,7 +127,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
 
     if (step === "success") {
         return (
-            <div className="min-h-screen bg-[#F4F7FC] flex flex-col relative overflow-hidden">
+            <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center relative z-10">
                     <motion.div
                         initial={{ scale: 0 }}
@@ -176,7 +176,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     }
 
     return (
-        <div className="min-h-screen pb-32 bg-[#F4F7FC]">
+        <div className="min-h-screen pb-32 bg-background">
             {/* Mobile Header Custom */}
             <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center gap-3">
                 <button onClick={() => router.back()} className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors">

@@ -262,7 +262,7 @@ export default function MyEsimsPage() {
     const displayOrders = activeTab === "active" ? activeOrders : historyOrders;
 
     return (
-        <div className="min-h-screen bg-[#F4F7FC] pb-24 md:pt-28">
+        <div className="min-h-screen bg-background pb-24 md:pt-28">
             <div className="md:hidden">
                 <MobileHeader title="Миний eSIM" />
             </div>
