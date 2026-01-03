@@ -98,13 +98,20 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
             const countryCodes = p.countries ? p.countries.map((c: any) => c.alpha2Code || c) : [];
 
             // --- PRICING CALCULATION ---
-            const basePriceUsd = p.retailPrice || 0;
-            const priceWithMargin = basePriceUsd * (1 + marginPercent / 100);
-            const priceMnt = priceWithMargin * usdToMnt;
+            const basePrice = p.retailPrice || 0;
+            const originalCurrency = p.currencyCode;
+            let finalPrice = 0;
 
-            // Round to nearest 100 MNT (e.g. 15340 -> 15300 or 15400)
-            // Or maybe ceil to nearest 100 to avoid losing money? Let's use ceil(price / 100) * 100
-            const finalPrice = Math.ceil(priceMnt / 100) * 100;
+            if (originalCurrency === 'MNT') {
+                // If it's already MNT, we just add margin. No exchange rate multiplication.
+                const priceWithMargin = basePrice * (1 + marginPercent / 100);
+                finalPrice = Math.ceil(priceWithMargin / 100) * 100;
+            } else {
+                // Assume USD (or convert others to MNT using USD rate as fallback)
+                const priceWithMargin = basePrice * (1 + marginPercent / 100);
+                const priceMnt = priceWithMargin * usdToMnt;
+                finalPrice = Math.ceil(priceMnt / 100) * 100;
+            }
 
             return {
                 sku: p.productId,
