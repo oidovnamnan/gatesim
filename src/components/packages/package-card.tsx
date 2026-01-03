@@ -166,12 +166,30 @@ export function PackageCard({
                                 )}>
                                     {countryName || title}
                                 </h3>
-                                <p className={cn(
-                                    "text-xs font-medium truncate",
-                                    bgImage ? "text-white/70" : "opacity-70"
-                                )}>
-                                    {operatorTitle}
-                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <p className={cn(
+                                        "text-xs font-medium truncate",
+                                        bgImage ? "text-white/70" : "opacity-70"
+                                    )}>
+                                        {operatorTitle}
+                                    </p>
+
+                                    {/* Mini Flags showing it's a mix */}
+                                    {countries.length > 1 && (
+                                        <div className="flex -space-x-1.5">
+                                            {countries.slice(1, 4).map(c => (
+                                                <div key={c} className="w-4 h-4 rounded-full bg-white/90 border border-white/20 flex items-center justify-center text-[8px] leading-none shadow-sm" title={c}>
+                                                    {getCountryFlag(c)}
+                                                </div>
+                                            ))}
+                                            {countries.length > 4 && (
+                                                <div className="w-4 h-4 rounded-full bg-slate-900 text-white border border-white/20 flex items-center justify-center text-[7px] font-bold leading-none shadow-sm z-10">
+                                                    +{countries.length - 4}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

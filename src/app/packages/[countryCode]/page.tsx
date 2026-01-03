@@ -43,19 +43,31 @@ export default async function CountryPackagesPage({ params }: Props) {
         return names[c] || c;
     }
 
-    const uiPackages = products.map(pkg => ({
-        id: pkg.sku,
-        title: pkg.name,
-        operatorTitle: pkg.provider,
-        data: pkg.dataAmount === -1 ? "Unlimited" : (pkg.dataAmount >= 1024 ? `${(pkg.dataAmount / 1024).toFixed(0)} GB` : `${pkg.dataAmount} MB`),
-        validityDays: pkg.durationDays,
-        price: pkg.price, // Already calculated in MNT
-        currency: "MNT",
-        countries: pkg.countries,
-        countryName: getCountryName(pkg.countries[0]),
-        isUnlimited: pkg.dataAmount === -1,
-        isFeatured: false,
-    }));
+    const uiPackages = products.map(pkg => {
+        // Smart Reordering: Put the current country (code) at the front of the list
+        // This ensures the main flag and background image match the country the user is viewing
+        const otherCountries = pkg.countries.filter(c => c !== code);
+        const sortedCountries = [code, ...otherCountries];
+
+        // Smart Naming: If regional, show "Country + X others"
+        const displayTitle = sortedCountries.length > 1
+            ? `${getCountryName(code)} + ${otherCountries.length} улс`
+            : getCountryName(code);
+
+        return {
+            id: pkg.sku,
+            title: displayTitle,
+            operatorTitle: pkg.provider,
+            data: pkg.dataAmount === -1 ? "Unlimited" : (pkg.dataAmount >= 1024 ? `${(pkg.dataAmount / 1024).toFixed(0)} GB` : `${pkg.dataAmount} MB`),
+            validityDays: pkg.durationDays,
+            price: pkg.price,
+            currency: "MNT",
+            countries: sortedCountries, // Pass sorted list
+            countryName: displayTitle, // Use the smart title
+            isUnlimited: pkg.dataAmount === -1,
+            isFeatured: sortedCountries.length > 1, // Highlight regional packages slightly? Or keep false. Let's keep false.
+        };
+    });
 
     return (
         <div className="min-h-screen pb-24">
