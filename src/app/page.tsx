@@ -81,7 +81,7 @@ export default function HomePage() {
                 </span>
               </h1>
               <p className="hero-text-desc text-sm md:text-xl font-bold max-w-md leading-relaxed opacity-90">
-                Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
+                Дэлхийн 200+ улсад хамгийн хямд үнээр <br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
 
