@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { getMobiMatterProducts } from "@/lib/mobimatter";
 import { AmbienceTrigger } from "@/components/layout/ambience-trigger";
-import { PackageCard } from "@/components/packages/package-card";
 import { MobileHeader } from "@/components/layout/mobile-header";
+import { CountryPackagesList } from "./country-packages-list";
 
 interface Props {
     params: Promise<{ countryCode: string }>;
@@ -39,17 +39,16 @@ export default async function CountryPackagesPage({ params }: Props) {
             "RU": "Орос",
             "KZ": "Казахстан",
             "EU": "Европ",
+            "AL": "Албани",
+            "AE": "Дубай (Арабын Нэгдсэн Эмират)",
         };
         return names[c] || c;
     }
 
     const uiPackages = products.map(pkg => {
-        // Smart Reordering: Put the current country (code) at the front of the list
-        // This ensures the main flag and background image match the country the user is viewing
         const otherCountries = pkg.countries.filter(c => c !== code);
         const sortedCountries = [code, ...otherCountries];
 
-        // Smart Naming: If regional, show "Country + X others"
         const displayTitle = sortedCountries.length > 1
             ? `${getCountryName(code)} + ${otherCountries.length} улс`
             : getCountryName(code);
@@ -62,10 +61,11 @@ export default async function CountryPackagesPage({ params }: Props) {
             validityDays: pkg.durationDays,
             price: pkg.price,
             currency: "MNT",
-            countries: sortedCountries, // Pass sorted list
-            countryName: displayTitle, // Use the smart title
+            countries: sortedCountries,
+            countryName: displayTitle,
             isUnlimited: pkg.dataAmount === -1,
-            isFeatured: sortedCountries.length > 1, // Highlight regional packages slightly? Or keep false. Let's keep false.
+            isFeatured: sortedCountries.length > 1,
+            isPopular: false
         };
     });
 
@@ -75,25 +75,13 @@ export default async function CountryPackagesPage({ params }: Props) {
             <MobileHeader title={`${getCountryName(code)}`} showBack />
 
             <div className="container max-w-7xl mx-auto p-4 space-y-4 pt-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                     <h1 className="text-xl md:text-2xl font-bold text-foreground">
                         {getCountryName(code)} eSIM Багцууд
                     </h1>
-                    <span className="text-xs md:text-sm text-muted-foreground">{uiPackages.length} багц</span>
                 </div>
 
-                {uiPackages.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {uiPackages.map(pkg => (
-                            <PackageCard key={pkg.id} {...pkg} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
-                        <div className="text-4xl">🏝</div>
-                        <p>Энэ улсын багц одоогоор байхгүй байна.</p>
-                    </div>
-                )}
+                <CountryPackagesList packages={uiPackages} />
             </div>
         </div>
     );
