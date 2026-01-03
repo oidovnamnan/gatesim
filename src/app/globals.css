@@ -393,3 +393,26 @@ select:focus {
     display: none !important;
   }
 }
+/* Force hero text colors explicitly based on class, ignoring system preference */
+.hero-text-title {
+  color: #000000 !important;
+}
+.dark .hero-text-title {
+  color: #ffffff !important;
+}
+
+.hero-text-desc {
+  color: #000000 !important;
+}
+.dark .hero-text-desc {
+  color: #ffffff !important;
+}
+
+.hero-btn-15 {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+}
+.dark .hero-btn-15 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}

@@ -74,13 +74,13 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-12">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-left relative z-20">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 md:mb-6 text-[#000000] dark:text-[#ffffff]">
+              <h1 className="hero-text-title text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 md:mb-6">
                 Your Gateway to <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
                   Global Connection
                 </span>
               </h1>
-              <p className="text-[#000000] dark:text-[#ffffff] text-base md:text-xl font-bold max-w-md leading-relaxed">
+              <p className="hero-text-desc text-base md:text-xl font-bold max-w-md leading-relaxed">
                 Дэлхийн 200+ улсад хамгийн хямд үнээр<br className="hidden md:block" />интернэтэд холбогдоорой.
               </p>
             </motion.div>
@@ -105,7 +105,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
                 <span className="text-base font-bold relative z-10">7 хоног</span>
               </div>
-              <div className="flex-1 flex items-center justify-center py-4 rounded-[20px] bg-white/80 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/20 text-slate-700 dark:text-white font-bold cursor-pointer hover:bg-white dark:hover:bg-white/20 transition active:scale-95 shadow-sm">
+              <div className="hero-btn-15 flex-1 flex items-center justify-center py-4 rounded-[20px] backdrop-blur-md border border-slate-200 dark:border-white/20 font-bold cursor-pointer hover:bg-white dark:hover:bg-white/20 transition active:scale-95 shadow-sm">
                 <span className="text-base">15 хоног</span>
               </div>
             </motion.div>
