@@ -126,37 +126,33 @@ export default function HomePage() {
             return (
               <Link key={country.code} href={`/packages/${country.code}`}>
                 <div
-                  className={`group relative rounded-3xl p-5 
-                                bg-white/90
-                                border border-white/60
+                  className={`group relative rounded-3xl p-4 
+                                bg-white/90 dark:bg-slate-800/90
+                                border border-white/60 dark:border-white/10
                                 shadow-md hover:shadow-lg
                                 ${theme.hoverShadow}
-                                transition-shadow duration-200 cursor-pointer
-                                flex flex-col items-center text-center min-h-[180px]
+                                transition-all duration-200 cursor-pointer
+                                flex flex-col items-center text-center min-h-[160px]
                                 hover:-translate-y-1`}
                 >
-                  {/* Floating Price Badge */}
-                  <div className={`absolute top-3 right-3 ${theme.badgeBg} ${theme.badgeText} px-3 py-1 rounded-full text-xs font-black shadow-lg`}>
-                    ₮45k
-                  </div>
-
                   {/* Large Flag */}
-                  <div className="mt-2 mb-4">
-                    <span className="text-5xl">
+                  <div className="mt-4 mb-3">
+                    <span className="text-5xl drop-shadow-sm">
                       {country.flag}
                     </span>
                   </div>
 
                   {/* Country Name */}
-                  <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 line-clamp-1 w-full px-2">
+                  <h3 className="hero-text-title text-lg font-black leading-tight mb-3 line-clamp-1 w-full px-1">
                     {country.name}
                   </h3>
 
-                  {/* Specs */}
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 mt-auto">
-                    <span className="bg-slate-100 px-2.5 py-1 rounded-lg">5GB</span>
-                    <span className="text-slate-400">•</span>
-                    <span className="bg-slate-100 px-2.5 py-1 rounded-lg">7 хоног</span>
+                  {/* Call to Action */}
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 mt-auto bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-full group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                    <span>Багцуудыг үзэх</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </div>
               </Link>
