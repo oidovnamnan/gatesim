@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PackageCard, PackageCardCompact } from "@/components/packages/package-card";
 import { popularCountries } from "@/config/site";
 import { cn } from "@/lib/utils";
+import { useInView } from "react-intersection-observer";
 
 interface Package {
     id: string;
@@ -30,12 +31,25 @@ interface PackagesClientProps {
 type ViewMode = "grid" | "list";
 type SortOption = "price-asc" | "price-desc" | "popular";
 
+// Number of packages to show per page
+const PACKAGES_PER_PAGE = 20;
+
 export default function PackagesClient({ initialPackages }: PackagesClientProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [sortBy, setSortBy] = useState<SortOption>("popular");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null); // "short" | "medium" | "long"
+
+    // Infinite scroll state
+    const [displayCount, setDisplayCount] = useState(PACKAGES_PER_PAGE);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    // Intersection observer for infinite scroll
+    const { ref: loadMoreRef, inView } = useInView({
+        threshold: 0,
+        rootMargin: "100px",
+    });
 
     const filteredPackages = useMemo(() => {
         let packages = [...initialPackages];
@@ -131,6 +145,37 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
         return packages;
     }, [initialPackages, searchQuery, selectedCountry, selectedDuration, sortBy]);
+
+    // Reset display count when filters change
+    useEffect(() => {
+        setDisplayCount(PACKAGES_PER_PAGE);
+    }, [searchQuery, selectedCountry, selectedDuration, sortBy]);
+
+    // Load more when scrolling to bottom
+    const loadMore = useCallback(() => {
+        if (displayCount >= filteredPackages.length) return;
+
+        setIsLoadingMore(true);
+        // Small delay for smooth UX
+        setTimeout(() => {
+            setDisplayCount(prev => Math.min(prev + PACKAGES_PER_PAGE, filteredPackages.length));
+            setIsLoadingMore(false);
+        }, 300);
+    }, [displayCount, filteredPackages.length]);
+
+    // Trigger load more when in view
+    useEffect(() => {
+        if (inView && !isLoadingMore) {
+            loadMore();
+        }
+    }, [inView, isLoadingMore, loadMore]);
+
+    // Packages to display (paginated)
+    const displayedPackages = useMemo(() => {
+        return filteredPackages.slice(0, displayCount);
+    }, [filteredPackages, displayCount]);
+
+    const hasMore = displayCount < filteredPackages.length;
 
     return (
         <div className="min-h-screen pb-24 md:pb-8 bg-background">
@@ -237,7 +282,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             <div className="px-4 py-4 space-y-4">
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-foreground font-bold pl-1">
-                        {filteredPackages.length} багц олдлоо
+                        {displayedPackages.length} / {filteredPackages.length} багц
                     </p>
 
                     {/* View Mode Toggle */}
@@ -266,7 +311,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                 <AnimatePresence mode="popLayout">
                     {viewMode === "grid" ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            {filteredPackages.map((pkg) => (
+                            {displayedPackages.map((pkg) => (
                                 <motion.div
                                     key={pkg.id}
                                     layout
@@ -281,7 +326,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {filteredPackages.map((pkg) => (
+                            {displayedPackages.map((pkg) => (
                                 <motion.div
                                     key={pkg.id}
                                     layout
@@ -296,6 +341,32 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         </div>
                     )}
                 </AnimatePresence>
+
+                {/* Infinite Scroll Trigger */}
+                {hasMore && (
+                    <div
+                        ref={loadMoreRef}
+                        className="flex items-center justify-center py-8"
+                    >
+                        {isLoadingMore ? (
+                            <div className="flex items-center gap-2 text-slate-500">
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                                <span className="text-sm">Ачааллаж байна...</span>
+                            </div>
+                        ) : (
+                            <div className="text-sm text-slate-400">
+                                Доош гүйлгэж илүү ихийг үзнэ үү
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Show total loaded */}
+                {!hasMore && displayedPackages.length > 0 && (
+                    <div className="text-center py-6 text-sm text-slate-400">
+                        Бүх {filteredPackages.length} багц харагдлаа ✓
+                    </div>
+                )}
 
                 {filteredPackages.length === 0 && (
                     <div className="text-center py-12">
