@@ -28,6 +28,16 @@ export default function ProfilePage() {
 
     if (loading || !user) return null;
 
+    const handleSave = () => {
+        if (phone && !/^\d{8}$/.test(phone)) {
+            alert("Утасны дугаар буруу байна. 8 оронтой тоо оруулна уу.");
+            return;
+        }
+        // Logic to update profile would go here (requires new API or provider method)
+        // For now, let's just show an alert as the backend update isn't implemented in this file yet
+        alert("Амжилттай хадгалагдлаа! (Mock)");
+    };
+
     return (
         <div className="min-h-screen pb-24 bg-background transition-colors duration-300">
             <MobileHeader title="Миний мэдээлэл" showBack />
@@ -86,7 +96,7 @@ export default function ProfilePage() {
                             className="bg-background"
                         />
                     </div>
-                    <Button fullWidth>Хадгалах</Button>
+                    <Button fullWidth onClick={handleSave}>Хадгалах</Button>
                 </Card>
 
                 <Button

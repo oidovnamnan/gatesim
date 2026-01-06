@@ -20,11 +20,10 @@ import { cn } from "@/lib/utils";
 import {
     AIMessage,
     quickQuestions,
-    prebuiltResponses,
     aiPricing,
     installationGuides,
 } from "@/lib/ai-assistant";
-import { generateLocalResponse } from "@/lib/local-ai";
+import { generateLocalResponse, ESIM_INSTALL_PROMPT } from "@/lib/local-ai";
 
 interface AIChatProps {
     country?: string;
@@ -108,10 +107,11 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
             }
             setConversationState("idle");
         } else if (lowerText.includes("суулгах") || lowerText.includes("install")) {
-            responseText = prebuiltResponses["esim-install-ask-device"];
+            responseText = ESIM_INSTALL_PROMPT;
             setConversationState("awaiting_device");
         } else if (lowerText.includes("дэмжих үү") || lowerText.includes("support") || lowerText.includes("compatible")) {
-            responseText = prebuiltResponses["check-device"];
+            // Use local logic for device check
+            responseText = generateLocalResponse(messageText);
         } else {
             // Call API for response (Local or OpenAI handled by server)
             try {

@@ -6,49 +6,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Save, AlertCircle, RefreshCw, Globe, Shield, Palette, Check } from "lucide-react";
+import { Save, AlertCircle, RefreshCw, Globe, Shield, Palette, Check, Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { subscribeToSystemConfig, updateSystemConfig } from "@/lib/db";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PricingSettings {
     usdToMnt: number;
     marginPercent: number;
+    maintenanceMode?: boolean;
 }
 
 export default function SettingsPage() {
-    const [settings, setSettings] = useState<PricingSettings>({ usdToMnt: 3450, marginPercent: 25 });
+    const { toast } = useToast();
+    const [settings, setSettings] = useState<PricingSettings>({ usdToMnt: 3450, marginPercent: 25, maintenanceMode: false });
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/admin/settings")
-            .then(res => res.json())
-            .then(data => {
-                setSettings(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Failed to load settings", err);
-                setLoading(false);
-            });
+        const unsubscribe = subscribeToSystemConfig((config) => {
+            // Merge default metrics if new keys missing
+            setSettings(prev => ({
+                ...prev,
+                ...config,
+                usdToMnt: config.usdToMnt || 3450,
+                marginPercent: config.marginPercent || 25,
+                maintenanceMode: config.maintenanceMode || false
+            }));
+            setLoading(false);
+        });
+        return () => unsubscribe();
     }, []);
 
     const handleSave = async () => {
         try {
-            const res = await fetch("/api/admin/settings", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(settings),
-            });
-
-            if (res.ok) {
-                setSaved(true);
-                setTimeout(() => setSaved(false), 2000);
-            } else {
-                alert("Failed to save settings");
-            }
+            await updateSystemConfig(settings);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+            toast({ title: "Settings Saved", description: "Pricing and System updates applied." });
         } catch (error) {
             console.error("Error saving settings:", error);
-            alert("Error saving settings");
+            toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
+        }
+    };
+
+    const toggleMaintenance = async () => {
+        const newState = !settings.maintenanceMode;
+        try {
+            await updateSystemConfig({ ...settings, maintenanceMode: newState });
+            toast({
+                title: newState ? "Maintenance Mode ON" : "Maintenance Mode OFF",
+                description: newState ? "Site is now restricted." : "Site is live."
+            });
+        } catch (e) {
+            toast({ title: "Error", variant: "destructive", description: "Failed to toggle maintenance mode." });
         }
     };
 
@@ -57,7 +68,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Тохиргоо</h1>
-                    <p className="text-white/60">Системийн үндсэн тохиргоо болон үнийн бодлого (Real-time)</p>
+                    <p className="text-white/60">Системийн үндсэн тохиргоо болон үнийн бодлого (Real-time synced)</p>
                 </div>
             </div>
 
@@ -217,8 +228,13 @@ export default function SettingsPage() {
                         <h3 className="font-medium text-white">Maintenance Mode</h3>
                         <p className="text-xs text-white/50">Вэбсайтыг түр хааж, засварын хуудас харуулах</p>
                     </div>
-                    <Button variant="outline" className="text-white border-white/10 hover:bg-white/10">
-                        Идэвхжүүлэх
+                    <Button
+                        variant={settings.maintenanceMode ? "danger" : "outline"}
+                        className={settings.maintenanceMode ? "bg-red-500 hover:bg-red-600 text-white" : "text-white border-white/10 hover:bg-white/10"}
+                        onClick={toggleMaintenance}
+                    >
+                        <Power className="w-4 h-4 mr-2" />
+                        {settings.maintenanceMode ? "Идэвхгүй болгох" : "Идэвхжүүлэх"}
                     </Button>
                 </div>
             </Card>

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { SimCardFlag } from "@/components/ui/sim-card-flag";
+
 export interface CountryData {
     code: string;
     name: string;
@@ -20,9 +22,11 @@ export function CountryList({ countries }: { countries: CountryData[] }) {
 export function CountryCard({ country }: { country: CountryData }) {
     return (
         <Link href={`/packages/${country.code}`} className="block group">
-            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 h-full">
-                <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">{country.flag}</div>
-                <div className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors text-center">
+            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-red-300 dark:hover:border-red-500 transition-all duration-300 h-full">
+                <div className="mb-2 transform group-hover:scale-110 transition-transform">
+                    <SimCardFlag countryCode={country.code} size="sm" />
+                </div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors text-center">
                     {country.name}
                 </div>
             </div>

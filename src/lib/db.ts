@@ -10,7 +10,8 @@ import {
     getDocs,
     orderBy,
     serverTimestamp,
-    Timestamp
+    Timestamp,
+    onSnapshot
 } from "firebase/firestore";
 import { UserData, Order } from "@/types/db";
 
@@ -88,10 +89,32 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
 
 // --- Admin Operations ---
 
+export function subscribeToOrders(callback: (orders: Order[]) => void) {
+    const ordersRef = collection(db, "orders");
+    const q = query(ordersRef, orderBy("createdAt", "desc"));
+
+    return onSnapshot(q, (snapshot) => {
+        const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+        callback(orders);
+    });
+}
+
 export async function getAllOrders(limitCount = 50): Promise<Order[]> {
     // Requires index for complex queries, keeping it simple for now
     const ordersRef = collection(db, "orders");
     const q = query(ordersRef, orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q); // Add limit(limitCount) later
     return snapshot.docs.map(doc => doc.data() as Order);
+}
+
+// --- System Operations ---
+
+export function subscribeToSystemConfig(callback: (config: any) => void) {
+    return onSnapshot(doc(db, "system", "config"), (doc) => {
+        callback(doc.data() || {});
+    });
+}
+
+export async function updateSystemConfig(data: any) {
+    await setDoc(doc(db, "system", "config"), data, { merge: true });
 }

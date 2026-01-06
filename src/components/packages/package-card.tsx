@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Wifi, Clock, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SimCardFlag } from "@/components/ui/sim-card-flag";
 import { cn, getCountryFlag } from "@/lib/utils";
 
 // Map country codes to MULTIPLE placeholder images for variety
@@ -95,6 +96,7 @@ export function PackageCard({
 }: PackageCardProps) {
     const primaryCountry = countries[0];
     const flag = primaryCountry ? getCountryFlag(primaryCountry) : "🌐";
+
     const bgImage = primaryCountry ? getImageForPackage(primaryCountry, id) : null;
 
     return (
@@ -151,17 +153,16 @@ export function PackageCard({
 
                     {/* Content */}
                     <div className={cn("p-5 relative z-20", bgImage ? "text-white" : "package-card-text")}>
-                        {/* Header */}
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className={cn(
-                                "flex items-center justify-center w-10 h-10 rounded-xl text-2xl backdrop-blur-md shadow-sm",
-                                bgImage ? "bg-white/20 text-white" : "package-badge border"
-                            )}>
-                                {flag}
-                            </div>
+                        {/* Header with SIM Card Flag */}
+                        <div className="flex items-center gap-4 mb-4">
+                            {/* SIM Card Flag */}
+                            <SimCardFlag
+                                countryCode={primaryCountry}
+                                size="sm"
+                            />
                             <div className="flex-1 min-w-0">
                                 <h3 className={cn(
-                                    "text-xl font-black tracking-tight leading-tight",
+                                    "text-lg font-black tracking-tight leading-tight",
                                     bgImage ? "text-white" : "package-card-text"
                                 )}>
                                     {countryName || title}

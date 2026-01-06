@@ -47,6 +47,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const handleEmailAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+
+        // Validation
+        if (mode === "register" && phone && !/^\d{8}$/.test(phone)) {
+            alert("Утасны дугаар буруу байна. 8 оронтой тоо оруулна уу.");
+            setLoading(false);
+            return;
+        }
+
         try {
             if (mode === "register") {
                 await registerWithEmail(email, password, phone);

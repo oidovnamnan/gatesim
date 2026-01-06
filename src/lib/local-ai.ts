@@ -32,6 +32,16 @@ const topicKeywords = {
     esim: ["esim", "sim", "интернет", "дата", "data", "internet"],
 };
 
+export const ESIM_INSTALL_PROMPT = `📱 **eSIM суулгах заавар**
+
+Та ямар утас ашиглаж байна вэ?
+• iPhone
+• Samsung
+• Google Pixel
+• Бусад Android
+
+Утасныхаа загварыг бичвэл би яг таарсан зааврыг өгч чадна! 😊`;
+
 export function generateLocalResponse(query: string, currentContextCountry?: string): string {
     const lowerQuery = query.toLowerCase();
 
@@ -52,20 +62,37 @@ export function generateLocalResponse(query: string, currentContextCountry?: str
         return generateCountrySpecificResponse(lowerQuery, countryData);
     }
 
-    // 2. eSIM асуултууд
-    if (lowerQuery.includes("esim") || lowerQuery.includes("суулгах") || lowerQuery.includes("идэвхжүүлэх")) {
-        return `📱 **eSIM суулгах заавар**
+    // 2. eSIM төхөөрөмж дэмжих эсэх (Check Device)
+    if (lowerQuery.includes("дэмжих") || lowerQuery.includes("support") || lowerQuery.includes("compatible") || lowerQuery.includes("model")) {
+        return `📱 **eSIM дэмждэг утаснууд:**
+    
+**⚠️ АНХААР: Хятад/Хонг-Конг утаснууд**
+Хятад (China Mainland), Хонг-Конг, Макао-д үйлдвэрлэгдсэн **iPhone** болон ихэнх утаснууд **eSIM ДЭМЖДЭГГҮЙ!** (2 ширхэг бодит сим ордог ч, eSIM байхгүй). Та утсаа хаанаас авснаа сайн шалгаарай.
 
-Та ямар утас ашиглаж байна вэ?
-• iPhone
-• Samsung
-• Google Pixel
-• Бусад Android
+**Apple iPhone:**
+• iPhone XR, XS, XS Max
+• iPhone 11, 12, 13, 14, 15, 16 (Pro/Max/Mini)
+• iPhone SE (2nd, 3rd gen)
+*(Зөвхөн Олон улс, АНУ, Европ, Солонгос, Япон хувилбарууд)*
 
-Утасныхаа загварыг бичвэл би яг таарсан зааврыг өгч чадна! 😊`;
+**Samsung:**
+• Galaxy S20, S21, S22, S23, S24
+• Galaxy Note 20
+• Galaxy Z Flip, Fold (бүх загвар)
+
+**Google Pixel:**
+• Pixel 3, 3a, 4, 4a, 5, 6, 7, 8, 9
+
+**Шалгах заавар:**
+Утасныхаа **Settings** -> **Cellular** (эсвэл Connections) цэс рүү ороод **"Add eSIM"** эсвэл **"Add Cellular Plan"** гэсэн товч байгаа эсэхийг хараарай.`;
     }
 
-    // 3. Үнийн асуултууд
+    // 3. eSIM суулгах заавар (ерөнхий)
+    if (lowerQuery.includes("esim") || lowerQuery.includes("суулгах") || lowerQuery.includes("идэвхжүүлэх") || lowerQuery.includes("install")) {
+        return ESIM_INSTALL_PROMPT;
+    }
+
+    // 4. Үнийн асуултууд
     if (lowerQuery.includes("үнэ") || lowerQuery.includes("хэд") || lowerQuery.includes("price") || lowerQuery.includes("cost")) {
         return `💰 **GateSIM үнийн мэдээлэл**
 
@@ -77,7 +104,7 @@ export function generateLocalResponse(query: string, currentContextCountry?: str
 Та аль улс руу явах гэж байна вэ? Би танд тохирох багцыг санал болгоё! 🌏`;
     }
 
-    // 4. Хэрхэн ажилладаг
+    // 5. Хэрхэн ажилладаг
     if (lowerQuery.includes("яаж") || lowerQuery.includes("хэрхэн") || lowerQuery.includes("how") || lowerQuery.includes("ажилла")) {
         return `🔧 **eSIM хэрхэн ажилладаг вэ?**
 
@@ -89,7 +116,7 @@ export function generateLocalResponse(query: string, currentContextCountry?: str
 Маш энгийн, 5 минутанд бүгд дуусна!`;
     }
 
-    // 5. Ерөнхий мэндчилгээ
+    // 6. Ерөнхий мэндчилгээ
     if (lowerQuery.includes("сайн уу") || lowerQuery.includes("hello") || lowerQuery.includes("hi") || lowerQuery.includes("мэнд")) {
         return `Сайн байна уу! 👋 Би GateSIM-ийн AI туслах.
 

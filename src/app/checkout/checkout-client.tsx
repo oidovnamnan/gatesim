@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
     CreditCard,
@@ -11,19 +12,19 @@ import {
     QrCode,
     Loader2,
     Shield,
-    ArrowLeft
+    ArrowLeft,
+    Smartphone,
+    RefreshCw,
+    ExternalLink
 } from "lucide-react";
-import { MobileHeader } from "@/components/layout/mobile-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getCountryFlag, cn } from "@/lib/utils";
-import { createOrder } from "@/lib/db";
-import { Order } from "@/types/db";
 import { useAuth } from "@/providers/auth-provider";
 
 type PaymentMethod = "qpay" | "stripe";
-type Step = "details" | "payment" | "processing" | "success";
+type Step = "details" | "qr" | "processing" | "success" | "error";
 
 interface CheckoutPackage {
     id: string;
@@ -41,6 +42,35 @@ interface CheckoutClientProps {
     pkg: CheckoutPackage;
 }
 
+interface QPayInvoice {
+    invoiceId: string;
+    qrImage: string;
+    qrText: string;
+    shortUrl: string;
+    deeplinks: Array<{
+        name: string;
+        description: string;
+        logo: string;
+        link: string;
+    }>;
+    amountMNT: number;
+}
+
+// Bank logos mapping
+const bankLogos: Record<string, string> = {
+    "Khan Bank": "🏦",
+    "Golomt Bank": "🏛️",
+    "TDB": "🏢",
+    "State Bank": "🏤",
+    "Xac Bank": "💳",
+    "M Bank": "📱",
+    "Bogd Bank": "🏰",
+    "Arig Bank": "🦁",
+    "Chinggis Khaan Bank": "👑",
+    "Most Money": "💰",
+    "SocialPay": "📲",
+};
+
 export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const { user } = useAuth();
     const router = useRouter();
@@ -49,6 +79,9 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [orderId, setOrderId] = useState<string>("");
+    const [invoice, setInvoice] = useState<QPayInvoice | null>(null);
+    const [error, setError] = useState<string>("");
+    const [checkCount, setCheckCount] = useState(0);
 
     const flag = getCountryFlag(pkg.countries[0]);
     const displayPrice = formatPrice(pkg.price, pkg.currency);
@@ -59,72 +92,169 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
         }
     }, [user]);
 
-    const handlePayment = async () => {
+    // Create QPay invoice
+    const createQPayInvoice = async () => {
         if (!email) return;
 
         setIsLoading(true);
-        setStep("processing");
+        setError("");
 
         try {
-            // 1. Create Order Logic
-            const newOrder: Order = {
-                id: "", // generated inside createOrder
-                userId: user ? user.uid : "guest",
+            // Generate order ID
+            const newOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+            setOrderId(newOrderId);
+
+            // 1. Create Order in DB
+            const orderPayload = {
+                id: newOrderId,
                 contactEmail: email,
                 totalAmount: pkg.price,
                 currency: pkg.currency,
-                status: 'completed', // Simulating successful payment & fulfillment
-                paymentMethod: paymentMethod,
+                status: 'pending',
+                paymentMethod: 'qpay',
                 items: [{
                     id: pkg.id,
+                    sku: pkg.id,
                     name: pkg.title,
                     price: pkg.price,
-                    sku: pkg.id, // Using ID as SKU for now
                     quantity: 1,
                     metadata: {
-                        provider: pkg.operatorTitle,
-                        country: pkg.countries[0]
+                        operator: pkg.operatorTitle,
+                        data: pkg.data,
+                        validity: pkg.validityDays,
+                        country: pkg.countryName
                     }
-                }],
-                // Mock Fulfillment Data
-                esimIccid: "8988291510325389",
-                esimSmdpAddress: "LPA:1$smdp.io",
-                esimActivationCode: "ACT-CODE-8682",
-                createdAt: Date.now(),
-                updatedAt: Date.now()
+                }]
             };
 
-            const createdOrder = await createOrder(newOrder);
-            setOrderId(createdOrder.id);
+            const createOrderRes = await fetch("/api/orders/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderPayload)
+            });
 
-            // Simulate Network Delay
-            setTimeout(() => {
-                setStep("success");
-                setIsLoading(false);
-            }, 2000);
+            if (!createOrderRes.ok) {
+                const errData = await createOrderRes.json();
+                throw new Error(errData.error || "Захиалга үүсгэхэд алдаа гарлаа");
+            }
 
-        } catch (error) {
-            console.error("Order failed", error);
+            // 2. Create QPay invoice
+            const response = await fetch("/api/checkout/qpay", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    orderId: newOrderId,
+                    amount: pkg.price,
+                    currency: pkg.currency,
+                    description: `${pkg.title} - ${pkg.data} - ${pkg.validityDays} хоног`,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || "Нэхэмжлэх үүсгэхэд алдаа гарлаа");
+            }
+
+            setInvoice({
+                invoiceId: data.invoiceId,
+                qrImage: data.qrImage,
+                qrText: data.qrText,
+                shortUrl: data.shortUrl,
+                deeplinks: data.deeplinks || [],
+                amountMNT: data.amountMNT,
+            });
+
+            setStep("qr");
+        } catch (err) {
+            console.error("QPay invoice error:", err);
+            setError(err instanceof Error ? err.message : "Алдаа гарлаа");
+            setStep("error");
+        } finally {
             setIsLoading(false);
-            setStep("details"); // Go back or show error
         }
     };
 
+    // Check payment status
+    const checkPaymentStatus = useCallback(async () => {
+        if (!invoice?.invoiceId) return false;
+
+        try {
+            const response = await fetch(`/api/checkout/qpay?invoiceId=${invoice.invoiceId}`);
+            const data = await response.json();
+
+            if (data.isPaid) {
+                setStep("processing");
+                // Short delay before showing success
+                setTimeout(() => {
+                    setStep("success");
+                }, 2000);
+                return true;
+            }
+            return false;
+        } catch (err) {
+            console.error("Payment check error:", err);
+            return false;
+        }
+    }, [invoice?.invoiceId]);
+
+    // Poll for payment status
+    useEffect(() => {
+        if (step !== "qr" || !invoice?.invoiceId) return;
+
+        const interval = setInterval(async () => {
+            setCheckCount(c => c + 1);
+            const paid = await checkPaymentStatus();
+            if (paid) {
+                clearInterval(interval);
+            }
+        }, 3000); // Check every 3 seconds
+
+        // Stop polling after 10 minutes
+        const timeout = setTimeout(() => {
+            clearInterval(interval);
+        }, 10 * 60 * 1000);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, [step, invoice?.invoiceId, checkPaymentStatus]);
+
+    // Error state
+    if (step === "error") {
+        return (
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">❌</span>
+                </div>
+                <h1 className="text-xl font-bold text-slate-900 mb-2">Алдаа гарлаа</h1>
+                <p className="text-slate-500 mb-6 max-w-xs">{error}</p>
+                <Button onClick={() => setStep("details")} variant="outline">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Буцах
+                </Button>
+            </div>
+        );
+    }
+
+    // Processing state
     if (step === "processing") {
         return (
-            <div className="fixed inset-0 bg-white/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4">
+            <div className="fixed inset-0 bg-white/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4">
                 <div className="relative">
-                    <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full" />
-                    <Loader2 className="h-12 w-12 text-blue-600 animate-spin relative z-10" />
+                    <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full" />
+                    <Loader2 className="h-12 w-12 text-green-600 animate-spin relative z-10" />
                 </div>
-                <h2 className="text-slate-900 font-bold text-xl mt-6">Төлбөр шалгаж байна...</h2>
+                <h2 className="text-slate-900 font-bold text-xl mt-6">Төлбөр амжилттай!</h2>
                 <p className="text-slate-500 text-sm mt-2 text-center max-w-xs">
-                    Та түр хүлээнэ үү. Бид таны захиалгыг баталгаажуулж байна.
+                    eSIM-ийг бэлтгэж байна...
                 </p>
             </div>
         );
     }
 
+    // Success state
     if (step === "success") {
         return (
             <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
@@ -145,7 +275,9 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     <Card className="w-full max-w-sm bg-white border-slate-200 p-4 mb-6 shadow-sm">
                         <div className="flex justify-between items-center text-sm mb-2">
                             <span className="text-slate-500">Захиалгын дугаар</span>
-                            <span className="font-mono text-slate-900 font-bold select-all">{orderId.slice(0, 8).toUpperCase()}</span>
+                            <span className="font-mono text-slate-900 font-bold select-all">
+                                {orderId.slice(0, 12).toUpperCase()}
+                            </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-slate-500">Имэйл</span>
@@ -157,10 +289,10 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         size="lg"
                         fullWidth
                         className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 mb-3"
-                        onClick={() => router.push("/orders")}
+                        onClick={() => router.push("/my-esims")}
                     >
                         <QrCode className="h-4 w-4 mr-2" />
-                        Миний захиалгууд
+                        Миний eSIM-үүд
                     </Button>
 
                     <Button
@@ -175,6 +307,122 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
         );
     }
 
+    // QR Code step
+    if (step === "qr" && invoice) {
+        return (
+            <div className="min-h-screen bg-background pb-6">
+                {/* Header */}
+                <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center gap-3">
+                    <button
+                        onClick={() => setStep("details")}
+                        className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-slate-700" />
+                    </button>
+                    <h1 className="font-bold text-lg text-slate-900">QPay төлбөр</h1>
+                </div>
+
+                <div className="p-4 space-y-4 max-w-lg mx-auto">
+                    {/* Amount */}
+                    <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                        <div className="text-center">
+                            <p className="text-sm text-slate-600 mb-1">Төлөх дүн</p>
+                            <p className="text-3xl font-bold text-blue-600">
+                                ₮{invoice.amountMNT.toLocaleString()}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1">{displayPrice}</p>
+                        </div>
+                    </Card>
+
+                    {/* QR Code */}
+                    <Card className="p-6 bg-white border-slate-200">
+                        <div className="flex flex-col items-center">
+                            <p className="text-sm text-slate-600 mb-4 flex items-center gap-2">
+                                <QrCode className="w-4 h-4" />
+                                QR код уншуулах
+                            </p>
+
+                            {invoice.qrImage ? (
+                                <div className="w-48 h-48 bg-white rounded-lg border-2 border-slate-100 flex items-center justify-center p-2">
+                                    <img
+                                        src={invoice.qrImage.startsWith("http")
+                                            ? invoice.qrImage
+                                            : invoice.qrImage.startsWith("data:")
+                                                ? invoice.qrImage
+                                                : `data:image/png;base64,${invoice.qrImage}`}
+                                        alt="QPay QR Code"
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-48 h-48 bg-slate-100 rounded-lg flex items-center justify-center">
+                                    <QrCode className="w-20 h-20 text-slate-300" />
+                                </div>
+                            )}
+
+                            <div className="flex items-center gap-2 mt-4 text-xs text-slate-500">
+                                <RefreshCw className={cn("w-3 h-3", checkCount > 0 && "animate-spin")} />
+                                Төлбөр хүлээж байна... ({checkCount})
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Bank Deeplinks */}
+                    {invoice.deeplinks && invoice.deeplinks.length > 0 && (
+                        <div className="space-y-2">
+                            <p className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                                <Smartphone className="w-4 h-4" />
+                                Банкны аппаар төлөх
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                                {invoice.deeplinks.slice(0, 9).map((bank, index) => (
+                                    <a
+                                        key={index}
+                                        href={bank.link}
+                                        className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                    >
+                                        {bank.logo ? (
+                                            <div className="w-10 h-10 relative mb-1">
+                                                <img
+                                                    src={bank.logo}
+                                                    alt={bank.name}
+                                                    className="w-full h-full object-contain rounded-lg"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                        (e.target as HTMLImageElement).parentElement!.innerText = bankLogos[bank.name] || "🏦";
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <span className="text-2xl mb-1">
+                                                {bankLogos[bank.name] || "🏦"}
+                                            </span>
+                                        )}
+                                        <span className="text-[10px] font-medium text-slate-600 text-center leading-tight">
+                                            {bank.description || bank.name}
+                                        </span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Manual check button */}
+                    <Button
+                        variant="outline"
+                        fullWidth
+                        onClick={checkPaymentStatus}
+                        className="mt-4"
+                    >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Төлбөр шалгах
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    // Details step (default)
     return (
         <div className="min-h-screen pb-32 bg-background">
             {/* Mobile Header Custom */}
@@ -218,13 +466,22 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         placeholder="name@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="bg-white border-slate-200 text-slate-900 shadow-sm focus:border-blue-500"
+                        className={cn(
+                            "bg-white border-slate-200 text-slate-900 shadow-sm focus:border-blue-500",
+                            email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "border-red-300 focus:border-red-500 bg-red-50" : ""
+                        )}
                         readOnly={!!user?.email}
                     />
-                    <p className="text-xs text-slate-400 ml-1 flex items-center gap-1">
-                        <Shield className="w-3 h-3" />
-                        QR код энэ хаягаар илгээгдэнэ
-                    </p>
+                    {email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? (
+                        <p className="text-xs text-red-500 ml-1 flex items-center gap-1 font-medium">
+                            Буруу форматтай имэйл байна
+                        </p>
+                    ) : (
+                        <p className="text-xs text-slate-400 ml-1 flex items-center gap-1">
+                            <Shield className="w-3 h-3" />
+                            QR код энэ хаягаар илгээгдэнэ
+                        </p>
+                    )}
                 </div>
 
                 {/* Payment Method */}
@@ -282,12 +539,26 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         <Button
                             size="lg"
                             fullWidth
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/20"
-                            onClick={handlePayment}
-                            disabled={!email}
+                            className={cn(
+                                "font-bold shadow-lg transition-all",
+                                !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+                                    ? "bg-slate-200 text-slate-400 shadow-none cursor-not-allowed"
+                                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20"
+                            )}
+                            onClick={createQPayInvoice}
+                            disabled={!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || isLoading}
                         >
-                            Төлбөр төлөх
-                            <ChevronRight className="w-5 h-5 ml-1" />
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Уншиж байна...
+                                </>
+                            ) : (
+                                <>
+                                    Төлбөр төлөх
+                                    <ChevronRight className="w-5 h-5 ml-1" />
+                                </>
+                            )}
                         </Button>
                     </div>
                 </div>

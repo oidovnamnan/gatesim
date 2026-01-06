@@ -10,6 +10,10 @@ export async function POST(req: Request) {
             return new NextResponse("Email and password are required", { status: 400 });
         }
 
+        if (phone && !/^\d{8}$/.test(phone)) {
+            return new NextResponse("Invalid phone number format. Must be 8 digits.", { status: 400 });
+        }
+
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
             where: { email },

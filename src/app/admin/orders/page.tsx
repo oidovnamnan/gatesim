@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatPrice } from "@/lib/utils";
 import { Search, Filter, Eye, Loader2, RefreshCw } from "lucide-react";
-import { getAllOrders } from "@/lib/db";
+import { subscribeToOrders } from "@/lib/db";
 import { Order } from "@/types/db";
 
 const statusStyles: Record<string, "default" | "success" | "warning" | "destructive"> = {
@@ -18,26 +18,35 @@ const statusStyles: Record<string, "default" | "success" | "warning" | "destruct
     refunded: "default"
 };
 
+import { OrderDetailsSheet } from "@/components/admin/orders/order-details-sheet";
+
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const fetchOrders = async () => {
-        setLoading(true);
-        try {
-            const data = await getAllOrders();
-            setOrders(data);
-        } catch (error) {
-            console.error("Failed to fetch orders:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchOrders();
+        setLoading(true);
+        // Real-time subscription
+        const unsubscribe = subscribeToOrders((newOrders) => {
+            setOrders(newOrders);
+            setLoading(false);
+        });
+
+        // Cleanup listener on unmount
+        return () => unsubscribe();
     }, []);
+
+    // Manual refresh is no longer strictly needed but kept just in case
+    const handleRefresh = () => {
+        // With onSnapshot, refresh is automatic. 
+        // We could force re-subscribe or just ignore.
+        setLoading(true);
+        // Re-subscription happens automatically if we don't destroy it.
+        // For UI feedback, let's just timeout.
+        setTimeout(() => setLoading(false), 500);
+    };
 
     const filteredOrders = orders.filter(order =>
         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,7 +63,7 @@ export default function AdminOrdersPage() {
                     <p className="text-white/60">Real-time order tracking from Firebase</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={fetchOrders} disabled={loading}>
+                    <Button variant="outline" onClick={handleRefresh} disabled={loading}>
                         <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                     </Button>
@@ -133,7 +142,12 @@ export default function AdminOrdersPage() {
                                             {new Date(order.createdAt).toLocaleString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0"
+                                                onClick={() => setSelectedOrder(order)}
+                                            >
                                                 <Eye className="w-4 h-4 text-blue-400" />
                                             </Button>
                                         </td>
@@ -144,6 +158,12 @@ export default function AdminOrdersPage() {
                     </tbody>
                 </table>
             </div>
+
+            <OrderDetailsSheet
+                order={selectedOrder}
+                open={!!selectedOrder}
+                onOpenChange={(open) => !open && setSelectedOrder(null)}
+            />
         </div>
     )
 }

@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, doc, setDoc } from "firebase/firestore";
@@ -10,14 +9,15 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
-        // 🔐 AUTHENTICATION CHECK
+        // 🔐 AUTHENTICATION CHECK (Optional for Guest Checkout)
         const session = await auth();
-        if (!session?.user) {
-            return NextResponse.json(
-                { error: "Нэвтрээгүй байна" },
-                { status: 401 }
-            );
-        }
+        // If system requires auth, uncomment below:
+        // if (!session?.user) {
+        //     return NextResponse.json(
+        //         { error: "Нэвтрээгүй байна" },
+        //         { status: 401 }
+        //     );
+        // }
 
         const body = await req.json();
 
@@ -29,9 +29,10 @@ export async function POST(req: Request) {
             );
         }
 
-        // 🔐 SECURITY: Ensure userId matches session user
-        const sessionUserId = (session.user as any).id;
-        if (body.userId && body.userId !== sessionUserId) {
+        // 🔐 SECURITY: Ensure userId matches session user (if logged in)
+        const sessionUserId = session?.user ? (session.user as any).id : null;
+
+        if (sessionUserId && body.userId && body.userId !== sessionUserId) {
             console.warn(`User ${sessionUserId} attempted to create order for ${body.userId}`);
             return NextResponse.json(
                 { error: "Хандах эрхгүй" },
@@ -46,14 +47,18 @@ export async function POST(req: Request) {
 
         // Generate ID securely on server if provided ID is empty strings (though client usually sends empty string)
         const ordersRef = collection(db, "orders");
-        const newOrderRef = doc(ordersRef); // Auto-gen ID
+        // Use provided ID if available (from client-side generation for consistency) or generate new
+        const newOrderRef = orderData.id
+            ? doc(ordersRef, orderData.id)
+            : doc(ordersRef);
 
         const finalOrder: Order = {
             ...orderData,
             id: newOrderRef.id,
-            // 🔐 SECURITY: Always use session userId, not client-provided
-            userId: sessionUserId,
-            contactEmail: session.user.email || orderData.contactEmail,
+            // 🔐 SECURITY: Use session userId if available, otherwise Guest or provided ID (if trusted)
+            // Ideally we don't trust body.userId for Guests to claim other users' orders, but for now allow null
+            userId: sessionUserId || "GUEST",
+            contactEmail: session?.user?.email || orderData.contactEmail,
             createdAt: Date.now(),
             updatedAt: Date.now(),
             // Ensure status starts correctly if not provided
@@ -78,4 +83,3 @@ export async function POST(req: Request) {
         );
     }
 }
-
