@@ -105,20 +105,9 @@ export async function GET(request: NextRequest) {
             payments: result.rows,
         });
     } catch (error) {
-        console.error("Error checking QPay payment:", error);
-
-        // Return mock data in development
-        if (process.env.NODE_ENV === "development" && !process.env.QPAY_USERNAME) {
-            return NextResponse.json({
-                success: true,
-                isPaid: false,
-                paidAmount: 0,
-                payments: [],
-            });
-        }
-
+        console.error("QPay Invoice Error:", error);
         return NextResponse.json(
-            { error: "Төлбөрийн төлөв шалгахад алдаа гарлаа" },
+            { error: "Payment system unavailable. Please try again later." },
             { status: 500 }
         );
     }

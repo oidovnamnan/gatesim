@@ -34,27 +34,61 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
     };
 
     const handleResendEmail = async () => {
+        if (!order?.contactEmail) return;
+
         setActionLoading("email");
-        // Mock API call
-        await new Promise(r => setTimeout(r, 1000));
-        toast({
-            title: "Email Sent",
-            description: `Confirmation email sent to ${order.contactEmail}`,
-        });
-        setActionLoading(null);
+        try {
+            const res = await fetch("/api/orders/actions/resend-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: order.id, email: order.contactEmail })
+            });
+
+            if (!res.ok) throw new Error("Failed to send email");
+
+            toast({
+                title: "Email Sent",
+                description: `Confirmation email sent to ${order.contactEmail}`,
+            });
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: "Failed to send email. Check logs.",
+                variant: "destructive"
+            });
+        } finally {
+            setActionLoading(null);
+        }
     };
 
     const handleRefund = async () => {
-        if (!confirm("Are you sure you want to initiate a full refund?")) return;
+        if (!confirm("Are you sure you want to initiate a full refund? THIS ACTION IS PERMANENT.")) return;
         setActionLoading("refund");
-        // Mock API call
-        await new Promise(r => setTimeout(r, 1500));
-        toast({
-            title: "Refund Initiated",
-            description: `Refund of ${formatPrice(order.totalAmount, order.currency)} processed.`,
-            variant: "default", // Should be success ideally
-        });
-        setActionLoading(null);
+
+        try {
+            const res = await fetch("/api/orders/actions/refund", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: order.id })
+            });
+
+            if (!res.ok) throw new Error("Refund failed");
+
+            toast({
+                title: "Refund Initiated",
+                description: `Refund processed successfully.`,
+            });
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: "Failed to process refund. Check backend logs.",
+                variant: "destructive"
+            });
+        } finally {
+            setActionLoading(null);
+        }
     };
 
     return (

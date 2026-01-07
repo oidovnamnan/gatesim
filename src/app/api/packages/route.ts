@@ -60,14 +60,6 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error("Error fetching packages:", error);
 
-        // Return mock data in development if Airalo credentials not set
-        if (process.env.NODE_ENV === "development" && !process.env.AIRALO_CLIENT_ID) {
-            return NextResponse.json({
-                packages: getMockPackages(),
-                pagination: { page: 1, limit: 20, total: 10, totalPages: 1 },
-            });
-        }
-
         return NextResponse.json(
             { error: "Failed to fetch packages" },
             { status: 500 }

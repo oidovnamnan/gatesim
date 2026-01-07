@@ -9,6 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LogOut, User, Phone, Mail, Moon, Sun } from "lucide-react";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useToast } from "@/providers/toast-provider"; // Ensure this provider exists or use local state
 import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
@@ -28,14 +31,31 @@ export default function ProfilePage() {
 
     if (loading || !user) return null;
 
-    const handleSave = () => {
+    const [isSaving, setIsSaving] = useState(false);
+    const { success, error } = useToast();
+
+    const handleSave = async () => {
+        if (!user) return;
+
         if (phone && !/^\d{8}$/.test(phone)) {
-            alert("Утасны дугаар буруу байна. 8 оронтой тоо оруулна уу.");
+            error("Утасны дугаар буруу байна. 8 оронтой тоо оруулна уу.");
             return;
         }
-        // Logic to update profile would go here (requires new API or provider method)
-        // For now, let's just show an alert as the backend update isn't implemented in this file yet
-        alert("Амжилттай хадгалагдлаа! (Mock)");
+
+        setIsSaving(true);
+        try {
+            const userRef = doc(db, "users", user.uid);
+            await updateDoc(userRef, {
+                phone,
+                updatedAt: Date.now()
+            });
+            success("Мэдээлэл амжилттай хадгалагдлаа!");
+        } catch (err) {
+            console.error(err);
+            error("Хадгалахад алдаа гарлаа.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -96,7 +116,9 @@ export default function ProfilePage() {
                             className="bg-background"
                         />
                     </div>
-                    <Button fullWidth onClick={handleSave}>Хадгалах</Button>
+                    <Button fullWidth onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? "Хадгалж байна..." : "Хадгалах"}
+                    </Button>
                 </Card>
 
                 <Button

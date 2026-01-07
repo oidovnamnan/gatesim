@@ -44,13 +44,13 @@ const categoryIcons: Record<string, string> = {
     connectivity: "📶",
 };
 
-// Mock country for demo - in real app, get from params
-const mockCountrySlug = "japan";
+// In real app, get from params
+// const mockCountrySlug = "japan";
 
-export default function CountryInfoPage() {
+export default function CountryInfoPage({ params }: { params: { slug: string } }) {
     const [activeTab, setActiveTab] = useState<"overview" | "transport" | "tips" | "phrases">("overview");
 
-    const country = countryInfoDatabase[mockCountrySlug] as CountryInfo;
+    const country = countryInfoDatabase[params.slug] as CountryInfo;
 
     if (!country) {
         return <div>Улс олдсонгүй</div>;

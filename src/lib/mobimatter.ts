@@ -131,7 +131,7 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
 
     } catch (e) {
         console.error("[MobiMatter] Fetch Error:", e);
-        return getMockProducts();
+        throw e;
     }
 }
 
