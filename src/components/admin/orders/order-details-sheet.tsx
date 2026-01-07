@@ -109,7 +109,7 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                 title: "Provisioning Retried",
                 description: "Success! Order should be completed now.",
                 variant: 'default',
-                className: "bg-green-600 text-white"
+
             });
             onOpenChange(false); // Close sheet to force refresh or just let subscription update
         } catch (error: any) {
