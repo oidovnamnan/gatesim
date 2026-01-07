@@ -40,8 +40,8 @@ interface EsimCardProps {
 
 function EsimCard({ order, onSelect }: EsimCardProps) {
     const flag = getCountryFlag(order.countryCode);
-    const isActive = order.status === "completed" && order.daysRemaining > 0;
-    const usagePercent = (order.dataUsed / parseFloat(order.data)) * 100;
+    const isActive = order.status === "COMPLETED" && order.daysRemaining > 0;
+    const isProcessing = order.status === "PAID" || order.status === "PROVISIONING";
 
     return (
         <motion.div
@@ -63,10 +63,12 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                                 variant="secondary"
                                 className={cn(
                                     "px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider",
-                                    isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-100 text-slate-500 border-slate-200"
+                                    isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                                        isProcessing ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                            "bg-slate-100 text-slate-500 border-slate-200"
                                 )}
                             >
-                                {isActive ? "Идэвхтэй" : "Дууссан"}
+                                {isActive ? "Идэвхтэй" : isProcessing ? "Хүлээж байна" : "Дууссан"}
                             </Badge>
                         </div>
                         <p className="text-sm text-slate-500 font-medium">{order.packageName}</p>
@@ -77,16 +79,23 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                 {isActive && (
                     <div className="mt-5 pt-4 border-t border-slate-100">
                         {/* Data usage bar */}
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
-                            <span>Дата ашиглалт</span>
-                            <span className="text-slate-900">{order.dataUsed} GB <span className="text-slate-400 font-normal">/ {order.data}</span></span>
-                        </div>
-                        <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
-                            <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all"
-                                style={{ width: `${Math.min(usagePercent, 100)}%` }}
-                            />
-                        </div>
+                        {(() => {
+                            const usagePercent = (order.dataUsed / (parseFloat(order.data) || 1)) * 100;
+                            return (
+                                <>
+                                    <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
+                                        <span>Дата ашиглалт</span>
+                                        <span className="text-slate-900">{order.dataUsed} GB <span className="text-slate-400 font-normal">/ {order.data}</span></span>
+                                    </div>
+                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all"
+                                            style={{ width: `${Math.min(usagePercent, 100)}%` }}
+                                        />
+                                    </div>
+                                </>
+                            );
+                        })()}
 
                         {/* Remaining days */}
                         <div className="flex items-center gap-2 text-sm bg-amber-50 text-amber-900/80 px-3 py-2 rounded-xl border border-amber-100/50">
@@ -258,18 +267,40 @@ export default function MyEsimsPage() {
             const formattedOrders = uniqueOrders.map((data: any) => {
                 const esim = data.esim || {};
                 const pkg = data.package || (data.items && data.items[0]) || {};
+                const metadata = pkg.metadata || {};
+
+                // Normalize status
+                const status = (data.status || "pending").toUpperCase();
+
+                // Determine Country Name & Code
+                // Fallback priorities: pkg.countryName -> pkg.countries[0] -> metadata.country -> "Global"
+                const countryName = pkg.countryName || (pkg.countries && pkg.countries[0]) || metadata.country || "Global";
+                // We don't have code in metadata usually, so default to WO if generic
+                const countryCode = (pkg.countries && pkg.countries[0]) || "WO";
+
+                // Validity Calculation
+                const validityDays = parseInt(pkg.durationDays || metadata.validity || "30");
+                const created = new Date(data.createdAt || Date.now());
+                const expiresAt = new Date(created.getTime() + validityDays * 24 * 60 * 60 * 1000);
+                const now = new Date();
+                const daysRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+                // Data Formatting
+                let dataAmountStr = "Unlimited";
+                if (pkg.dataAmount) dataAmountStr = `${pkg.dataAmount / 1024} GB`;
+                else if (metadata.data) dataAmountStr = metadata.data;
 
                 return {
                     id: data.id,
                     orderNumber: (data.orderNumber || data.id).substring(0, 8).toUpperCase(),
-                    status: data.status,
-                    packageName: pkg.name || "Unknown Package",
-                    countryCode: (pkg.countries && pkg.countries[0]) || "WO",
-                    countryName: (pkg.countries && pkg.countries[0]) || "Global",
-                    data: (pkg.dataAmount && pkg.dataAmount > 0) ? `${pkg.dataAmount / 1024} GB` : "Unlimited",
-                    dataUsed: 0,
-                    validityDays: pkg.durationDays || 30,
-                    daysRemaining: pkg.durationDays || 30,
+                    status: status,
+                    packageName: pkg.name || pkg.title || "Unknown Package",
+                    countryCode: countryCode,
+                    countryName: countryName,
+                    data: dataAmountStr,
+                    dataUsed: 0, // Mock usage for now
+                    validityDays: validityDays,
+                    daysRemaining: daysRemaining,
                     price: data.totalAmount,
                     qrCode: esim.qrData || esim.lpa || "Generating...",
                     iccid: esim.iccid || "Pending...",
@@ -315,10 +346,25 @@ export default function MyEsimsPage() {
     }, [user, authLoading]);
 
     const activeOrders = orders.filter(
-        (o) => o.status === "COMPLETED" || o.status === "PAID" // Show PAID as active too while processing
+        (o) => {
+            const isCompleted = o.status === "COMPLETED";
+            const isProcessing = o.status === "PAID" || o.status === "PROVISIONING";
+            const isNotExpired = o.daysRemaining > 0;
+
+            // Active if: (Completed AND Not Expired) OR Processing
+            return (isCompleted && isNotExpired) || isProcessing;
+        }
     );
+
     const historyOrders = orders.filter(
-        (o) => o.status !== "COMPLETED" && o.status !== "PAID"
+        (o) => {
+            const isCompleted = o.status === "COMPLETED";
+            const isExpired = o.daysRemaining <= 0;
+            const isOther = o.status !== "COMPLETED" && o.status !== "PAID" && o.status !== "PROVISIONING";
+
+            // History if: (Completed AND Expired) OR Failed/Cancelled/Pending
+            return (isCompleted && isExpired) || isOther;
+        }
     );
 
     const displayOrders = activeTab === "active" ? activeOrders : historyOrders;
