@@ -242,38 +242,38 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                             )}
                         </div>
                     </div>
-                </div>
 
-                {/* Provisioning Error (If Failed) */}
-                {(order.status === 'PROVISIONING_FAILED' || order.status === 'failed' || order.metadata?.provisioningError) && (
-                    <div className="space-y-3">
-                        <h4 className="font-medium text-red-400 flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4" /> Provisioning Error
-                        </h4>
-                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg text-sm text-red-200">
-                            <p className="font-bold mb-1">System Error:</p>
-                            <code className="block whitespace-pre-wrap break-all bg-black/30 p-2 rounded text-xs font-mono">
-                                {typeof order.metadata?.provisioningError === 'string'
-                                    ? order.metadata.provisioningError
-                                    : JSON.stringify(order.metadata?.provisioningError || "Unknown Error")}
-                            </code>
+
+                    {/* Provisioning Error (If Failed) */}
+                    {(order.status === 'PROVISIONING_FAILED' || order.status === 'failed' || order.metadata?.provisioningError) && (
+                        <div className="space-y-3">
+                            <h4 className="font-medium text-red-400 flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4" /> Provisioning Error
+                            </h4>
+                            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg text-sm text-red-200">
+                                <p className="font-bold mb-1">System Error:</p>
+                                <code className="block whitespace-pre-wrap break-all bg-black/30 p-2 rounded text-xs font-mono">
+                                    {typeof order.metadata?.provisioningError === 'string'
+                                        ? order.metadata.provisioningError
+                                        : JSON.stringify(order.metadata?.provisioningError || "Unknown Error")}
+                                </code>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Technical / Raw Data */}
-                <div className="pt-4">
-                    <div className="flex items-center gap-2 text-amber-500/80 text-xs mb-2">
-                        <AlertTriangle className="w-3 h-3" />
-                        Raw Data (For Debugging)
+                    {/* Technical / Raw Data */}
+                    <div className="pt-4">
+                        <div className="flex items-center gap-2 text-amber-500/80 text-xs mb-2">
+                            <AlertTriangle className="w-3 h-3" />
+                            Raw Data (For Debugging)
+                        </div>
+                        <pre className="text-[10px] bg-black/50 p-4 rounded-lg overflow-x-auto font-mono text-white/40">
+                            {JSON.stringify(order, null, 2)}
+                        </pre>
                     </div>
-                    <pre className="text-[10px] bg-black/50 p-4 rounded-lg overflow-x-auto font-mono text-white/40">
-                        {JSON.stringify(order, null, 2)}
-                    </pre>
+
                 </div>
-
-            </div>
-        </SheetContent>
-        </Sheet >
+            </SheetContent>
+        </Sheet>
     );
 }
