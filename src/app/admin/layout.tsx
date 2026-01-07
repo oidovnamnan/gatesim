@@ -6,6 +6,8 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 const ADMIN_EMAILS = [
     'admin@gatesim.mn',
     'suren@gatesim.mn',
+    'nsurenoidov@gmail.com',
+    'admin@gatesim.travel',
     // Add more admin emails here
 ];
 
