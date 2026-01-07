@@ -2,7 +2,8 @@ import { getMobiMatterProducts } from "@/lib/mobimatter";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { RefreshButton } from "@/components/admin/packages/refresh-button";
 
 export default async function AdminPackagesPage() {
     const products = await getMobiMatterProducts();
@@ -17,7 +18,7 @@ export default async function AdminPackagesPage() {
                     <p className="text-white/60">Manage your eSIM products and pricing</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="secondary" className="gap-2"><RefreshCw className="w-4 h-4" /> Sync from MobiMatter</Button>
+                    <RefreshButton />
                     <Button className="gap-2"><Plus className="w-4 h-4" /> Add Custom</Button>
                 </div>
             </div>
