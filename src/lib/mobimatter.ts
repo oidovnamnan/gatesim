@@ -108,11 +108,14 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
                 // If it's already MNT, we just add margin. No exchange rate multiplication.
                 const priceWithMargin = basePrice * (1 + marginPercent / 100);
                 finalPrice = Math.ceil(priceWithMargin / 100) * 100;
-            } else {
-                // Assume USD (or convert others to MNT using USD rate as fallback)
+            } else if (originalCurrency === 'USD') {
                 const priceWithMargin = basePrice * (1 + marginPercent / 100);
                 const priceMnt = priceWithMargin * usdToMnt;
                 finalPrice = Math.ceil(priceMnt / 100) * 100;
+            } else {
+                // Unknown currency (e.g., VND, EUR). Prevent converting as USD!
+                console.warn(`[MobiMatter] Skipping price calc for unknown currency: ${originalCurrency} (Value: ${basePrice})`);
+                finalPrice = 0; // Or handle other currencies if needed
             }
 
             return {
