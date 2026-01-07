@@ -14,7 +14,7 @@ export default async function AdminPackagesPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Packages Management</h1>
+                    <h1 className="text-2xl font-bold text-white">Packages Management ({products.length})</h1>
                     <p className="text-white/60">Manage your eSIM products and pricing</p>
                 </div>
                 <div className="flex gap-2">
