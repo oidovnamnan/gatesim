@@ -19,6 +19,8 @@ export default function ProfilePage() {
     const router = useRouter();
     const { theme, toggleMode, mode } = useTheme();
     const [phone, setPhone] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+    const { success, error } = useToast();
 
     useEffect(() => {
         if (!loading && !user) {
@@ -30,9 +32,6 @@ export default function ProfilePage() {
     }, [user, loading, router, userData]);
 
     if (loading || !user) return null;
-
-    const [isSaving, setIsSaving] = useState(false);
-    const { success, error } = useToast();
 
     const handleSave = async () => {
         if (!user) return;
