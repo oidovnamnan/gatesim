@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Mail, ArrowRight, Loader2, Chrome, Smartphone } from "lucide-react";
@@ -12,7 +12,7 @@ import { useToast } from "@/providers/toast-provider";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [mode, setMode] = useState<"select" | "email">("select");
@@ -37,11 +37,6 @@ export default function LoginPage() {
         // Current backend requires Password. Magic link not enabled.
         // For now, guide users to use Google.
         error("Одоогоор зөвхөн Google эрхээр нэвтрэх боломжтой.");
-
-        // setIsLoading(true);
-        // await new Promise(resolve => setTimeout(resolve, 1500));
-        // success(`Магик линк ${email} хаягт илгээгдлээ!`);
-        // setIsLoading(false);
     };
 
     return (
@@ -113,7 +108,7 @@ export default function LoginPage() {
                                 onClick={() => setMode("email")}
                             >
                                 <Mail className="h-5 w-5" />
-                                И-мэйлээр нэвтрэх
+                                イ-мэйлээр нэвтрэх
                             </Button>
                         </Card>
                     ) : (
@@ -197,5 +192,17 @@ export default function LoginPage() {
                 </motion.div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-[#0d111c]">
+                <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }
