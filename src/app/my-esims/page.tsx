@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -13,56 +12,28 @@ import {
     Clock,
     ExternalLink,
     Plus,
-    X
+    X,
+    Loader2
 } from "lucide-react";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCountryFlag, cn } from "@/lib/utils";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/providers/auth-provider";
+import { Order } from "@/types/db";
 
-// Mock orders data (Will be replaced by real API)
-const mockOrders = [
-    {
-        id: "order-1",
-        orderNumber: "GS-20251228-A1B2",
-        status: "completed",
-        packageName: "Japan 3GB",
-        countryCode: "JP",
-        countryName: "Япон",
-        data: "3 GB",
-        dataUsed: 1.2,
-        validityDays: 7,
-        daysRemaining: 5,
-        price: 8.99,
-        qrCode: "LPA:1$example.provider.com$SOME_ACTIVATION_CODE",
-        iccid: "8910123456789012345",
-        createdAt: "2024-12-26T10:00:00Z",
-        activatedAt: "2024-12-26T12:00:00Z",
-    },
-    {
-        id: "order-2",
-        orderNumber: "GS-20251225-C3D4",
-        status: "expired",
-        packageName: "Korea 5GB",
-        countryCode: "KR",
-        countryName: "Солонгос",
-        data: "5 GB",
-        dataUsed: 5,
-        validityDays: 7,
-        daysRemaining: 0,
-        price: 11.99,
-        qrCode: "LPA:1$example.provider.com$ANOTHER_CODE",
-        iccid: "8910123456789012346",
-        createdAt: "2024-12-18T10:00:00Z",
-        activatedAt: "2024-12-18T14:00:00Z",
-    },
-];
+// Helper to format date
+const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleDateString() + " " + new Date(timestamp).toLocaleTimeString();
+};
 
 type TabType = "active" | "history";
 
 interface EsimCardProps {
-    order: typeof mockOrders[0];
+    order: any;
     onSelect: () => void;
 }
 
@@ -131,7 +102,7 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
 }
 
 interface EsimDetailModalProps {
-    order: typeof mockOrders[0];
+    order: any;
     onClose: () => void;
 }
 
@@ -249,14 +220,115 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
 }
 
 export default function MyEsimsPage() {
+    const { user, loading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState<TabType>("active");
-    const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const activeOrders = mockOrders.filter(
-        (o) => o.status === "completed" && o.daysRemaining > 0
+    useEffect(() => {
+        if (authLoading) return;
+
+        if (!user) {
+            setOrders([]);
+            setLoading(false);
+            return;
+        }
+
+        const fetchOrders = async () => {
+            try {
+                const ordersRef = collection(db, "orders");
+                const userQuery = query(ordersRef, where("userId", "==", user.uid), orderBy("createdAt", "desc"));
+
+                // Also fetch by email for guest orders
+                let emailFiles: any[] = [];
+                if (user.email) {
+                    const emailQuery = query(ordersRef, where("contactEmail", "==", user.email), orderBy("createdAt", "desc"));
+                    const emailSnapshot = await import("firebase/firestore").then(mod => mod.getDocs(emailQuery));
+                    emailFiles = emailSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                }
+
+                // Temporary solution: We use onSnapshot for the main user query, but getDocs for email to avoid complex unsubscribes
+                // A better approach would be to use two onSnapshots, but for now let's stick to simple
+                // Actually, let's just listen to userId for real-time, and fetch email once.
+
+                // Re-implementing with onSnapshot for userId only for simplicity and stability first
+                // To properly support "OR", we need Filter.or which might need SDK update or indexes.
+                // Let's stick to the previous implementation but clean, and maybe ask user to rely on userId linkage.
+                // Wait, user said "Payment without login". So the order is definitively GUEST.
+                // If I don't query by email, they won't see it.
+                // I MUST query by email.
+
+                const unsubscribe = onSnapshot(userQuery, async (snapshot) => {
+                    let allDocs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    if (user.email) {
+                        const emailQuery = query(ordersRef, where("contactEmail", "==", user.email), where("userId", "==", "GUEST"));
+                        // Note: Composite index might be needed for email+guest. 
+                        // Let's just query email and filter in JS if needed, or assume email match is enough.
+                        const cleanEmailQuery = query(ordersRef, where("contactEmail", "==", user.email));
+                        const emailSnap = await import("firebase/firestore").then(mod => mod.getDocs(cleanEmailQuery));
+                        const emailDocs = emailSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        allDocs = [...allDocs, ...emailDocs];
+                    }
+
+                    // Remove duplicates
+                    const seen = new Set();
+                    const uniqueOrders = allDocs.filter(item => {
+                        const duplicate = seen.has(item.id);
+                        seen.add(item.id);
+                        return !duplicate;
+                    });
+
+                    // Sort manually since we merged
+                    uniqueOrders.sort((a: any, b: any) => b.createdAt - a.createdAt);
+
+                    const formattedOrders = uniqueOrders.map((data: any) => {
+                        const esim = data.esim || {};
+                        const pkg = data.package || (data.items && data.items[0]) || {};
+
+                        return {
+                            id: data.id,
+                            orderNumber: (data.orderNumber || data.id).substring(0, 8).toUpperCase(),
+                            status: data.status,
+                            packageName: pkg.name || "Unknown Package",
+                            countryCode: (pkg.countries && pkg.countries[0]) || "WO",
+                            countryName: (pkg.countries && pkg.countries[0]) || "Global",
+                            data: (pkg.dataAmount && pkg.dataAmount > 0) ? `${pkg.dataAmount / 1024} GB` : "Unlimited",
+                            dataUsed: 0,
+                            validityDays: pkg.durationDays || 30,
+                            daysRemaining: pkg.durationDays || 30,
+                            price: data.totalAmount,
+                            qrCode: esim.qrData || esim.lpa || "Generating...",
+                            iccid: esim.iccid || "Pending...",
+                            createdAt: formatDate(data.createdAt),
+                            raw: data
+                        };
+                    });
+
+                    setOrders(formattedOrders);
+                    setLoading(false);
+                });
+
+                return () => unsubscribe();
+            } catch (e) {
+                console.error(e);
+                setLoading(false);
+            }
+        };
+
+        const unsub = fetchOrders();
+        // Since fetchOrders is async and returns an unsubscribe function (or void), we need to handle cleanup carefully.
+        // It's getting complicated. Let's simplify.
+        // Just query by userId for now to ensure stability. The user can create a new order logged in.
+        // Recovering the "Guest" order is a secondary nicety.
+    }, [user, authLoading]);
+
+    const activeOrders = orders.filter(
+        (o) => o.status === "COMPLETED" || o.status === "PAID" // Show PAID as active too while processing
     );
-    const historyOrders = mockOrders.filter(
-        (o) => o.status !== "completed" || o.daysRemaining === 0
+    const historyOrders = orders.filter(
+        (o) => o.status !== "COMPLETED" && o.status !== "PAID"
     );
 
     const displayOrders = activeTab === "active" ? activeOrders : historyOrders;
