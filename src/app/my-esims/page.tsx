@@ -351,7 +351,6 @@ export default function MyEsimsPage() {
                     dataUsed: 0, // Mock usage for now
                     validityDays: validityDays,
                     daysRemaining: daysRemaining,
-                    daysRemaining: daysRemaining,
                     price: data.totalAmount,
                     qrImg: esim.qrData || null, // Base64 Image
                     activationCode: esim.lpa || "Generating...", // LPA String
@@ -365,66 +364,7 @@ export default function MyEsimsPage() {
             setLoading(false);
         };
 
-        // ...
-
-        // ... (In EsimDetailModal)
-        const handleCopy = () => {
-            navigator.clipboard.writeText(order.activationCode);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        };
-
-        const handleShare = async () => {
-            if (navigator.share) {
-                await navigator.share({
-                    title: `GateSIM - ${order.countryName} eSIM`,
-                    text: `eSIM суулгах код: ${order.activationCode}`,
-                });
-            }
-        };
-
-        return (
-            // ...
-            {/* QR Code */ }
-            < div className = "bg-slate-50 rounded-2xl p-6 mb-6 border border-slate-100 flex flex-col items-center text-center" >
-                        <p className="text-slate-500 text-sm font-medium mb-4">
-                            Доорх QR кодыг уншуулж eSIM-ээ идэвхжүүлээрэй
-                        </p>
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4">
-                            {order.qrImg ? (
-                                <img 
-                                    src={order.qrImg} 
-                                    alt="eSIM QR Code" 
-                                    className="w-48 h-48 object-contain"
-                                />
-                            ) : (
-                                <div className="w-48 h-48 flex items-center justify-center bg-slate-100 rounded-lg">
-                                    <QrCode className="w-16 h-16 text-slate-300" />
-                                </div>
-                            )}
-                        </div>
-                        <p className="text-xs text-slate-400">
-                            Код зөвхөн нэг удаа уншигдана
-                        </p>
-                    </div >
-
-            {/* Manual entry code */ }
-            < div className = "mb-6" >
-                        <p className="text-xs font-bold text-slate-900 uppercase mb-2 ml-1">Гараар оруулах код</p>
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center gap-3">
-                            <code className="flex-1 font-mono text-sm text-slate-700 truncate select-all">
-                                {order.activationCode}
-                            </code>
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={handleCopy}
-                                className={cn("rounded-lg h-8 w-8", copied ? "bg-emerald-100 text-emerald-600" : "hover:bg-slate-200 text-slate-500")}
-                            >
-                                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                            </Button>
-                        </div>
-                    </div >
+        // Listener 1: By User ID
         const userQuery = query(ordersRef, where("userId", "==", user.uid), orderBy("createdAt", "desc"));
         unsubUser = onSnapshot(userQuery, (snapshot) => {
             userOrdersMap.clear();
