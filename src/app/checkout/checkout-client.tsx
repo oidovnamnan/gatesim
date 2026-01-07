@@ -177,10 +177,10 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
 
     // Check payment status
     const checkPaymentStatus = useCallback(async () => {
-        if (!invoice?.invoiceId) return false;
+        if (!invoice?.invoiceId || !orderId) return false;
 
         try {
-            const response = await fetch(`/api/checkout/qpay?invoiceId=${invoice.invoiceId}`);
+            const response = await fetch(`/api/checkout/qpay?invoiceId=${invoice.invoiceId}&orderId=${orderId}`);
             const data = await response.json();
 
             if (data.isPaid) {
@@ -196,7 +196,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
             console.error("Payment check error:", err);
             return false;
         }
-    }, [invoice?.invoiceId]);
+    }, [invoice?.invoiceId, orderId]);
 
     // Poll for payment status
     useEffect(() => {
