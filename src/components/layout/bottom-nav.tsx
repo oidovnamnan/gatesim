@@ -23,7 +23,7 @@ export function BottomNav() {
     const navItems = [
         { label: "Нүүр", icon: Home, href: "/", active: isActive("/") },
         { label: "Багцууд", icon: Globe, href: "/packages", active: isActive("/packages") || pathname?.startsWith("/package/") },
-        { label: "Миний eSIM", icon: CreditCard, href: "/orders", active: isActive("/orders"), requiresAuth: true },
+        { label: "Миний eSIM", icon: CreditCard, href: "/my-esims", active: isActive("/my-esims"), requiresAuth: true },
         { label: "Профайл", icon: User, href: "/profile", active: isActive("/profile"), requiresAuth: true },
     ];
 

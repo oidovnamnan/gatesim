@@ -230,98 +230,87 @@ export default function MyEsimsPage() {
         if (authLoading) return;
 
         if (!user) {
-            setOrders([]);
             setLoading(false);
             return;
         }
 
-        const fetchOrders = async () => {
-            try {
-                const ordersRef = collection(db, "orders");
-                const userQuery = query(ordersRef, where("userId", "==", user.uid), orderBy("createdAt", "desc"));
+        setLoading(true);
+        const ordersRef = collection(db, "orders");
 
-                // Also fetch by email for guest orders
-                let emailFiles: any[] = [];
-                if (user.email) {
-                    const emailQuery = query(ordersRef, where("contactEmail", "==", user.email), orderBy("createdAt", "desc"));
-                    const emailSnapshot = await import("firebase/firestore").then(mod => mod.getDocs(emailQuery));
-                    emailFiles = emailSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                }
+        let unsubUser = () => { };
+        let unsubEmail = () => { };
 
-                // Temporary solution: We use onSnapshot for the main user query, but getDocs for email to avoid complex unsubscribes
-                // A better approach would be to use two onSnapshots, but for now let's stick to simple
-                // Actually, let's just listen to userId for real-time, and fetch email once.
+        const userOrdersMap = new Map();
+        const emailOrdersMap = new Map();
 
-                // Re-implementing with onSnapshot for userId only for simplicity and stability first
-                // To properly support "OR", we need Filter.or which might need SDK update or indexes.
-                // Let's stick to the previous implementation but clean, and maybe ask user to rely on userId linkage.
-                // Wait, user said "Payment without login". So the order is definitively GUEST.
-                // If I don't query by email, they won't see it.
-                // I MUST query by email.
+        const updateOrders = () => {
+            const allOrders = [...userOrdersMap.values(), ...emailOrdersMap.values()];
+            // Deduplicate by ID
+            const uniqueOrdersMap = new Map();
+            allOrders.forEach(o => uniqueOrdersMap.set(o.id, o));
 
-                const unsubscribe = onSnapshot(userQuery, async (snapshot) => {
-                    let allDocs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const uniqueOrders = Array.from(uniqueOrdersMap.values());
 
-                    if (user.email) {
-                        const emailQuery = query(ordersRef, where("contactEmail", "==", user.email), where("userId", "==", "GUEST"));
-                        // Note: Composite index might be needed for email+guest. 
-                        // Let's just query email and filter in JS if needed, or assume email match is enough.
-                        const cleanEmailQuery = query(ordersRef, where("contactEmail", "==", user.email));
-                        const emailSnap = await import("firebase/firestore").then(mod => mod.getDocs(cleanEmailQuery));
-                        const emailDocs = emailSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        allDocs = [...allDocs, ...emailDocs];
-                    }
+            // Sort by createdAt desc
+            uniqueOrders.sort((a: any, b: any) => b.createdAt - a.createdAt);
 
-                    // Remove duplicates
-                    const seen = new Set();
-                    const uniqueOrders = allDocs.filter(item => {
-                        const duplicate = seen.has(item.id);
-                        seen.add(item.id);
-                        return !duplicate;
-                    });
+            const formattedOrders = uniqueOrders.map((data: any) => {
+                const esim = data.esim || {};
+                const pkg = data.package || (data.items && data.items[0]) || {};
 
-                    // Sort manually since we merged
-                    uniqueOrders.sort((a: any, b: any) => b.createdAt - a.createdAt);
+                return {
+                    id: data.id,
+                    orderNumber: (data.orderNumber || data.id).substring(0, 8).toUpperCase(),
+                    status: data.status,
+                    packageName: pkg.name || "Unknown Package",
+                    countryCode: (pkg.countries && pkg.countries[0]) || "WO",
+                    countryName: (pkg.countries && pkg.countries[0]) || "Global",
+                    data: (pkg.dataAmount && pkg.dataAmount > 0) ? `${pkg.dataAmount / 1024} GB` : "Unlimited",
+                    dataUsed: 0,
+                    validityDays: pkg.durationDays || 30,
+                    daysRemaining: pkg.durationDays || 30,
+                    price: data.totalAmount,
+                    qrCode: esim.qrData || esim.lpa || "Generating...",
+                    iccid: esim.iccid || "Pending...",
+                    createdAt: formatDate(data.createdAt),
+                    raw: data
+                };
+            });
 
-                    const formattedOrders = uniqueOrders.map((data: any) => {
-                        const esim = data.esim || {};
-                        const pkg = data.package || (data.items && data.items[0]) || {};
-
-                        return {
-                            id: data.id,
-                            orderNumber: (data.orderNumber || data.id).substring(0, 8).toUpperCase(),
-                            status: data.status,
-                            packageName: pkg.name || "Unknown Package",
-                            countryCode: (pkg.countries && pkg.countries[0]) || "WO",
-                            countryName: (pkg.countries && pkg.countries[0]) || "Global",
-                            data: (pkg.dataAmount && pkg.dataAmount > 0) ? `${pkg.dataAmount / 1024} GB` : "Unlimited",
-                            dataUsed: 0,
-                            validityDays: pkg.durationDays || 30,
-                            daysRemaining: pkg.durationDays || 30,
-                            price: data.totalAmount,
-                            qrCode: esim.qrData || esim.lpa || "Generating...",
-                            iccid: esim.iccid || "Pending...",
-                            createdAt: formatDate(data.createdAt),
-                            raw: data
-                        };
-                    });
-
-                    setOrders(formattedOrders);
-                    setLoading(false);
-                });
-
-                return () => unsubscribe();
-            } catch (e) {
-                console.error(e);
-                setLoading(false);
-            }
+            setOrders(formattedOrders);
+            setLoading(false);
         };
 
-        const unsub = fetchOrders();
-        // Since fetchOrders is async and returns an unsubscribe function (or void), we need to handle cleanup carefully.
-        // It's getting complicated. Let's simplify.
-        // Just query by userId for now to ensure stability. The user can create a new order logged in.
-        // Recovering the "Guest" order is a secondary nicety.
+        // Listener 1: By User ID
+        const userQuery = query(ordersRef, where("userId", "==", user.uid), orderBy("createdAt", "desc"));
+        unsubUser = onSnapshot(userQuery, (snapshot) => {
+            userOrdersMap.clear();
+            snapshot.docs.forEach(doc => userOrdersMap.set(doc.id, { id: doc.id, ...doc.data() }));
+            updateOrders();
+        }, (error) => {
+            console.error("Error fetching user orders:", error);
+            setLoading(false);
+        });
+
+        // Listener 2: By Email (if available)
+        if (user.email) {
+            // Note: Simple query without orderBy to avoid index requirement for now
+            const emailQuery = query(ordersRef, where("contactEmail", "==", user.email));
+
+            unsubEmail = onSnapshot(emailQuery, (snapshot) => {
+                emailOrdersMap.clear();
+                snapshot.docs.forEach(doc => emailOrdersMap.set(doc.id, { id: doc.id, ...doc.data() }));
+                updateOrders();
+            }, (error) => {
+                console.error("Error fetching email orders:", error);
+                // Don't stop loading here, user orders might still come
+            });
+        }
+
+        return () => {
+            unsubUser();
+            unsubEmail();
+        };
     }, [user, authLoading]);
 
     const activeOrders = orders.filter(
@@ -343,6 +332,10 @@ export default function MyEsimsPage() {
             <div className="hidden md:block container mx-auto px-6 mb-8 pt-8">
                 <h1 className="text-3xl font-black text-slate-900">Миний eSIM</h1>
                 <p className="text-slate-500 mt-2">Худалдаж авсан багцуудаа эндээс удирдаарай</p>
+                {/* Temporary Debug Info */}
+                <p className="text-xs text-slate-400 mt-1 font-mono">
+                    User: {user?.email || "Not logged in"} | ID: {user?.uid}
+                </p>
             </div>
 
             {/* Tabs */}
@@ -375,7 +368,22 @@ export default function MyEsimsPage() {
 
             {/* Content */}
             <div className="container mx-auto px-4 md:px-6">
-                {displayOrders.length > 0 ? (
+                {!user ? (
+                    <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm mx-auto max-w-md">
+                        <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6 border border-slate-100">
+                            <User className="h-8 w-8 text-slate-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">Нэвтрэх шаардлагатай</h3>
+                        <p className="text-slate-500 text-sm mb-8 px-8">
+                            Та өөрийн захиалгуудыг харахын тулд системд нэвтэрч орно уу.
+                        </p>
+                        <Link href="/login">
+                            <Button className="bg-slate-900 hover:bg-slate-800 text-white px-8 rounded-xl shadow-lg">
+                                Нэвтрэх
+                            </Button>
+                        </Link>
+                    </div>
+                ) : displayOrders.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {displayOrders.map((order) => (
                             <EsimCard
