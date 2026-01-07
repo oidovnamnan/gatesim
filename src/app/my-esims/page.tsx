@@ -13,7 +13,8 @@ import {
     ExternalLink,
     Plus,
     X,
-    Loader2
+    Loader2,
+    User
 } from "lucide-react";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { Button } from "@/components/ui/button";
