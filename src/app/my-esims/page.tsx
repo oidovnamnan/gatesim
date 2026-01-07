@@ -294,11 +294,28 @@ export default function MyEsimsPage() {
 
                 // If code is generic/unknown, try to infer from metadata or name
                 if (countryCode === "WO") {
+                    // 1. Try Country Name
                     if (nameToCode[countryName]) countryCode = nameToCode[countryName];
-                    // Check if name contains key words
                     else if (countryName.includes("China")) countryCode = "CN";
                     else if (countryName.includes("Korea")) countryCode = "KR";
                     else if (countryName.includes("Japan")) countryCode = "JP";
+
+                    // 2. If still unknown, try Package Title
+                    if (countryCode === "WO") {
+                        const title = (pkg.name || pkg.title || "").toString();
+                        if (title.includes("China")) countryCode = "CN";
+                        else if (title.includes("Korea")) countryCode = "KR";
+                        else if (title.includes("Japan")) countryCode = "JP";
+                        else if (title.includes("Thailand")) countryCode = "TH";
+                        else if (title.includes("Singapore")) countryCode = "SG";
+                        else if (title.includes("Vietnam")) countryCode = "VN";
+                        else if (title.includes("Taiwan")) countryCode = "TW";
+                        else if (title.includes("Hong Kong")) countryCode = "HK";
+                        else if (title.includes("Macau")) countryCode = "MO";
+                        else if (title.includes("Mongolia")) countryCode = "MN";
+                        else if (title.includes("USA") || title.includes("United States")) countryCode = "US";
+                        else if (title.includes("Europe")) countryCode = "EU";
+                    }
                 }
 
                 // Validity Calculation
