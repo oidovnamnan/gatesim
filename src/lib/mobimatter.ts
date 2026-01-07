@@ -9,6 +9,8 @@ export interface MobiMatterProduct {
     provider: string; // e.g. "eSIMGo", "RedteaGO"
     description?: string;
     isRegional?: boolean;
+    originalPrice?: number;
+    originalCurrency?: string;
 }
 
 const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
@@ -123,7 +125,9 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
                 countries: countryCodes.length > 0 ? countryCodes : ["Global"],
                 provider: p.providerName,
                 description: description.substring(0, 150) + (description.length > 150 ? "..." : ""),
-                isRegional: countryCodes.length > 1
+                isRegional: countryCodes.length > 1,
+                originalPrice: basePrice,
+                originalCurrency: originalCurrency
             };
         });
 

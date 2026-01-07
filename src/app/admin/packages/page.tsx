@@ -40,11 +40,17 @@ export default async function AdminPackagesPage() {
                     </thead>
                     <tbody className="divide-y divide-white/10">
                         {products.map(p => {
-                            const costUSD = p.price;
-                            const sellMNT = Math.ceil(p.price * USD_TO_MNT * 1.25 / 100) * 100;
-                            const costMNT = p.price * USD_TO_MNT;
+                            const costUSD = p.originalPrice || 0;
+                            const sellMNT = p.price; // This is already in MNT with margin applied from backend
+
+                            // Estimate cost in MNT for margin calc (using standard rate if not provided)
+                            // Ideally we should use the same rate as backend, but for display:
+                            const costMNT = p.originalCurrency === 'MNT'
+                                ? p.originalPrice || 0
+                                : (p.originalPrice || 0) * USD_TO_MNT;
+
                             const profit = sellMNT - costMNT;
-                            const margin = (profit / sellMNT) * 100;
+                            const margin = sellMNT > 0 ? (profit / sellMNT) * 100 : 0;
 
                             return (
                                 <tr key={p.sku} className="hover:bg-white/5 transition-colors">
