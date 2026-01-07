@@ -5,8 +5,11 @@ import { createMobiMatterOrder } from "@/lib/mobimatter";
 import { MailService } from "@/lib/mail";
 
 export async function POST(req: Request) {
+    let orderId: string | undefined;
+
     try {
-        const { orderId } = await req.json();
+        const body = await req.json();
+        orderId = body.orderId;
 
         if (!orderId) {
             return NextResponse.json({ error: "Order ID required" }, { status: 400 });
@@ -78,7 +81,7 @@ export async function POST(req: Request) {
         // Send Email
         if (data.contactEmail) {
             await MailService.sendOrderConfirmation(data.contactEmail, {
-                orderId: orderId,
+                orderId: orderId!, // safe because we checked above
                 totalAmount: data.totalAmount || 0,
                 currency: data.currency || "MNT",
                 items: data.items || [],
@@ -96,17 +99,23 @@ export async function POST(req: Request) {
         console.error("[Retry] Failed:", error);
 
         // Update status back to FAILED
-        // Only if we know the orderId
-        try {
-            const body = await req.clone().json().catch(() => ({}));
-            if (body.orderId) {
-                const orderRef = doc(db, "orders", body.orderId);
+        if (orderId) {
+            try {
+                const orderRef = doc(db, "orders", orderId);
+                const errorMessage = error instanceof Error
+                    ? error.message
+                    : typeof error === 'object'
+                        ? JSON.stringify(error)
+                        : String(error);
+
                 await updateDoc(orderRef, {
                     status: "PROVISIONING_FAILED",
-                    metadata: { provisioningError: error.message || String(error) }
+                    metadata: { provisioningError: errorMessage }
                 });
+            } catch (dbError) {
+                console.error("Failed to update order status:", dbError);
             }
-        } catch (e) { /* ignore */ }
+        }
 
         return NextResponse.json(
             { error: error.message || "Retry failed" },
