@@ -1,11 +1,15 @@
 /**
  * Prisma Client for GateSIM
- * Using Neon adapter for Prisma 7
+ * Using Neon serverless driver adapter for Prisma 7
  */
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { Pool } from "@neondatabase/serverless";
+import { neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+
+// Configure WebSocket for Node.js environment
+neonConfig.webSocketConstructor = ws;
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -22,11 +26,8 @@ function getPrismaClient(): PrismaClient {
     throw new Error("DATABASE_URL environment variable is not set!");
   }
 
-  // Create Neon connection pool
-  const pool = new Pool({ connectionString });
-
-  // Create Prisma adapter
-  const adapter = new PrismaNeon(pool);
+  // Create Prisma adapter with connection string
+  const adapter = new PrismaNeon({ connectionString });
 
   // Create Prisma client with adapter
   const client = new PrismaClient({
