@@ -1,5 +1,6 @@
 /**
  * Prisma Client for GateSIM
+ * Lazy initialization to avoid build-time issues
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -8,23 +9,36 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Always create a real Prisma client - no mock fallback
-function createPrismaClient(): PrismaClient {
+// Lazy initialization - only create client when first accessed
+function getPrismaClient(): PrismaClient {
+  if (globalForPrisma.prisma) {
+    return globalForPrisma.prisma;
+  }
+
   if (!process.env.DATABASE_URL) {
+    console.error("DATABASE_URL is not set!");
     throw new Error("DATABASE_URL environment variable is not set!");
   }
 
-  return new PrismaClient({
+  const client = new PrismaClient({
     log: process.env.NODE_ENV === "development"
       ? ["query", "error", "warn"]
       : ["error"],
   });
+
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = client;
+  }
+
+  return client;
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+// Export as a getter to enable lazy initialization
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_, prop) {
+    const client = getPrismaClient();
+    return (client as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
 
 export default prisma;
