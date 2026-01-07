@@ -275,8 +275,31 @@ export default function MyEsimsPage() {
                 // Determine Country Name & Code
                 // Fallback priorities: pkg.countryName -> pkg.countries[0] -> metadata.country -> "Global"
                 const countryName = pkg.countryName || (pkg.countries && pkg.countries[0]) || metadata.country || "Global";
-                // We don't have code in metadata usually, so default to WO if generic
-                const countryCode = (pkg.countries && pkg.countries[0]) || "WO";
+                // Country Name to Code Mapping (Fallback for legacy orders)
+                const nameToCode: Record<string, string> = {
+                    "China": "CN", "China Short Trip": "CN", "China Premium": "CN",
+                    "South Korea": "KR", "Korea": "KR",
+                    "Japan": "JP",
+                    "Thailand": "TH",
+                    "Singapore": "SG",
+                    "Vietnam": "VN",
+                    "Taiwan": "TW",
+                    "Hong Kong": "HK",
+                    "Macau": "MO",
+                    "Mongolia": "MN",
+                    "United States": "US", "USA": "US"
+                };
+
+                let countryCode = (pkg.countries && pkg.countries[0]) || "WO";
+
+                // If code is generic/unknown, try to infer from metadata or name
+                if (countryCode === "WO") {
+                    if (nameToCode[countryName]) countryCode = nameToCode[countryName];
+                    // Check if name contains key words
+                    else if (countryName.includes("China")) countryCode = "CN";
+                    else if (countryName.includes("Korea")) countryCode = "KR";
+                    else if (countryName.includes("Japan")) countryCode = "JP";
+                }
 
                 // Validity Calculation
                 const validityDays = parseInt(pkg.durationDays || metadata.validity || "30");

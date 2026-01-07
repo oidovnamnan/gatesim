@@ -122,8 +122,10 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         operator: pkg.operatorTitle,
                         data: pkg.data,
                         validity: pkg.validityDays,
+                        validity: pkg.validityDays,
                         country: pkg.countryName
-                    }
+                    },
+                    countries: pkg.countries
                 }]
             };
 
