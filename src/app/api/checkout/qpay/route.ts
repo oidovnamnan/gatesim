@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { qpay } from "@/services/payments/qpay/client";
 import { db } from "@/lib/firebase";
-import { doc, runTransaction } from "firebase/firestore";
+import { doc, runTransaction, updateDoc } from "firebase/firestore"; // Added updateDoc
 import { createMobiMatterOrder } from "@/lib/mobimatter";
 import { MailService } from "@/lib/mail";
 
@@ -131,7 +131,6 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
     const orderRef = doc(db, "orders", orderId);
 
     // 1. Run Transaction to ATOMICALLY check and set status
-    // This prevents race conditions where two requests read "pending" at the same time
     const provisionData = await runTransaction(db, async (transaction) => {
         const orderDoc = await transaction.get(orderRef);
 
@@ -145,15 +144,10 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
         if (
             data.status === "COMPLETED" ||
             data.status === "completed" ||
-            data.status === "PROVISIONING" ||
-            data.status === "PAID" // Treat PAID as potentially processing if we want strict once-only
+            data.status === "PROVISIONING"
         ) {
-            // Actually, if it's PAID but not PROVISIONING, we should allow it (retry case). 
-            // But let's be strict: If it's PROVISIONING, stop.
-            // If it's COMPLETED, stop.
-            if (data.status === "COMPLETED" || data.status === "completed" || data.status === "PROVISIONING") {
-                return { shouldProceed: false, reason: `Status is ${data.status}` };
-            }
+            console.log(`[Provision] Order ${orderId} status is ${data.status}, skipping.`);
+            return { shouldProceed: false, reason: `Status is ${data.status}` };
         }
 
         // Lock it!
@@ -191,7 +185,9 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
 
         // Extract eSIM Data
         const esimData = esimsResponse.esim;
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(esimData.qrData || esimData.lpa)}`;
+
+        // Use QuickChart which is often more reliable for email clients
+        const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(esimData.qrData || esimData.lpa)}&size=300&margin=1`;
         esimData.qrUrl = qrUrl;
 
         // 3. Final Update
@@ -209,7 +205,7 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
         console.log(`[Provision] Order ${orderId} successfully provisioned!`);
 
         // Send confirmation email (non-blocking)
-        if (provisionData.data.contactEmail) {
+        if (provisionData.data && provisionData.data.contactEmail) {
             try {
                 await MailService.sendOrderConfirmation(provisionData.data.contactEmail, {
                     orderId,
