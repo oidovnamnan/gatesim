@@ -26,7 +26,7 @@ export interface Order {
     items: OrderItem[];
     totalAmount: number;
     currency: string;
-    status: 'pending' | 'paid' | 'processing' | 'completed' | 'failed' | 'refunded';
+    status: 'pending' | 'paid' | 'processing' | 'PROVISIONING' | 'PROVISIONING_FAILED' | 'COMPLETED' | 'completed' | 'failed' | 'refunded';
     paymentMethod: 'qpay' | 'card' | 'socialpay' | 'stripe';
     paymentId?: string; // External Payment ID (e.g., QPay Invoice ID)
     contactEmail: string;
@@ -34,7 +34,24 @@ export interface Order {
     createdAt: number;
     updatedAt: number;
 
-    // MobiMatter Specifics
+    // Extended Metadata
+    metadata?: {
+        provisioningError?: string;
+        retryCount?: number;
+        [key: string]: any;
+    };
+
+    // MobiMatter / eSIM Specifics
+    esim?: {
+        iccid: string;
+        lpa: string;
+        qrData?: string;
+        qrUrl?: string;
+        smdpAddress?: string;
+        activationCode?: string;
+    };
+
+    // Legacy fields (keep for backward compatibility if needed, or deprecate)
     mobimatterOrderId?: string;
     esimIccid?: string;
     esimSmdpAddress?: string;
