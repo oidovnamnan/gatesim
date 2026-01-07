@@ -111,7 +111,7 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                 variant: 'default',
 
             });
-            onOpenChange(false); // Close sheet to force refresh or just let subscription update
+
         } catch (error: any) {
             console.error(error);
             toast({
