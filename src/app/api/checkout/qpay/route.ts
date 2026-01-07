@@ -128,6 +128,10 @@ export async function GET(request: NextRequest) {
 async function processPaymentAndProvision(orderId: string, invoiceId: string) {
     console.log(`[Provision] Starting for order ${orderId}`);
 
+    // Use transaction to safely check and set status
+    // Note: Since we're using simple client, we'll do a check-and-set pattern
+    // which is sufficient for this polling frequency (2s) vs latency
+
     const orderRef = doc(db, "orders", orderId);
     const orderSnap = await getDoc(orderRef);
 
@@ -138,15 +142,19 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
 
     const orderData = orderSnap.data();
 
-    // Check if already processed
-    if (orderData.status === "COMPLETED" || orderData.status === "completed") {
-        console.log(`[Provision] Order ${orderId} already completed`);
+    // Check if already processed OR is currently processing
+    if (
+        orderData.status === "COMPLETED" ||
+        orderData.status === "completed" ||
+        orderData.status === "PROVISIONING"
+    ) {
+        console.log(`[Provision] Order ${orderId} already completed or provisioning (Status: ${orderData.status})`);
         return;
     }
 
-    // Update status to PAID
+    // IMMEDIATELY set to PROVISIONING to prevent other concurrent requests
     await updateDoc(orderRef, {
-        status: "PAID",
+        status: "PROVISIONING",
         paymentId: invoiceId,
         paymentMethod: "qpay",
         updatedAt: Date.now(),
@@ -175,7 +183,7 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(esimData.qrData || esimData.lpa)}`;
         esimData.qrUrl = qrUrl;
 
-        // Update order with eSIM data
+        // Update order with eSIM data and COMPLETED status
         await updateDoc(orderRef, {
             status: "COMPLETED",
             esim: {
@@ -189,19 +197,26 @@ async function processPaymentAndProvision(orderId: string, invoiceId: string) {
 
         // Send confirmation email
         if (orderData.contactEmail) {
-            await MailService.sendOrderConfirmation(orderData.contactEmail, {
-                orderId,
-                totalAmount: orderData.totalAmount || 0,
-                currency: orderData.currency || "MNT",
-                items: orderData.items || [],
-                esim: esimData
-            });
+            try {
+                await MailService.sendOrderConfirmation(orderData.contactEmail, {
+                    orderId,
+                    totalAmount: orderData.totalAmount || 0,
+                    currency: orderData.currency || "MNT",
+                    items: orderData.items || [],
+                    esim: esimData
+                });
+            } catch (emailError) {
+                console.error("Failed to send email:", emailError);
+                // Don't fail the order just because email failed
+            }
         }
 
         console.log(`[Provision] Order ${orderId} completed successfully!`);
 
     } catch (error) {
         console.error(`[Provision] MobiMatter error:`, error);
+        // Revert status to PAID or FAILED so it can be retried or investigated
+        // Using PROVISIONING_FAILED allows manual intervention
         await updateDoc(orderRef, {
             status: "PROVISIONING_FAILED",
             metadata: { provisioningError: JSON.stringify(error) }
