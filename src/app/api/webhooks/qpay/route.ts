@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { airalo } from "@/services/airalo";
+import { createMobiMatterOrder } from "@/lib/mobimatter";
+import { MailService } from "@/lib/mail";
 import { qpay } from "@/services/payments/qpay/client";
 
 // 🔐 SECURITY: Webhook secret for verification
@@ -94,42 +95,57 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// Provision eSIM from Airalo
+// Provision eSIM from MobiMatter
 async function provisionEsim(orderId: string, packageId: string) {
     try {
-        // Create order with Airalo
-        const airaloOrder = await airalo.createOrder({
-            package_id: packageId,
-            quantity: 1,
-            description: `GateSIM order ${orderId}`,
+        console.log(`[Webhook] Provisioning eSIM for Order ${orderId}, SKU: ${packageId}`);
+
+        // 1. Create order with MobiMatter
+        const esimsResponse = await createMobiMatterOrder(packageId);
+
+        // 2. Extract eSIM Data
+        const esimData = esimsResponse.esim; // { iccid, lpa, qrData }
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(esimData.qrData || esimData.lpa)}`;
+        esimData.qrUrl = qrUrl;
+
+        // 3. Update order in Firebase
+        const orderRef = doc(db, "orders", orderId);
+        const orderSnap = await getDoc(orderRef);
+        const orderData = orderSnap.data() as any;
+
+        await updateDoc(orderRef, {
+            status: "COMPLETED",
+            esim: {
+                iccid: esimData.iccid,
+                lpa: esimData.lpa,
+                qrData: esimData.qrData
+            },
+            updatedAt: Date.now()
         });
 
-        if (airaloOrder.data.sims && airaloOrder.data.sims.length > 0) {
-            const sim = airaloOrder.data.sims[0];
-
-            // Update order with eSIM details in Firebase
-            const orderRef = doc(db, "orders", orderId);
-            await updateDoc(orderRef, {
-                status: "COMPLETED", // or 'completed' depending on enum
-                esimIccid: sim.iccid,
-                esimActivationCode: sim.lpa, // Mapping lpa to validation code field or creating new field
-                // Add missing fields to Order interface if needed, or put in metadata
-                metadata: {
-                    airaloOrderId: airaloOrder.data.id.toString(),
-                    lpa: sim.lpa,
-                    qrCode: sim.qrcode,
-                    qrCodeUrl: sim.qrcode_url,
-                    simShareUrl: sim.direct_apple_installation_url
-                },
-                updatedAt: Date.now()
+        // 4. Send Confirmation Email
+        if (orderData?.contactEmail) {
+            await MailService.sendOrderConfirmation(orderData.contactEmail, {
+                orderId: orderId,
+                totalAmount: orderData.totalAmount || 0,
+                currency: orderData.currency || "MNT",
+                items: orderData.items || [],
+                esim: esimData
             });
+        } else {
+            console.warn(`[Webhook] No contact email for order ${orderId}, skipping email.`);
         }
+
+        console.log(`[Webhook] Order ${orderId} completed successfully.`);
+
     } catch (error) {
-        console.error("eSIM provisioning error:", error);
+        console.error("[Webhook] eSIM provisioning error:", error);
+
         // Update order status to failed
         const orderRef = doc(db, "orders", orderId);
         await updateDoc(orderRef, {
-            status: "PROVISIONING_FAILED" as any // Type assertion if strictly typed
+            status: "PROVISIONING_FAILED",
+            metadata: { provisioningError: JSON.stringify(error) }
         }).catch(e => console.error("Failed to update status", e));
 
         throw error;
@@ -138,7 +154,7 @@ async function provisionEsim(orderId: string, packageId: string) {
 
 export async function GET(_request: NextRequest) {
     return NextResponse.json({
-        message: "QPay webhook endpoint (Firebase)",
+        message: "QPay webhook endpoint (Firebase + MobiMatter)",
         status: "active"
     });
 }
