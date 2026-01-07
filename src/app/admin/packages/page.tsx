@@ -69,7 +69,9 @@ export default async function AdminPackagesPage() {
                                         </div>
                                         <div className="text-xs text-white/50">{p.durationDays} Days</div>
                                     </td>
-                                    <td className="px-6 py-4 text-emerald-400 font-mono">${costUSD.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-emerald-400 font-mono">
+                                        {p.originalPrice?.toLocaleString()} <span className="text-xs text-white/50">{p.originalCurrency}</span>
+                                    </td>
                                     <td className="px-6 py-4 font-bold text-white">{formatPrice(sellMNT, "MNT")}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
