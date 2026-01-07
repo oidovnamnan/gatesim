@@ -119,7 +119,7 @@ export default function AdminOrdersPage() {
                                 return (
                                     <tr key={order.id} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4 font-mono text-white/70 truncate max-w-[150px]" title={order.id}>
-                                            {order.id.slice(0, 8)}...
+                                            {order.id.slice(0, 12)}...
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="font-medium text-white">{order.contactEmail}</div>
@@ -139,7 +139,7 @@ export default function AdminOrdersPage() {
                                             </Badge>
                                         </td>
                                         <td className="px-6 py-4 text-white/60">
-                                            {new Date(order.createdAt).toLocaleString()}
+                                            {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <Button

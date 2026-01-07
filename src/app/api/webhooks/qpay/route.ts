@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, runTransaction } from "firebase/firestore";
 import { createMobiMatterOrder } from "@/lib/mobimatter";
 import { MailService } from "@/lib/mail";
 import { qpay } from "@/services/payments/qpay/client";
@@ -95,35 +95,73 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// Provision eSIM from MobiMatter
+// Provision eSIM from MobiMatter with Transaction Lock
 async function provisionEsim(orderId: string, packageId: string) {
+    const orderRef = doc(db, "orders", orderId);
+
+    // 1. Run Transaction to ATOMICALLY check and set status
+    const provisionData = await runTransaction(db, async (transaction) => {
+        const orderDoc = await transaction.get(orderRef);
+
+        if (!orderDoc.exists()) {
+            throw new Error(`Order not found: ${orderId}`);
+        }
+
+        const data = orderDoc.data();
+
+        // STRICT CHECK: If already COMPLETED or PROVISIONING, abort immediately
+        if (
+            data.status === "COMPLETED" ||
+            data.status === "completed" ||
+            data.status === "PROVISIONING"
+        ) {
+            console.log(`[Webhook] Order ${orderId} status is ${data.status}, skipping.`);
+            return { shouldProceed: false, reason: `Status is ${data.status}` };
+        }
+
+        // Lock it!
+        transaction.update(orderRef, {
+            status: "PROVISIONING",
+            updatedAt: Date.now(),
+        });
+
+        return {
+            shouldProceed: true,
+            data: data
+        };
+    });
+
+    if (!provisionData.shouldProceed) {
+        return;
+    }
+
     try {
         console.log(`[Webhook] Provisioning eSIM for Order ${orderId}, SKU: ${packageId}`);
 
-        // 1. Create order with MobiMatter
+        // 2. Create order with MobiMatter
         const esimsResponse = await createMobiMatterOrder(packageId);
 
-        // 2. Extract eSIM Data
+        // 3. Extract eSIM Data
         const esimData = esimsResponse.esim; // { iccid, lpa, qrData }
-        // Note: qrData is typically a Base64 string of the image.
-        // We do NOT use qrserver.com anymore as it expects text, not a base64 image.
 
-        // 3. Update order in Firebase
-        const orderRef = doc(db, "orders", orderId);
-        const orderSnap = await getDoc(orderRef);
-        const orderData = orderSnap.data() as any;
+        // Use QuickChart for consistent QR display in emails
+        const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(esimData.qrData || esimData.lpa)}&size=300&margin=1`;
+        esimData.qrUrl = qrUrl;
 
+        // 4. Update order in Firebase
         await updateDoc(orderRef, {
             status: "COMPLETED",
             esim: {
                 iccid: esimData.iccid,
                 lpa: esimData.lpa,
-                qrData: esimData.qrData
+                qrData: esimData.qrData,
+                qrUrl: qrUrl
             },
             updatedAt: Date.now()
         });
 
-        // 4. Send Confirmation Email
+        // 5. Send Confirmation Email
+        const orderData = provisionData.data;
         if (orderData?.contactEmail) {
             await MailService.sendOrderConfirmation(orderData.contactEmail, {
                 orderId: orderId,
@@ -133,7 +171,7 @@ async function provisionEsim(orderId: string, packageId: string) {
                 esim: {
                     iccid: esimData.iccid,
                     lpa: esimData.lpa,
-                    qrData: esimData.qrData // Pass Base64 string directly
+                    qrData: esimData.qrData
                 }
             });
         } else {
@@ -147,9 +185,11 @@ async function provisionEsim(orderId: string, packageId: string) {
 
         // Update order status to failed
         const orderRef = doc(db, "orders", orderId);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
         await updateDoc(orderRef, {
             status: "PROVISIONING_FAILED",
-            metadata: { provisioningError: JSON.stringify(error) }
+            metadata: { provisioningError: errorMessage }
         }).catch(e => console.error("Failed to update status", e));
 
         throw error;

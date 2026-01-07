@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Receipt, AlertTriangle, RotateCcw, Copy } from "lucide-react";
+import { Mail, Receipt, AlertTriangle, RotateCcw, Copy, RefreshCw } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -91,6 +91,39 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
         }
     };
 
+    const handleRetryProvisioning = async () => {
+        setActionLoading("retry");
+        try {
+            const res = await fetch("/api/orders/actions/retry", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: order.id })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || "Retry failed");
+            }
+
+            toast({
+                title: "Provisioning Retried",
+                description: "Success! Order should be completed now.",
+                variant: 'default',
+                className: "bg-green-600 text-white"
+            });
+            onOpenChange(false); // Close sheet to force refresh or just let subscription update
+        } catch (error: any) {
+            console.error(error);
+            toast({
+                title: "Retry Failed",
+                description: error.message || "Failed to retry. Check details.",
+                variant: "destructive"
+            });
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto bg-slate-950 border-white/10 text-white">
@@ -125,6 +158,18 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                             <RotateCcw className="w-4 h-4 mr-2" />
                             {actionLoading === "refund" ? "Refunding..." : "Refund Order"}
                         </Button>
+
+                        {(order.status === 'PROVISIONING_FAILED' || order.status === 'paid') && (
+                            <Button
+                                variant="outline"
+                                className="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 border-none col-span-2"
+                                onClick={handleRetryProvisioning}
+                                disabled={!!actionLoading}
+                            >
+                                <RefreshCw className={`w-4 h-4 mr-2 ${actionLoading === "retry" ? "animate-spin" : ""}`} />
+                                {actionLoading === "retry" ? "Retrying..." : "Retry Provisioning"}
+                            </Button>
+                        )}
                     </div>
 
                     <Separator className="bg-white/10" />
@@ -197,20 +242,38 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                             )}
                         </div>
                     </div>
-
-                    {/* Technical / Raw Data */}
-                    <div className="pt-4">
-                        <div className="flex items-center gap-2 text-amber-500/80 text-xs mb-2">
-                            <AlertTriangle className="w-3 h-3" />
-                            Raw Data (For Debugging)
-                        </div>
-                        <pre className="text-[10px] bg-black/50 p-4 rounded-lg overflow-x-auto font-mono text-white/40">
-                            {JSON.stringify(order, null, 2)}
-                        </pre>
-                    </div>
-
                 </div>
-            </SheetContent>
-        </Sheet>
+
+                {/* Provisioning Error (If Failed) */}
+                {(order.status === 'PROVISIONING_FAILED' || order.status === 'failed' || order.metadata?.provisioningError) && (
+                    <div className="space-y-3">
+                        <h4 className="font-medium text-red-400 flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4" /> Provisioning Error
+                        </h4>
+                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg text-sm text-red-200">
+                            <p className="font-bold mb-1">System Error:</p>
+                            <code className="block whitespace-pre-wrap break-all bg-black/30 p-2 rounded text-xs font-mono">
+                                {typeof order.metadata?.provisioningError === 'string'
+                                    ? order.metadata.provisioningError
+                                    : JSON.stringify(order.metadata?.provisioningError || "Unknown Error")}
+                            </code>
+                        </div>
+                    </div>
+                )}
+
+                {/* Technical / Raw Data */}
+                <div className="pt-4">
+                    <div className="flex items-center gap-2 text-amber-500/80 text-xs mb-2">
+                        <AlertTriangle className="w-3 h-3" />
+                        Raw Data (For Debugging)
+                    </div>
+                    <pre className="text-[10px] bg-black/50 p-4 rounded-lg overflow-x-auto font-mono text-white/40">
+                        {JSON.stringify(order, null, 2)}
+                    </pre>
+                </div>
+
+            </div>
+        </SheetContent>
+        </Sheet >
     );
 }

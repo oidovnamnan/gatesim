@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -82,6 +82,9 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const [invoice, setInvoice] = useState<QPayInvoice | null>(null);
     const [error, setError] = useState<string>("");
     const [checkCount, setCheckCount] = useState(0);
+
+    // Lock to prevent multiple success triggers / flickering
+    const isLockedRef = useRef(false);
 
     const flag = getCountryFlag(pkg.countries[0]);
     const displayPrice = formatPrice(pkg.price, pkg.currency);
@@ -180,11 +183,24 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const checkPaymentStatus = useCallback(async () => {
         if (!invoice?.invoiceId || !orderId) return false;
 
+        // HARD LOCK: If we already confirmed payment, NEVER check again.
+        if (isLockedRef.current) return true;
+        if (step === "processing" || step === "success") return true;
+
         try {
             const response = await fetch(`/api/checkout/qpay?invoiceId=${invoice.invoiceId}&orderId=${orderId}`);
+
+            if (!response.ok) return false;
+
             const data = await response.json();
 
             if (data.isPaid) {
+                // Double check lock before state update
+                if (isLockedRef.current) return true;
+
+                // LOCK IT
+                isLockedRef.current = true;
+
                 setStep("processing");
                 // Short delay before showing success
                 setTimeout(() => {
@@ -197,10 +213,11 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
             console.error("Payment check error:", err);
             return false;
         }
-    }, [invoice?.invoiceId, orderId]);
+    }, [invoice?.invoiceId, orderId, step]);
 
     // Poll for payment status
     useEffect(() => {
+        // Stop polling if we are past the QR step
         if (step !== "qr" || !invoice?.invoiceId) return;
 
         const interval = setInterval(async () => {

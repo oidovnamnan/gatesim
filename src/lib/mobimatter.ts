@@ -161,8 +161,9 @@ export async function createMobiMatterOrder(sku: string): Promise<any> {
         });
 
         if (!createRes.ok) {
-            const err = await createRes.text();
-            throw new Error(`Create Order Failed: ${createRes.status} - ${err}`);
+            const errText = await createRes.text();
+            console.error(`[MobiMatter] Create Failed Body: ${errText}`);
+            throw new Error(`Create Order Failed: ${createRes.status} - ${errText}`);
         }
 
         const createData = await createRes.json();
