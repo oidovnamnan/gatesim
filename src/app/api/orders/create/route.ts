@@ -61,8 +61,8 @@ export async function POST(req: Request) {
             contactEmail: session?.user?.email || orderData.contactEmail,
             createdAt: Date.now(),
             updatedAt: Date.now(),
-            // Ensure status starts correctly if not provided
-            status: orderData.status || 'pending'
+            // Ensure status starts correctly - FORCE pending, ignore client input
+            status: 'pending'
         };
 
         // Write to Firestore (Server-side execution)
