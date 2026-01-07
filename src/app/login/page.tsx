@@ -9,30 +9,39 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/providers/toast-provider";
 
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [mode, setMode] = useState<"select" | "email">("select");
     const { success, error } = useToast();
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get("callbackUrl") || "/";
 
     const handleGoogleLogin = async () => {
         setIsLoading(true);
-        // Simulate login
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        success("Google-ээр нэвтрэх амжилттай!");
-        setIsLoading(false);
-        // In real app: signIn("google")
+        try {
+            await signIn("google", { callbackUrl });
+        } catch (err) {
+            error("Google-ээр нэвтрэхэд алдаа гарлаа.");
+            setIsLoading(false);
+        }
     };
 
     const handleEmailLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) return;
 
-        setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        success(`Магик линк ${email} хаягт илгээгдлээ!`);
-        setIsLoading(false);
-        // In real app: signIn("email", { email })
+        // Current backend requires Password. Magic link not enabled.
+        // For now, guide users to use Google.
+        error("Одоогоор зөвхөн Google эрхээр нэвтрэх боломжтой.");
+
+        // setIsLoading(true);
+        // await new Promise(resolve => setTimeout(resolve, 1500));
+        // success(`Магик линк ${email} хаягт илгээгдлээ!`);
+        // setIsLoading(false);
     };
 
     return (
