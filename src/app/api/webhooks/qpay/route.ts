@@ -105,8 +105,8 @@ async function provisionEsim(orderId: string, packageId: string) {
 
         // 2. Extract eSIM Data
         const esimData = esimsResponse.esim; // { iccid, lpa, qrData }
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(esimData.qrData || esimData.lpa)}`;
-        esimData.qrUrl = qrUrl;
+        // Note: qrData is typically a Base64 string of the image.
+        // We do NOT use qrserver.com anymore as it expects text, not a base64 image.
 
         // 3. Update order in Firebase
         const orderRef = doc(db, "orders", orderId);
@@ -130,7 +130,11 @@ async function provisionEsim(orderId: string, packageId: string) {
                 totalAmount: orderData.totalAmount || 0,
                 currency: orderData.currency || "MNT",
                 items: orderData.items || [],
-                esim: esimData
+                esim: {
+                    iccid: esimData.iccid,
+                    lpa: esimData.lpa,
+                    qrData: esimData.qrData // Pass Base64 string directly
+                }
             });
         } else {
             console.warn(`[Webhook] No contact email for order ${orderId}, skipping email.`);
