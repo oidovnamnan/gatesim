@@ -58,6 +58,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         error: "/login",
     },
     callbacks: {
+        async signIn({ user, account, profile }) {
+            console.log("SignIn callback triggered:", {
+                user: user?.email,
+                account: account?.provider,
+                profile: profile?.email
+            });
+            // Allow all sign-ins
+            return true;
+        },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
