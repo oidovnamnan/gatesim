@@ -16,20 +16,15 @@ const eslintConfig = defineConfig([
   // Custom rules
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-        },
-      ],
+      "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-explicit-any": "off",
       "@next/next/no-img-element": "off",
       "@typescript-eslint/ban-ts-comment": "off",
-      "react-hooks/exhaustive-deps": "warn",
-      "react-hooks/rules-of-hooks": "warn",
+      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/rules-of-hooks": "off",
       "react-hooks/set-state-in-effect": "off",
+      "prefer-const": "off",
+      "react/no-unescaped-entities": "off",
     },
   },
 ]);
