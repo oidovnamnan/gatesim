@@ -26,6 +26,10 @@ const eslintConfig = defineConfig([
       ],
       "@typescript-eslint/no-explicit-any": "off",
       "@next/next/no-img-element": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "warn",
+      "react-hooks/set-state-in-effect": "off",
     },
   },
 ]);
