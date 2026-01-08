@@ -25,6 +25,8 @@ const eslintConfig = defineConfig([
       "react-hooks/set-state-in-effect": "off",
       "prefer-const": "off",
       "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@next/next/no-html-link-for-pages": "off",
     },
   },
 ]);
