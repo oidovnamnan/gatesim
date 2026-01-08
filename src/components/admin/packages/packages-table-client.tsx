@@ -194,33 +194,33 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                     <table className="w-full text-sm text-left text-slate-300">
                         <thead className="text-xs text-slate-400 uppercase bg-slate-950/50 border-b border-slate-800">
                             <tr>
-                                <th className="px-6 py-4 font-medium">SKU / Name</th>
-                                <th className="px-6 py-4 font-medium">Provider</th>
-                                <th onClick={() => handleSort('data')} className="px-6 py-4 font-medium cursor-pointer hover:text-white">
+                                <th className="px-4 py-3 font-medium">SKU / Name</th>
+                                <th className="px-4 py-3 font-medium">Provider</th>
+                                <th onClick={() => handleSort('data')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
                                     <div className="flex items-center gap-1">
-                                        Data/Duration
+                                        Data
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th onClick={() => handleSort('cost')} className="px-6 py-4 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('cost')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
                                     <div className="flex items-center gap-1">
                                         Cost
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th onClick={() => handleSort('price')} className="px-6 py-4 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('price')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
                                     <div className="flex items-center gap-1">
-                                        Sell (MNT)
+                                        Sell
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th onClick={() => handleSort('margin')} className="px-6 py-4 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('margin')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
                                     <div className="flex items-center gap-1">
                                         Margin
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 font-medium text-right">Status</th>
+                                <th className="px-4 py-3 font-medium text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800">
@@ -237,36 +237,35 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
 
                                 return (
                                     <tr key={p.sku} className="hover:bg-slate-800/50 transition-colors">
-                                        <td className="px-6 py-4 max-w-[280px]">
-                                            <div className="font-bold text-white mb-1 truncate" title={p.name}>{p.name}</div>
-                                            <div className="font-mono text-xs text-slate-500 truncate" title={p.sku}>{p.sku}</div>
+                                        <td className="px-4 py-3 max-w-[200px]">
+                                            <div className="font-bold text-white mb-0.5 truncate" title={p.name}>{p.name}</div>
+                                            <div className="font-mono text-[10px] text-slate-500 truncate" title={p.sku}>{p.sku}</div>
                                             {p.isRegional && (
-                                                <Badge variant="outline" className="mt-2 text-[10px] border-blue-500/50 text-blue-400 bg-blue-500/10">
-                                                    <Globe className="w-3 h-3 mr-1" />
+                                                <Badge variant="outline" className="mt-1 text-[10px] border-blue-500/50 text-blue-400 bg-blue-500/10 px-1 py-0 h-4">
                                                     Regional
                                                 </Badge>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <Badge variant="secondary" className="bg-slate-800 text-slate-300 pointer-events-none">
+                                        <td className="px-4 py-3">
+                                            <Badge variant="secondary" className="bg-slate-800 text-slate-300 pointer-events-none text-[10px] px-1.5 h-5">
                                                 {p.provider}
                                             </Badge>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-slate-200">
+                                        <td className="px-4 py-3">
+                                            <div className="font-medium text-slate-200 text-xs">
                                                 {formatData(p.dataAmount)}
                                             </div>
-                                            <div className="text-xs text-white/50">{p.durationDays} Days</div>
+                                            <div className="text-[10px] text-white/50">{p.durationDays} Days</div>
                                         </td>
-                                        <td className="px-6 py-4 text-emerald-400 font-mono">
-                                            {p.originalPrice?.toLocaleString()} <span className="text-xs text-white/50">{p.originalCurrency}</span>
+                                        <td className="px-4 py-3 text-emerald-400 font-mono text-xs">
+                                            {p.originalPrice?.toLocaleString()} <span className="text-[10px] text-white/50">{p.originalCurrency}</span>
                                         </td>
-                                        <td className="px-6 py-4 font-bold text-white">
+                                        <td className="px-4 py-3 font-bold text-white text-xs">
                                             {formatPrice(sellMNT, "MNT")}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col items-start gap-1">
-                                                <Badge className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border-0">
+                                        <td className="px-4 py-3">
+                                            <div className="flex flex-col items-start gap-0.5">
+                                                <Badge className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border-0 text-[10px] px-1.5 h-5">
                                                     {marginPercent.toFixed(1)}%
                                                 </Badge>
                                                 {profitMNT > 0 && (
@@ -276,10 +275,10 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-0">
-                                                Active
-                                            </Badge>
+                                        <td className="px-4 py-3 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <div className="h-2 w-2 rounded-full bg-green-500 my-auto" title="Active"></div>
+                                            </div>
                                         </td>
                                     </tr>
                                 );

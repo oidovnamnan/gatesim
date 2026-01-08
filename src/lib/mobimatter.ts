@@ -38,7 +38,7 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
                 'Accept': 'application/json'
             },
             next: {
-                revalidate: 3600, // Cache for 1 hour default
+                revalidate: 60, // Cache for 1 minute (temporary for debug)
                 tags: ['products'] // Allow manual revalidation
             }
         });
