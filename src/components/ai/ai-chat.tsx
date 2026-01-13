@@ -253,21 +253,32 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
 
     return (
         <>
-            {/* Floating button with pulse effect */}
-            <div className={cn("fixed bottom-28 right-4 z-50", isOpen && "hidden")}>
+            {/* Floating button with pulse effect - Now draggable! */}
+            <motion.div
+                drag
+                dragMomentum={false}
+                dragConstraints={{
+                    left: -window?.innerWidth + 80 || -300,
+                    right: 0,
+                    top: -window?.innerHeight + 150 || -600,
+                    bottom: 0
+                }}
+                whileDrag={{ scale: 1.1, cursor: "grabbing" }}
+                className={cn("fixed bottom-28 right-4 z-50 transition-opacity duration-300", isOpen && "opacity-0 pointer-events-none")}
+            >
                 {/* Ripple effect */}
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-0 bg-red-500 rounded-full opacity-30"
+                    className="absolute inset-0 bg-red-500 rounded-full opacity-30 pointer-events-none"
                 />
                 <motion.button
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => setIsOpen(true)}
-                    className="relative w-16 h-16 rounded-full gradient-primary shadow-xl shadow-red-500/30 flex items-center justify-center border-4 border-white dark:border-slate-900"
+                    className="relative w-16 h-16 rounded-full gradient-primary shadow-xl shadow-red-500/30 flex items-center justify-center border-4 border-white dark:border-slate-900 touch-none"
                 >
                     <Bot className="h-7 w-7 text-white" />
                     <div className="absolute -top-1 -right-1 flex h-6 w-6">
@@ -277,7 +288,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                         </span>
                     </div>
                 </motion.button>
-            </div>
+            </motion.div>
 
             {/* Chat panel */}
             <AnimatePresence>

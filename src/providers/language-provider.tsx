@@ -340,7 +340,7 @@ const translations = {
         aiPlaceholder: "您在寻找什么套餐？",
         aiPopularPackages: "热门套餐：",
         aiSeeAll: "查看所有套餐",
-        aiCompatibilityWarning: "您好！您的 {device} 可能不支持 eSIM。⚠️\n\请在购买前检查您的设备是否兼容 eSIM。",
+        aiCompatibilityWarning: "您好！您的 {device} 可能不支持 eSIM。⚠️\n\n请在购买前检查您的设备是否兼容 eSIM。",
         aiGreeting1: "您好！您要去哪里旅行，打算待多久？🌍✈️",
         aiGreeting2: "您好！我可以帮您查找适合旅行的 eSIM 套餐吗？🗺️✨",
         aiGreeting3: "嗨！您的下一次旅行去哪里？我可以为您找到最便宜的套餐。🚀",
@@ -461,7 +461,7 @@ const translations = {
 const LanguageContext = createContext<{
     language: Language;
     setLanguage: (lang: Language) => void;
-    t: (key: keyof typeof translations.mn) => string;
+    t: (key: string) => string;
 } | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -472,8 +472,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setMounted(true);
     }, []);
 
-    const t = (key: keyof typeof translations.mn) => {
-        return translations[language][key] || translations.mn[key] || key;
+    const t = (key: string) => {
+        const langData = translations[language] as Record<string, string>;
+        const fallbackData = translations.mn as Record<string, string>;
+        return langData[key] || fallbackData[key] || key;
     };
 
     if (!mounted) return null;
