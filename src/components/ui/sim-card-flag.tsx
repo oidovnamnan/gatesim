@@ -70,15 +70,15 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 borderRadius: config.width * 0.08,
             }}
         >
-            {/* Flag Background - Forced full cover */}
+            {/* Flag Background - Bruteforce fill to eliminate ANY whitespace */}
             {!imageError ? (
-                <div className="absolute inset-0 w-full h-full bg-slate-200">
+                <div className="absolute inset-[-10%] w-[120%] h-[120%] bg-zinc-800">
                     <Image
                         src={flagUrl}
                         alt={`${countryCode} flag`}
                         fill
-                        className="object-cover"
-                        style={{ objectPosition: 'center' }}
+                        className="object-cover scale-[1.5] transition-transform duration-700 group-hover/sim:scale-[1.8]"
+                        style={{ objectPosition: 'center' } as any}
                         sizes={`${config.width * 2}px`}
                         unoptimized
                         priority
@@ -86,21 +86,21 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     />
                 </div>
             ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-200">
                     {/* Make the emoji fallback HUGE so it fills the space */}
                     <span
-                        className="select-none leading-none"
-                        style={{ fontSize: config.height * 0.8 }}
+                        className="select-none leading-none scale-[2.5]"
+                        style={{ fontSize: config.height * 0.4 }}
                     >
                         {getCountryFlag(countryCode)}
                     </span>
                 </div>
             )}
 
-            {/* Realistic SIM Card overlays */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10 pointer-events-none" />
+            {/* Realistic SIM Card overlays - subtle shadow for depth */}
+            <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
-            {/* White outline around chip */}
+            {/* Minimal white outline around chip - thinner for less clutter */}
             <div
                 className="absolute pointer-events-none z-10"
                 style={{
@@ -109,8 +109,8 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     width: outlineWidth,
                     height: outlineHeight,
                     borderRadius: config.outlineRadius,
-                    border: `${config.outlineWidth}px solid rgba(255, 255, 255, 0.9)`,
-                    boxShadow: '0 0 4px rgba(0,0,0,0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.4)', // Thinner and more transparent
+                    boxShadow: '0 0 2px rgba(0,0,0,0.1)',
                 }}
             />
 
