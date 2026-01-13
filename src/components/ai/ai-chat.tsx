@@ -274,11 +274,12 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             <motion.div
                 drag
                 dragMomentum={false}
+                dragElastic={0.1}
                 dragConstraints={{
                     left: typeof window !== 'undefined' ? -(window.innerWidth - 80) : -300,
-                    right: 0,
-                    top: typeof window !== 'undefined' ? -(window.innerHeight - 150) : -600,
-                    bottom: 0
+                    right: 40, // Allow moving slightly to the right
+                    top: typeof window !== 'undefined' ? -(window.innerHeight - 180) : -600,
+                    bottom: 80 // Allow moving down towards the bottom nav
                 }}
                 whileDrag={{ scale: 1.1, cursor: "grabbing" }}
                 className={cn("fixed bottom-28 right-4 z-50 transition-opacity duration-300", isOpen && "opacity-0 pointer-events-none")}
