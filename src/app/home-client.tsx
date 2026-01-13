@@ -138,7 +138,7 @@ export default function HomeClient({ children }: HomeClientProps) {
 
                                     {/* Country Name */}
                                     <h3 className="country-card-title text-lg font-black leading-tight mb-3 line-clamp-1 w-full px-1">
-                                        {country.name}
+                                        {t(`country_${country.code}`)}
                                     </h3>
 
                                     {/* Call to Action */}

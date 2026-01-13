@@ -7,9 +7,11 @@ import { LoginModal } from "./login-modal";
 import { Loader2, LogOut, User as UserIcon, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/providers/language-provider";
 
 export function AuthButton() {
     const { user, loading, signOut } = useAuth();
+    const { t } = useTranslation();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
@@ -28,7 +30,7 @@ export function AuthButton() {
                     className="text-white hover:bg-white/10"
                     onClick={() => setIsLoginOpen(true)}
                 >
-                    Нэвтрэх
+                    {t("login")}
                 </Button>
                 <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
             </>
@@ -69,7 +71,7 @@ export function AuthButton() {
                         >
                             <div className="px-4 py-3 border-b border-white/5">
                                 <p className="text-sm font-medium text-white truncate">
-                                    {user.displayName || "Хэрэглэгч"}
+                                    {user.displayName || t("user")}
                                 </p>
                                 <p className="text-xs text-white/50 truncate">
                                     {user.email}
@@ -82,14 +84,14 @@ export function AuthButton() {
                                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 rounded-lg transition-colors text-left"
                                 >
                                     <UserIcon className="w-4 h-4" />
-                                    Миний мэдээлэл
+                                    {t("myProfile")}
                                 </button>
                                 <button
-                                    onClick={() => router.push("/orders")}
+                                    onClick={() => router.push("/my-esims")}
                                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 rounded-lg transition-colors text-left"
                                 >
                                     <Package className="w-4 h-4" />
-                                    Миний захиалгууд
+                                    {t("myEsims")}
                                 </button>
                             </div>
 
@@ -102,7 +104,7 @@ export function AuthButton() {
                                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-left"
                                 >
                                     <LogOut className="w-4 h-4" />
-                                    Гарах
+                                    {t("logout")}
                                 </button>
                             </div>
                         </motion.div>

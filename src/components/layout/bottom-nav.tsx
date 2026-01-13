@@ -60,6 +60,7 @@ export function BottomNav() {
                                         item.active ? "fill-red-600/10" : "fill-transparent"
                                     )}
                                 />
+                                <span className="text-[10px] font-bold mt-0.5">{item.label}</span>
 
                             </Link>
                         ))}

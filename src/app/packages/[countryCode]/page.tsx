@@ -72,17 +72,7 @@ export default async function CountryPackagesPage({ params }: Props) {
     return (
         <div className="min-h-screen pb-24">
             <AmbienceTrigger countryCode={code} />
-            <MobileHeader title={`${getCountryName(code)}`} showBack />
-
-            <div className="container max-w-7xl mx-auto p-4 space-y-4 pt-4">
-                <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-xl md:text-2xl font-bold text-foreground">
-                        {getCountryName(code)} eSIM Багцууд
-                    </h1>
-                </div>
-
-                <CountryPackagesList packages={uiPackages} />
-            </div>
+            <CountryPackagesList packages={uiPackages} countryCode={code} />
         </div>
     );
 }

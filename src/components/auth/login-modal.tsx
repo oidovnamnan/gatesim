@@ -7,6 +7,7 @@ import { X, Mail, Lock, Phone, Loader2, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
+import { useTranslation } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface LoginModalProps {
@@ -17,6 +18,7 @@ interface LoginModalProps {
 type AuthMode = "login" | "register";
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
+    const { t } = useTranslation();
     const { signInWithGoogle, signInWithEmail, registerWithEmail } = useAuth();
     const [mode, setMode] = useState<AuthMode>("login");
     const [loading, setLoading] = useState(false);
@@ -50,7 +52,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
         // Validation
         if (mode === "register" && phone && !/^\d{8}$/.test(phone)) {
-            alert("Утасны дугаар буруу байна. 8 оронтой тоо оруулна уу.");
+            alert(t("error") + ": 8 оронтой тоо оруулна уу.");
             setLoading(false);
             return;
         }
@@ -68,7 +70,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             setPhone("");
         } catch (error: any) {
             console.error(error);
-            alert(error.message || "Алдаа гарлаа. Дахин оролдоно уу.");
+            alert(error.message || t("error"));
         } finally {
             setLoading(false);
         }
@@ -116,10 +118,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                                 <div className="text-center mb-6 relative z-10">
                                     <h2 className="text-2xl font-extrabold text-slate-900 mb-2 tracking-tight">
-                                        {mode === "login" ? "Эргэн тавтай морил" : "Шинээр бүртгүүлэх"}
+                                        {mode === "login" ? t("welcomeBack") : t("signUp")}
                                     </h2>
                                     <p className="text-slate-500 text-sm font-medium">
-                                        GateSIM-д нэгдэн дэлхийн хаана ч холбогдоорой
+                                        {t("authSubtitle")}
                                     </p>
                                 </div>
 
@@ -135,7 +137,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                     ) : (
                                         <Chrome className="w-5 h-5 mr-2 text-red-600" />
                                     )}
-                                    Google-ээр үргэлжлүүлэх
+                                    {t("continueWithGoogle")}
                                 </Button>
 
                                 <div className="relative mb-4">
@@ -143,7 +145,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         <div className="w-full border-t border-slate-100"></div>
                                     </div>
                                     <div className="relative flex justify-center text-xs uppercase font-bold tracking-wider">
-                                        <span className="bg-white px-3 text-slate-400">эсвэл</span>
+                                        <span className="bg-white px-3 text-slate-400">{t("or")}</span>
                                     </div>
                                 </div>
 
@@ -153,7 +155,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         <div className="relative">
                                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                             <input
-                                                placeholder="Имэйл хаяг"
+                                                placeholder={t("email")}
                                                 type="email"
                                                 required
                                                 value={email}
@@ -166,7 +168,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             <div className="relative">
                                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                                 <input
-                                                    placeholder="Утасны дугаар (Заавал биш)"
+                                                    placeholder={t("phoneOptional")}
                                                     type="tel"
                                                     value={phone}
                                                     onChange={(e) => setPhone(e.target.value)}
@@ -178,7 +180,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         <div className="relative">
                                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                             <input
-                                                placeholder="Нууц үг"
+                                                placeholder={t("password")}
                                                 type="password"
                                                 required
                                                 value={password}
@@ -195,19 +197,19 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         disabled={loading}
                                         className="h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-600/20 hover:shadow-red-600/40 transition-all"
                                     >
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (mode === "login" ? "Нэвтрэх" : "Бүртгүүлэх")}
+                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (mode === "login" ? t("login") : t("signUp"))}
                                     </Button>
                                 </form>
 
                                 {/* Toggle Mode */}
                                 <div className="mt-8 text-center relative z-10">
                                     <p className="text-sm text-slate-500 font-medium">
-                                        {mode === "login" ? "Хаяг байхгүй юу?" : "Бүртгэлтэй юу?"}{" "}
+                                        {mode === "login" ? t("noAccount") : t("alreadyRegistered")}{" "}
                                         <button
                                             onClick={() => setMode(mode === "login" ? "register" : "login")}
                                             className="text-red-600 hover:text-red-700 font-bold transition-colors ml-1"
                                         >
-                                            {mode === "login" ? "Бүртгүүлэх" : "Нэвтрэх"}
+                                            {mode === "login" ? t("signUp") : t("login")}
                                         </button>
                                     </p>
                                 </div>

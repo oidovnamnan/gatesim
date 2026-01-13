@@ -140,8 +140,8 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
         // If filtering by country, override countryName for regional packages
         if (selectedCountry) {
-            const selectedCountryInfo = popularCountries.find(c => c.code === selectedCountry);
-            const selectedCountryName = selectedCountryInfo?.name || selectedCountry;
+            const countryKey = `country_${selectedCountry}`;
+            const selectedCountryName = t(countryKey);
 
             packages = packages.map(pkg => {
                 if (pkg.countries.length > 1 && pkg.countries.includes(selectedCountry)) {
@@ -236,7 +236,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        1-7 {t("day")}
+                        {t("duration1_7")}
                     </button>
                     <button
                         onClick={() => setSelectedDuration("medium")}
@@ -247,7 +247,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        8-15 {t("day")}
+                        {t("duration8_15")}
                     </button>
                     <button
                         onClick={() => setSelectedDuration("long")}
@@ -258,7 +258,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        15+ {t("day")}
+                        {t("duration15Plus")}
                     </button>
                 </div>
 
@@ -286,7 +286,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                             )}
                         >
                             <span className="text-sm">{country.flag}</span>
-                            {country.name}
+                            {t(`country_${country.code}`)}
                         </button>
                     ))}
                 </div>
@@ -295,7 +295,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             <div className="px-4 py-4 space-y-4">
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-foreground font-bold pl-1">
-                        {t("countPackages").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
+                        {t("packagesFound").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
                     </p>
 
                     <div className="flex bg-white/50 rounded-xl p-1">

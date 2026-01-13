@@ -39,7 +39,7 @@ export function TopHeader() {
                         Gate<span className="text-red-600">SIM</span>
                     </span>
                     <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase -mt-1 ml-0.5 hidden md:block">
-                        eSIM Platform
+                        {t("eSimPlatform")}
                     </span>
                 </div>
             </Link>

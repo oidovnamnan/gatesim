@@ -60,7 +60,7 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                     <div className="flex-1 min-w-0 pt-1">
                         <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-bold text-slate-900 truncate text-lg">
-                                {order.countryName}
+                                {t(`country_${order.countryCode}`)}
                             </h3>
                             <Badge
                                 variant="secondary"
@@ -139,7 +139,8 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
     };
 
     const handleShare = async () => {
-        const shareText = `🌍 GateSIM eSIM: ${order.countryName}\n📦 ${t("packages")}: ${order.packageName}\n🔑 LPA: ${order.activationCode}\n🆔 ICCID: ${order.iccid}\n📖 ${t("installationGuide")}: https://gatesim.mn/my-esims?ai=install`;
+        const localizedCountry = t(`country_${order.countryCode}`);
+        const shareText = `🌍 GateSIM eSIM: ${localizedCountry}\n📦 ${t("packages")}: ${order.packageName}\n🔑 LPA: ${order.activationCode}\n🆔 ICCID: ${order.iccid}\n📖 ${t("installationGuide")}: https://gatesim.mn/my-esims?ai=install`;
 
         try {
             if (navigator.share && order.qrImg) {
@@ -225,7 +226,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                     <div className="flex items-center gap-4 mb-8">
                         <div className="text-5xl shadow-sm rounded-2xl bg-white border border-slate-100 p-1">{flag}</div>
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900 mb-1">{order.countryName}</h2>
+                            <h2 className="text-2xl font-black text-slate-900 mb-1">{t(`country_${order.countryCode}`)}</h2>
                             <Badge variant="outline" className="text-slate-500 font-medium border-slate-200">
                                 {order.packageName}
                             </Badge>

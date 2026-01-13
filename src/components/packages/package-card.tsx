@@ -165,7 +165,7 @@ export function PackageCard({
                                                 : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-900/50"
                                         )}
                                     >
-                                        🌍 {language === 'en' ? 'Regional' : (language === 'cn' ? '地区套餐' : 'Бүсийн багц')}
+                                        🌍 {t("regional")}
                                     </Badge>
                                 )}
                             </div>
@@ -201,7 +201,9 @@ export function PackageCard({
                                     "text-lg font-black tracking-tight leading-tight",
                                     bgImage ? "text-white" : "package-card-text"
                                 )}>
-                                    {contextualCountry && isRegional ? `${countryName} ${t("plusCountries").replace("{count}", (countries.length - 1).toString())}` : (countryName || title)}
+                                    {isRegional && contextualCountry
+                                        ? `${t(`country_${contextualCountry}`)} ${t("plusCountries").replace("{count}", (countries.length - 1).toString())}`
+                                        : (t(`country_${primaryCountry}`) !== `country_${primaryCountry}` ? t(`country_${primaryCountry}`) : (countryName || title))}
                                 </h3>
                                 <div className="flex items-center gap-2 mt-1">
                                     <p className={cn(
@@ -286,7 +288,9 @@ export function PackageCardCompact({
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                             <h4 className="font-bold text-slate-900 text-sm truncate pr-2 group-hover:text-red-700 transition-colors">
-                                {contextualCountry && isRegional ? `${countryName} ${t("plusCountries").replace("{count}", (countries.length - 1).toString())}` : (countryName || title)}
+                                {isRegional && contextualCountry
+                                    ? `${t(`country_${contextualCountry}`)} ${t("plusCountries").replace("{count}", (countries.length - 1).toString())}`
+                                    : (t(`country_${primaryCountry}`) !== `country_${primaryCountry}` ? t(`country_${primaryCountry}`) : (countryName || title))}
                             </h4>
                             <p className="font-black text-slate-900 text-sm whitespace-nowrap">₮{price.toLocaleString()}</p>
                         </div>

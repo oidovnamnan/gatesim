@@ -566,7 +566,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                     Stripe / Card
                                     <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full font-bold">{t("comingSoon")}</span>
                                 </div>
-                                <div className="text-xs text-slate-400">Олон улсын карт</div>
+                                <div className="text-xs text-slate-400">{t("internationalCard")}</div>
                             </div>
                         </div>
                     </div>
