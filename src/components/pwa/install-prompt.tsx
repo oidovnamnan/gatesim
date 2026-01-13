@@ -35,13 +35,12 @@ export function InstallPrompt() {
         // 2. Check for Android/Desktop (beforeinstallprompt)
         // 2. Check for Android/Desktop (beforeinstallprompt)
         const handler = (e: any) => {
-            // we do NOT prevent default, allowing the native brownser mini-bar to show if it wants.
-            // e.preventDefault();
-            // setDeferredPrompt(e);
+            // Prevent default to capture the event and suppress auto-prompt
+            e.preventDefault();
+            setDeferredPrompt(e);
 
-            // We do NOT show our custom modal.
-            // setShow(true);
-            console.log("Native prompt triggered, preventing custom modal to avoid duplication.");
+            // Show our custom UI to provide the trigger button
+            setShow(true);
         };
 
         window.addEventListener("beforeinstallprompt", handler);
