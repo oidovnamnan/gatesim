@@ -125,7 +125,7 @@ export function InstallPrompt() {
                         {isIOS && (
                             <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-muted-foreground">
                                 <span>Safari хөтөч дээр суулгах заавар</span>
-                                <span className="flex items-center gap-1">Share <span className="text-blue-500">⬆️</span> -> Add to Home Screen</span>
+                                <span className="flex items-center gap-1">Share <span className="text-blue-500">⬆️</span> &rarr; Add to Home Screen</span>
                             </div>
                         )}
                     </Card>
