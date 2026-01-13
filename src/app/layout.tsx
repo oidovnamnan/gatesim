@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { NextAuthProvider } from "@/providers/next-auth-provider";
+import { LanguageProvider } from "@/providers/language-provider";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -88,13 +89,15 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]`}>
         <NextAuthProvider>
           <AuthProvider>
-            <ThemeProvider>
-              <ToastProvider>
-                <ClientLayout>
-                  {children}
-                </ClientLayout>
-              </ToastProvider>
-            </ThemeProvider>
+            <LanguageProvider>
+              <ThemeProvider>
+                <ToastProvider>
+                  <ClientLayout>
+                    {children}
+                  </ClientLayout>
+                </ToastProvider>
+              </ThemeProvider>
+            </LanguageProvider>
           </AuthProvider>
         </NextAuthProvider>
       </body>

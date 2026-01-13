@@ -7,6 +7,7 @@ import { Wifi, Clock, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SimCardFlag } from "@/components/ui/sim-card-flag";
 import { cn, getCountryFlag } from "@/lib/utils";
+import { useTranslation } from "@/providers/language-provider";
 
 // Map country codes to MULTIPLE placeholder images for variety
 const countryImageCollections: Record<string, string[]> = {
@@ -96,6 +97,7 @@ export function PackageCard({
     contextualCountry,
     className,
 }: PackageCardProps) {
+    const { t, language } = useTranslation();
     const primaryCountry = contextualCountry || countries[0];
     const flag = primaryCountry ? getCountryFlag(primaryCountry) : "🌐";
 
@@ -151,7 +153,7 @@ export function PackageCard({
                                                 : "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50"
                                         )}
                                     >
-                                        {isFeatured ? "✨ Онцлох" : "🔥 Түгээмэл"}
+                                        {isFeatured ? `✨ ${t("featured")}` : `🔥 ${t("statusActive")}`}
                                     </Badge>
                                 )}
                                 {isRegional && (
@@ -163,7 +165,7 @@ export function PackageCard({
                                                 : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-900/50"
                                         )}
                                     >
-                                        🌍 Бүсийн багц
+                                        🌍 {language === 'en' ? 'Regional' : (language === 'cn' ? '地区套餐' : 'Бүсийн багц')}
                                     </Badge>
                                 )}
                             </div>
@@ -180,7 +182,7 @@ export function PackageCard({
                                 )}
                             >
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                VPN Included
+                                {t("vpnIncluded")}
                             </Badge>
                         )}
                     </div>
@@ -199,7 +201,7 @@ export function PackageCard({
                                     "text-lg font-black tracking-tight leading-tight",
                                     bgImage ? "text-white" : "package-card-text"
                                 )}>
-                                    {contextualCountry && isRegional ? `${countryName} + ${countries.length - 1} улс` : (countryName || title)}
+                                    {contextualCountry && isRegional ? `${countryName} ${t("plusCountries").replace("{count}", (countries.length - 1).toString())}` : (countryName || title)}
                                 </h3>
                                 <div className="flex items-center gap-2 mt-1">
                                     <p className={cn(
@@ -226,7 +228,7 @@ export function PackageCard({
                                 bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Clock className="w-3.5 h-3.5 opacity-70" />
-                                <span className="text-sm font-bold">{validityDays} хоног</span>
+                                <span className="text-sm font-bold">{validityDays} {t("day")}</span>
                             </div>
                         </div>
 
@@ -269,6 +271,7 @@ export function PackageCardCompact({
     contextualCountry,
     className,
 }: PackageCardProps) {
+    const { t, language } = useTranslation();
     const primaryCountry = contextualCountry || countries[0];
     const flag = primaryCountry ? getCountryFlag(primaryCountry) : "🌐";
     const isRegional = countries.length > 1;
@@ -283,7 +286,7 @@ export function PackageCardCompact({
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                             <h4 className="font-bold text-slate-900 text-sm truncate pr-2 group-hover:text-red-700 transition-colors">
-                                {contextualCountry && isRegional ? `${countryName} + ${countries.length - 1} улс` : (countryName || title)}
+                                {contextualCountry && isRegional ? `${countryName} ${t("plusCountries").replace("{count}", (countries.length - 1).toString())}` : (countryName || title)}
                             </h4>
                             <p className="font-black text-slate-900 text-sm whitespace-nowrap">₮{price.toLocaleString()}</p>
                         </div>
@@ -291,12 +294,14 @@ export function PackageCardCompact({
                             <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
                                 <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">{data}</span>
                                 <span className="text-slate-300">•</span>
-                                <span>{validityDays} хоног</span>
+                                <span>{validityDays} {t("day")}</span>
 
                                 {isRegional && (
                                     <>
                                         <span className="text-slate-300">•</span>
-                                        <span className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Regional</span>
+                                        <span className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                            {t("regional")}
+                                        </span>
                                     </>
                                 )}
 
@@ -306,7 +311,7 @@ export function PackageCardCompact({
                                         <span className="text-slate-300">•</span>
                                         <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 font-bold">
                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                            VPN Included
+                                            {t("vpnIncluded")}
                                         </span>
                                     </>
                                 )}

@@ -58,6 +58,37 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
     const [messages, setMessages] = useState<AIMessage[]>([]);
     const [input, setInput] = useState("");
 
+    // Helper functions moved inside to access t
+    function detectDevice(): string {
+        if (typeof navigator === "undefined") return t("devicePhone");
+        const ua = navigator.userAgent;
+        if (/iPhone/i.test(ua)) return "iPhone";
+        if (/Samsung/i.test(ua)) return "Samsung";
+        if (/Huawei/i.test(ua)) return "Huawei";
+        if (/Pixel/i.test(ua)) return "Google Pixel";
+        if (/Xiaomi/i.test(ua)) return "Xiaomi";
+        return t("yourPhone");
+    }
+
+    function detectDeviceType(): string {
+        if (typeof navigator === "undefined") return "generic";
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.includes("iphone") || ua.includes("ipad")) return "iphone";
+        if (ua.includes("samsung")) return "samsung";
+        if (ua.includes("pixel")) return "pixel";
+        return "generic";
+    }
+
+    function isEsimCompatible(device: string): boolean {
+        if (typeof navigator === "undefined") return true;
+        const ua = navigator.userAgent;
+        if (/iPhone/i.test(ua)) {
+            const match = ua.match(/OS (\d+)_/);
+            if (match && parseInt(match[1]) < 12) return false;
+        }
+        return true;
+    }
+
     // Initialize with a random greeting and check for triggers/compatibility
     useEffect(() => {
         // Only run once on mount
@@ -91,7 +122,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
     useEffect(() => {
         const action = searchParams.get("ai");
         if (action === "install") {
-            const deviceType = detectDeviceType(); // 'iphone', 'samsung', etc.
+            const deviceType = detectDeviceType();
             const guide = (installationGuides as any)[deviceType] || installationGuides.generic;
 
             setIsOpen(true);
@@ -105,7 +136,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             };
 
             setMessages(prev => {
-                // Check if last message is already this guide to prevent duplicates
                 if (prev.length > 0 && prev[prev.length - 1].content === guide) return prev;
                 return [...prev, guideMessage];
             });
@@ -126,7 +156,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // Hide bottom nav when chat is open
     useEffect(() => {
         if (isOpen) {
             document.body.classList.add('ai-chat-open');
@@ -154,7 +183,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
         setIsLoading(true);
 
         try {
-            // Prepare message history for API
             const apiMessages = messages.concat(userMessage).map(m => ({
                 role: m.role,
                 content: m.content
@@ -173,7 +201,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             let responseText = "";
 
             if (!res.ok) {
-                // Handle specific errors potentially
                 console.error('API request failed');
                 responseText = t("error");
             } else {
@@ -181,7 +208,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                 responseText = data.content;
             }
 
-            // Parse AI response for package search command
             let finalResponseText = responseText;
             let packageResults: any[] = [];
 
@@ -189,7 +215,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             if (searchMatch) {
                 const paramsStr = searchMatch[1];
                 const params = new URLSearchParams();
-
                 paramsStr.split(',').forEach(pair => {
                     const [key, value] = pair.split('=').map(s => s.trim());
                     if (key && value) params.append(key, value);
@@ -203,7 +228,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                             packageResults = searchData.packages;
                         }
                     }
-                    // Always remove the search command from displayed text to avoid raw syntax showing
                     finalResponseText = responseText.replace(/\[SEARCH_PACKAGES:[^\]]+\]/, '').trim();
                 } catch (err) {
                     console.error('Package search failed:', err);
@@ -244,13 +268,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
         }
     };
 
-    const handleQuickQuestion = (questionId: string) => {
-        const question = quickQuestions.find((q) => q.id === questionId);
-        if (question) {
-            handleSend(question.text);
-        }
-    };
-
     return (
         <>
             {/* Floating button with pulse effect - Now draggable! */}
@@ -258,15 +275,14 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                 drag
                 dragMomentum={false}
                 dragConstraints={{
-                    left: -window?.innerWidth + 80 || -300,
+                    left: typeof window !== 'undefined' ? -(window.innerWidth - 80) : -300,
                     right: 0,
-                    top: -window?.innerHeight + 150 || -600,
+                    top: typeof window !== 'undefined' ? -(window.innerHeight - 150) : -600,
                     bottom: 0
                 }}
                 whileDrag={{ scale: 1.1, cursor: "grabbing" }}
                 className={cn("fixed bottom-28 right-4 z-50 transition-opacity duration-300", isOpen && "opacity-0 pointer-events-none")}
             >
-                {/* Ripple effect */}
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -297,7 +313,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                         initial={{ opacity: 0, y: 100, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                        className="fixed inset-0 z-[100] flex flex-col bg-slate-50 text-slate-900"
+                        className="fixed inset-0 z-[100] flex flex-col bg-slate-50 text-slate-900 md:bottom-32 md:right-8 md:left-auto md:top-auto md:w-[400px] md:h-[600px] md:rounded-[32px] md:overflow-hidden md:shadow-2xl"
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
@@ -308,25 +324,18 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                 <div>
                                     <h3 className="font-bold text-slate-900 flex items-center gap-2">
                                         {t("aiTitle")}
-                                        {isPremium && (
-                                            <Badge variant="warning" size="sm" className="shadow-none">
-                                                <Crown className="h-3 w-3 mr-1" /> Premium
-                                            </Badge>
-                                        )}
                                     </h3>
-                                    <p className="text-xs text-slate-500 font-medium">
+                                    <p className="text-xs text-slate-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px]">
                                         {isGuest ? t("aiGuestMode") : t("aiDescription")}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setIsOpen(false)}
-                                    className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
                         </div>
 
                         {/* Messages */}
@@ -361,34 +370,16 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                             msg.role === "assistant"
                                                 ? "bg-white border border-slate-200 rounded-tl-sm text-slate-800"
                                                 : "gradient-primary rounded-tr-sm text-white",
-                                            // Full width for package lists, restricted width for text
                                             msg.content.startsWith('__PACKAGES__:') ? "w-full" : "max-w-[85%]"
                                         )}
                                     >
                                         {msg.content.startsWith('__PACKAGES__:') ? (
-                                            // Render package cards
                                             <div className="space-y-2">
                                                 {(() => {
                                                     const allPackages = JSON.parse(msg.content.replace('__PACKAGES__:', ''));
                                                     const displayPackages = allPackages.slice(0, 5);
                                                     const remainingCount = allPackages.length - 5;
-                                                    // Derive country and duration for the "See More" link
                                                     const targetCountry = displayPackages[0]?.countries?.[0] || null;
-
-                                                    // Mapping minDays to duration param
-                                                    let durationParam = '';
-                                                    const commandMatch = msg.content.match(/\[SEARCH_PACKAGES: ([^\]]+)\]/);
-                                                    if (commandMatch) {
-                                                        const p = new URLSearchParams(commandMatch[1].split(', ').join('&'));
-                                                        const minDays = parseInt(p.get('minDays') || '0');
-                                                        if (minDays > 0 && minDays <= 7) durationParam = 'short';
-                                                        else if (minDays > 7 && minDays <= 15) durationParam = 'medium';
-                                                        else if (minDays > 15) durationParam = 'long';
-                                                    }
-
-                                                    const seeMoreUrl = new URL(window.location.origin + '/packages');
-                                                    if (targetCountry) seeMoreUrl.searchParams.set('country', targetCountry);
-                                                    if (durationParam) seeMoreUrl.searchParams.set('duration', durationParam);
 
                                                     return (
                                                         <>
@@ -400,23 +391,22 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                                                 >
                                                                     <div className="flex items-center justify-between mb-2">
                                                                         <div>
-                                                                            <h4 className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors">{pkg.countryName}</h4>
-                                                                            <p className="text-xs text-slate-500">{pkg.provider}</p>
+                                                                            <h4 className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors uppercase">{pkg.countryName}</h4>
+                                                                            <p className="text-[10px] text-slate-500 font-bold">{pkg.provider}</p>
                                                                         </div>
                                                                         <div className="text-right">
-                                                                            <p className="text-lg font-black text-slate-900">₮{pkg.price.toLocaleString()}</p>
+                                                                            <p className="text-base font-black text-slate-900">₮{pkg.price.toLocaleString()}</p>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="flex gap-2 text-xs">
-                                                                        <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">📊 {pkg.data}</span>
-                                                                        <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} {t("day")}</span>
+                                                                    <div className="flex gap-2 text-[10px]">
+                                                                        <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600 font-bold">{pkg.data}</span>
+                                                                        <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600 font-bold">{pkg.validityDays} {t("day")}</span>
                                                                     </div>
                                                                 </a>
                                                             ))}
-
                                                             <a
-                                                                href={seeMoreUrl.toString()}
-                                                                className="block w-full py-3 mt-2 text-center text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100"
+                                                                href={`/packages${targetCountry ? `?country=${targetCountry}` : ''}`}
+                                                                className="block w-full py-2.5 mt-2 text-center text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100"
                                                             >
                                                                 {t("aiSeeAll")} {remainingCount > 0 && `(+${remainingCount})`} →
                                                             </a>
@@ -432,7 +422,6 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                     </div>
                                 </motion.div>
                             ))}
-
                             {isLoading && (
                                 <motion.div
                                     initial={{ opacity: 0 }}
@@ -447,27 +436,26 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                     </div>
                                 </motion.div>
                             )}
-
                             <div ref={messagesEndRef} />
                         </div>
 
-                        {/* Quick questions: Show only at start */}
+                        {/* Quick options */}
                         {messages.length <= 1 && (
                             <div className="px-4 pb-3">
-                                <p className="text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">{t("aiPopularPackages")}</p>
+                                <p className="text-[10px] text-slate-400 mb-3 font-black uppercase tracking-widest ml-1">{t("aiPopularPackages")}</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
-                                        onClick={() => handleSend(language === 'mn' ? "Япон 7 хоног" : "Japan 7 days")}
-                                        className="px-3 py-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-red-200 hover:shadow-sm hover:text-red-700 transition-all text-left group shadow-sm"
+                                        onClick={() => handleSend(language === 'mn' ? "Япон 7 хоног" : language === 'cn' ? "日本 7 天" : "Japan 7 days")}
+                                        className="px-3 py-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-red-200 hover:shadow-md hover:text-red-700 transition-all text-left group shadow-sm"
                                     >
-                                        <span className="block mb-1 text-lg">🇯🇵</span>
+                                        <span className="block mb-1 text-xl">🇯🇵</span>
                                         <span className="font-bold">{language === 'mn' ? "Япон" : language === 'cn' ? "日本" : "Japan"} 7 {t("day")}</span>
                                     </button>
                                     <button
-                                        onClick={() => handleSend(language === 'mn' ? "Солонгос 5 хоног" : "Korea 5 days")}
-                                        className="px-3 py-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-red-200 hover:shadow-sm hover:text-red-700 transition-all text-left group shadow-sm"
+                                        onClick={() => handleSend(language === 'mn' ? "Солонгос 5 хоног" : language === 'cn' ? "韩国 5 天" : "Korea 5 days")}
+                                        className="px-3 py-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-red-200 hover:shadow-md hover:text-red-700 transition-all text-left group shadow-sm"
                                     >
-                                        <span className="block mb-1 text-lg">🇰🇷</span>
+                                        <span className="block mb-1 text-xl">🇰🇷</span>
                                         <span className="font-bold">{language === 'mn' ? "Солонгос" : language === 'cn' ? "韩国" : "Korea"} 5 {t("day")}</span>
                                     </button>
                                 </div>
@@ -475,7 +463,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                         )}
 
                         {/* Input */}
-                        <div className="px-4 pb-8 pt-3 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+                        <div className="px-4 pb-4 md:pb-6 pt-3 bg-white border-t border-slate-200">
                             <div className="flex gap-2 relative">
                                 <input
                                     type="text"
@@ -484,14 +472,14 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
                                     placeholder={t("aiPlaceholder")}
                                     disabled={isLoading}
-                                    className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white focus:ring-4 focus:ring-red-500/10 transition-all font-medium disabled:opacity-50 disabled:bg-slate-100"
+                                    className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white transition-all font-bold disabled:opacity-50"
                                 />
                                 <Button
                                     onClick={() => handleSend()}
                                     disabled={!input.trim() || isLoading}
-                                    className="absolute right-1.5 top-1.5 bottom-1.5 w-10 h-auto rounded-xl gradient-primary shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 transition-all p-0 flex items-center justify-center"
+                                    className="absolute right-1.5 top-1.5 bottom-1.5 w-10 h-auto rounded-xl gradient-primary shadow-md p-0 flex items-center justify-center border-none"
                                 >
-                                    <Send className="h-4 w-4 text-white ml-0.5" />
+                                    <Send className="h-4 w-4 text-white" />
                                 </Button>
                             </div>
                         </div>
@@ -500,49 +488,4 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             </AnimatePresence>
         </>
     );
-}
-// Helper functions for device detection
-function detectDevice(): string {
-    if (typeof navigator === "undefined") return "Утас";
-    const ua = navigator.userAgent;
-    if (/iPhone/i.test(ua)) return "iPhone";
-    if (/Samsung/i.test(ua)) return "Samsung";
-    if (/Huawei/i.test(ua)) return "Huawei";
-    if (/Pixel/i.test(ua)) return "Google Pixel";
-    if (/Xiaomi/i.test(ua)) return "Xiaomi";
-    return "Таны утас";
-}
-
-function detectDeviceType(): string {
-    if (typeof navigator === "undefined") return "generic";
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.includes("iphone") || ua.includes("ipad")) return "iphone";
-    if (ua.includes("samsung")) return "samsung";
-    if (ua.includes("pixel")) return "pixel";
-    return "generic";
-}
-
-function isEsimCompatible(device: string): boolean {
-    if (typeof navigator === "undefined") return true;
-    const ua = navigator.userAgent;
-
-    // Very basic check: iPhone 10 (X) and below don't support eSIM (except XR, XS)
-    // This is hard to do perfectly via UA, but we can catch obvious old ones
-    if (/iPhone/i.test(ua)) {
-        // iPhone OS version check or specific models if available
-        // Usually UA doesn't show specific iPhone model, just "iPhone"
-        // But we can check for older iOS versions as an indicator
-        const match = ua.match(/OS (\d+)_/);
-        if (match && parseInt(match[1]) < 12) return false;
-    }
-
-    // For now, let's be conservative and only warn on really old stuff if possible,
-    // or just assume "Samsung" might be old if it doesn't match S20+ patterns, etc.
-    // Since UA doesn't give specific models like "S9", it's tricky.
-
-    // However, for the sake of the user request "can we know", 
-    // we will mostly rely on the "detectDevice" returning a name 
-    // and provide generic compatibility advice if it's a known risky category.
-
-    return true; // Default to true unless we are certain it's old
 }
