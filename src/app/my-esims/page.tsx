@@ -133,10 +133,24 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
         try {
             // Check if we can share files
             if (navigator.share && order.qrImg) {
-                // Convert base64 to File object
-                const res = await fetch(order.qrImg);
-                const blob = await res.blob();
-                const file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: 'image/png' });
+                // Manually convert base64 to Blob to avoid CSP fetch restriction
+                const base64Content = order.qrImg.split(',')[1];
+                const mimeType = order.qrImg.split(',')[0].split(':')[1].split(';')[0];
+                const byteCharacters = atob(base64Content);
+                const byteArrays = [];
+
+                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                    const slice = byteCharacters.slice(offset, offset + 512);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+
+                const blob = new Blob(byteArrays, { type: mimeType });
+                const file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: mimeType });
 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
