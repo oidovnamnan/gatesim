@@ -98,7 +98,7 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
             if (getValue("UNLIMITED") === "1") mb = -1;
 
             // Countries
-            const countryCodes = p.countries ? p.countries.map((c: any) => c.alpha2Code || c) : [];
+            const countryCodes = p.countries ? p.countries.map((c: any) => (c.alpha2Code || c).toString().toUpperCase()) : [];
 
             // --- PRICING CALCULATION ---
             const basePrice = p.retailPrice || 0;
