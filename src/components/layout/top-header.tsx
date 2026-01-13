@@ -1,6 +1,7 @@
 "use client";
 
 import { Logo } from "@/components/ui/logo";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, Package, Smartphone, Home, Moon, Sun } from "lucide-react";
@@ -30,18 +31,14 @@ export function TopHeader() {
     return (
         <header className="header-bg sticky top-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-lg border-b shadow-sm transition-colors duration-300">
             {/* Logo */}
-            <Link href="/" className="pointer-events-auto group flex-shrink-0 flex items-center gap-3">
-                <div className="w-10 h-10 relative flex items-center justify-center">
-                    <Logo className="w-full h-full" />
-                </div>
-                <div className="flex flex-col">
-                    <span className="header-text font-black text-2xl tracking-tight transition-colors">
-                        GateSIM
-                    </span>
-                    <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase -mt-1 ml-0.5 hidden md:block">
-                        {t("eSimPlatform")}
-                    </span>
-                </div>
+            <Link href="/" className="pointer-events-auto flex-shrink-0 relative w-[140px] h-10">
+                <Image
+                    src="/logo.png"
+                    alt="GateSIM Logo"
+                    fill
+                    className="object-contain object-left"
+                    priority
+                />
             </Link>
 
             {/* Desktop Navigation - Center */}
