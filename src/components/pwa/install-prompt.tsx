@@ -95,7 +95,7 @@ export function InstallPrompt() {
                     className="w-full max-w-xl mx-4"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <Card className="p-4 shadow-2xl border-none bg-white dark:bg-slate-900 rounded-2xl overflow-hidden relative">
+                    <Card className="p-4 shadow-2xl border-none bg-white rounded-2xl overflow-hidden relative text-slate-900">
                         {/* Close button for iOS/Desktop if needed */}
                         <button
                             onClick={() => setShow(false)}
