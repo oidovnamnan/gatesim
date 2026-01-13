@@ -13,6 +13,7 @@ import {
     ChevronDown,
     ChevronUp,
     Smartphone,
+    ShieldCheck,
 } from "lucide-react";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { Button } from "@/components/ui/button";
@@ -105,6 +106,27 @@ export default function PackageClient({ pkg }: PackageClientProps) {
                     <p className="text-slate-500 font-medium">{pkg.operatorTitle}</p>
                 </div>
             </div>
+
+            {/* VPN Info for China */}
+            {pkg.countries.includes("CN") && (
+                <div className="px-4 mt-6 mb-2">
+                    <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 shadow-sm">
+                        <div className="flex items-start gap-4">
+                            <div className="bg-emerald-100 p-2 rounded-xl mt-0.5">
+                                <ShieldCheck className="h-6 w-6 text-emerald-600" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-emerald-900 text-sm mb-1">
+                                    {t("vpnFeatureTitle")}
+                                </h3>
+                                <p className="text-xs text-emerald-800/80 leading-relaxed font-medium">
+                                    {t("vpnFeatureDesc")}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Package Info Card */}
             <div className="px-4">

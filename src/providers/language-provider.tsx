@@ -141,6 +141,8 @@ const translations = {
         featured: "Онцлох",
         regional: "Бүсийн",
         vpnIncluded: "VPN-тэй",
+        vpnFeatureTitle: "VPN-тэй тул бүх сошиал руу чөлөөтэй орно",
+        vpnFeatureDesc: "Facebook, Instagram, Youtube, Google зэрэг хориглогдсон бүх сүлжээ рүү ямар нэгэн хязгаарлалтгүйгээр чөлөөтэй нэвтрэнэ.",
         price: "Үнэ",
         validity: "Хугацаа",
         coverage: "Хамрах",
@@ -175,7 +177,7 @@ const translations = {
         noSpeedLimit: "Хурдны хязгааргүй (High Speed)",
         hotspotSupport: "Hotspot цацах боломжтой",
         activationOnUse: "Ашиглаж эхэлснээс хойш хугацаа тоологдоно",
-        emailDeliveryInfo: "eSIM QR код таны и-мэйл хаягаар 1-5 минутын дотор ирнэ. Та зөвхөн eSIM дэмждэг утастай байх шаардлагатай.",
+        emailDeliveryInfo: "eSIM QR код 'Миний eSIM' цэсэнд хадгалагдах (нэвтэрсэн хэрэглэгч) болон таны и-мэйл хаягаар 1-5 минутын дотор ирнэ. Та зөвхөн eSIM дэмждэг утастай байх шаардлагатай.",
         // Country Names
         country_JP: "Япон",
         country_KR: "Солонгос",
@@ -201,9 +203,9 @@ const translations = {
         // Device Names
         devicePhone: "Утас",
         yourPhone: "Таны утас",
-        compatibleIphone: "iPhone XR, 11, 12, 13, 14, 15, 16 болон шинэ загварууд (Dual SIM-г анхаарах).",
-        compatibleSamsung: "Samsung Galaxy S20, S21, S22, S23, S24, Z Flip, Z Fold загварууд.",
-        compatiblePixel: "Google Pixel 3, 4, 5, 6, 7, 8, 9 болон шинэ загварууд.",
+        compatibleIphone: "iPhone XR, XS, 11, 12, 13, 14, 15, 16 болон шинэ загварууд. \n⚠️ Анхааруулга: Хятад, Хонконг, Макаогаас авсан iPhone (XS, 11, 12, 13, 14, 15... гэх мэт) ихэнх загварууд eSIM дэмждэггүй (2 сим карт ордог тул).",
+        compatibleSamsung: "Samsung Galaxy S20, S21, S22, S23, S24, Z Flip, Z Fold цувралууд. \n⚠️ Анхааруулга: Хятад, Хонконг, Макао хувилбарууд ихэвчлэн eSIM дэмждэггүй.",
+        compatiblePixel: "Google Pixel 3, 3XL, 4, 4XL, 5... болон түүнээс хойшхи бүх загварууд.",
     },
     en: {
         home: "Home",
@@ -322,6 +324,8 @@ const translations = {
         featured: "Featured",
         regional: "Regional",
         vpnIncluded: "VPN Included",
+        vpnFeatureTitle: "VPN Included - Unrestricted Access",
+        vpnFeatureDesc: "Freely access blocked services like Facebook, Instagram, Youtube, and Google without any restrictions.",
         price: "Price",
         validity: "Validity",
         coverage: "Coverage",
@@ -356,7 +360,7 @@ const translations = {
         noSpeedLimit: "No Speed Limit (High Speed)",
         hotspotSupport: "Hotspot/Tethering Supported",
         activationOnUse: "Validity starts upon first connection",
-        emailDeliveryInfo: "eSIM QR code will arrive via email within 1-5 minutes. Ensure your device is eSIM compatible.",
+        emailDeliveryInfo: "eSIM QR code will be saved in 'My eSIMs' (for logged-in users) and sent to your email within 1-5 minutes. Ensure your device is eSIM compatible.",
         // Country Names
         country_JP: "Japan",
         country_KR: "South Korea",
@@ -382,9 +386,9 @@ const translations = {
         // Device Names
         devicePhone: "Phone",
         yourPhone: "Your Phone",
-        compatibleIphone: "iPhone XS, XR and all newer models (Watch for Dual SIM versions).",
-        compatibleSamsung: "Galaxy S20 or newer, Z Fold, Z Flip models.",
-        compatiblePixel: "Pixel 3 and all newer models.",
+        compatibleIphone: "iPhone XR, XS, 11, 12, 13, 14, 15, 16 and newer models. \n⚠️ Warning: Most iPhones purchased in China, Hong Kong, or Macau (e.g. XS, 11, 12, 13...) do NOT support eSIM (Physical Dual SIM only).",
+        compatibleSamsung: "Samsung Galaxy S20, S21, S22, S23, S24, Z Flip, Z Fold series. \n⚠️ Warning: Models from China, Hong Kong, and Macau typically do NOT support eSIM.",
+        compatiblePixel: "Google Pixel 3, 3XL, 4, 4XL, 5... and all newer models.",
     },
     cn: {
         home: "首页",
@@ -503,6 +507,8 @@ const translations = {
         featured: "推荐",
         regional: "地区",
         vpnIncluded: "包含 VPN",
+        vpnFeatureTitle: "包含 VPN - 无限制访问",
+        vpnFeatureDesc: "由于包含VPN，您可以无限制地自由访问 Facebook、Instagram、Youtube 和 Google 等被屏蔽的服务。",
         price: "价格",
         validity: "有效期",
         coverage: "覆盖范围",
@@ -537,7 +543,7 @@ const translations = {
         noSpeedLimit: "不限速 (高速)",
         hotspotSupport: "支持热点分享",
         activationOnUse: "首次使用时开始计算有效期",
-        emailDeliveryInfo: "eSIM 二维码将在 1-5 分钟内通过邮件送达。请确保您的设备支持 eSIM。",
+        emailDeliveryInfo: "eSIM 二维码将保存在“我的 eSIM”中（针对登录用户），并在 1-5 分钟内通过电子邮件发送。请确保您的设备支持 eSIM。",
         // Country Names
         country_JP: "日本",
         country_KR: "韩国",
@@ -563,9 +569,9 @@ const translations = {
         // Device Names
         devicePhone: "手机",
         yourPhone: "您的手机",
-        compatibleIphone: "iPhone XS, XR 及所有较新型号（注意双卡版本）。",
-        compatibleSamsung: "Galaxy S20 或更新机型，Z Fold，Z Flip。",
-        compatiblePixel: "Pixel 3 及所有较新型号。",
+        compatibleIphone: "iPhone XR, XS, 11, 12, 13, 14, 15, 16 及更新机型。\n⚠️ 注意：中国大陆、香港、澳门版本的 iPhone（如 XS, 11, 12, 13...）通过不支持 eSIM（仅支持物理双卡）。",
+        compatibleSamsung: "Samsung Galaxy S20, S21, S22, S23, S24, Z Flip, Z Fold 系列。\n⚠️ 注意：中国大陆、香港、澳门版本通常不支持 eSIM。",
+        compatiblePixel: "Google Pixel 3, 3XL, 4, 4XL, 5... 及所有更新机型。",
     }
 };
 
