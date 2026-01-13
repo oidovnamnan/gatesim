@@ -328,9 +328,9 @@ export function PackageCardCompact({
         <Link href={`/package/${id}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className={cn("block group", className)}>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all hover:bg-slate-50 hover:border-red-200/50">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-2xl border border-slate-100 shadow-inner">
-                        {flag}
-                    </div>
+                    {/* Render SimCardFlag instead of Emoji container */}
+                    <SimCardFlag countryCode={primaryCountry} size="sm" className="shrink-0" />
+
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                             <h4 className="font-bold text-slate-900 text-sm truncate pr-2 group-hover:text-red-700 transition-colors">

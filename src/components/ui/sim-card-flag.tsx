@@ -60,7 +60,7 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     src={flagUrl}
                     alt={`${countryCode} flag`}
                     fill
-                    className="object-cover"
+                    className="object-cover scale-[1.35]"
                     sizes={`${config.width}px`}
                     unoptimized
                     onError={() => setImageError(true)}
