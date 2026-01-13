@@ -55,14 +55,21 @@ export function InstallPrompt() {
 
         if (!deferredPrompt) return;
 
-        // Close the custom UI immediately to avoid overlapping with the native prompt
+        // Close the custom UI immediately
         setShow(false);
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
 
-        if (outcome === "accepted") {
-            setDeferredPrompt(null);
-        }
+        // Wait for the UI to close before triggering the native prompt
+        // This prevents the "double modal" or overlapping visual glitch
+        setTimeout(async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+
+                if (outcome === "accepted") {
+                    setDeferredPrompt(null);
+                }
+            }
+        }, 300);
     };
 
     if (!show) return null;
@@ -73,7 +80,7 @@ export function InstallPrompt() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
                 onClick={() => setShow(false)}
             >
                 <motion.div
