@@ -81,17 +81,46 @@ export async function GET(request: Request) {
 
                 return true;
             })
-            .map(p => ({
-                id: p.sku,
-                title: p.name,
-                provider: p.provider,
-                data: p.dataAmount === -1 ? "Unlimited" : (p.dataAmount >= 1024 ? `${(p.dataAmount / 1024).toFixed(0)} GB` : `${p.dataAmount} MB`),
-                dataAmount: p.dataAmount,
-                validityDays: p.durationDays,
-                price: p.price,
-                countries: p.countries,
-                countryName: getCountryName(p.countries[0]),
-            }));
+            .map(p => {
+                const countriesArr = [...p.countries];
+                let displayTitle = getCountryName(countriesArr[0]);
+
+                // If we filtered by a specific country, make sure it's first and title is clear
+                if (country && countriesArr.includes(country)) {
+                    const otherCountries = countriesArr.filter(c => c !== country);
+                    const sortedCountries = [country, ...otherCountries];
+
+                    if (sortedCountries.length > 1) {
+                        displayTitle = `${getCountryName(country)} + ${otherCountries.length} улс`;
+                    } else {
+                        displayTitle = getCountryName(country);
+                    }
+
+                    return {
+                        id: p.sku,
+                        title: displayTitle,
+                        provider: p.provider,
+                        data: p.dataAmount === -1 ? "Unlimited" : (p.dataAmount >= 1024 ? `${(p.dataAmount / 1024).toFixed(0)} GB` : `${p.dataAmount} MB`),
+                        dataAmount: p.dataAmount,
+                        validityDays: p.durationDays,
+                        price: p.price,
+                        countries: sortedCountries,
+                        countryName: displayTitle,
+                    };
+                }
+
+                return {
+                    id: p.sku,
+                    title: p.name,
+                    provider: p.provider,
+                    data: p.dataAmount === -1 ? "Unlimited" : (p.dataAmount >= 1024 ? `${(p.dataAmount / 1024).toFixed(0)} GB` : `${p.dataAmount} MB`),
+                    dataAmount: p.dataAmount,
+                    validityDays: p.durationDays,
+                    price: p.price,
+                    countries: p.countries,
+                    countryName: getCountryName(p.countries[0]),
+                };
+            });
 
         // Deduplicate by country+data+duration, keep cheapest
         const groups = new Map<string, typeof packages[0]>();
