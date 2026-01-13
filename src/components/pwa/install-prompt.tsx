@@ -9,8 +9,20 @@ import { motion, AnimatePresence } from "framer-motion";
 export function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [show, setShow] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
 
     useEffect(() => {
+        // 1. Check for iOS
+        const isIosDevice = /iPhone|iPad|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+        // Check if running in standalone mode (already installed)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+
+        if (isIosDevice && !isStandalone) {
+            setIsIOS(true);
+            setShow(true);
+        }
+
+        // 2. Check for Android/Desktop (beforeinstallprompt)
         const handler = (e: any) => {
             e.preventDefault();
             setDeferredPrompt(e);
@@ -25,6 +37,12 @@ export function InstallPrompt() {
     }, []);
 
     const handleInstall = async () => {
+        if (isIOS) {
+            // iOS doesn't support programmatic install, just close logic or tooltip? 
+            // We will just show instructions in the render
+            return;
+        }
+
         if (!deferredPrompt) return;
 
         deferredPrompt.prompt();
@@ -66,14 +84,28 @@ export function InstallPrompt() {
                             <X className="w-4 h-4" />
                         </button>
                     </div>
-                    <Button
-                        onClick={handleInstall}
-                        className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white"
-                        size="sm"
-                    >
-                        <Download className="w-4 h-4 mr-2" />
-                        Суулгах
-                    </Button>
+
+                    {isIOS ? (
+                        <div className="mt-3 text-sm flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                                <span className="bg-muted p-1 rounded">1</span>
+                                <span>Доор байрлах <strong>Share</strong> <span className="text-blue-500">⬆️</span> товчийг дарна уу.</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="bg-muted p-1 rounded">2</span>
+                                <span><strong>Add to Home Screen</strong> <span className="text-foreground">➕</span> сонгоно уу.</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button
+                            onClick={handleInstall}
+                            className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Суулгах
+                        </Button>
+                    )}
                 </Card>
             </motion.div>
         </AnimatePresence>
