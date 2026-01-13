@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { cn, getCountryFlag } from "@/lib/utils";
 
 interface SimCardFlagProps {
@@ -12,27 +11,30 @@ interface SimCardFlagProps {
 
 const sizeConfig = {
     sm: {
-        width: 60, height: 40,
-        chipSize: 11, chipX: 40, chipY: 14,
+        width: 70, height: 46, // Increased from 60x40
+        chipSize: 11, chipX: 48, chipY: 16,
         outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     md: {
-        width: 80, height: 50,
-        chipSize: 13, chipX: 55, chipY: 18,
-        outlinePadding: 2, outlineRadius: 3, outlineWidth: 1 // Reduced white outline
+        width: 90, height: 60, // Increased from 80x50
+        chipSize: 14, chipX: 62, chipY: 22, // Keep chip relatively small
+        outlinePadding: 2, outlineRadius: 4, outlineWidth: 1
     },
     lg: {
-        width: 120, height: 80,
-        chipSize: 26, chipX: 76, chipY: 26,
-        outlinePadding: 5, outlineRadius: 6, outlineWidth: 2
+        width: 140, height: 92,
+        chipSize: 26, chipX: 95, chipY: 34,
+        outlinePadding: 3, outlineRadius: 6, outlineWidth: 1.5
     },
 };
 
 export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlagProps) {
     const config = sizeConfig[size];
     const [imageError, setImageError] = useState(false);
-    // Use SVG for flat, non-waving look
-    const flagUrl = `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
+
+    // Normalize country code
+    const code = countryCode?.toLowerCase().trim();
+    // Using a reliable SVG source that is definitely FLAT
+    const flagUrl = `https://flagcdn.com/${code}.svg`;
 
     // Calculate outline dimensions (around the chip)
     const outlineWidth = config.chipSize + config.outlinePadding * 2;
@@ -43,9 +45,8 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
     return (
         <div
             className={cn(
-                "relative overflow-hidden",
-                "shadow-lg shadow-black/20",
-                "transform transition-transform duration-300 group-hover:scale-105",
+                "relative overflow-hidden group/sim transition-all duration-300",
+                "shadow-lg shadow-black/20 ring-1 ring-white/10",
                 className
             )}
             style={{
@@ -54,46 +55,48 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 borderRadius: config.width * 0.08,
             }}
         >
-            {/* Flag Background - covers entire card */}
+            {/* Flag Background - Using CSS Background for guaranteed full fill without padding */}
             {!imageError ? (
-                <div className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)]">
-                    <Image
-                        src={flagUrl}
-                        alt={`${countryCode} flag`}
-                        fill
-                        className="object-cover"
-                        sizes={`${config.width * 1.5}px`}
-                        unoptimized
-                        priority
-                        onError={() => setImageError(true)}
-                    />
-                </div>
+                <div
+                    className="absolute inset-[-1px] transition-transform duration-500 group-hover/sim:scale-110"
+                    style={{
+                        backgroundImage: `url("${flagUrl}")`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        // Ensuring it covers any edge cases
+                        width: 'calc(100% + 2px)',
+                        height: 'calc(100% + 2px)',
+                    }}
+                // Note: We can't easily catch 404 on CSS background-image without pre-fetching
+                // But for flagcdn, we usually assume it works if code is valid ISO
+                />
             ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-zinc-200 text-3xl">
                     {getCountryFlag(countryCode)}
                 </div>
             )}
 
-            {/* Subtle gradient overlay for depth */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10" />
+            {/* Subtle gloss/texture for a premium card feel */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-white/5 to-white/20 pointer-events-none" />
 
             {/* White outline/cutout around chip area */}
             <div
-                className="absolute pointer-events-none"
+                className="absolute pointer-events-none z-10"
                 style={{
                     left: outlineX,
                     top: outlineY,
                     width: outlineWidth,
                     height: outlineHeight,
                     borderRadius: config.outlineRadius,
-                    border: `${config.outlineWidth}px solid rgba(255, 255, 255, 0.9)`,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    border: `${config.outlineWidth}px solid rgba(255, 255, 255, 0.7)`,
+                    boxShadow: '0 0 4px rgba(0,0,0,0.1)',
                 }}
             />
 
             {/* Golden Chip */}
             <div
-                className="absolute"
+                className="absolute z-20"
                 style={{
                     left: config.chipX,
                     top: config.chipY,
@@ -103,52 +106,39 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
             >
                 {/* Chip body */}
                 <div
-                    className="w-full h-full rounded-[2px] overflow-hidden relative"
+                    className="w-full h-full rounded-[2px] overflow-hidden relative shadow-sm"
                     style={{
                         background: 'linear-gradient(145deg, #f5e6a3 0%, #d4af37 25%, #f0d78c 50%, #c9a227 75%, #b8860b 100%)',
-                        boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.5), inset 0 -1px 3px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.2)',
                     }}
                 >
-                    {/* Center circle */}
+                    {/* Micro-details for the chip */}
                     <div
                         className="absolute rounded-full"
                         style={{
-                            width: config.chipSize * 0.35,
-                            height: config.chipSize * 0.35,
+                            width: '30%',
+                            height: '30%',
                             left: '50%',
                             top: '50%',
                             transform: 'translate(-50%, -50%)',
-                            background: 'linear-gradient(145deg, #e8d174 0%, #c9a227 100%)',
-                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2)',
+                            background: 'rgba(0,0,0,0.1)',
                         }}
                     />
-
-                    {/* Contact lines - horizontal */}
-                    <div className="absolute inset-x-0 flex flex-col justify-between h-full py-[12%]">
-                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-amber-700/50 to-transparent" />
-                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-amber-700/50 to-transparent" />
-                    </div>
-
-                    {/* Contact lines - vertical */}
-                    <div className="absolute inset-y-0 flex justify-between w-full px-[12%]">
-                        <div className="h-full w-[1px] bg-gradient-to-b from-transparent via-amber-700/50 to-transparent" />
-                        <div className="h-full w-[1px] bg-gradient-to-b from-transparent via-amber-700/50 to-transparent" />
-                    </div>
+                    <div className="absolute inset-0 border-[0.5px] border-amber-900/10" />
                 </div>
             </div>
 
-            {/* Glossy reflection overlay */}
+            {/* Final Glassy Sheen */}
             <div
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 pointer-events-none opacity-50"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%, rgba(0,0,0,0.1) 100%)',
                 }}
             />
         </div>
     );
 }
 
-// Variant with emoji fallback
+// Keep the SimCardFlagEmoji for regions/fallback
 export function SimCardFlagEmoji({
     flag,
     size = "md",
@@ -160,17 +150,11 @@ export function SimCardFlagEmoji({
 }) {
     const config = sizeConfig[size];
 
-    const outlineWidth = config.chipSize + config.outlinePadding * 2;
-    const outlineHeight = config.chipSize * 0.85 + config.outlinePadding * 2;
-    const outlineX = config.chipX - config.outlinePadding;
-    const outlineY = config.chipY - config.outlinePadding;
-
     return (
         <div
             className={cn(
-                "relative overflow-hidden flex items-center justify-center",
-                "shadow-lg shadow-black/20 bg-gradient-to-br from-slate-100 to-slate-200",
-                "transform transition-transform duration-300 group-hover:scale-105",
+                "relative overflow-hidden flex items-center justify-center shadow-lg",
+                "bg-gradient-to-br from-slate-100 to-slate-200",
                 className
             )}
             style={{
@@ -179,76 +163,20 @@ export function SimCardFlagEmoji({
                 borderRadius: config.width * 0.08,
             }}
         >
-            {/* Flag Emoji */}
-            <span
-                className="select-none"
-                style={{
-                    fontSize: config.width * 0.45,
-                    lineHeight: 1,
-                }}
-            >
+            <span className="select-none text-2xl" style={{ fontSize: config.width * 0.4 }}>
                 {flag}
             </span>
-
-            {/* White outline around chip */}
+            {/* Minimal chip for symmetry */}
             <div
-                className="absolute pointer-events-none"
+                className="absolute opacity-30"
                 style={{
-                    left: outlineX,
-                    top: outlineY,
-                    width: outlineWidth,
-                    height: outlineHeight,
-                    borderRadius: config.outlineRadius,
-                    border: `${config.outlineWidth}px solid rgba(255, 255, 255, 0.9)`,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                }}
-            />
-
-            {/* Golden Chip */}
-            <div
-                className="absolute"
-                style={{
-                    left: config.chipX,
-                    top: config.chipY,
-                    width: config.chipSize,
-                    height: config.chipSize * 0.85,
-                }}
-            >
-                <div
-                    className="w-full h-full rounded-[2px] overflow-hidden relative"
-                    style={{
-                        background: 'linear-gradient(145deg, #f5e6a3 0%, #d4af37 25%, #f0d78c 50%, #c9a227 75%, #b8860b 100%)',
-                        boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.5), inset 0 -1px 3px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.2)',
-                    }}
-                >
-                    <div
-                        className="absolute rounded-full"
-                        style={{
-                            width: config.chipSize * 0.35,
-                            height: config.chipSize * 0.35,
-                            left: '50%',
-                            top: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            background: 'linear-gradient(145deg, #e8d174 0%, #c9a227 100%)',
-                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2)',
-                        }}
-                    />
-                    <div className="absolute inset-x-0 flex flex-col justify-between h-full py-[12%]">
-                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-amber-700/50 to-transparent" />
-                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-amber-700/50 to-transparent" />
-                    </div>
-                    <div className="absolute inset-y-0 flex justify-between w-full px-[12%]">
-                        <div className="h-full w-[1px] bg-gradient-to-b from-transparent via-amber-700/50 to-transparent" />
-                        <div className="h-full w-[1px] bg-gradient-to-b from-transparent via-amber-700/50 to-transparent" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Glossy effect */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%)',
+                    right: 8,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 12,
+                    height: 10,
+                    background: '#d4af37',
+                    borderRadius: 2
                 }}
             />
         </div>
