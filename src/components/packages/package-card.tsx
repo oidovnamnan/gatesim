@@ -40,9 +40,35 @@ const countryImageCollections: Record<string, string[]> = {
         "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=2089&auto=format&fit=crop", // Golden Gate
         "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?q=80&w=2099&auto=format&fit=crop", // NYC
         "https://images.unsplash.com/photo-1471343750058-2928399589d8?q=80&w=2028&auto=format&fit=crop", // Yosemite
-        "https://images.unsplash.com/photo-1542384706-eb793868c672?q=80&w=2069&auto=format&fit=crop", // Las Vegas
-        "https://images.unsplash.com/photo-1534234828563-02511c973809?q=80&w=2069&auto=format&fit=crop", // Grand Canyon
-        "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop", // NYC Street
+    ],
+    SG: [ // Singapore
+        "https://images.unsplash.com/photo-1565967511849-76a60a516170?q=80&w=2071&auto=format&fit=crop", // Marina Bay
+        "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=2052&auto=format&fit=crop", // Gardens by the Bay
+    ],
+    VN: [ // Vietnam
+        "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=2070&auto=format&fit=crop", // Ha Long Bay
+        "https://images.unsplash.com/photo-1557750255-c76072a7bb56?q=80&w=2070&auto=format&fit=crop", // Hoi An
+    ],
+    TR: [ // Turkey
+        "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=2071&auto=format&fit=crop", // Cappadocia
+        "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?q=80&w=2060&auto=format&fit=crop", // Istanbul
+    ],
+    AU: [ // Australia
+        "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?q=80&w=2030&auto=format&fit=crop", // Sydney Opera
+        "https://images.unsplash.com/photo-1529108190281-9a4f620bc2d8?q=80&w=2039&auto=format&fit=crop", // Outback
+    ],
+    AT: [ // Austria
+        "https://images.unsplash.com/photo-1516550893923-42d28e5677af?q=80&w=2072&auto=format&fit=crop", // Hallstatt
+        "https://images.unsplash.com/photo-1520503922584-590e8f7a90d7?q=80&w=2070&auto=format&fit=crop", // Vienna
+    ],
+    TN: [ // Tunisia
+        "https://images.unsplash.com/photo-1539659345033-b4e604ec2823?q=80&w=2070&auto=format&fit=crop", // Sidi Bou Said
+        "https://images.unsplash.com/photo-1566914534439-4d6d9e0325aa?q=80&w=2070&auto=format&fit=crop", // Sahara
+    ],
+    EU: [ // Europe General
+        "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=2070&auto=format&fit=crop", // Germany
+        "https://images.unsplash.com/photo-1499856871940-a09627c6d7db?q=80&w=2020&auto=format&fit=crop", // Paris
+        "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=2066&auto=format&fit=crop", // Italy
     ],
 };
 
