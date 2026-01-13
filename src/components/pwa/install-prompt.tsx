@@ -15,10 +15,20 @@ export function InstallPrompt() {
         // 1. Check for iOS
         const isIosDevice = /iPhone|iPad|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
         // Check if running in standalone mode (already installed)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as any).standalone === true ||
+            document.referrer.includes('android-app://');
 
-        if (isIosDevice && !isStandalone) {
+        if (isStandalone) {
+            setShow(false);
+            return;
+        }
+
+        if (isIosDevice) {
             setIsIOS(true);
+            // On iOS, we only show the tip if they are NOT in standalone mode
+            // We can check local storage to not show it every time if needed,
+            // but for now let's just show it if not installed.
             setShow(true);
         }
 
