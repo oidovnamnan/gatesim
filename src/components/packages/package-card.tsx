@@ -72,12 +72,34 @@ const countryImageCollections: Record<string, string[]> = {
     ],
 };
 
-// ... (Other countries to be added similarly)
+// Generic Fallback Images (World/Travel/Abstract)
+GENERIC: [
+    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=2070&auto=format&fit=crop", // Travel
+    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop", // Adventure
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop", // Mountains
+]
+};
 
-// Helper to select a deterministic random image based on string ID
-const getImageForPackage = (countryCode: string, id: string): string | null => {
-    const images = countryImageCollections[countryCode];
-    if (!images || images.length === 0) return null;
+// Map similar regions to known keys
+const countryCodeAliases: Record<string, string> = {
+    "UK": "GB",
+    "EUROPE": "EU",
+    "GLOBAL": "GENERIC"
+};
+
+// helper to safely get images
+const getImageForPackage = (countryCode: string, id: string): string => { // Changed return type to string (never null)
+    let code = countryCode?.toUpperCase().trim() || "GENERIC";
+
+    // Check aliases
+    if (countryCodeAliases[code]) code = countryCodeAliases[code];
+
+    let images = countryImageCollections[code];
+
+    // If specific country not found, try to find a fallback or use GENERIC
+    if (!images || images.length === 0) {
+        images = countryImageCollections["GENERIC"];
+    }
 
     // Simple hash from string id
     let hash = 0;
