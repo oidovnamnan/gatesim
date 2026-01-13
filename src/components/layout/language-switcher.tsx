@@ -33,7 +33,7 @@ export function LanguageSwitcher() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 hover:bg-white/50 dark:bg-black/20 dark:hover:bg-black/40 backdrop-blur-md transition-all border border-black/5 dark:border-white/10 shadow-sm"
             >
                 <span className="text-lg leading-none">{currentLang.flag}</span>
                 <span className="text-xs font-bold uppercase hidden sm:block">{currentLang.code}</span>
@@ -47,9 +47,9 @@ export function LanguageSwitcher() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.1 }}
-                        className="absolute right-0 mt-2 min-w-[150px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg overflow-hidden z-50 py-1"
+                        className="absolute right-0 mt-2 min-w-[150px] bg-white/80 dark:bg-black/60 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden z-50 py-2 ring-1 ring-black/5"
                     >
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-1 p-1">
                             {languages.map((lang) => (
                                 <button
                                     key={lang.code}
