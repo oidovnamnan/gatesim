@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type Language = "mn" | "en" | "cn";
+export type Language = "mn" | "en" | "cn";
 
 interface LanguageState {
     language: Language;
