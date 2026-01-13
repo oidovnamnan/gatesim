@@ -1,8 +1,8 @@
 export const siteConfig = {
     name: "GateSIM",
     description: "eSIM худалдааны платформ - Дэлхийн 200+ улсад хамгийн хямд үнээр",
-    url: "https://gatesim.mn",
-    ogImage: "https://gatesim.mn/og.jpg",
+    url: "https://gatesim.travel",
+    ogImage: "https://gatesim.travel/og.jpg",
 
     links: {
         facebook: "https://facebook.com/gatesim",
@@ -10,7 +10,7 @@ export const siteConfig = {
     },
 
     contact: {
-        email: "hello@gatesim.mn",
+        email: "hello@gatesim.travel",
         phone: "+976 7777-1234",
     },
 
