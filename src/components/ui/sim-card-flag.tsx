@@ -12,18 +12,18 @@ interface SimCardFlagProps {
 
 const sizeConfig = {
     sm: {
-        width: 70, height: 46,
-        chipSize: 11, chipX: 46, chipY: 15,
+        width: 80, height: 54,
+        chipSize: 12, chipX: 52, chipY: 18,
         outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     md: {
-        width: 100, height: 66, // Increased size even more
-        chipSize: 14, chipX: 68, chipY: 22,
+        width: 120, height: 80, // Substantially larger
+        chipSize: 18, chipX: 85, chipY: 28,
         outlinePadding: 2, outlineRadius: 4, outlineWidth: 1
     },
     lg: {
-        width: 150, height: 100,
-        chipSize: 26, chipX: 105, chipY: 34,
+        width: 180, height: 120,
+        chipSize: 32, chipX: 130, chipY: 42,
         outlinePadding: 3, outlineRadius: 6, outlineWidth: 1.5
     },
 };
@@ -32,11 +32,23 @@ const sizeConfig = {
 const COUNTRY_MAP: Record<string, string> = {
     "UK": "GB",
     "EUROPE": "EU",
-    "GLOBAL": "UN", // Use UN flag for global
+    "GLOBAL": "UN",
     "WORLD": "UN",
-    "ASIA": "UN", // Or specific UN sub-regions if available
+    "ASIA": "UN",
     "AMERIKA": "US",
     "AMERICA": "US",
+    "AUSTRALIA": "AU",
+    "AUSTRIA": "AT",
+    "TUNISIA": "TN",
+    "SINGAPORE": "SG",
+    "VIETNAM": "VN",
+    "TURKEY": "TR",
+    "TURKIYE": "TR",
+    "MONGOLIA": "MN",
+    "KOREA": "KR",
+    "JAPAN": "JP",
+    "CHINA": "CN",
+    "THAILAND": "TH",
 };
 
 export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlagProps) {
@@ -46,11 +58,15 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
     const normalizedCode = useMemo(() => {
         let code = countryCode?.toUpperCase().trim() || "UN";
         if (COUNTRY_MAP[code]) code = COUNTRY_MAP[code];
+        // If code is still more than 2 chars and not in map, it's likely invalid for flagcdn
+        if (code.length > 2) return null;
         return code.toLowerCase();
     }, [countryCode]);
 
-    // Using FlagCDN SVG for high-res flat look
-    const flagUrl = `https://flagcdn.com/${normalizedCode}.svg`;
+    // Using FlagCDN SVG or a secondary fallback source
+    const flagUrl = normalizedCode
+        ? `https://flagcdn.com/${normalizedCode}.svg`
+        : null;
 
     const outlineWidth = config.chipSize + config.outlinePadding * 2;
     const outlineHeight = config.chipSize * 0.85 + config.outlinePadding * 2;
@@ -60,47 +76,45 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
     return (
         <div
             className={cn(
-                "relative overflow-hidden group/sim transition-all duration-300",
-                "shadow-xl shadow-black/30",
+                "relative overflow-hidden group/sim transition-all duration-500",
+                "shadow-2xl shadow-black/40",
                 className
             )}
             style={{
                 width: config.width,
                 height: config.height,
-                borderRadius: config.width * 0.08,
+                borderRadius: config.width * 0.1,
             }}
         >
-            {/* Flag Background - Bruteforce fill to eliminate ANY whitespace */}
-            {!imageError ? (
-                <div className="absolute inset-[-10%] w-[120%] h-[120%] bg-zinc-800">
-                    <Image
+            {/* Flag Background - Using raw img for guaranteed fill control */}
+            {!imageError && flagUrl ? (
+                <div className="absolute inset-0 w-full h-full">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                         src={flagUrl}
                         alt={`${countryCode} flag`}
-                        fill
-                        className="object-cover scale-[1.5] transition-transform duration-700 group-hover/sim:scale-[1.8]"
-                        style={{ objectPosition: 'center' } as any}
-                        sizes={`${config.width * 2}px`}
-                        unoptimized
-                        priority
+                        className="w-full h-full object-cover scale-[1.3] group-hover/sim:scale-[1.5] transition-transform duration-700"
+                        style={{ objectPosition: 'center' }}
                         onError={() => setImageError(true)}
                     />
                 </div>
             ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-zinc-200">
-                    {/* Make the emoji fallback HUGE so it fills the space */}
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
+                    {/* Massive fallback emoji */}
                     <span
-                        className="select-none leading-none scale-[2.5]"
-                        style={{ fontSize: config.height * 0.4 }}
+                        className="select-none leading-none scale-[4]"
+                        style={{ fontSize: config.height * 0.3 }}
                     >
                         {getCountryFlag(countryCode)}
                     </span>
                 </div>
             )}
 
-            {/* Realistic SIM Card overlays - subtle shadow for depth */}
-            <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+            {/* Premium SIM card effects */}
+            <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/20 pointer-events-none" />
 
-            {/* Minimal white outline around chip - thinner for less clutter */}
+            {/* White outline around chip */}
             <div
                 className="absolute pointer-events-none z-10"
                 style={{
@@ -109,8 +123,7 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     width: outlineWidth,
                     height: outlineHeight,
                     borderRadius: config.outlineRadius,
-                    border: '1px solid rgba(255, 255, 255, 0.4)', // Thinner and more transparent
-                    boxShadow: '0 0 2px rgba(0,0,0,0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.4)',
                 }}
             />
 
@@ -125,13 +138,12 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 }}
             >
                 <div
-                    className="w-full h-full rounded-[2px] overflow-hidden relative"
+                    className="w-full h-full rounded-[2px] overflow-hidden relative shadow-md"
                     style={{
-                        background: 'linear-gradient(135deg, #f5e6a3 0%, #d4af37 25%, #f0d78c 50%, #c19a1e 75%, #b8860b 100%)',
-                        boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.3)',
+                        background: 'linear-gradient(135deg, #f5e6a3 0%, #d4af37 30%, #f0d78c 50%, #c19a1e 70%, #b8860b 100%)',
                     }}
                 >
-                    <div className="absolute inset-0 flex flex-col justify-around py-[10%] opacity-20">
+                    <div className="absolute inset-0 flex flex-col justify-around py-[10%] opacity-30">
                         <div className="w-full h-[0.5px] bg-black" />
                         <div className="w-full h-[0.5px] bg-black" />
                         <div className="w-full h-[0.5px] bg-black" />
@@ -139,11 +151,11 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 </div>
             </div>
 
-            {/* Glossy sheen */}
+            {/* High-gloss overlay */}
             <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%, rgba(0,0,0,0.1) 100%)',
                 }}
             />
         </div>
