@@ -13,11 +13,13 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/providers/toast-provider"; // Ensure this provider exists or use local state
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/providers/language-provider";
 
 export default function ProfilePage() {
     const { user, userData, loading, signOut } = useAuth();
     const router = useRouter();
     const { theme, toggleMode, mode } = useTheme();
+    const { t } = useTranslation();
     const [phone, setPhone] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const { success, error } = useToast();
@@ -59,7 +61,7 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen pb-24 bg-background transition-colors duration-300">
-            <MobileHeader title="Миний мэдээлэл" showBack />
+            <MobileHeader title={t("profile")} showBack />
 
             <div className="px-4 pt-6 space-y-6">
                 {/* Profile Card */}
@@ -73,7 +75,7 @@ export default function ProfilePage() {
                             )}
                         </div>
                     </div>
-                    <h2 className="text-xl font-bold text-foreground mb-1">{userData?.displayName || "Хэрэглэгч"}</h2>
+                    <h2 className="text-xl font-bold text-foreground mb-1">{userData?.displayName || t("profile")}</h2>
                     <p className="text-muted-foreground text-sm">{user.email}</p>
                 </div>
 
@@ -84,8 +86,8 @@ export default function ProfilePage() {
                             {mode === "dark" ? <Moon className="w-5 h-5 text-blue-600 dark:text-blue-400" /> : <Sun className="w-5 h-5 text-orange-500" />}
                         </div>
                         <div>
-                            <div className="font-bold text-foreground">Гадаад төрх</div>
-                            <div className="text-xs text-muted-foreground">{mode === "dark" ? "Dark Mode" : "Light Mode"}</div>
+                            <div className="font-bold text-foreground">{t("appearance")}</div>
+                            <div className="text-xs text-muted-foreground">{mode === "dark" ? t("darkMode") : t("lightMode")}</div>
                         </div>
                     </div>
                     <div className={cn(
@@ -102,21 +104,21 @@ export default function ProfilePage() {
                 {/* Info Form */}
                 <Card className="p-4 space-y-4">
                     <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block ml-1">Имэйл хаяг</label>
+                        <label className="text-xs text-muted-foreground mb-1.5 block ml-1">{t("email")}</label>
                         <Input icon={Mail} value={user.email || ""} disabled className="opacity-70 bg-muted/50" />
                     </div>
                     <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block ml-1">Утасны дугаар</label>
+                        <label className="text-xs text-muted-foreground mb-1.5 block ml-1">{t("phone")}</label>
                         <Input
                             icon={Phone}
                             value={phone}
-                            placeholder="Утасны дугаараа оруулна уу"
+                            placeholder={t("phonePlaceholder")}
                             onChange={(e) => setPhone(e.target.value)}
                             className="bg-background"
                         />
                     </div>
                     <Button fullWidth onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? "Хадгалж байна..." : "Хадгалах"}
+                        {isSaving ? t("saving") : t("save")}
                     </Button>
                 </Card>
 
@@ -127,7 +129,7 @@ export default function ProfilePage() {
                     onClick={() => signOut()}
                 >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Гарах
+                    {t("logout")}
                 </Button>
             </div>
         </div>

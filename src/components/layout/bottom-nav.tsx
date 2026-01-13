@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { useState } from "react";
 import { LoginModal } from "@/components/auth/login-modal";
+import { useTranslation } from "@/providers/language-provider";
 
 export function BottomNav() {
     const pathname = usePathname();
@@ -20,11 +21,12 @@ export function BottomNav() {
 
     const isActive = (path: string) => pathname === path;
 
+    const { t } = useTranslation();
     const navItems = [
-        { label: "Нүүр", icon: Home, href: "/", active: isActive("/") },
-        { label: "Багцууд", icon: Globe, href: "/packages", active: isActive("/packages") || pathname?.startsWith("/package/") },
-        { label: "Миний eSIM", icon: CreditCard, href: "/my-esims", active: isActive("/my-esims"), requiresAuth: true },
-        { label: "Профайл", icon: User, href: "/profile", active: isActive("/profile"), requiresAuth: true },
+        { label: t("home"), icon: Home, href: "/", active: isActive("/") },
+        { label: t("packages"), icon: Globe, href: "/packages", active: isActive("/packages") || pathname?.startsWith("/package/") },
+        { label: t("myEsims"), icon: CreditCard, href: "/my-esims", active: isActive("/my-esims"), requiresAuth: true },
+        { label: t("profile"), icon: User, href: "/profile", active: isActive("/profile"), requiresAuth: true },
     ];
 
     const handleProtectedNav = (e: React.MouseEvent, href: string) => {

@@ -11,17 +11,21 @@ import { LoginModal } from "@/components/auth/login-modal";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-    { href: "/", label: "Нүүр", icon: Home },
-    { href: "/packages", label: "Багцууд", icon: Package },
-    { href: "/my-esims", label: "Миний eSIM", icon: Smartphone },
-];
+import { LanguageSwitcher } from "./language-switcher";
+import { useTranslation } from "@/providers/language-provider";
 
 export function TopHeader() {
     const { user } = useAuth();
-    const { mode, toggleMode } = useTheme();
+    const { mode } = useTheme();
+    const { t } = useTranslation();
     const pathname = usePathname();
     const [loginOpen, setLoginOpen] = useState(false);
+
+    const navItems = [
+        { href: "/", label: t("home"), icon: Home },
+        { href: "/packages", label: t("packages"), icon: Package },
+        { href: "/my-esims", label: t("myEsims"), icon: Smartphone },
+    ];
 
     return (
         <header className="header-bg sticky top-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-lg border-b shadow-sm transition-colors duration-300">
@@ -62,27 +66,17 @@ export function TopHeader() {
                 })}
             </nav>
 
-            {/* Right Side: Theme Toggle + Auth */}
+            {/* Right Side: Language Switcher + Auth */}
             <div className="flex items-center gap-3 flex-shrink-0">
-                {/* Theme Toggle - Visible on all devices */}
-                <button
-                    onClick={toggleMode}
-                    className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors border border-transparent dark:border-white/10"
-                    aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                    {mode === "dark" ? (
-                        <Sun className="w-5 h-5 text-amber-500" />
-                    ) : (
-                        <Moon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                    )}
-                </button>
+                {/* Language Switcher */}
+                <LanguageSwitcher />
 
                 {/* Auth/Profile - DESKTOP ONLY */}
                 <div className="hidden md:flex items-center gap-3">
                     {user ? (
                         <Link href="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                             <div className="flex flex-col items-end mr-1">
-                                <span className="text-[10px] text-slate-400 font-medium">Сайн байна уу</span>
+                                <span className="text-[10px] text-slate-400 font-medium">{t("greeting")}</span>
                                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-none">{user.displayName || user.email?.split('@')[0]}</span>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-red-500/20 shadow-sm">
@@ -99,7 +93,7 @@ export function TopHeader() {
                             onClick={() => setLoginOpen(true)}
                             className="bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 rounded-full px-5"
                         >
-                            Нэвтрэх
+                            {t("login")}
                         </Button>
                     )}
                 </div>
