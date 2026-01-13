@@ -22,9 +22,9 @@ export default async function CountryPackagesPage({ params }: Props) {
 
     const allProducts = await getMobiMatterProducts();
 
-    const products = allProducts.filter(p =>
-        p.countries.includes(code)
-    );
+    const products = allProducts
+        .filter(p => p.countries.includes(code))
+        .sort((a, b) => a.price - b.price);
 
     const getCountryName = (c: string) => {
         const names: Record<string, string> = {
