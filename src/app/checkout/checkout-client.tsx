@@ -89,15 +89,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const getTranslatedCountryName = (code: string, defaultName: string) => {
         const key = `country_${code.toUpperCase()}`;
         const translated = t(key);
-        if (translated === key) {
-            try {
-                const regionNames = new Intl.DisplayNames([language === 'mn' ? 'mn' : language], { type: 'region' });
-                return regionNames.of(code.toUpperCase()) || defaultName;
-            } catch (e) {
-                return defaultName;
-            }
-        }
-        return translated;
+        return translated === key ? defaultName : translated;
     };
 
     const countryName = getTranslatedCountryName(pkg.countries[0], pkg.countryName);

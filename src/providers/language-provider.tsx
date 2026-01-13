@@ -586,6 +586,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const t = (key: string) => {
         const langData = translations[language] as Record<string, string>;
         const fallbackData = translations.mn as Record<string, string>;
+
+        // Dynamic country name fallback
+        if (key.startsWith("country_") && !langData[key] && !fallbackData[key]) {
+            const countryCode = key.split("_")[1]?.toUpperCase();
+            if (countryCode && countryCode.length === 2) {
+                try {
+                    // Use Intl.DisplayNames for automatic localization
+                    const displayNames = new Intl.DisplayNames(
+                        [language === "mn" ? "mn-MN" : language],
+                        { type: "region" }
+                    );
+                    return displayNames.of(countryCode) || key;
+                } catch (e) {
+                    return key;
+                }
+            }
+        }
+
         return langData[key] || fallbackData[key] || key;
     };
 
