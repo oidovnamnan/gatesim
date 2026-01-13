@@ -17,7 +17,7 @@ const sizeConfig = {
         outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     md: {
-        width: 120, height: 80, // Substantially larger
+        width: 120, height: 80,
         chipSize: 18, chipX: 85, chipY: 28,
         outlinePadding: 2, outlineRadius: 4, outlineWidth: 1
     },
@@ -28,7 +28,7 @@ const sizeConfig = {
     },
 };
 
-// Comprehensive aliasing to ensure common non-ISO codes work with CDNs
+// Comprehensive mapping to handle ALL variants found in the app data
 const COUNTRY_MAP: Record<string, string> = {
     "UK": "GB",
     "EUROPE": "EU",
@@ -49,6 +49,21 @@ const COUNTRY_MAP: Record<string, string> = {
     "JAPAN": "JP",
     "CHINA": "CN",
     "THAILAND": "TH",
+    "ЯПОН": "JP",
+    "СОЛОНГОС": "KR",
+    "ХЯТАД": "CN",
+    "ТАЙЛАНД": "TH",
+    "АМЕРИК": "US",
+    "СИНГАПУР": "SG",
+    "ВЬЕТНАМ": "VN",
+    "ТУРК": "TR",
+    "ГЕРМАН": "DE",
+    "ФРАНЦ": "FR",
+    "АВСТРАЛИ": "AU",
+    "КАНАД": "CA",
+    "АНГЛИ": "GB",
+    "ИТАЛИ": "IT",
+    "МАКАО": "MO",
 };
 
 export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlagProps) {
@@ -56,15 +71,15 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
     const [imageError, setImageError] = useState(false);
 
     const normalizedCode = useMemo(() => {
-        let code = countryCode?.toUpperCase().trim() || "UN";
-        if (COUNTRY_MAP[code]) code = COUNTRY_MAP[code];
-        // If it's a multi-country package or invalid code, use UN
-        if (code.length > 2) return "un";
-        return code.toLowerCase();
+        const input = countryCode?.toUpperCase().trim() || "UN";
+        if (COUNTRY_MAP[input]) return COUNTRY_MAP[input].toLowerCase();
+        // If it's already a 2-letter code, use it
+        if (input.length === 2) return input.toLowerCase();
+        return "un";
     }, [countryCode]);
 
-    // Using Flat PNG source - guaranteed no waves
-    const flagUrl = `https://flagpedia.net/data/flags/h120/${normalizedCode}.png`;
+    // Using FlagCDN SVG - Guaranteed FLAT and High Resolution
+    const flagUrl = `https://flagcdn.com/${normalizedCode}.svg`;
 
     const outlineWidth = config.chipSize + config.outlinePadding * 2;
     const outlineHeight = config.chipSize * 0.85 + config.outlinePadding * 2;
@@ -74,8 +89,8 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
     return (
         <div
             className={cn(
-                "relative overflow-hidden group/sim transition-all duration-500 bg-zinc-800",
-                "shadow-2xl shadow-black/40",
+                "relative overflow-hidden group/sim transition-all duration-300",
+                "shadow-2xl shadow-black/40 bg-zinc-800",
                 className
             )}
             style={{
@@ -84,34 +99,30 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 borderRadius: config.width * 0.1,
             }}
         >
-            {/* Flag Background - Forced edge-to-edge fill */}
+            {/* Flag Background - Forced full cover using negative inset */}
             {!imageError ? (
-                <div className="absolute inset-[-1px] w-[calc(100%+2px)] h-[calc(100%+2px)]">
+                <div className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={flagUrl}
                         alt={`${countryCode} flag`}
-                        className="w-full h-full object-cover scale-[1.1] transition-transform duration-700"
-                        style={{
-                            objectPosition: 'center',
-                            // Ensure no smoothing artifacts cause gaps
-                            imageRendering: 'crisp-edges'
-                        } as any}
+                        className="w-full h-full object-cover scale-[1.05] group-hover/sim:scale-[1.15] transition-transform duration-700"
+                        style={{ objectPosition: 'center' }}
                         onError={() => setImageError(true)}
                     />
                 </div>
             ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
-                    <span className="text-white/40 font-bold text-[10px] tracking-tighter uppercase">
-                        {countryCode}
+                    <span className="text-white/50 font-bold text-[10px] uppercase">
+                        {normalizedCode}
                     </span>
                 </div>
             )}
 
-            {/* Premium SIM card effects - VERY subtle */}
+            {/* Premium overlays */}
             <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
-            {/* Chip position remains small and realistic */}
+            {/* Golden Chip - Small and Clean */}
             <div
                 className="absolute z-20"
                 style={{
@@ -119,21 +130,22 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     top: config.chipY,
                     width: config.chipSize,
                     height: config.chipSize * 0.85,
-                    borderRadius: 1,
-                    overflow: 'hidden',
+                    borderRadius: 1.5,
                     background: 'linear-gradient(135deg, #f5e6a3 0%, #d4af37 40%, #b8860b 100%)',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                    overflow: 'hidden'
                 }}
             >
-                {/* Minimal chip detail */}
-                <div className="absolute inset-0 border-[0.5px] border-amber-900/10" />
+                {/* Visual detail on chip */}
+                <div className="absolute inset-x-0 top-[20%] bottom-[20%] border-y-[0.5px] border-black/10" />
+                <div className="absolute inset-y-0 left-[20%] right-[20%] border-x-[0.5px] border-black/10" />
             </div>
 
-            {/* Final glassy sheen */}
+            {/* Glossy Reflection */}
             <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 40%)',
                 }}
             />
         </div>
