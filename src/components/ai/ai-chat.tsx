@@ -33,16 +33,28 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     const { data: session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
 
-    // Initial msg depends on context, but user wants travel assistant flow
-    const [messages, setMessages] = useState<AIMessage[]>([
-        {
-            id: "welcome",
-            role: "assistant",
-            content: `Сайн байна уу? Та хаашаа, хэд хоног аялах вэ? 🌍✈️`,
-            timestamp: new Date(),
-        },
-    ]);
+    const greetingVariants = [
+        "Сайн байна уу? Та хаашаа, хэд хоног аялах вэ? 🌍✈️",
+        "Сайн байна уу? Танд аялалдаа тохирох eSIM багц хайхад туслах уу? 🗺️✨",
+        "Сайн уу? Дараагийн аялал хаашаа вэ? Би танд хамгийн хямд багцыг олоод өгье. 🚀",
+        "Сайн байна уу? Та аялах улсаа хэлбэл би танд хамгийн тохиромжтой багцуудыг харуулъя. 💡"
+    ];
+
+    const [messages, setMessages] = useState<AIMessage[]>([]);
     const [input, setInput] = useState("");
+
+    // Initialize with a random greeting
+    useEffect(() => {
+        const randomGreeting = greetingVariants[Math.floor(Math.random() * greetingVariants.length)];
+        setMessages([
+            {
+                id: "welcome",
+                role: "assistant",
+                content: randomGreeting,
+                timestamp: new Date(),
+            },
+        ]);
+    }, []);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
