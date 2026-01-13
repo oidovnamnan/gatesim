@@ -380,7 +380,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         {/* Quick questions: Show only at start */}
                         {messages.length <= 1 && (
                             <div className="px-4 pb-3">
-                                <p className="text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">Жишээ:</p>
+                                <p className="text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">Эрэлттэй багцууд:</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
                                         onClick={() => handleSend("Япон 7 хоног")}
