@@ -128,11 +128,40 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
     };
 
     const handleShare = async () => {
-        if (navigator.share) {
-            await navigator.share({
-                title: `GateSIM - ${order.countryName} eSIM`,
-                text: `eSIM суулгах код: ${order.activationCode}`,
-            });
+        const shareText = `🌍 GateSIM eSIM: ${order.countryName}\n📦 Багц: ${order.packageName}\n🔑 LPA Код: ${order.activationCode}\n🆔 ICCID: ${order.iccid}\n📖 Суулгах заавар: https://support.apple.com/guide/iphone/set-up-an-esim-iph3dd5f213/ios`;
+
+        try {
+            // Check if we can share files
+            if (navigator.share && order.qrImg) {
+                // Convert base64 to File object
+                const res = await fetch(order.qrImg);
+                const blob = await res.blob();
+                const file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: `GateSIM - ${order.countryName} eSIM`,
+                        text: shareText,
+                        files: [file]
+                    });
+                    return;
+                }
+            }
+
+            // Fallback for text only sharing if files not supported
+            if (navigator.share) {
+                await navigator.share({
+                    title: `GateSIM - ${order.countryName} eSIM`,
+                    text: shareText
+                });
+            } else {
+                // Clipboard fallback
+                await navigator.clipboard.writeText(shareText);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            }
+        } catch (error) {
+            console.error("Error sharing:", error);
         }
     };
 
