@@ -17,9 +17,9 @@ const sizeConfig = {
         outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     md: {
-        width: 80, height: 54,
-        chipSize: 18, chipX: 50, chipY: 18,
-        outlinePadding: 4, outlineRadius: 5, outlineWidth: 2
+        width: 80, height: 50, // Slightly reduced height to match aspect ratio better
+        chipSize: 13, chipX: 55, chipY: 18, // Reduced chip size (was 18), moved chips position
+        outlinePadding: 3, outlineRadius: 4, outlineWidth: 1.5
     },
     lg: {
         width: 120, height: 80,
