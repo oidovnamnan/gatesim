@@ -60,11 +60,11 @@ interface QPayInvoice {
 
 // Bank logos mapping
 const bankLogos: Record<string, string> = {
-    "Khan Bank": "🏦",
-    "Golomt Bank": "🏛️",
-    "TDB": "🏢",
-    "State Bank": "🏤",
-    "Xac Bank": "💳",
+    "Khan Bank": "/banks/khanbank.png",
+    "Golomt Bank": "/banks/golomt.png",
+    "TDB": "/banks/tdb.png",
+    "State Bank": "/banks/statebank.png",
+    "Xac Bank": "/banks/xacbank.png",
     "M Bank": "📱",
     "Bogd Bank": "🏰",
     "Arig Bank": "🦁",
@@ -415,34 +415,47 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                 {t("bankAppPay")}
                             </p>
                             <div className="grid grid-cols-3 gap-2">
-                                {invoice.deeplinks.slice(0, 9).map((bank, index) => (
-                                    <a
-                                        key={index}
-                                        href={bank.link}
-                                        className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
-                                    >
-                                        {bank.logo ? (
-                                            <div className="w-10 h-10 relative mb-1">
+                                {invoice.deeplinks.slice(0, 9).map((bank, index) => {
+                                    const localLogo = bankLogos[bank.name];
+                                    const isLocalImage = localLogo?.startsWith("/");
+
+                                    return (
+                                        <a
+                                            key={index}
+                                            href={bank.link}
+                                            className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                        >
+                                            {/* Priority: QPay Logo (if valid) -> Local File -> Emoji Defaults */}
+                                            <div className="w-10 h-10 relative mb-1 flex items-center justify-center">
                                                 <img
-                                                    src={bank.logo}
+                                                    src={bank.logo || localLogo}
                                                     alt={bank.name}
                                                     className="w-full h-full object-contain rounded-lg"
                                                     onError={(e) => {
-                                                        (e.target as HTMLImageElement).style.display = 'none';
-                                                        (e.target as HTMLImageElement).parentElement!.innerText = bankLogos[bank.name] || "🏦";
+                                                        const target = e.target as HTMLImageElement;
+                                                        // If remote failed, try local
+                                                        if (target.src !== window.location.origin + localLogo && isLocalImage) {
+                                                            target.src = localLogo;
+                                                        } else {
+                                                            // If local also fails (or wasn't an image), hide image and show emoji fallback
+                                                            target.style.display = 'none';
+                                                            const parent = target.parentElement;
+                                                            if (parent) {
+                                                                // Create text node for emoji
+                                                                const emoji = !isLocalImage ? localLogo : "🏦";
+                                                                parent.innerText = emoji || "🏦";
+                                                                parent.className = "w-10 h-10 relative mb-1 flex items-center justify-center text-2xl";
+                                                            }
+                                                        }
                                                     }}
                                                 />
                                             </div>
-                                        ) : (
-                                            <span className="text-2xl mb-1">
-                                                {bankLogos[bank.name] || "🏦"}
+                                            <span className="text-[10px] font-medium text-slate-600 text-center leading-tight">
+                                                {bank.description || bank.name}
                                             </span>
-                                        )}
-                                        <span className="text-[10px] font-medium text-slate-600 text-center leading-tight">
-                                            {bank.description || bank.name}
-                                        </span>
-                                    </a>
-                                ))}
+                                        </a>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
