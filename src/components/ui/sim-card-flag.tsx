@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import { cn, getCountryFlag } from "@/lib/utils";
 
 interface SimCardFlagProps {
@@ -11,13 +12,13 @@ interface SimCardFlagProps {
 
 const sizeConfig = {
     sm: {
-        width: 70, height: 46, // Increased from 60x40
-        chipSize: 11, chipX: 48, chipY: 16,
+        width: 65, height: 44,
+        chipSize: 11, chipX: 42, chipY: 15,
         outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     md: {
-        width: 90, height: 60, // Increased from 80x50
-        chipSize: 14, chipX: 62, chipY: 22, // Keep chip relatively small
+        width: 90, height: 60,
+        chipSize: 14, chipX: 60, chipY: 20,
         outlinePadding: 2, outlineRadius: 4, outlineWidth: 1
     },
     lg: {
@@ -31,10 +32,10 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
     const config = sizeConfig[size];
     const [imageError, setImageError] = useState(false);
 
-    // Normalize country code
-    const code = countryCode?.toLowerCase().trim();
-    // Using a reliable SVG source that is definitely FLAT
-    const flagUrl = `https://flagcdn.com/${code}.svg`;
+    // Normalize country code and build URL
+    const code = countryCode?.toLowerCase().trim() || "un";
+    // Using w640 for better quality and ensuring flat look
+    const flagUrl = `https://flagcdn.com/w640/${code}.png`;
 
     // Calculate outline dimensions (around the chip)
     const outlineWidth = config.chipSize + config.outlinePadding * 2;
@@ -46,7 +47,7 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
         <div
             className={cn(
                 "relative overflow-hidden group/sim transition-all duration-300",
-                "shadow-lg shadow-black/20 ring-1 ring-white/10",
+                "shadow-lg shadow-black/25 ring-1 ring-black/5 bg-slate-200",
                 className
             )}
             style={{
@@ -55,32 +56,31 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 borderRadius: config.width * 0.08,
             }}
         >
-            {/* Flag Background - Using CSS Background for guaranteed full fill without padding */}
+            {/* Flag Background */}
             {!imageError ? (
-                <div
-                    className="absolute inset-[-1px] transition-transform duration-500 group-hover/sim:scale-110"
-                    style={{
-                        backgroundImage: `url("${flagUrl}")`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        // Ensuring it covers any edge cases
-                        width: 'calc(100% + 2px)',
-                        height: 'calc(100% + 2px)',
-                    }}
-                // Note: We can't easily catch 404 on CSS background-image without pre-fetching
-                // But for flagcdn, we usually assume it works if code is valid ISO
-                />
+                <div className="absolute inset-0 w-full h-full">
+                    <Image
+                        src={flagUrl}
+                        alt={`${countryCode} flag`}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover/sim:scale-110"
+                        sizes={`${config.width * 2}px`}
+                        unoptimized
+                        priority
+                        onError={() => setImageError(true)}
+                    />
+                </div>
             ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-zinc-200 text-3xl">
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-3xl">
                     {getCountryFlag(countryCode)}
                 </div>
             )}
 
-            {/* Subtle gloss/texture for a premium card feel */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-white/5 to-white/20 pointer-events-none" />
+            {/* Premium overlays */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-white/5 to-white/10 pointer-events-none" />
+            <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-[inherit] pointer-events-none" />
 
-            {/* White outline/cutout around chip area */}
+            {/* White outline around chip */}
             <div
                 className="absolute pointer-events-none z-10"
                 style={{
@@ -89,7 +89,7 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     width: outlineWidth,
                     height: outlineHeight,
                     borderRadius: config.outlineRadius,
-                    border: `${config.outlineWidth}px solid rgba(255, 255, 255, 0.7)`,
+                    border: `${config.outlineWidth}px solid rgba(255, 255, 255, 0.8)`,
                     boxShadow: '0 0 4px rgba(0,0,0,0.1)',
                 }}
             />
@@ -104,41 +104,32 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                     height: config.chipSize * 0.85,
                 }}
             >
-                {/* Chip body */}
                 <div
-                    className="w-full h-full rounded-[2px] overflow-hidden relative shadow-sm"
+                    className="w-full h-full rounded-[2px] overflow-hidden relative"
                     style={{
                         background: 'linear-gradient(145deg, #f5e6a3 0%, #d4af37 25%, #f0d78c 50%, #c9a227 75%, #b8860b 100%)',
+                        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.2)',
                     }}
                 >
-                    {/* Micro-details for the chip */}
-                    <div
-                        className="absolute rounded-full"
-                        style={{
-                            width: '30%',
-                            height: '30%',
-                            left: '50%',
-                            top: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            background: 'rgba(0,0,0,0.1)',
-                        }}
-                    />
-                    <div className="absolute inset-0 border-[0.5px] border-amber-900/10" />
+                    {/* Micro-details */}
+                    <div className="absolute inset-0 flex flex-col justify-around py-[15%]">
+                        <div className="w-full h-[0.5px] bg-black/10" />
+                        <div className="w-full h-[0.5px] bg-black/10" />
+                    </div>
                 </div>
             </div>
 
-            {/* Final Glassy Sheen */}
+            {/* Subtle reflection */}
             <div
-                className="absolute inset-0 pointer-events-none opacity-50"
+                className="absolute inset-0 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%, rgba(0,0,0,0.1) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 40%)',
                 }}
             />
         </div>
     );
 }
 
-// Keep the SimCardFlagEmoji for regions/fallback
 export function SimCardFlagEmoji({
     flag,
     size = "md",
@@ -149,12 +140,10 @@ export function SimCardFlagEmoji({
     className?: string;
 }) {
     const config = sizeConfig[size];
-
     return (
         <div
             className={cn(
-                "relative overflow-hidden flex items-center justify-center shadow-lg",
-                "bg-gradient-to-br from-slate-100 to-slate-200",
+                "relative overflow-hidden flex items-center justify-center shadow-md bg-slate-50",
                 className
             )}
             style={{
@@ -163,20 +152,17 @@ export function SimCardFlagEmoji({
                 borderRadius: config.width * 0.08,
             }}
         >
-            <span className="select-none text-2xl" style={{ fontSize: config.width * 0.4 }}>
+            <span className="select-none" style={{ fontSize: config.width * 0.4 }}>
                 {flag}
             </span>
-            {/* Minimal chip for symmetry */}
             <div
-                className="absolute opacity-30"
+                className="absolute opacity-20 bg-amber-600 rounded-[1px]"
                 style={{
-                    right: 8,
+                    right: 6,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    width: 12,
-                    height: 10,
-                    background: '#d4af37',
-                    borderRadius: 2
+                    width: 10,
+                    height: 8,
                 }}
             />
         </div>
