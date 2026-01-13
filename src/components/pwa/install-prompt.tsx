@@ -55,12 +55,13 @@ export function InstallPrompt() {
 
         if (!deferredPrompt) return;
 
+        // Close the custom UI immediately to avoid overlapping with the native prompt
+        setShow(false);
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
 
         if (outcome === "accepted") {
             setDeferredPrompt(null);
-            setShow(false);
         }
     };
 

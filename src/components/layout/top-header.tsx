@@ -31,7 +31,7 @@ export function TopHeader() {
     return (
         <header className="header-bg sticky top-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-lg border-b shadow-sm transition-colors duration-300">
             {/* Logo */}
-            <Link href="/" className="pointer-events-auto flex-shrink-0 relative w-[180px] h-12">
+            <Link href="/" className="pointer-events-auto flex-shrink-0 relative w-[220px] h-14">
                 <Image
                     src="/logo.png"
                     alt="GateSIM Logo"
