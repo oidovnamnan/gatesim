@@ -31,7 +31,8 @@ const sizeConfig = {
 export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlagProps) {
     const config = sizeConfig[size];
     const [imageError, setImageError] = useState(false);
-    const flagUrl = `https://flagcdn.com/w320/${countryCode.toLowerCase()}.png`;
+    // Use SVG for flat, non-waving look
+    const flagUrl = `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
 
     // Calculate outline dimensions (around the chip)
     const outlineWidth = config.chipSize + config.outlinePadding * 2;

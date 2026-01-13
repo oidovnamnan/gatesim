@@ -240,7 +240,7 @@ export function PackageCard({
                             {/* SIM Card Flag */}
                             <SimCardFlag
                                 countryCode={primaryCountry}
-                                size="sm"
+                                size="md"
                             />
                             <div className="flex-1 min-w-0">
                                 <h3 className={cn(
