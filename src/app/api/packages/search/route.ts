@@ -125,7 +125,7 @@ export async function GET(request: Request) {
         // Deduplicate by country+data+duration, keep cheapest
         const groups = new Map<string, typeof packages[0]>();
         packages.forEach(pkg => {
-            const key = `${pkg.countries.sort().join(',')}-${pkg.dataAmount}-${pkg.validityDays}`;
+            const key = `${[...pkg.countries].sort().join(',')}-${pkg.dataAmount}-${pkg.validityDays}`;
             const existing = groups.get(key);
             if (!existing || pkg.price < existing.price) {
                 groups.set(key, pkg);
