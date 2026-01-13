@@ -14,7 +14,8 @@ import {
     Plus,
     X,
     Loader2,
-    User
+    User,
+    Download
 } from "lucide-react";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { Button } from "@/components/ui/button";
@@ -126,13 +127,14 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleShare = async () => {
-        if (navigator.share) {
-            await navigator.share({
-                title: `GateSIM - ${order.countryName} eSIM`,
-                text: `eSIM суулгах код: ${order.activationCode}`,
-            });
-        }
+    const handleDownload = () => {
+        if (!order.qrImg) return;
+        const link = document.createElement("a");
+        link.href = order.qrImg;
+        link.download = `GateSIM-${order.countryName}-${order.orderNumber}-QR.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -172,23 +174,49 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                     </div>
 
                     {/* QR Code */}
-                    <div className="bg-slate-50 rounded-2xl p-6 mb-6 border border-slate-100 flex flex-col items-center text-center">
+                    <div className="bg-slate-50 rounded-2xl p-6 mb-6 border border-slate-100 flex flex-col items-center text-center relative group">
                         <p className="text-slate-500 text-sm font-medium mb-4">
                             Доорх QR кодыг уншуулж eSIM-ээ идэвхжүүлээрэй
                         </p>
-                        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4">
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4 relative overflow-hidden">
                             {order.qrImg ? (
-                                <img
-                                    src={order.qrImg}
-                                    alt="eSIM QR Code"
-                                    className="w-48 h-48 object-contain"
-                                />
+                                <>
+                                    <img
+                                        src={order.qrImg}
+                                        alt="eSIM QR Code"
+                                        className="w-48 h-48 object-contain"
+                                    />
+                                    {/* Overlay Download Button for Desktop Hover */}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hidden md:flex">
+                                        <Button
+                                            size="sm"
+                                            className="bg-white text-slate-900 hover:bg-slate-100 rounded-full"
+                                            onClick={handleDownload}
+                                        >
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Татах
+                                        </Button>
+                                    </div>
+                                </>
                             ) : (
                                 <div className="w-48 h-48 flex items-center justify-center bg-slate-100 rounded-lg">
                                     <QrCode className="w-16 h-16 text-slate-300" />
                                 </div>
                             )}
                         </div>
+
+                        {order.qrImg && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleDownload}
+                                className="mb-4 md:hidden border-blue-200 text-blue-600 hover:bg-blue-50 bg-white rounded-full px-6 font-bold"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                QR татах (Зураг)
+                            </Button>
+                        )}
+
                         <p className="text-xs text-slate-400">
                             Код зөвхөн нэг удаа уншигдана
                         </p>
@@ -222,12 +250,12 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
 
                     {/* Actions */}
                     <div className="space-y-3">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20" onClick={handleShare}>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 py-6 rounded-2xl font-bold" onClick={handleShare}>
                             <Share className="h-4 w-4 mr-2" />
                             Найздаа илгээх
                         </Button>
                         <Link href="https://support.apple.com/guide/iphone/set-up-an-esim-iph3dd5f213/ios" target="_blank" className="block">
-                            <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 py-6 rounded-2xl font-bold">
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Суулгах заавар харах
                             </Button>
