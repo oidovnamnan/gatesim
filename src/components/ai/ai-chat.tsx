@@ -270,10 +270,12 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                                     </div>
                                     <div
                                         className={cn(
-                                            "max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
+                                            "rounded-2xl px-4 py-3 shadow-sm",
                                             msg.role === "assistant"
                                                 ? "bg-white border border-slate-200 rounded-tl-sm text-slate-800"
-                                                : "gradient-primary rounded-tr-sm text-white"
+                                                : "gradient-primary rounded-tr-sm text-white",
+                                            // Full width for package lists, restricted width for text
+                                            msg.content.startsWith('__PACKAGES__:') ? "w-full" : "max-w-[85%]"
                                         )}
                                     >
                                         {msg.content.startsWith('__PACKAGES__:') ? (
