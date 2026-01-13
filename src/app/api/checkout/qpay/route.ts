@@ -62,9 +62,11 @@ export async function POST(request: NextRequest) {
                 qrImage: "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=GATESIM_DEMO_PAYMENT",
                 shortUrl: "https://qpay.mn/demo",
                 deeplinks: [
-                    { name: "Khan Bank", description: "ХААН Банк", logo: "", link: "khanbank://payment" },
-                    { name: "Golomt Bank", description: "Голомт Банк", logo: "", link: "golomt://payment" },
-                    { name: "TDB", description: "ХХБ", logo: "", link: "tdb://payment" },
+                    { name: "Khan Bank", description: "ХААН Банк", logo: "https://v1.qpay.mn/khanbank.png", link: "khanbank://payment" },
+                    { name: "Golomt Bank", description: "Голомт Банк", logo: "https://v1.qpay.mn/golomt.png", link: "golomt://payment" },
+                    { name: "TDB", description: "ХХБ", logo: "https://v1.qpay.mn/tdb.png", link: "tdb://payment" },
+                    { name: "State Bank", description: "Төрийн Банк", logo: "https://v1.qpay.mn/statebank.png", link: "statebank://payment" },
+                    { name: "Xac Bank", description: "Хас Банк", logo: "https://v1.qpay.mn/xacbank.png", link: "xacbank://payment" }
                 ],
                 amountMNT: Math.round(mockAmount * USD_TO_MNT),
                 amountUSD: mockAmount,

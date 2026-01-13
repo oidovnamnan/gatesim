@@ -16,11 +16,13 @@ export interface MobiMatterProduct {
 
 const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
 
+import { cache } from "react";
 import { getPricingSettings } from "@/lib/settings";
 
 // ... existing imports
 
-export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
+// Cache the product fetch for the duration of a single request
+export const getMobiMatterProducts = cache(async function (): Promise<MobiMatterProduct[]> {
     // Check credentials immediately
     if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
         console.error("[MobiMatter] API credentials missing! Please check .env file.");
@@ -39,7 +41,7 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
                 'Accept': 'application/json'
             },
             next: {
-                revalidate: 60, // Cache for 1 minute (temporary for debug)
+                revalidate: 300, // Cache for 5 minutes
                 tags: ['products'] // Allow manual revalidation
             }
         });
@@ -141,7 +143,7 @@ export async function getMobiMatterProducts(): Promise<MobiMatterProduct[]> {
         console.error("[MobiMatter] Fetch Error:", e);
         throw e;
     }
-}
+});
 
 export async function createMobiMatterOrder(sku: string): Promise<any> {
     const apiKey = process.env.MOBIMATTER_API_KEY;
