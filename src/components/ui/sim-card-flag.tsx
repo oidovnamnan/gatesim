@@ -118,9 +118,8 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                         fill
                         className="object-cover"
                         sizes={`${config.width * 2}px`}
-                        priority={true} // Priority loading to prevent flashing
+                        loading="lazy" // Strict lazy loading
                         onError={() => setImageError(true)}
-                        unoptimized // Direct load
                     />
                 </div>
             ) : (
