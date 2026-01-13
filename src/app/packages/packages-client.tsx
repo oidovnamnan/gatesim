@@ -34,12 +34,21 @@ type SortOption = "price-asc" | "price-desc" | "popular";
 // Number of packages to show per page
 const PACKAGES_PER_PAGE = 20;
 
+import { useSearchParams } from "next/navigation";
+
 export default function PackagesClient({ initialPackages }: PackagesClientProps) {
-    const [searchQuery, setSearchQuery] = useState("");
+    const searchParams = useSearchParams();
+
+    const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
     const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [sortBy, setSortBy] = useState<SortOption>("price-asc");
-    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-    const [selectedDuration, setSelectedDuration] = useState<string | null>(null); // "short" | "medium" | "long"
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(searchParams.get("country")?.toUpperCase() || null);
+
+    // Parse duration from URL (short, medium, long)
+    const urlDuration = searchParams.get("duration");
+    const [selectedDuration, setSelectedDuration] = useState<string | null>(
+        (urlDuration === "short" || urlDuration === "medium" || urlDuration === "long") ? urlDuration : null
+    );
 
     // Infinite scroll state
     const [displayCount, setDisplayCount] = useState(PACKAGES_PER_PAGE);

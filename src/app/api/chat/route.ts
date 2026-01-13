@@ -102,8 +102,9 @@ SCOPE CONTROL:
 ${scopeInstruction}
 
 - If the user says "Japan 5 days" or "Cheapest in China", output "[SEARCH_PACKAGES: ...]" IMMEDIATELY.
-- NEVER describe a package textually without showing it via the command.
-- For "cheapest", use the search command. The system sorts by price automatically.
+- START your response with the command.
+- DO NOT generate a numbered list of packages (e.g. "1. Package A..."). The UI does this.
+- DO NOT describe the packages in text. Just say "Here are the best options:" and then the command.
 - Do NOT ask "Do you want to order?". Just show the packages. The user can click them.
 `;
 

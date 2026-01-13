@@ -279,27 +279,46 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                                         {msg.content.startsWith('__PACKAGES__:') ? (
                                             // Render package cards
                                             <div className="space-y-2">
-                                                {JSON.parse(msg.content.replace('__PACKAGES__:', '')).map((pkg: any) => (
-                                                    <a
-                                                        key={pkg.id}
-                                                        href={`/package/${pkg.id}`}
-                                                        className="block p-3 rounded-xl bg-slate-50 hover:bg-white transition-all border border-slate-200 hover:border-red-200 hover:shadow-md group"
-                                                    >
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <div>
-                                                                <h4 className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors">{pkg.countryName}</h4>
-                                                                <p className="text-xs text-slate-500">{pkg.provider}</p>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <p className="text-lg font-black text-slate-900">₮{pkg.price.toLocaleString()}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-2 text-xs">
-                                                            <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">📊 {pkg.data}</span>
-                                                            <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} хоног</span>
-                                                        </div>
-                                                    </a>
-                                                ))}
+                                                {(() => {
+                                                    const allPackages = JSON.parse(msg.content.replace('__PACKAGES__:', ''));
+                                                    const displayPackages = allPackages.slice(0, 5);
+                                                    const remainingCount = allPackages.length - 5;
+                                                    // Derive country from the first package for the "See More" link
+                                                    const targetCountry = displayPackages[0]?.countries?.length === 1 ? displayPackages[0].countries[0] : null;
+
+                                                    return (
+                                                        <>
+                                                            {displayPackages.map((pkg: any) => (
+                                                                <a
+                                                                    key={pkg.id}
+                                                                    href={`/package/${pkg.id}`}
+                                                                    className="block p-3 rounded-xl bg-slate-50 hover:bg-white transition-all border border-slate-200 hover:border-red-200 hover:shadow-md group"
+                                                                >
+                                                                    <div className="flex items-center justify-between mb-2">
+                                                                        <div>
+                                                                            <h4 className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors">{pkg.countryName}</h4>
+                                                                            <p className="text-xs text-slate-500">{pkg.provider}</p>
+                                                                        </div>
+                                                                        <div className="text-right">
+                                                                            <p className="text-lg font-black text-slate-900">₮{pkg.price.toLocaleString()}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex gap-2 text-xs">
+                                                                        <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">📊 {pkg.data}</span>
+                                                                        <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} хоног</span>
+                                                                    </div>
+                                                                </a>
+                                                            ))}
+
+                                                            <a
+                                                                href={`/packages${targetCountry ? `?country=${targetCountry}` : ''}`}
+                                                                className="block w-full py-3 mt-2 text-center text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100"
+                                                            >
+                                                                Бүх багцыг харах {remainingCount > 0 && `(+${remainingCount})`} →
+                                                            </a>
+                                                        </>
+                                                    );
+                                                })()}
                                             </div>
                                         ) : (
                                             <p className="text-sm whitespace-pre-line leading-relaxed">
