@@ -286,9 +286,23 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                                                     const allPackages = JSON.parse(msg.content.replace('__PACKAGES__:', ''));
                                                     const displayPackages = allPackages.slice(0, 5);
                                                     const remainingCount = allPackages.length - 5;
-                                                    // Derive country from the first package for the "See More" link
-                                                    // (The search API ensures the searched country is at index 0)
+                                                    // Derive country and duration for the "See More" link
                                                     const targetCountry = displayPackages[0]?.countries?.[0] || null;
+
+                                                    // Mapping minDays to duration param
+                                                    let durationParam = '';
+                                                    const commandMatch = msg.content.match(/\[SEARCH_PACKAGES: ([^\]]+)\]/);
+                                                    if (commandMatch) {
+                                                        const p = new URLSearchParams(commandMatch[1].split(', ').join('&'));
+                                                        const minDays = parseInt(p.get('minDays') || '0');
+                                                        if (minDays > 0 && minDays <= 7) durationParam = 'short';
+                                                        else if (minDays > 7 && minDays <= 15) durationParam = 'medium';
+                                                        else if (minDays > 15) durationParam = 'long';
+                                                    }
+
+                                                    const seeMoreUrl = new URL(window.location.origin + '/packages');
+                                                    if (targetCountry) seeMoreUrl.searchParams.set('country', targetCountry);
+                                                    if (durationParam) seeMoreUrl.searchParams.set('duration', durationParam);
 
                                                     return (
                                                         <>
@@ -315,7 +329,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                                                             ))}
 
                                                             <a
-                                                                href={`/packages${targetCountry ? `?country=${targetCountry}` : ''}`}
+                                                                href={seeMoreUrl.toString()}
                                                                 className="block w-full py-3 mt-2 text-center text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100"
                                                             >
                                                                 Бүх багцыг харах {remainingCount > 0 && `(+${remainingCount})`} →

@@ -60,6 +60,19 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         rootMargin: "100px",
     });
 
+    // Synchronize state with URL parameters
+    useEffect(() => {
+        const country = searchParams.get("country");
+        const duration = searchParams.get("duration");
+
+        if (country) {
+            setSelectedCountry(country.toUpperCase());
+        }
+        if (duration && (duration === "short" || duration === "medium" || duration === "long")) {
+            setSelectedDuration(duration);
+        }
+    }, [searchParams]);
+
     const filteredPackages = useMemo(() => {
         let packages = [...initialPackages];
 

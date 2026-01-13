@@ -35,7 +35,36 @@ const COUNTRY_COODE_MAP: Record<string, string> = {
 function resolveCountryCode(input: string): string {
     const upper = input.trim().toUpperCase();
     if (upper.length === 2) return upper;
-    return COUNTRY_COODE_MAP[upper] || upper;
+
+    // Exact mapping
+    if (COUNTRY_COODE_MAP[upper]) return COUNTRY_COODE_MAP[upper];
+
+    // Fuzzy matching for common names
+    const names: Record<string, string> = {
+        "JAPAN": "JP",
+        "KOREA": "KR",
+        "SOUTH KOREA": "KR",
+        "CHINA": "CN",
+        "THAILAND": "TH",
+        "SINGAPORE": "SG",
+        "VIETNAM": "VN",
+        "USA": "US",
+        "UNITED STATES": "US",
+        "AMERICA": "US",
+        "TURKEY": "TR",
+        "TURKIYE": "TR",
+        "MONGOLIA": "MN",
+        "GERMANY": "DE",
+        "FRANCE": "FR",
+        "UK": "GB",
+        "UNITED KINGDOM": "GB",
+        "ITALY": "IT",
+        "SPAIN": "ES",
+        "HONG KONG": "HK",
+        "TAIWAN": "TW",
+    };
+
+    return names[upper] || upper;
 }
 
 export async function GET(request: Request) {
