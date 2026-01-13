@@ -126,9 +126,10 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         const searchData = await searchRes.json();
                         if (searchData.success && searchData.packages.length > 0) {
                             packageResults = searchData.packages;
-                            finalResponseText = responseText.replace(/\[SEARCH_PACKAGES:[^\]]+\]/, '').trim();
                         }
                     }
+                    // Always remove the search command from displayed text to avoid raw syntax showing
+                    finalResponseText = responseText.replace(/\[SEARCH_PACKAGES:[^\]]+\]/, '').trim();
                 } catch (err) {
                     console.error('Package search failed:', err);
                 }

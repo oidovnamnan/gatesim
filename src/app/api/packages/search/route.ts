@@ -14,12 +14,37 @@ function calculatePrice(netPriceUSD: number, usdToMnt: number, marginPercent: nu
     return Math.ceil(rawPriceMNT / 100) * 100;
 }
 
+// Help resolve country names to codes
+const COUNTRY_COODE_MAP: Record<string, string> = {
+    "JAPAN": "JP",
+    "SOUTH KOREA": "KR",
+    "KOREA": "KR",
+    "CHINA": "CN",
+    "THAILAND": "TH",
+    "SINGAPORE": "SG",
+    "VIETNAM": "VN",
+    "TURKEY": "TR",
+    "USA": "US",
+    "UNITED STATES": "US",
+    "MONGOLIA": "MN",
+    "EUROPE": "EU",
+    "ASIA": "ASIA",
+    "GLOBAL": "GLOBAL",
+};
+
+function resolveCountryCode(input: string): string {
+    const upper = input.trim().toUpperCase();
+    if (upper.length === 2) return upper;
+    return COUNTRY_COODE_MAP[upper] || upper;
+}
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
 
         // Parse query params
-        const country = searchParams.get('country')?.toUpperCase();
+        const rawCountry = searchParams.get('country');
+        const country = rawCountry ? resolveCountryCode(rawCountry) : undefined;
         const minDays = parseInt(searchParams.get('minDays') || '0');
         const maxDays = parseInt(searchParams.get('maxDays') || '365');
         const minData = parseInt(searchParams.get('minData') || '0'); // in MB
