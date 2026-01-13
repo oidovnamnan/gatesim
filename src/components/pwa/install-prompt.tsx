@@ -77,65 +77,57 @@ export function InstallPrompt() {
                 onClick={() => setShow(false)}
             >
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="w-full max-w-sm"
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    className="w-full max-w-xl mx-4"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <Card className="p-6 shadow-2xl border-none bg-white dark:bg-slate-900 rounded-2xl">
-                        <div className="flex flex-col items-center text-center gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-white shadow-md p-2 flex items-center justify-center">
+                    <Card className="p-4 shadow-2xl border-none bg-white dark:bg-slate-900 rounded-2xl overflow-hidden relative">
+                        {/* Close button for iOS/Desktop if needed */}
+                        <button
+                            onClick={() => setShow(false)}
+                            className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+
+                        <div className="flex items-center gap-4 text-left">
+                            {/* Icon - Left */}
+                            <div className="w-14 h-14 shrink-0 rounded-xl bg-white shadow-sm border border-slate-100 dark:border-slate-800 p-2 flex items-center justify-center">
                                 <img src="/logo.png" alt="GateSIM" className="w-full h-full object-contain" />
                             </div>
 
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-xl">GateSIM App</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Аппликейшн болгож суулгаад, илүү хурдан, хялбар ашиглаарай.
+                            {/* Content - Middle */}
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-lg leading-tight">GateSIM App</h3>
+                                <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                                    {isIOS ? "Share ⬆️ -> Add to Home Screen ➕" : "Аппликейшн болгож суулгаад хялбар ашиглаарай."}
                                 </p>
                             </div>
 
-                            {isIOS ? (
-                                <div className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-left text-sm space-y-3 mt-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs font-bold">1</div>
-                                        <span>Доор байрлах <strong>Share</strong> <span className="text-blue-500">⬆️</span> товчийг дарна уу.</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs font-bold">2</div>
-                                        <span><strong>Add to Home Screen</strong> <span className="text-foreground">➕</span> сонгоно уу.</span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex gap-3 w-full mt-2">
-                                    <Button
-                                        onClick={() => setShow(false)}
-                                        variant="outline"
-                                        className="flex-1 rounded-full"
-                                    >
-                                        Дараа
-                                    </Button>
+                            {/* Actions - Right (Desktop/Android) */}
+                            {!isIOS && (
+                                <div className="shrink-0 pl-2">
                                     <Button
                                         onClick={handleInstall}
-                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold px-5 shadow-lg shadow-blue-600/20"
+                                        size="sm"
                                     >
                                         <Download className="w-4 h-4 mr-2" />
                                         Суулгах
                                     </Button>
                                 </div>
                             )}
-
-                            {isIOS && (
-                                <Button
-                                    onClick={() => setShow(false)}
-                                    variant="ghost"
-                                    className="text-muted-foreground text-sm"
-                                >
-                                    Хаах
-                                </Button>
-                            )}
                         </div>
+
+                        {/* iOS Instructions Expanded (Optional) */}
+                        {isIOS && (
+                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-muted-foreground">
+                                <span>Safari хөтөч дээр суулгах заавар</span>
+                                <span className="flex items-center gap-1">Share <span className="text-blue-500">⬆️</span> -> Add to Home Screen</span>
+                            </div>
+                        )}
                     </Card>
                 </motion.div>
             </motion.div>
