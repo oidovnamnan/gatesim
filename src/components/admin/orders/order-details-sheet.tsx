@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Receipt, AlertTriangle, RotateCcw, Copy, RefreshCw } from "lucide-react";
+import { Mail, Receipt, AlertTriangle, RotateCcw, Copy, RefreshCw, CreditCard, User, Calendar, Box } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -126,152 +126,142 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto bg-slate-950 border-white/10 text-white">
-                <SheetHeader>
+            <SheetContent side="center" className="w-full max-w-2xl overflow-y-auto bg-slate-950 border-white/10 text-white p-6 md:p-8">
+                <SheetHeader className="mb-6">
                     <SheetTitle className="text-white flex items-center gap-2">
                         Order Details
-                        <Badge variant="outline" className="ml-2 font-mono text-xs">{order.id.slice(0, 8)}</Badge>
+                        <Badge variant="outline" className="ml-2 font-mono text-xs border-white/20 text-white/60">#{order.id.slice(0, 8)}</Badge>
                     </SheetTitle>
-                    <SheetDescription className="text-white/60">
-                        View and manage order #{order.id}
+                    <SheetDescription className="text-white/40">
+                        Placed on {new Date(order.createdAt).toLocaleString()}
                     </SheetDescription>
                 </SheetHeader>
 
-                <div className="mt-6 space-y-6">
-                    {/* Actions Toolbar */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <Button
-                            variant="outline"
-                            className="text-white border-white/10 hover:bg-white/10"
-                            onClick={handleResendEmail}
-                            disabled={!!actionLoading}
-                        >
-                            <Mail className="w-4 h-4 mr-2" />
-                            {actionLoading === "email" ? "Sending..." : "Resend Email"}
-                        </Button>
-                        <Button
-                            variant="danger"
-                            className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border-none"
-                            onClick={handleRefund}
-                            disabled={!!actionLoading}
-                        >
-                            <RotateCcw className="w-4 h-4 mr-2" />
-                            {actionLoading === "refund" ? "Refunding..." : "Refund Order"}
-                        </Button>
-
-                        {(order.status === 'PROVISIONING_FAILED' || order.status === 'paid') && (
-                            <Button
-                                variant="outline"
-                                className="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 border-none col-span-2"
-                                onClick={handleRetryProvisioning}
-                                disabled={!!actionLoading}
-                            >
-                                <RefreshCw className={`w-4 h-4 mr-2 ${actionLoading === "retry" ? "animate-spin" : ""}`} />
-                                {actionLoading === "retry" ? "Retrying..." : "Retry Provisioning"}
-                            </Button>
-                        )}
-                    </div>
-
-                    <Separator className="bg-white/10" />
-
-                    {/* Customer Info */}
-                    <div className="space-y-3">
-                        <h4 className="font-medium text-white/90 flex items-center gap-2">
-                            <Receipt className="w-4 h-4" /> Customer Information
-                        </h4>
-                        <div className="bg-white/5 p-4 rounded-lg space-y-2 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-white/50">Email:</span>
-                                <span className="text-white font-medium flex items-center gap-2 cursor-pointer hover:text-blue-400" onClick={() => handleCopy(order.contactEmail)}>
-                                    {order.contactEmail} <Copy className="w-3 h-3" />
-                                </span>
+                <div className="space-y-6">
+                    {/* Key Metrics Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                            <div className="text-sm text-white/50 mb-1">Total Amount</div>
+                            <div className="text-2xl font-bold text-emerald-400">
+                                {formatPrice(order.totalAmount, order.currency)}
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-white/50">User ID:</span>
-                                <span className="font-mono">{order.userId}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-white/50">Date:</span>
-                                <span>{new Date(order.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div className="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                            <div className="text-sm text-white/50 mb-2">Current Status</div>
+                            <div>
+                                <Badge className={`uppercase ${order.status === 'completed' || order.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' :
+                                    order.status === 'failed' ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
+                                        'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
+                                    }`}>
+                                    {order.status}
+                                </Badge>
                             </div>
                         </div>
                     </div>
 
+                    {/* Customer Info */}
+                    <div>
+                        <h4 className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
+                            <User className="w-4 h-4" /> Customer & Payment
+                        </h4>
+                        <div className="bg-white/5 rounded-xl border border-white/5 divide-y divide-white/5">
+                            <div className="p-3 flex justify-between items-center">
+                                <span className="text-sm text-white/50">Email</span>
+                                <div className="flex items-center gap-2 text-sm font-medium text-white hover:text-blue-400 cursor-pointer" onClick={() => handleCopy(order.contactEmail)}>
+                                    {order.contactEmail}
+                                    <Copy className="w-3 h-3 opacity-50" />
+                                </div>
+                            </div>
+                            <div className="p-3 flex justify-between items-center">
+                                <span className="text-sm text-white/50">Payment Method</span>
+                                <span className="text-sm text-white uppercase font-medium">{order.paymentMethod}</span>
+                            </div>
+                            {order.paymentId && (
+                                <div className="p-3 flex justify-between items-center">
+                                    <span className="text-sm text-white/50">Transaction ID</span>
+                                    <span className="text-xs font-mono text-white/60">{order.paymentId.slice(0, 16)}...</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Items */}
-                    <div className="space-y-3">
-                        <h4 className="font-medium text-white/90">Items</h4>
-                        <div className="space-y-2">
+                    <div>
+                        <h4 className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
+                            <Box className="w-4 h-4" /> Order Items
+                        </h4>
+                        <div className="bg-white/5 rounded-xl border border-white/5 p-1">
                             {order.items.map((item, idx) => (
-                                <div key={idx} className="bg-white/5 p-3 rounded-lg flex justify-between items-center text-sm">
-                                    <div>
-                                        <div className="font-medium">{item.name}</div>
-                                        <div className="text-white/50 text-xs">{item.sku}</div>
+                                <div key={idx} className="flex gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors">
+                                    <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
+                                        <Box className="w-6 h-6 text-slate-600" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-medium text-white truncate">{item.name}</div>
+                                        <div className="text-xs text-white/40 truncate">{item.sku}</div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="font-bold">{formatPrice(item.price, order.currency)}</div>
-                                        <div className="text-xs text-white/50">x{item.quantity}</div>
+                                        <div className="text-sm font-bold text-white">{formatPrice(item.price, order.currency)}</div>
+                                        <div className="text-xs text-white/40">x{item.quantity}</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Payment Status */}
-                    <div className="space-y-3">
-                        <h4 className="font-medium text-white/90">Payment & Status</h4>
-                        <div className="bg-white/5 p-4 rounded-lg space-y-3 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-white/50">Total Amount:</span>
-                                <span className="text-lg font-bold text-green-400">{formatPrice(order.totalAmount, order.currency)}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-white/50">Status:</span>
-                                <Badge variant={order.status === 'paid' ? 'success' : 'secondary'} className="uppercase">
-                                    {order.status}
-                                </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-white/50">Method:</span>
-                                <span className="uppercase">{order.paymentMethod}</span>
-                            </div>
-                            {order.paymentId && (
-                                <div className="flex justify-between">
-                                    <span className="text-white/50">Payment ID:</span>
-                                    <span className="font-mono text-xs">{order.paymentId}</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-
-                    {/* Provisioning Error (If Failed) */}
+                    {/* Error Display */}
                     {(order.status === 'PROVISIONING_FAILED' || order.status === 'failed' || order.metadata?.provisioningError) && (
-                        <div className="space-y-3">
-                            <h4 className="font-medium text-red-400 flex items-center gap-2">
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                            <div className="flex items-center gap-2 text-red-400 font-medium mb-2">
                                 <AlertTriangle className="w-4 h-4" /> Provisioning Error
-                            </h4>
-                            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg text-sm text-red-200">
-                                <p className="font-bold mb-1">System Error:</p>
-                                <code className="block whitespace-pre-wrap break-all bg-black/30 p-2 rounded text-xs font-mono">
-                                    {typeof order.metadata?.provisioningError === 'string'
-                                        ? order.metadata.provisioningError
-                                        : JSON.stringify(order.metadata?.provisioningError || "Unknown Error")}
-                                </code>
                             </div>
+                            <code className="block text-xs font-mono text-red-300/80 bg-black/20 p-2 rounded whitespace-pre-wrap break-all">
+                                {typeof order.metadata?.provisioningError === 'string'
+                                    ? order.metadata.provisioningError
+                                    : JSON.stringify(order.metadata?.provisioningError || "Unknown Error")}
+                            </code>
                         </div>
                     )}
 
-                    {/* Technical / Raw Data */}
-                    <div className="pt-4">
-                        <div className="flex items-center gap-2 text-amber-500/80 text-xs mb-2">
-                            <AlertTriangle className="w-3 h-3" />
-                            Raw Data (For Debugging)
-                        </div>
-                        <pre className="text-[10px] bg-black/50 p-4 rounded-lg overflow-x-auto font-mono text-white/40">
-                            {JSON.stringify(order, null, 2)}
-                        </pre>
-                    </div>
+                    <Separator className="bg-white/10" />
 
+                    {/* Actions Grid */}
+                    <div>
+                        <h4 className="text-sm font-medium text-white/50 mb-3">Actions</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button
+                                variant="outline"
+                                className="h-auto py-3 px-4 flex flex-col items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white"
+                                onClick={handleResendEmail}
+                                disabled={!!actionLoading}
+                            >
+                                <Mail className="w-5 h-5 text-blue-400" />
+                                <span className="text-xs">Resend Email</span>
+                            </Button>
+
+                            {(order.status === 'PROVISIONING_FAILED' || order.status === 'paid') && (
+                                <Button
+                                    variant="outline"
+                                    className="h-auto py-3 px-4 flex flex-col items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white"
+                                    onClick={handleRetryProvisioning}
+                                    disabled={!!actionLoading}
+                                >
+                                    <RefreshCw className={`w-5 h-5 text-amber-400 ${actionLoading === 'retry' ? 'animate-spin' : ''}`} />
+                                    <span className="text-xs">Retry Provision</span>
+                                </Button>
+                            )}
+
+                            <Button
+                                variant="outline"
+                                className="h-auto py-3 px-4 flex flex-col items-center gap-1 bg-red-500/5 border-red-500/20 hover:bg-red-500/10 hover:text-red-300 col-span-2"
+                                onClick={handleRefund}
+                                disabled={!!actionLoading}
+                            >
+                                <RotateCcw className="w-5 h-5 text-red-500" />
+                                <span className="text-xs text-red-400">Refund Full Order</span>
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </SheetContent>
         </Sheet>

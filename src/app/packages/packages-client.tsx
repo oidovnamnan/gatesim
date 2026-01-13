@@ -37,7 +37,7 @@ const PACKAGES_PER_PAGE = 20;
 export default function PackagesClient({ initialPackages }: PackagesClientProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<ViewMode>("list");
-    const [sortBy, setSortBy] = useState<SortOption>("popular");
+    const [sortBy, setSortBy] = useState<SortOption>("price-asc");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null); // "short" | "medium" | "long"
 

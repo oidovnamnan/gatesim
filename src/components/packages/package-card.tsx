@@ -136,18 +136,35 @@ export function PackageCard({
                     )}
 
                     {/* Badge */}
-                    {(isPopular || isFeatured) && (
-                        <div className="absolute top-4 right-4 z-20">
-                            <Badge
-                                className={cn(
-                                    "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
-                                    bgImage
-                                        ? "bg-white/20 text-white border-white/20"
-                                        : "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50"
-                                )}
-                            >
-                                {isFeatured ? "✨ Онцлох" : "🔥 Түгээмэл"}
-                            </Badge>
+                    {(isPopular || isFeatured || countries.includes("CN")) && (
+                        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5">
+                            {(isPopular || isFeatured) && (
+                                <Badge
+                                    className={cn(
+                                        "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
+                                        bgImage
+                                            ? "bg-white/20 text-white border-white/20"
+                                            : "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50"
+                                    )}
+                                >
+                                    {isFeatured ? "✨ Онцлох" : "🔥 Түгээмэл"}
+                                </Badge>
+                            )}
+
+                            {/* Special China Badge */}
+                            {countries.includes("CN") && (
+                                <Badge
+                                    className={cn(
+                                        "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none flex items-center gap-1",
+                                        bgImage
+                                            ? "bg-emerald-500/20 text-emerald-100 border-emerald-500/20"
+                                            : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                    )}
+                                >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                    VPN Included
+                                </Badge>
+                            )}
                         </div>
                     )}
 
@@ -269,6 +286,17 @@ export function PackageCardCompact({
                             <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">{data}</span>
                             <span className="text-slate-300">•</span>
                             <span>{validityDays} хоног</span>
+
+                            {/* VPN Badge for Compact View */}
+                            {countries.includes("CN") && (
+                                <>
+                                    <span className="text-slate-300">•</span>
+                                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 font-bold">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        VPN Included
+                                    </span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

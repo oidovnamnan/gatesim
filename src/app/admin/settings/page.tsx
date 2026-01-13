@@ -10,6 +10,9 @@ import { Save, AlertCircle, RefreshCw, Globe, Shield, Palette, Check, Power } fr
 import { Badge } from "@/components/ui/badge";
 import { subscribeToSystemConfig, updateSystemConfig } from "@/lib/db";
 import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { getAdminRole, canAccess } from "@/config/admin";
 
 interface PricingSettings {
     usdToMnt: number;
@@ -19,9 +22,27 @@ interface PricingSettings {
 
 export default function SettingsPage() {
     const { toast } = useToast();
+    const router = useRouter();
+    const { data: session, status } = useSession();
     const [settings, setSettings] = useState<PricingSettings>({ usdToMnt: 3450, marginPercent: 25, maintenanceMode: false });
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    // Access Control
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        const role = getAdminRole(session?.user?.email);
+        if (!canAccess(role, 'settings')) {
+            router.push('/admin');
+        }
+    }, [session, status, router]);
+
+    // Show nothing while checking access (optional)
+    const role = getAdminRole(session?.user?.email);
+    if (status !== 'loading' && !canAccess(role, 'settings')) {
+        return null;
+    }
 
     useEffect(() => {
         const unsubscribe = subscribeToSystemConfig((config) => {

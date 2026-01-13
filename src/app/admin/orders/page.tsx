@@ -5,9 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatPrice } from "@/lib/utils";
-import { Search, Filter, Eye, Loader2, RefreshCw } from "lucide-react";
+import { Search, Filter, Eye, Loader2, RefreshCw, Download } from "lucide-react";
 import { subscribeToOrders } from "@/lib/db";
 import { Order } from "@/types/db";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { OrderDetailsSheet } from "@/components/admin/orders/order-details-sheet";
 
 const statusStyles: Record<string, "default" | "success" | "warning" | "destructive"> = {
     completed: "success",
@@ -18,13 +26,12 @@ const statusStyles: Record<string, "default" | "success" | "warning" | "destruct
     refunded: "default"
 };
 
-import { OrderDetailsSheet } from "@/components/admin/orders/order-details-sheet";
-
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("completed");
 
     useEffect(() => {
         setLoading(true);
@@ -38,49 +45,71 @@ export default function AdminOrdersPage() {
         return () => unsubscribe();
     }, []);
 
-    // Manual refresh is no longer strictly needed but kept just in case
     const handleRefresh = () => {
-        // With onSnapshot, refresh is automatic. 
-        // We could force re-subscribe or just ignore.
         setLoading(true);
-        // Re-subscription happens automatically if we don't destroy it.
-        // For UI feedback, let's just timeout.
         setTimeout(() => setLoading(false), 500);
     };
 
-    const filteredOrders = orders.filter(order =>
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.contactEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.items[0]?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredOrders = orders.filter(order => {
+        const lowerSearch = searchTerm.toLowerCase();
+        const matchesSearch =
+            order.id.toLowerCase().includes(lowerSearch) ||
+            order.contactEmail.toLowerCase().includes(lowerSearch) ||
+            (order.items[0]?.name || "").toLowerCase().includes(lowerSearch);
+
+        const matchesStatus = statusFilter === "all" || order.status?.toLowerCase() === statusFilter.toLowerCase();
+
+        return matchesSearch && matchesStatus;
+    });
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">Orders</h1>
-                    <p className="text-white/60">Real-time order tracking from Firebase</p>
+            <div>
+                <h1 className="text-2xl font-bold text-white">Orders</h1>
+                <p className="text-white/60">Real-time order tracking from Firebase</p>
+            </div>
+
+            {/* Controls Bar */}
+            <div className="flex flex-col md:flex-row gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
+                {/* Search */}
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                    <Input
+                        placeholder="Search by ID, email or package..."
+                        className="pl-9 h-10 rounded-lg bg-slate-900/50 border-white/10 text-white w-full"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+
+                {/* Actions */}
+                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 items-center">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[140px] h-10 rounded-lg bg-slate-900/50 border-white/10 text-white">
+                            <Filter className="w-4 h-4 mr-2 text-white/50" />
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                            <SelectItem value="all">All Orders</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="processing">Processing</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="failed">Failed</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Button variant="outline" onClick={handleRefresh} disabled={loading} className="h-10 rounded-lg bg-slate-900/50 border-white/10 text-white hover:bg-white/10">
                         <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                     </Button>
-                    <Button variant="outline"><Filter className="w-4 h-4 mr-2" /> Filter</Button>
-                    <Button>Export CSV</Button>
-                </div>
-            </div>
 
-            {/* Search Bar */}
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-                <Input
-                    placeholder="Search orders by ID, email or package..."
-                    className="pl-9 bg-white/5 border-white/10 text-white w-full md:w-96"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                    <Button className="h-10 rounded-lg bg-white hover:bg-white/90 text-black font-medium">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export
+                    </Button>
+                </div>
             </div>
 
             {/* Table */}
@@ -110,7 +139,7 @@ export default function AdminOrdersPage() {
                         ) : filteredOrders.length === 0 ? (
                             <tr>
                                 <td colSpan={7} className="px-6 py-12 text-center text-white/50">
-                                    No orders found.
+                                    {searchTerm || statusFilter !== 'all' ? 'No matching orders found.' : 'No orders found.'}
                                 </td>
                             </tr>
                         ) : (
@@ -127,7 +156,6 @@ export default function AdminOrdersPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-white">{item?.name || 'Unknown Package'}</div>
-                                            <div className="text-xs text-white/50">{item?.sku}</div>
                                         </td>
                                         <td className="px-6 py-4 font-bold text-white">
                                             {formatPrice(order.totalAmount, order.currency)}

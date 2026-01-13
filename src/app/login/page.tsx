@@ -34,9 +34,16 @@ function LoginContent() {
         e.preventDefault();
         if (!email) return;
 
-        // Current backend requires Password. Magic link not enabled.
-        // For now, guide users to use Google.
-        error("Одоогоор зөвхөн Google эрхээр нэвтрэх боломжтой.");
+        setIsLoading(true);
+        try {
+            await signIn("email", { email, callbackUrl, redirect: false });
+            success("Таны и-мэйл рүү нэвтрэх линк илгээлээ. И-мэйлээ шалгана уу.");
+            setMode("select");
+        } catch (err) {
+            error("Алдаа гарлаа. Дахин оролдоно уу.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

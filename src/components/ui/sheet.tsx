@@ -28,7 +28,7 @@ export function Sheet({ open, onOpenChange, children }: SheetProps) {
 interface SheetContentProps {
     children: React.ReactNode;
     className?: string;
-    side?: "left" | "right" | "top" | "bottom";
+    side?: "left" | "right" | "top" | "bottom" | "center";
     onClose?: () => void;
 }
 
@@ -39,15 +39,16 @@ export function SheetContent({
     onClose
 }: SheetContentProps) {
     const sideClasses = {
-        right: "right-0 top-0 h-full w-full max-w-lg border-l",
-        left: "left-0 top-0 h-full w-full max-w-lg border-r",
-        top: "top-0 left-0 w-full max-h-[80vh] border-b",
-        bottom: "bottom-0 left-0 w-full max-h-[80vh] border-t"
+        right: "right-0 top-0 h-full w-full max-w-lg border-l animate-in slide-in-from-right duration-300",
+        left: "left-0 top-0 h-full w-full max-w-lg border-r animate-in slide-in-from-left duration-300",
+        top: "top-0 left-0 w-full max-h-[80vh] border-b animate-in slide-in-from-top duration-300",
+        bottom: "bottom-0 left-0 w-full max-h-[80vh] border-t animate-in slide-in-from-bottom duration-300",
+        center: "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg border rounded-xl shadow-2xl h-auto max-h-[90vh] animate-in fade-in zoom-in-95 duration-300"
     };
 
     return (
         <div className={cn(
-            "fixed z-50 bg-slate-900 shadow-xl animate-in slide-in-from-right duration-300",
+            "fixed z-50 bg-slate-900 shadow-xl",
             sideClasses[side],
             className
         )}>

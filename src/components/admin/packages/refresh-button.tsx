@@ -38,7 +38,7 @@ export function RefreshButton() {
     };
 
     return (
-        <Button variant="secondary" className="gap-2" onClick={handleSync} disabled={loading}>
+        <Button variant="secondary" className="h-10 gap-2" onClick={handleSync} disabled={loading}>
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             {loading ? "Syncing..." : "Sync from MobiMatter"}
         </Button>

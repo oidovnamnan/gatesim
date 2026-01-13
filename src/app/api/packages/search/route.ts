@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getMobiMatterProducts } from '@/lib/mobimatter';
 import { getPricingSettings } from '@/lib/settings';
+import { getCountryName } from '@/config/countries';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,15 +13,6 @@ function calculatePrice(netPriceUSD: number, usdToMnt: number, marginPercent: nu
     const rawPriceMNT = netPriceUSD * usdToMnt * marginMultiplier;
     return Math.ceil(rawPriceMNT / 100) * 100;
 }
-
-// Country name mapping
-const countryNames: Record<string, string> = {
-    "JP": "Япон", "KR": "Солонгос", "CN": "Хятад", "TH": "Тайланд",
-    "SG": "Сингапур", "VN": "Вьетнам", "US": "Америк", "TR": "Турк",
-    "RU": "Орос", "KZ": "Казахстан", "DE": "Герман", "FR": "Франц",
-    "IT": "Итали", "ES": "Испани", "GB": "Их Британи", "AE": "Дубай",
-    "MY": "Малайз", "ID": "Индонез", "PH": "Филиппин", "AU": "Австрали",
-};
 
 export async function GET(request: Request) {
     try {
@@ -73,7 +65,7 @@ export async function GET(request: Request) {
                 validityDays: p.durationDays,
                 price: calculatePrice(p.price, usdToMnt, marginPercent),
                 countries: p.countries,
-                countryName: countryNames[p.countries[0]] || p.countries[0],
+                countryName: getCountryName(p.countries[0]),
             }));
 
         // Deduplicate by country+data+duration, keep cheapest

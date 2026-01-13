@@ -8,6 +8,7 @@ function formatDataAmount(mb: number): string {
 }
 
 // Cache for 1 hour
+// Cache for 1 hour
 export const revalidate = 3600;
 
 export default async function PackagesPage() {

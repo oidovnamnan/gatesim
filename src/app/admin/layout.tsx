@@ -1,15 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-
-// Admin emails that are allowed to access admin panel
-const ADMIN_EMAILS = [
-    'admin@gatesim.mn',
-    'suren@gatesim.mn',
-    'nsurenoidov@gmail.com',
-    'admin@gatesim.travel',
-    // Add more admin emails here
-];
+import { getAdminRole } from "@/config/admin";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
     // 🔐 AUTHENTICATION CHECK
@@ -22,7 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
     // 🔐 AUTHORIZATION CHECK - Only admins can access
     const userEmail = session.user.email;
-    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
+    const role = getAdminRole(userEmail);
+
+    if (!role) {
         // Not an admin - show access denied
         return (
             <div className="flex h-screen bg-[#0d111c] w-full items-center justify-center">

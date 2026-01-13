@@ -1,14 +1,20 @@
 import { OpenAI } from "openai";
 import { findContextData, generateLocalResponse } from "@/lib/local-ai";
 import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-// Simple in-memory rate limiting (Note: This resets on server restart)
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
-const FREE_LIMIT_PER_WINDOW = 5; // 5 requests per hour
+// Rate limiting for guests
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_MESSAGES_PER_MINUTE = 10;
+const SPAM_THRESHOLD_REPEATED = 3; // Block if same message sent 3 times
 
 interface RateLimitData {
     count: number;
     resetTime: number;
+    lastMessage?: string;
+    repeatCount: number;
+    isBlocked: boolean;
 }
 
 const rateLimitMap = new Map<string, RateLimitData>();
@@ -16,6 +22,7 @@ const rateLimitMap = new Map<string, RateLimitData>();
 export async function POST(req: Request) {
     try {
         const { messages, country, apiKey } = await req.json();
+        const session = await auth();
 
         if (!messages || messages.length === 0) {
             return Response.json({ error: "No messages provided" }, { status: 400 });
@@ -23,72 +30,100 @@ export async function POST(req: Request) {
 
         const lastMessage = messages[messages.length - 1];
         const userQuery = lastMessage.content;
-
-        // --- RATE LIMITING LOGIC ---
         const requestHeaders = await headers();
         const ip = requestHeaders.get("x-forwarded-for") || "unknown";
-        const now = Date.now();
 
-        let limitData = rateLimitMap.get(ip);
+        // ============ 1. AUTH & SCOPE LOGIC ============
+        let userHasActiveOrder = false;
 
-        // Reset if window passed
-        if (!limitData || now > limitData.resetTime) {
-            limitData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
+        if (session?.user?.email) {
+            const user = await prisma.user.findUnique({
+                where: { email: session.user.email },
+                include: { orders: { where: { status: "PAID" } } }
+            });
+
+            if (user) {
+                userHasActiveOrder = user.orders.length > 0;
+            }
+        } else {
+            // ============ 2. GUEST & SPAM LOGIC ============
+            const now = Date.now();
+            let limitData = rateLimitMap.get(ip);
+
+            if (!limitData || now > limitData.resetTime) {
+                limitData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW, repeatCount: 0, isBlocked: false };
+            }
+
+            if (limitData.isBlocked) {
+                return Response.json({
+                    role: "assistant",
+                    content: "Таны чатлах эрх түр хаагдсан байна. (Спам илэрсэн)"
+                });
+            }
+
+            // Check repetition
+            if (limitData.lastMessage === userQuery) {
+                limitData.repeatCount++;
+            } else {
+                limitData.repeatCount = 0;
+            }
+            limitData.lastMessage = userQuery;
+
+            // Block triggers
+            if (limitData.count > MAX_MESSAGES_PER_MINUTE || limitData.repeatCount >= SPAM_THRESHOLD_REPEATED) {
+                limitData.isBlocked = true;
+                rateLimitMap.set(ip, limitData);
+                return Response.json({
+                    role: "assistant",
+                    content: "Таны чатлах эрх түр хаагдсан байна. (Хэт олон мессеж эсвэл давтамж)"
+                });
+            }
+
+            limitData.count++;
+            rateLimitMap.set(ip, limitData);
         }
 
-        limitData.count++;
-        rateLimitMap.set(ip, limitData);
+        // ============ 3. AI SYSTEM PROMPT & SCOPE ============
+        const contextData = findContextData(userQuery, country);
 
-        const isRateLimited = limitData.count > FREE_LIMIT_PER_WINDOW;
+        // Scope definition
+        const scopeInstruction = userHasActiveOrder
+            ? "Since the user has purchased a package, you can discuss travel tips, places to visit, and advice for the destination country. Keep it helpful and related to their trip."
+            : "The user has NOT purchased yet. STRICTLY limit conversation to GateSIM products, eSIM cards, choosing a data package, and checkout. If the user asks about general topics (weather, history, politics, etc.), politely steer them back to buying an eSIM. Example: 'Би зөвхөн eSIM болон аяллын дата багцын талаар мэдээлэл өгөх боломжтой.'";
+
+        let systemPrompt = `You are GateSIM AI, an elite Travel Assistant.
+You strictly answer in Mongolian language (Cyrillic).
+Your interaction style is:
+1. Extremely polite and friendly (Use "Та", "Сайн байна уу?", emojis).
+2. Direct and helpful.
+3. GOAL: Ask where they are going and for how long, then recommend the best GateSIM package. Use [SEARCH_PACKAGES: country=CODE, minDays=N] if you detect intent.
+
+SCOPE CONTROL:
+${scopeInstruction}
+
+IMPORTANT:
+- If the user says "Japan 5 days", output "[SEARCH_PACKAGES: country=JP, minDays=5]" in your response along with a polite text.
+- Do NOT hallucinate package prices. Use the search tool.
+`;
+
+        if (contextData) {
+            systemPrompt += `\n\nCONTEXT DATA:\n${contextData}`;
+        }
+
+        // ============ 4. CALL OPENAI ============
         const effectiveApiKey = apiKey || process.env.OPENAI_API_KEY;
 
-        // Use Local AI if: 1. No API Key OR 2. Rate Limit Exceeded
-        if (!effectiveApiKey || isRateLimited) {
-            if (isRateLimited) {
-                console.warn(`Rate limit exceeded for IP: ${ip}. Falling back to local AI.`);
-            } else {
-                console.warn("OPENAI_API_KEY not found, falling back to local logic");
-            }
-
-            // Fallback to local logic
-            const localResponse = generateLocalResponse(userQuery, country);
-
-            // Add a polite notice if rate limited
-            let finalContent = localResponse;
-            if (isRateLimited) {
-                finalContent += "\n\n(Таны AI ашиглах эрх түр дууссан тул офлайн хариу өглөө. Түр хүлээгээд дахин оролдоно уу)";
-            }
-
-            // Simulate network delay for realistic feel
-            await new Promise(resolve => setTimeout(resolve, 500));
-
+        if (!effectiveApiKey) {
             return Response.json({
                 role: "assistant",
-                content: finalContent
+                content: generateLocalResponse(userQuery, country) + "\n\n(System: OpenAI Key missing)"
             });
         }
 
-        // OpenAI Logic
-        const contextData = findContextData(userQuery, country);
-
-        let systemPrompt = `You are GateSIM AI, a helpful travel assistant.
-You strictly answer in Mongolian language (Cyrillic).
-You provide helpful, concise, and friendly responses about travel, eSIMs, and connectivity.
-Use emojis to make the conversation engaging.`;
-
-        if (contextData) {
-            systemPrompt += `\n\nIMPORTANT: Use the following official context data to answer the user's question accurately. Do not make up facts if they contradict this data:\n${contextData}`;
-        }
-
-        const openai = new OpenAI({
-            apiKey: effectiveApiKey,
-        });
-
-        // Determine model (use 3.5-turbo or 4o-mini for speed/cost)
-        const model = "gpt-4o-mini";
+        const openai = new OpenAI({ apiKey: effectiveApiKey });
 
         const response = await openai.chat.completions.create({
-            model: model,
+            model: "gpt-4o-mini",
             messages: [
                 { role: "system", content: systemPrompt },
                 ...messages.map((m: any) => ({ role: m.role, content: m.content }))
@@ -104,12 +139,9 @@ Use emojis to make the conversation engaging.`;
 
     } catch (error) {
         console.error("AI API Error:", error);
-
-        // Fallback on error (try safe parsing)
-        const localResponse = generateLocalResponse("Сайн байна уу");
         return Response.json({
             role: "assistant",
-            content: localResponse + "\n\n(AI API алдаа гарсан тул offline горимд хариуллаа)"
-        });
+            content: "Уучлаарай, алдаа гарлаа. Та дахин оролдоно уу."
+        }, { status: 500 });
     }
 }

@@ -1,10 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { getAdminRole, canAccess } from "@/config/admin";
 import {
     Bot,
     Save,
@@ -14,6 +18,24 @@ import {
 } from "lucide-react";
 
 export default function AIControlPage() {
+    const router = useRouter();
+    const { data: session, status } = useSession();
+
+    // Access Control
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        const role = getAdminRole(session?.user?.email);
+        if (!canAccess(role, 'ai')) {
+            router.push('/admin');
+        }
+    }, [session, status, router]);
+
+    // Show nothing while checking access
+    const role = getAdminRole(session?.user?.email);
+    if (status !== 'loading' && !canAccess(role, 'ai')) {
+        return null;
+    }
     return (
         <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center">

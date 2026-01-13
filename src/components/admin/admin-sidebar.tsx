@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { getAdminRole, canAccess, AdminRole } from "@/config/admin";
 import {
     LayoutDashboard,
     Users,
@@ -10,9 +12,9 @@ import {
     Bot,
     Settings,
     LogOut,
-    Globe2,
+    UserCog,
     Shield,
-    Package // Added Package icon
+    Package
 } from "lucide-react";
 
 const sidebarItems = [
@@ -20,36 +22,51 @@ const sidebarItems = [
         title: "Dashboard",
         href: "/admin",
         icon: LayoutDashboard,
+        resource: null,
+    },
+    {
+        title: "Team",
+        href: "/admin/team",
+        icon: UserCog,
+        resource: 'team' as const,
     },
     {
         title: "Users",
         href: "/admin/users",
         icon: Users,
+        resource: 'users' as const,
     },
     {
         title: "Orders",
         href: "/admin/orders",
         icon: ShoppingCart,
+        resource: null,
     },
     {
-        title: "Packages", // Added Packages menu item
+        title: "Packages",
         href: "/admin/packages",
         icon: Package,
+        resource: null,
     },
     {
         title: "AI Control",
         href: "/admin/ai",
         icon: Bot,
+        resource: 'ai' as const,
     },
     {
         title: "Settings",
         href: "/admin/settings",
         icon: Settings,
+        resource: 'settings' as const,
     },
 ];
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const { data: session } = useSession();
+    const userEmail = session?.user?.email;
+    const role = getAdminRole(userEmail);
 
     return (
         <div className="flex flex-col h-full w-64 bg-slate-900 text-white border-r border-slate-800">
@@ -66,6 +83,11 @@ export function AdminSidebar() {
             {/* Navigation */}
             <div className="flex-1 py-6 px-3 space-y-1">
                 {sidebarItems.map((item) => {
+                    // Filter items based on role
+                    if (item.resource && !canAccess(role, item.resource)) {
+                        return null;
+                    }
+
                     const isActive = pathname === item.href;
                     return (
                         <Link
@@ -87,16 +109,25 @@ export function AdminSidebar() {
 
             {/* Footer / User Info */}
             <div className="p-4 border-t border-white/10">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
-                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-emerald-400" />
+                <Link href="/admin/profile">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden ring-2 ring-transparent group-hover:ring-primary/50 transition-all">
+                            {session?.user?.image ? (
+                                <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
+                            ) : (
+                                <Shield className="w-5 h-5 text-emerald-400" />
+                            )}
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-sm font-bold truncate group-hover:text-primary transition-colors">
+                                {session?.user?.name || "Admin"}
+                            </p>
+                            <p className="text-xs text-slate-500 truncate" title={userEmail || ""}>
+                                {role === 'super_admin' ? 'Super Admin' : 'Staff'}
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-bold truncate">Administrator</p>
-                        <p className="text-xs text-slate-500 truncate">admin@gatesim.com</p>
-                    </div>
-                    <LogOut className="w-4 h-4 text-slate-500 hover:text-red-400" />
-                </div>
+                </Link>
             </div>
         </div>
     );

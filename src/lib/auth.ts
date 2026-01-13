@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Email from "next-auth/providers/email";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
@@ -11,6 +12,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Google({
             clientId: process.env.AUTH_GOOGLE_ID!,
             clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+            allowDangerousEmailAccountLinking: true,
+        }),
+        // Magic Link (Email)
+        Email({
+            server: {
+                host: process.env.SMTP_HOST,
+                port: Number(process.env.SMTP_PORT),
+                auth: {
+                    user: process.env.SMTP_EMAIL,
+                    pass: process.env.SMTP_PASSWORD,
+                },
+            },
+            from: process.env.SMTP_EMAIL,
         }),
         Credentials({
             name: "credentials",
@@ -70,12 +84,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.role = (user as any).role;
             }
             return token;
         },
         async session({ session, token }) {
             if (session.user && token.id) {
                 (session.user as any).id = token.id as string;
+                (session.user as any).role = token.role;
             }
             return session;
         },

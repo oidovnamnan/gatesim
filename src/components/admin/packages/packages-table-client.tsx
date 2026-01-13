@@ -36,6 +36,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
     const [searchQuery, setSearchQuery] = useState("");
     const [providerFilter, setProviderFilter] = useState("all");
     const [regionFilter, setRegionFilter] = useState("all");
+    const [deduplicateFilter, setDeduplicateFilter] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>(null);
     const [page, setPage] = useState(1);
     const itemsPerPage = 20;
@@ -73,6 +74,19 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
             } else if (regionFilter === "single") {
                 result = result.filter(p => !p.isRegional);
             }
+        }
+
+        // 4. Deduplicate: Group by countries+data+duration, keep cheapest
+        if (deduplicateFilter) {
+            const groups = new Map<string, typeof result[0]>();
+            result.forEach(pkg => {
+                const key = `${[...pkg.countries].sort().join(',')}-${pkg.dataAmount}-${pkg.durationDays}`;
+                const existing = groups.get(key);
+                if (!existing || pkg.price < existing.price) {
+                    groups.set(key, pkg);
+                }
+            });
+            result = Array.from(groups.values());
         }
 
         // 4. Sort
@@ -117,7 +131,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
         }
 
         return result;
-    }, [products, searchQuery, providerFilter, regionFilter, sortConfig, initialUsdToMnt]);
+    }, [products, searchQuery, providerFilter, regionFilter, deduplicateFilter, sortConfig, initialUsdToMnt]);
 
     // Pagination
     const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
@@ -157,7 +171,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
 
                 <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     <Select value={providerFilter} onValueChange={(v) => { setProviderFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] bg-slate-950 border-slate-800 text-slate-200">
+                        <SelectTrigger className="w-[140px] h-10 bg-slate-950 border-slate-800 text-slate-200">
                             <SelectValue placeholder="Provider" />
                         </SelectTrigger>
                         <SelectContent>
@@ -169,7 +183,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                     </Select>
 
                     <Select value={regionFilter} onValueChange={(v) => { setRegionFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] bg-slate-950 border-slate-800 text-slate-200">
+                        <SelectTrigger className="w-[140px] h-10 bg-slate-950 border-slate-800 text-slate-200">
                             <SelectValue placeholder="Region" />
                         </SelectTrigger>
                         <SelectContent>
@@ -178,6 +192,16 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                             <SelectItem value="regional">Regional / Global</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    <Button
+                        variant={deduplicateFilter ? "default" : "outline"}
+                        onClick={() => { setDeduplicateFilter(!deduplicateFilter); setPage(1); }}
+                        className={`h-10 px-4 ${deduplicateFilter
+                            ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
+                    >
+                        Давхардалгүй
+                    </Button>
 
                     <RefreshButton />
                 </div>

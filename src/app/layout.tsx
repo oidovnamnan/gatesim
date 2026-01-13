@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { BottomNav } from "@/components/layout/bottom-nav";
-import { TopHeader } from "@/components/layout/top-header";
+import { ClientLayout } from "@/components/layout/client-layout";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { NextAuthProvider } from "@/providers/next-auth-provider";
-import { MaintenanceGuard } from "@/components/layout/maintenance-guard";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -92,19 +90,9 @@ export default function RootLayout({
           <AuthProvider>
             <ThemeProvider>
               <ToastProvider>
-                <MaintenanceGuard>
-                  {/* Desktop & Mobile Header */}
-                  <div className="relative z-50">
-                    <TopHeader />
-                  </div>
-                  <div className="app-container min-h-screen relative z-10 pb-24 md:pb-0">
-                    {children}
-                  </div>
-                  {/* Mobile Navigation */}
-                  <div className="md:hidden">
-                    <BottomNav />
-                  </div>
-                </MaintenanceGuard>
+                <ClientLayout>
+                  {children}
+                </ClientLayout>
               </ToastProvider>
             </ThemeProvider>
           </AuthProvider>

@@ -110,7 +110,7 @@ export default function AdminDashboard() {
     }, []);
 
     const formatTimeAgo = (timestamp?: { seconds: number }) => {
-        if (!timestamp) return "Unknown";
+        if (!timestamp || typeof timestamp.seconds !== 'number') return "Unknown";
         const seconds = Math.floor((Date.now() - timestamp.seconds * 1000) / 1000);
         if (seconds < 60) return `${seconds} секундын өмнө`;
         const minutes = Math.floor(seconds / 60);

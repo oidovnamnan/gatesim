@@ -11,6 +11,13 @@ datasource db {
 
 // ============ AUTHENTICATION ============
 
+// Role Enum
+enum Role {
+  USER
+  ADMIN
+  STAFF
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -18,7 +25,8 @@ model User {
   name          String?
   image         String?
   phone         String?
-  password      String? // Hashed password for email auth
+  password      String?
+  role          Role      @default(USER)
   
   // Relations
   accounts      Account[]
