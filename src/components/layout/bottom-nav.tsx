@@ -36,7 +36,7 @@ export function BottomNav() {
 
     return (
         <>
-            <div className="fixed bottom-0 left-0 right-0 z-40 px-6 pb-8 pt-4 pointer-events-none md:hidden text-center [body.ai-chat-open_&]:hidden">
+            <div className="fixed bottom-0 left-0 right-0 z-40 px-6 pb-8 pt-4 pointer-events-none md:hidden text-center [body.ai-chat-open_&]:hidden [body.modal-open_&]:hidden">
                 {/* Ultra Glass Bottom Nav */}
                 <nav className="inline-block bg-white/30 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[28px] shadow-2xl shadow-red-900/5 pointer-events-auto overflow-hidden ring-1 ring-white/20 dark:ring-white/5">
                     <div className="flex items-center justify-between px-2 py-2 relative gap-1">

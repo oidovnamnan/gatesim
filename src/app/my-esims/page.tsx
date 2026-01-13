@@ -121,6 +121,14 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
     const [copied, setCopied] = useState(false);
     const flag = getCountryFlag(order.countryCode);
 
+    // Toggle body class to hide bottom nav
+    useEffect(() => {
+        document.body.classList.add("modal-open");
+        return () => {
+            document.body.classList.remove("modal-open");
+        };
+    }, []);
+
     const handleCopy = () => {
         navigator.clipboard.writeText(order.activationCode);
         setCopied(true);
@@ -194,7 +202,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-end md:items-center justify-center p-4"
+            className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-md flex items-end md:items-center justify-center p-4"
             onClick={onClose}
         >
             <motion.div
