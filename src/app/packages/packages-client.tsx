@@ -342,7 +342,11 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <PackageCard {...pkg} className="bg-white/60 border-white/60 shadow-sm" />
+                                    <PackageCard
+                                        {...pkg}
+                                        contextualCountry={selectedCountry || undefined}
+                                        className="bg-white/60 border-white/60 shadow-sm"
+                                    />
                                 </motion.div>
                             ))}
                         </div>
@@ -357,7 +361,10 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <PackageCardCompact {...pkg} />
+                                    <PackageCardCompact
+                                        {...pkg}
+                                        contextualCountry={selectedCountry || undefined}
+                                    />
                                 </motion.div>
                             ))}
                         </div>

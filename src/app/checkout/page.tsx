@@ -4,7 +4,7 @@ import CheckoutClient from "./checkout-client";
 import { calculateSellPrice } from "@/lib/pricing-strategy";
 
 interface Props {
-    searchParams: Promise<{ package?: string }>;
+    searchParams: Promise<{ package?: string; country?: string }>;
 }
 
 function formatDataAmount(mb: number): string {
@@ -36,7 +36,7 @@ function getCountryName(code: string): string {
 }
 
 export default async function CheckoutPage({ searchParams }: Props) {
-    const { package: packageId } = await searchParams;
+    const { package: packageId, country } = await searchParams;
 
     if (!packageId) {
         redirect("/packages");
@@ -52,6 +52,11 @@ export default async function CheckoutPage({ searchParams }: Props) {
     // Price is already calculated in MNT
     const sellPrice = p.price;
 
+    const contextualCountry = country?.toUpperCase();
+    const activeCountries = contextualCountry && p.countries.includes(contextualCountry)
+        ? [contextualCountry, ...p.countries.filter(c => c !== contextualCountry)]
+        : p.countries;
+
     const pkg = {
         id: p.sku,
         title: p.name,
@@ -60,9 +65,14 @@ export default async function CheckoutPage({ searchParams }: Props) {
         validityDays: p.durationDays,
         price: sellPrice,
         currency: "MNT",
-        countries: p.countries,
-        countryName: getCountryName(p.countries[0]),
+        countries: activeCountries,
+        countryName: getCountryName(activeCountries[0]),
     };
+
+    // If it's a regional package and we have a context, update title to match
+    if (contextualCountry && p.countries.length > 1) {
+        pkg.title = `${pkg.countryName} + ${p.countries.length - 1} улс`;
+    }
 
     return <CheckoutClient pkg={pkg} />;
 }

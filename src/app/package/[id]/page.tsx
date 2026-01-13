@@ -7,10 +7,12 @@ import { calculateSellPrice } from "@/lib/pricing-strategy";
 
 interface Props {
     params: Promise<{ id: string }>;
+    searchParams: Promise<{ country?: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
     const { id } = await params;
+    const { country } = await searchParams;
     const products = await getMobiMatterProducts();
     const pkg = products.find((p) => p.sku === id);
 
@@ -20,14 +22,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const countryCode = country?.toUpperCase() || pkg.countries[0];
+
     return {
-        title: `${pkg.name} - GateSIM`,
+        title: `${pkg.name} (${countryCode}) - GateSIM`,
         description: `${pkg.dataAmount === -1 ? "Unlimited" : pkg.dataAmount + "MB"} data, ${pkg.durationDays} days validity`,
     };
 }
 
-export default async function PackagePage({ params }: Props) {
+export default async function PackagePage({ params, searchParams }: Props) {
     const { id } = await params;
+    const { country } = await searchParams;
     const products = await getMobiMatterProducts();
     const pkg = products.find((p) => p.sku === id);
 
@@ -38,6 +43,11 @@ export default async function PackagePage({ params }: Props) {
     // Price is already calculated in MNT by getMobiMatterProducts (lib/mobimatter.ts)
     // No need to recalculate or apply exchange rate again.
     const sellPrice = pkg.price;
+
+    const contextualCountry = country?.toUpperCase();
+    const activeCountries = contextualCountry && pkg.countries.includes(contextualCountry)
+        ? [contextualCountry, ...pkg.countries.filter(c => c !== contextualCountry)]
+        : pkg.countries;
 
     // Helper to get country name
     const getCountryName = (code: string) => {
@@ -73,11 +83,16 @@ export default async function PackagePage({ params }: Props) {
         }
     }
 
-    const countryName = getCountryName(pkg.countries[0]);
+    const countryName = getCountryName(activeCountries[0]);
     let title = pkg.name;
     // If title is just a country code (e.g. "AL"), use the full country name
     if (title.length === 2 && title === title.toUpperCase()) {
         title = countryName;
+    }
+
+    // Enhanced title for regional packages if we have a context
+    if (contextualCountry && pkg.countries.length > 1) {
+        title = `${countryName} + ${pkg.countries.length - 1} улс`;
     }
 
     const clientPkg = {
@@ -88,10 +103,10 @@ export default async function PackagePage({ params }: Props) {
         validityDays: pkg.durationDays,
         price: sellPrice,
         currency: "MNT",
-        countries: pkg.countries,
+        countries: activeCountries,
         countryName: countryName,
         // Ensuring all required fields for PackageClient
-        supportedCountries: pkg.countries.map(c => ({
+        supportedCountries: activeCountries.map(c => ({
             code: c,
             name: getCountryName(c)
         })),
@@ -108,7 +123,7 @@ export default async function PackagePage({ params }: Props) {
 
     return (
         <>
-            <AmbienceTrigger countryCode={pkg.countries[0]} />
+            <AmbienceTrigger countryCode={activeCountries[0]} />
             <PackageClient pkg={clientPkg} />
         </>
     );

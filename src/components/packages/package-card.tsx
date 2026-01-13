@@ -77,6 +77,7 @@ interface PackageCardProps {
     isUnlimited?: boolean;
     isPopular?: boolean;
     isFeatured?: boolean;
+    contextualCountry?: string;
     className?: string;
 }
 
@@ -92,12 +93,14 @@ export function PackageCard({
     isUnlimited = false,
     isPopular = false,
     isFeatured = false,
+    contextualCountry,
     className,
 }: PackageCardProps) {
-    const primaryCountry = countries[0];
+    const primaryCountry = contextualCountry || countries[0];
     const flag = primaryCountry ? getCountryFlag(primaryCountry) : "🌐";
 
     const bgImage = primaryCountry ? getImageForPackage(primaryCountry, id) : null;
+    const isRegional = countries.length > 1;
 
     return (
         <motion.div
@@ -105,7 +108,7 @@ export function PackageCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <Link href={`/package/${id}`} className="block group">
+            <Link href={`/package/${id}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className="block group">
                 <div
                     className={cn(
                         "relative overflow-hidden rounded-[24px] transition-all duration-300 isolate",
@@ -136,37 +139,51 @@ export function PackageCard({
                     )}
 
                     {/* Badge */}
-                    {(isPopular || isFeatured || countries.includes("CN")) && (
-                        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5">
-                            {(isPopular || isFeatured) && (
-                                <Badge
-                                    className={cn(
-                                        "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
-                                        bgImage
-                                            ? "bg-white/20 text-white border-white/20"
-                                            : "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50"
-                                    )}
-                                >
-                                    {isFeatured ? "✨ Онцлох" : "🔥 Түгээмэл"}
-                                </Badge>
-                            )}
+                    <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5">
+                        {(isPopular || isFeatured || isRegional) && (
+                            <div className="flex flex-col items-end gap-1.5">
+                                {(isPopular || isFeatured) && (
+                                    <Badge
+                                        className={cn(
+                                            "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
+                                            bgImage
+                                                ? "bg-white/20 text-white border-white/20"
+                                                : "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50"
+                                        )}
+                                    >
+                                        {isFeatured ? "✨ Онцлох" : "🔥 Түгээмэл"}
+                                    </Badge>
+                                )}
+                                {isRegional && (
+                                    <Badge
+                                        className={cn(
+                                            "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
+                                            bgImage
+                                                ? "bg-blue-500/30 text-blue-50 border-blue-500/20"
+                                                : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-900/50"
+                                        )}
+                                    >
+                                        🌍 Бүсийн багц
+                                    </Badge>
+                                )}
+                            </div>
+                        )}
 
-                            {/* Special China Badge */}
-                            {countries.includes("CN") && (
-                                <Badge
-                                    className={cn(
-                                        "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none flex items-center gap-1",
-                                        bgImage
-                                            ? "bg-emerald-500/20 text-emerald-100 border-emerald-500/20"
-                                            : "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                    )}
-                                >
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                    VPN Included
-                                </Badge>
-                            )}
-                        </div>
-                    )}
+                        {/* Special China Badge */}
+                        {countries.includes("CN") && (
+                            <Badge
+                                className={cn(
+                                    "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none flex items-center gap-1",
+                                    bgImage
+                                        ? "bg-emerald-500/20 text-emerald-100 border-emerald-500/20"
+                                        : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                )}
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                VPN Included
+                            </Badge>
+                        )}
+                    </div>
 
                     {/* Content */}
                     <div className={cn("p-5 relative z-20", bgImage ? "text-white" : "package-card-text")}>
@@ -182,7 +199,7 @@ export function PackageCard({
                                     "text-lg font-black tracking-tight leading-tight",
                                     bgImage ? "text-white" : "package-card-text"
                                 )}>
-                                    {countryName || title}
+                                    {contextualCountry && isRegional ? `${countryName} + ${countries.length - 1} улс` : (countryName || title)}
                                 </h3>
                                 <div className="flex items-center gap-2 mt-1">
                                     <p className={cn(
@@ -191,22 +208,6 @@ export function PackageCard({
                                     )}>
                                         {operatorTitle}
                                     </p>
-
-                                    {/* Mini Flags showing it's a mix */}
-                                    {countries.length > 1 && (
-                                        <div className="flex -space-x-1.5">
-                                            {countries.slice(1, 4).map(c => (
-                                                <div key={c} className="w-4 h-4 rounded-full bg-white/90 border border-white/20 flex items-center justify-center text-[8px] leading-none shadow-sm" title={c}>
-                                                    {getCountryFlag(c)}
-                                                </div>
-                                            ))}
-                                            {countries.length > 4 && (
-                                                <div className="w-4 h-4 rounded-full bg-slate-900 text-white border border-white/20 flex items-center justify-center text-[7px] font-bold leading-none shadow-sm z-10">
-                                                    +{countries.length - 4}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -265,37 +266,66 @@ export function PackageCardCompact({
     price,
     countryName,
     countries,
+    contextualCountry,
     className,
 }: PackageCardProps) {
-    const primaryCountry = countries[0];
+    const primaryCountry = contextualCountry || countries[0];
     const flag = primaryCountry ? getCountryFlag(primaryCountry) : "🌐";
+    const isRegional = countries.length > 1;
 
     return (
-        <Link href={`/package/${id}`} className={cn("block group", className)}>
+        <Link href={`/package/${id}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className={cn("block group", className)}>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all hover:bg-slate-50 hover:border-red-200/50">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-2xl border border-slate-100">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-2xl border border-slate-100 shadow-inner">
                         {flag}
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
-                            <h4 className="font-bold text-slate-900 text-sm truncate pr-2 group-hover:text-red-700 transition-colors">{countryName || title}</h4>
-                            <p className="font-black text-slate-900 text-sm">₮{price.toLocaleString()}</p>
+                            <h4 className="font-bold text-slate-900 text-sm truncate pr-2 group-hover:text-red-700 transition-colors">
+                                {contextualCountry && isRegional ? `${countryName} + ${countries.length - 1} улс` : (countryName || title)}
+                            </h4>
+                            <p className="font-black text-slate-900 text-sm whitespace-nowrap">₮{price.toLocaleString()}</p>
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-600 font-medium">
-                            <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">{data}</span>
-                            <span className="text-slate-300">•</span>
-                            <span>{validityDays} хоног</span>
+                        <div className="flex items-center justify-between mt-1">
+                            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">{data}</span>
+                                <span className="text-slate-300">•</span>
+                                <span>{validityDays} хоног</span>
 
-                            {/* VPN Badge for Compact View */}
-                            {countries.includes("CN") && (
-                                <>
-                                    <span className="text-slate-300">•</span>
-                                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 font-bold">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                        VPN Included
-                                    </span>
-                                </>
+                                {isRegional && (
+                                    <>
+                                        <span className="text-slate-300">•</span>
+                                        <span className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Regional</span>
+                                    </>
+                                )}
+
+                                {/* VPN Badge for Compact View */}
+                                {countries.includes("CN") && (
+                                    <>
+                                        <span className="text-slate-300">•</span>
+                                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 font-bold">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                            VPN Included
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Mini Flags for list view regional packages */}
+                            {isRegional && (
+                                <div className="flex -space-x-1 ml-2">
+                                    {countries.filter(c => c !== primaryCountry).slice(0, 3).map(c => (
+                                        <div key={c} className="w-4 h-4 rounded-full bg-slate-100 border border-white flex items-center justify-center text-[8px] leading-none shadow-sm" title={c}>
+                                            {getCountryFlag(c)}
+                                        </div>
+                                    ))}
+                                    {countries.length > 4 && (
+                                        <div className="w-4 h-4 rounded-full bg-slate-900 text-[white] text-[6px] font-bold flex items-center justify-center border border-white shadow-sm">
+                                            +{countries.length - 4}
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>

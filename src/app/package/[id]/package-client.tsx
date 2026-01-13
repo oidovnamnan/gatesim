@@ -51,8 +51,13 @@ export default function PackageClient({ pkg }: PackageClientProps) {
 
     const handleBuy = async () => {
         setIsLoading(true);
+        // Get current search params to persist country context
+        const searchParams = new URLSearchParams(window.location.search);
+        const country = searchParams.get("country");
+        const checkoutUrl = `/checkout?package=${pkg.id}${country ? `&country=${country}` : ""}`;
+
         // Navigate to checkout
-        router.push(`/checkout?package=${pkg.id}`);
+        router.push(checkoutUrl);
     };
 
     return (
