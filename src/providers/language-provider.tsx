@@ -167,6 +167,9 @@ const translations = {
         country_AE: "Арабын Нэгдсэн Эмират",
         country_HK: "Хонг Конг",
         country_TW: "Тайвань",
+        compatibleIphone: "iPhone XS, XR болон түүнээс дээш бүх загвар",
+        compatibleSamsung: "Galaxy S20 болон түүнээс дээш, Z Fold, Z Flip",
+        compatiblePixel: "Pixel 3 болон түүнээс дээш бүх загвар",
     },
     en: {
         home: "Home",
@@ -311,6 +314,9 @@ const translations = {
         country_AE: "United Arab Emirates",
         country_HK: "Hong Kong",
         country_TW: "Taiwan",
+        compatibleIphone: "iPhone XS, XR and all newer models",
+        compatibleSamsung: "Galaxy S20 or newer, Z Fold, Z Flip",
+        compatiblePixel: "Pixel 3 and all newer models",
     },
     cn: {
         home: "首页",
@@ -455,6 +461,9 @@ const translations = {
         country_AE: "阿联酋",
         country_HK: "香港",
         country_TW: "台湾",
+        compatibleIphone: "iPhone XS, XR 及所有更新机型",
+        compatibleSamsung: "Galaxy S20 及更新机型, Z Fold, Z Flip",
+        compatiblePixel: "Pixel 3 及所有更新机型",
     }
 };
 

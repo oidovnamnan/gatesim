@@ -283,19 +283,19 @@ export default function PackageClient({ pkg }: PackageClientProps) {
                                 <div>
                                     <p className="text-sm font-bold text-slate-900 mb-1">iPhone</p>
                                     <p className="text-xs text-slate-500">
-                                        iPhone XS, XR болон түүнээс дээш бүх загвар
+                                        {t("compatibleIphone")}
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-slate-900 mb-1">Samsung</p>
                                     <p className="text-xs text-slate-500">
-                                        Galaxy S20 болон түүнээс дээш, Z Fold, Z Flip
+                                        {t("compatibleSamsung")}
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-slate-900 mb-1">Google Pixel</p>
                                     <p className="text-xs text-slate-500">
-                                        Pixel 3 болон түүнээс дээш бүх загвар
+                                        {t("compatiblePixel")}
                                     </p>
                                 </div>
                             </div>
