@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import {
     ChevronRight,
     Train,
@@ -46,10 +47,11 @@ const categoryIcons: Record<string, string> = {
 // In real app, get from params
 // const mockCountrySlug = "japan";
 
-export default function CountryInfoPage({ params }: { params: { slug: string } }) {
+export default function CountryInfoPage() {
+    const params = useParams();
     const [activeTab, setActiveTab] = useState<"overview" | "transport" | "tips" | "phrases">("overview");
 
-    const country = countryInfoDatabase[params.slug] as CountryInfo;
+    const country = countryInfoDatabase[params.slug as string] as CountryInfo;
 
     if (!country) {
         return <div>Улс олдсонгүй</div>;

@@ -15,6 +15,7 @@ import { useToast } from "@/providers/toast-provider"; // Ensure this provider e
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/providers/language-provider";
 import { LoginForm } from "@/components/auth/login-form";
+import { NotificationManager } from "@/components/profile/notification-manager";
 
 export default function ProfilePage() {
     const { user, userData, loading, signOut } = useAuth();
@@ -93,6 +94,9 @@ export default function ProfilePage() {
                     <h2 className="text-xl font-bold text-foreground mb-1">{userData?.displayName || t("profile")}</h2>
                     <p className="text-muted-foreground text-sm">{user.email}</p>
                 </div>
+
+                {/* Notifications */}
+                <NotificationManager />
 
                 {/* Theme Toggle Button */}
                 <Card className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors" onClick={toggleMode}>
