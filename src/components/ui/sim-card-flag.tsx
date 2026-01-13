@@ -61,7 +61,7 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
         <div
             className={cn(
                 "relative overflow-hidden group/sim transition-all duration-300",
-                "shadow-xl shadow-black/30 ring-1 ring-white/20 bg-slate-100",
+                "shadow-xl shadow-black/30",
                 className
             )}
             style={{
