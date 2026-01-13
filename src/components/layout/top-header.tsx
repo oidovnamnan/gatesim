@@ -36,7 +36,7 @@ export function TopHeader() {
                 </div>
                 <div className="flex flex-col">
                     <span className="header-text font-black text-2xl tracking-tight transition-colors">
-                        Gate<span className="text-red-600">SIM</span>
+                        GateSIM
                     </span>
                     <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase -mt-1 ml-0.5 hidden md:block">
                         {t("eSimPlatform")}
