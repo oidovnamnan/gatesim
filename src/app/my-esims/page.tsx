@@ -22,11 +22,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCountryFlag, cn } from "@/lib/utils";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, documentId } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/providers/auth-provider";
 import { Order } from "@/types/db";
 import { useTranslation } from "@/providers/language-provider";
+import { useGuestOrderStore } from "@/store/guest-order-store";
 
 // Helper to format date
 const formatDate = (timestamp: number) => {
@@ -338,8 +339,115 @@ export default function MyEsimsPage() {
         if (authLoading) return;
 
         if (!user) {
-            setLoading(false);
-            return;
+            // GUEST MODE: Check for recent orders in session store
+            const recentOrderIds = useGuestOrderStore.getState().recentOrderIds;
+
+            if (recentOrderIds.length === 0) {
+                setLoading(false);
+                return;
+            }
+
+            // Fetch guest orders
+            setLoading(true);
+            const ordersRef = collection(db, "orders");
+            // Firestore 'in' query supports up to 10 items. 
+            // If user somehow has more, we slice the last 10.
+            const idsToCheck = recentOrderIds.slice(-10);
+
+            const guestQuery = query(ordersRef, where(documentId(), "in", idsToCheck));
+
+            const unsubGuest = onSnapshot(guestQuery, (snapshot) => {
+                const guestOrdersMap = new Map();
+                snapshot.docs.forEach(doc => guestOrdersMap.set(doc.id, { id: doc.id, ...doc.data() }));
+
+                // Reuse the same formatting logic (extracted ideally, but inline for now to minimize refactor risk)
+                const allOrders = Array.from(guestOrdersMap.values());
+                allOrders.sort((a: any, b: any) => b.createdAt - a.createdAt);
+
+                const formattedOrders = allOrders.map((data: any) => {
+                    const esim = data.esim || {};
+                    const pkg = data.package || (data.items && data.items[0]) || {};
+                    const metadata = pkg.metadata || {};
+                    const status = (data.status || "pending").toUpperCase();
+                    const countryName = pkg.countryName || (pkg.countries && pkg.countries[0]) || metadata.country || "Global";
+
+                    const nameToCode: Record<string, string> = {
+                        "China": "CN", "China Short Trip": "CN", "China Premium": "CN",
+                        "South Korea": "KR", "Korea": "KR",
+                        "Japan": "JP",
+                        "Thailand": "TH",
+                        "Singapore": "SG",
+                        "Vietnam": "VN",
+                        "Taiwan": "TW",
+                        "Hong Kong": "HK",
+                        "Macau": "MO",
+                        "Mongolia": "MN",
+                        "United States": "US", "USA": "US"
+                    };
+
+                    let countryCode = (pkg.countries && pkg.countries[0]) || "WO";
+
+                    if (countryCode === "WO") {
+                        if (nameToCode[countryName]) countryCode = nameToCode[countryName];
+                        else if (countryName.includes("China")) countryCode = "CN";
+                        else if (countryName.includes("Korea")) countryCode = "KR";
+                        else if (countryName.includes("Japan")) countryCode = "JP";
+
+                        if (countryCode === "WO") {
+                            const title = (pkg.name || pkg.title || "").toString();
+                            if (title.includes("China")) countryCode = "CN";
+                            else if (title.includes("Korea")) countryCode = "KR";
+                            else if (title.includes("Japan")) countryCode = "JP";
+                            else if (title.includes("Thailand")) countryCode = "TH";
+                            else if (title.includes("Singapore")) countryCode = "SG";
+                            else if (title.includes("Vietnam")) countryCode = "VN";
+                            else if (title.includes("Taiwan")) countryCode = "TW";
+                            else if (title.includes("Hong Kong")) countryCode = "HK";
+                            else if (title.includes("Macau")) countryCode = "MO";
+                            else if (title.includes("Mongolia")) countryCode = "MN";
+                            else if (title.includes("USA") || title.includes("United States")) countryCode = "US";
+                            else if (title.includes("Europe")) countryCode = "EU";
+                        }
+                    }
+
+                    const validityDays = parseInt(pkg.durationDays || metadata.validity || "30");
+                    const created = new Date(data.createdAt || Date.now());
+                    const expiresAt = new Date(created.getTime() + validityDays * 24 * 60 * 60 * 1000);
+                    const now = new Date();
+                    const daysRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+                    let dataAmountStr = "Unlimited";
+                    if (pkg.dataAmount) dataAmountStr = `${pkg.dataAmount / 1024} GB`;
+                    else if (metadata.data) dataAmountStr = metadata.data;
+
+                    return {
+                        id: data.id,
+                        orderNumber: (data.orderNumber || data.id).substring(0, 8).toUpperCase(),
+                        status: status,
+                        packageName: pkg.name || pkg.title || "Unknown Package",
+                        countryCode: countryCode,
+                        countryName: countryName,
+                        data: dataAmountStr,
+                        dataUsed: 0,
+                        validityDays: validityDays,
+                        daysRemaining: daysRemaining,
+                        price: data.totalAmount,
+                        qrImg: esim.qrData || null,
+                        activationCode: esim.lpa || "Generating...",
+                        iccid: esim.iccid || "Pending...",
+                        createdAt: formatDate(data.createdAt),
+                        raw: data
+                    };
+                });
+
+                setOrders(formattedOrders);
+                setLoading(false);
+            }, (error) => {
+                console.error("Error fetching guest orders:", error);
+                setLoading(false);
+            });
+
+            return () => unsubGuest();
         }
 
         setLoading(true);
@@ -525,7 +633,7 @@ export default function MyEsimsPage() {
             </div>
 
             <div className="container mx-auto px-4 md:px-6">
-                {!user ? (
+                {!user && displayOrders.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm mx-auto max-w-md">
                         <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6 border border-slate-100">
                             <User className="h-8 w-8 text-slate-400" />

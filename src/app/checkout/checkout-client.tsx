@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { formatPrice, getCountryFlag, cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { useTranslation } from "@/providers/language-provider";
+import { useGuestOrderStore } from "@/store/guest-order-store";
 
 type PaymentMethod = "qpay" | "stripe";
 type Step = "details" | "qr" | "processing" | "success" | "error";
@@ -219,6 +220,10 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                 isLockedRef.current = true;
 
                 setStep("processing");
+
+                // Save to guest store for immediate visibility without login
+                useGuestOrderStore.getState().addOrderId(orderId);
+
                 // Short delay before showing success
                 setTimeout(() => {
                     setStep("success");
