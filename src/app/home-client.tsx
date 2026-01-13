@@ -210,7 +210,6 @@ export default function HomeClient({ children }: HomeClientProps) {
                 </motion.div>
             </section>
 
-            <AIChat />
         </div>
     );
 }

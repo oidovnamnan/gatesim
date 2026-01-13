@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { TopHeader } from "@/components/layout/top-header";
 import { MaintenanceGuard } from "@/components/layout/maintenance-guard";
+import { AIChat } from "@/components/ai/ai-chat";
 
 interface ClientLayoutProps {
     children: React.ReactNode;
@@ -32,6 +33,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
             <div className="md:hidden">
                 <BottomNav />
             </div>
+
+            {/* Global AI Chat */}
+            <AIChat />
         </MaintenanceGuard>
     );
 }

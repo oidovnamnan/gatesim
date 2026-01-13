@@ -314,7 +314,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                             <Share className="h-4 w-4 mr-2" />
                             Найздаа илгээх
                         </Button>
-                        <Link href="https://support.apple.com/guide/iphone/set-up-an-esim-iph3dd5f213/ios" target="_blank" className="block">
+                        <Link href="?ai=install" className="block">
                             <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 py-6 rounded-2xl font-bold">
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Суулгах заавар харах

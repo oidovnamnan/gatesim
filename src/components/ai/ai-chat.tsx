@@ -21,8 +21,11 @@ import { useSession } from "next-auth/react";
 import {
     AIMessage,
     quickQuestions,
+    installationGuides,
 } from "@/lib/ai-assistant";
 import { generateLocalResponse } from "@/lib/local-ai";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 
 interface AIChatProps {
     country?: string;
@@ -30,7 +33,17 @@ interface AIChatProps {
 }
 
 export function AIChat({ country, isPremium = false }: AIChatProps) {
+    return (
+        <Suspense fallback={null}>
+            <AIChatContent country={country} isPremium={isPremium} />
+        </Suspense>
+    );
+}
+
+function AIChatContent({ country, isPremium = false }: AIChatProps) {
     const { data: session } = useSession();
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
 
     const greetingVariants = [
@@ -43,18 +56,65 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     const [messages, setMessages] = useState<AIMessage[]>([]);
     const [input, setInput] = useState("");
 
-    // Initialize with a random greeting
+    // Initialize with a random greeting and check for triggers/compatibility
     useEffect(() => {
-        const randomGreeting = greetingVariants[Math.floor(Math.random() * greetingVariants.length)];
+        // Only run once on mount
+        const hasGreeted = sessionStorage.getItem("ai_greeted");
+        if (hasGreeted) return;
+
+        const device = detectDevice();
+        const compatible = isEsimCompatible(device);
+
+        let initialMessage = greetingVariants[Math.floor(Math.random() * greetingVariants.length)];
+
+        // If incompatible, show a proactive warning
+        if (!compatible) {
+            initialMessage = `Сайн байна уу? Таны ашиглаж буй ${device} загвар нь eSIM дэмжихгүй байх магадлалтай байна. ⚠️\n\nТа багц худалдан авахаасаа өмнө "Миний утас eSIM дэмжих үү?" гэж асууж эсвэл тохиргооноосоо шалгаарай.`;
+            setIsOpen(true); // Open proactively if incompatible
+        }
+
         setMessages([
             {
                 id: "welcome",
                 role: "assistant",
-                content: randomGreeting,
+                content: initialMessage,
                 timestamp: new Date(),
             },
         ]);
+
+        sessionStorage.setItem("ai_greeted", "true");
     }, []);
+
+    // Handle URL parameters for automatic installation guide
+    useEffect(() => {
+        const action = searchParams.get("ai");
+        if (action === "install") {
+            const deviceType = detectDeviceType(); // 'iphone', 'samsung', etc.
+            const guide = (installationGuides as any)[deviceType] || installationGuides.generic;
+
+            setIsOpen(true);
+
+            // Add guide message
+            const guideMessage: AIMessage = {
+                id: `guide-${Date.now()}`,
+                role: "assistant",
+                content: guide,
+                timestamp: new Date(),
+            };
+
+            setMessages(prev => {
+                // Check if last message is already this guide to prevent duplicates
+                if (prev.length > 0 && prev[prev.length - 1].content === guide) return prev;
+                return [...prev, guideMessage];
+            });
+
+            // Clear the param without refreshing
+            const newParams = new URLSearchParams(searchParams.toString());
+            newParams.delete("ai");
+            router.replace(window.location.pathname + (newParams.toString() ? `?${newParams.toString()}` : ""), { scroll: false });
+        }
+    }, [searchParams, router]);
+
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -426,4 +486,49 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
             </AnimatePresence>
         </>
     );
+}
+// Helper functions for device detection
+function detectDevice(): string {
+    if (typeof navigator === "undefined") return "Утас";
+    const ua = navigator.userAgent;
+    if (/iPhone/i.test(ua)) return "iPhone";
+    if (/Samsung/i.test(ua)) return "Samsung";
+    if (/Huawei/i.test(ua)) return "Huawei";
+    if (/Pixel/i.test(ua)) return "Google Pixel";
+    if (/Xiaomi/i.test(ua)) return "Xiaomi";
+    return "Таны утас";
+}
+
+function detectDeviceType(): string {
+    if (typeof navigator === "undefined") return "generic";
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes("iphone") || ua.includes("ipad")) return "iphone";
+    if (ua.includes("samsung")) return "samsung";
+    if (ua.includes("pixel")) return "pixel";
+    return "generic";
+}
+
+function isEsimCompatible(device: string): boolean {
+    if (typeof navigator === "undefined") return true;
+    const ua = navigator.userAgent;
+
+    // Very basic check: iPhone 10 (X) and below don't support eSIM (except XR, XS)
+    // This is hard to do perfectly via UA, but we can catch obvious old ones
+    if (/iPhone/i.test(ua)) {
+        // iPhone OS version check or specific models if available
+        // Usually UA doesn't show specific iPhone model, just "iPhone"
+        // But we can check for older iOS versions as an indicator
+        const match = ua.match(/OS (\d+)_/);
+        if (match && parseInt(match[1]) < 12) return false;
+    }
+
+    // For now, let's be conservative and only warn on really old stuff if possible,
+    // or just assume "Samsung" might be old if it doesn't match S20+ patterns, etc.
+    // Since UA doesn't give specific models like "S9", it's tricky.
+
+    // However, for the sake of the user request "can we know", 
+    // we will mostly rely on the "detectDevice" returning a name 
+    // and provide generic compatibility advice if it's a known risky category.
+
+    return true; // Default to true unless we are certain it's old
 }

@@ -23,7 +23,6 @@ import { MobileHeader } from "@/components/layout/mobile-header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AIChat } from "@/components/ai/ai-chat";
 import { cn } from "@/lib/utils";
 import { countryInfoDatabase, CountryInfo, CountryTransport } from "@/data/country-info";
 
@@ -320,8 +319,6 @@ export default function CountryInfoPage({ params }: { params: { slug: string } }
                 )}
             </div>
 
-            {/* AI Chat */}
-            <AIChat country={country.nameMn} />
         </div>
     );
 }
