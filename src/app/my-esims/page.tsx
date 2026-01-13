@@ -534,7 +534,7 @@ export default function MyEsimsPage() {
                         <p className="text-slate-500 text-sm mb-8 px-8">
                             {t("loginRequiredDesc")}
                         </p>
-                        <Link href="/login">
+                        <Link href="/profile">
                             <Button className="bg-slate-900 hover:bg-slate-800 text-white px-8 rounded-xl shadow-lg">
                                 {t("login")}
                             </Button>

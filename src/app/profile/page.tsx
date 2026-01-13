@@ -8,12 +8,13 @@ import { MobileHeader } from "@/components/layout/mobile-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, User, Phone, Mail, Moon, Sun } from "lucide-react";
+import { LogOut, User, Phone, Mail, Moon, Sun, Loader2 } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/providers/toast-provider"; // Ensure this provider exists or use local state
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/providers/language-provider";
+import { LoginForm } from "@/components/auth/login-form";
 
 export default function ProfilePage() {
     const { user, userData, loading, signOut } = useAuth();
@@ -25,15 +26,29 @@ export default function ProfilePage() {
     const { success, error } = useToast();
 
     useEffect(() => {
-        if (!loading && !user) {
-            router.push("/");
-        }
         if (userData?.phone) {
             setPhone(userData.phone);
         }
-    }, [user, loading, router, userData]);
+    }, [userData]);
 
-    if (loading || !user) return null;
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="h-10 w-10 animate-spin text-red-600" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-background transition-colors duration-300">
+                <MobileHeader title={t("login")} showBack />
+                <div className="px-6 pt-12">
+                    <LoginForm />
+                </div>
+            </div>
+        );
+    }
 
     const handleSave = async () => {
         if (!user) return;

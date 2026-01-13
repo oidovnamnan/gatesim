@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
-import { LoginModal } from "./login-modal";
-import { Loader2, LogOut, User as UserIcon, Package } from "lucide-react";
+import { LogOut, User as UserIcon, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/providers/language-provider";
@@ -12,7 +11,6 @@ import { useTranslation } from "@/providers/language-provider";
 export function AuthButton() {
     const { user, loading, signOut } = useAuth();
     const { t } = useTranslation();
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
 
@@ -24,16 +22,13 @@ export function AuthButton() {
 
     if (!user) {
         return (
-            <>
-                <Button
-                    variant="ghost"
-                    className="text-white hover:bg-white/10"
-                    onClick={() => setIsLoginOpen(true)}
-                >
-                    {t("login")}
-                </Button>
-                <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
-            </>
+            <Button
+                variant="ghost"
+                className="text-white hover:bg-white/10"
+                onClick={() => router.push("/profile")}
+            >
+                {t("login")}
+            </Button>
         );
     }
 

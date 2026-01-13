@@ -88,13 +88,14 @@ export function TopHeader() {
                             </div>
                         </Link>
                     ) : (
-                        <Button
-                            size="sm"
-                            onClick={() => setLoginOpen(true)}
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 rounded-full px-5"
-                        >
-                            {t("login")}
-                        </Button>
+                        <Link href="/profile">
+                            <Button
+                                size="sm"
+                                className="bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 rounded-full px-5"
+                            >
+                                {t("login")}
+                            </Button>
+                        </Link>
                     )}
                 </div>
             </div>

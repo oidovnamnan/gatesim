@@ -15,7 +15,7 @@ export function BottomNav() {
     const [loginOpen, setLoginOpen] = useState(false);
 
     // Don't show on admin pages, login, or pages with fixed bottom bars
-    if (pathname?.startsWith("/admin") || pathname?.startsWith("/package/") || pathname?.startsWith("/checkout") || pathname === "/login") {
+    if (pathname?.startsWith("/admin") || pathname?.startsWith("/package/") || pathname?.startsWith("/checkout") || pathname === "/profile") {
         return null;
     }
 
@@ -30,7 +30,7 @@ export function BottomNav() {
     ];
 
     const handleProtectedNav = (e: React.MouseEvent, href: string) => {
-        if (!user && (href === "/orders" || href === "/profile")) {
+        if (!user && (href === "/orders")) {
             e.preventDefault();
             setLoginOpen(true);
         }

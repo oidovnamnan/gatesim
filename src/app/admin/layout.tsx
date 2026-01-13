@@ -8,8 +8,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     const session = await auth();
 
     if (!session?.user) {
-        // Not logged in - redirect to login
-        redirect("/login?callbackUrl=/admin");
+        // Not logged in - redirect to profile
+        redirect("/profile?callbackUrl=/admin");
     }
 
     // 🔐 AUTHORIZATION CHECK - Only admins can access
