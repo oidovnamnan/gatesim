@@ -70,14 +70,12 @@ const countryImageCollections: Record<string, string[]> = {
         "https://images.unsplash.com/photo-1499856871940-a09627c6d7db?q=80&w=2020&auto=format&fit=crop", // Paris
         "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=2066&auto=format&fit=crop", // Italy
     ],
-};
-
-// Generic Fallback Images (World/Travel/Abstract)
-GENERIC: [
-    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=2070&auto=format&fit=crop", // Travel
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop", // Adventure
-    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop", // Mountains
-]
+    // Generic Fallback Images (World/Travel/Abstract)
+    GENERIC: [
+        "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=2070&auto=format&fit=crop", // Travel
+        "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop", // Adventure
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop", // Mountains
+    ]
 };
 
 // Map similar regions to known keys
