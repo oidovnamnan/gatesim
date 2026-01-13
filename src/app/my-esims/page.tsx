@@ -127,6 +127,15 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleShare = async () => {
+        if (navigator.share) {
+            await navigator.share({
+                title: `GateSIM - ${order.countryName} eSIM`,
+                text: `eSIM суулгах код: ${order.activationCode}`,
+            });
+        }
+    };
+
     const handleDownload = () => {
         if (!order.qrImg) return;
         const link = document.createElement("a");
