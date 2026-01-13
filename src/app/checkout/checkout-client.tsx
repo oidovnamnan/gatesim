@@ -22,6 +22,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getCountryFlag, cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
+import { useTranslation } from "@/providers/language-provider";
 
 type PaymentMethod = "qpay" | "stripe";
 type Step = "details" | "qr" | "processing" | "success" | "error";
@@ -72,6 +73,7 @@ const bankLogos: Record<string, string> = {
 };
 
 export default function CheckoutClient({ pkg }: CheckoutClientProps) {
+    const { t, language } = useTranslation();
     const { user } = useAuth();
     const router = useRouter();
     const [step, setStep] = useState<Step>("details");
@@ -82,6 +84,29 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const [invoice, setInvoice] = useState<QPayInvoice | null>(null);
     const [error, setError] = useState<string>("");
     const [checkCount, setCheckCount] = useState(0);
+
+    // Dynamic translation helpers
+    const getTranslatedCountryName = (code: string, defaultName: string) => {
+        const key = `country_${code.toUpperCase()}`;
+        const translated = t(key);
+        if (translated === key) {
+            try {
+                const regionNames = new Intl.DisplayNames([language === 'mn' ? 'mn' : language], { type: 'region' });
+                return regionNames.of(code.toUpperCase()) || defaultName;
+            } catch (e) {
+                return defaultName;
+            }
+        }
+        return translated;
+    };
+
+    const countryName = getTranslatedCountryName(pkg.countries[0], pkg.countryName);
+
+    // Dynamic Title for regional packages
+    let displayTitle = pkg.title;
+    if (pkg.countries.length > 1) {
+        displayTitle = `${countryName} ${t("plusCountries").replace("{count}", (pkg.countries.length - 1).toString())}`;
+    }
 
     // Lock to prevent multiple success triggers / flickering
     const isLockedRef = useRef(false);
@@ -125,7 +150,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         operator: pkg.operatorTitle,
                         data: pkg.data,
                         validity: pkg.validityDays,
-                        country: pkg.countryName
+                        country: countryName
                     },
                     countries: pkg.countries
                 }]
@@ -139,7 +164,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
 
             if (!createOrderRes.ok) {
                 const errData = await createOrderRes.json();
-                throw new Error(errData.error || "Захиалга үүсгэхэд алдаа гарлаа");
+                throw new Error(errData.error || t("error"));
             }
 
             // 2. Create QPay invoice
@@ -150,14 +175,14 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     orderId: newOrderId,
                     amount: pkg.price,
                     currency: pkg.currency,
-                    description: `${pkg.title} - ${pkg.data} - ${pkg.validityDays} хоног`,
+                    description: `${pkg.title} - ${pkg.data} - ${pkg.validityDays} ${t("day")}`,
                 }),
             });
 
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                throw new Error(data.error || "Нэхэмжлэх үүсгэхэд алдаа гарлаа");
+                throw new Error(data.error || t("error"));
             }
 
             setInvoice({
@@ -172,7 +197,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
             setStep("qr");
         } catch (err) {
             console.error("QPay invoice error:", err);
-            setError(err instanceof Error ? err.message : "Алдаа гарлаа");
+            setError(err instanceof Error ? err.message : t("error"));
             setStep("error");
         } finally {
             setIsLoading(false);
@@ -246,11 +271,11 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                     <span className="text-3xl">❌</span>
                 </div>
-                <h1 className="text-xl font-bold text-slate-900 mb-2">Алдаа гарлаа</h1>
+                <h1 className="text-xl font-bold text-slate-900 mb-2">{t("error")}</h1>
                 <p className="text-slate-500 mb-6 max-w-xs">{error}</p>
                 <Button onClick={() => setStep("details")} variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Буцах
+                    {t("back")}
                 </Button>
             </div>
         );
@@ -264,9 +289,9 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full" />
                     <Loader2 className="h-12 w-12 text-green-600 animate-spin relative z-10" />
                 </div>
-                <h2 className="text-slate-900 font-bold text-xl mt-6">Төлбөр амжилттай!</h2>
+                <h2 className="text-slate-900 font-bold text-xl mt-6">{t("paymentSuccess")}</h2>
                 <p className="text-slate-500 text-sm mt-2 text-center max-w-xs">
-                    eSIM-ийг бэлтгэж байна...
+                    {t("preparingEsim")}
                 </p>
             </div>
         );
@@ -285,20 +310,20 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         <Check className="h-10 w-10 text-white" />
                     </motion.div>
 
-                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Амжилттай!</h1>
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2">{t("success")}!</h1>
                     <p className="text-slate-500 mb-8 max-w-xs">
-                        Таны захиалга баталгаажлаа. Имэйлээ шалгана уу.
+                        {t("orderConfirmed")}
                     </p>
 
                     <Card className="w-full max-w-sm bg-white border-slate-200 p-4 mb-6 shadow-sm">
                         <div className="flex justify-between items-center text-sm mb-2">
-                            <span className="text-slate-500">Захиалгын дугаар</span>
+                            <span className="text-slate-500">{t("orderNumber")}</span>
                             <span className="font-mono text-slate-900 font-bold select-all">
                                 {orderId.slice(0, 12).toUpperCase()}
                             </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-slate-500">Имэйл</span>
+                            <span className="text-slate-500">{t("email")}</span>
                             <span className="text-slate-900 font-medium">{email}</span>
                         </div>
                     </Card>
@@ -310,7 +335,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         onClick={() => router.push("/my-esims")}
                     >
                         <QrCode className="h-4 w-4 mr-2" />
-                        Миний eSIM-үүд
+                        {t("myEsims")}
                     </Button>
 
                     <Button
@@ -318,7 +343,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         onClick={() => router.push("/")}
                         className="text-slate-500 hover:text-slate-900"
                     >
-                        Нүүр хуудас руу буцах
+                        {t("backToHome")}
                     </Button>
                 </div>
             </div>
@@ -337,14 +362,14 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     >
                         <ArrowLeft className="w-5 h-5 text-slate-700" />
                     </button>
-                    <h1 className="font-bold text-lg text-slate-900">QPay төлбөр</h1>
+                    <h1 className="font-bold text-lg text-slate-900">QPay {t("success")}</h1>
                 </div>
 
                 <div className="p-4 space-y-4 max-w-lg mx-auto">
                     {/* Amount */}
                     <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
                         <div className="text-center">
-                            <p className="text-sm text-slate-600 mb-1">Төлөх дүн</p>
+                            <p className="text-sm text-slate-600 mb-1">{t("totalAmount")}</p>
                             <p className="text-3xl font-bold text-blue-600">
                                 ₮{invoice.amountMNT.toLocaleString()}
                             </p>
@@ -357,7 +382,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         <div className="flex flex-col items-center">
                             <p className="text-sm text-slate-600 mb-4 flex items-center gap-2">
                                 <QrCode className="w-4 h-4" />
-                                QR код уншуулах
+                                {t("qrScanInstructions")}
                             </p>
 
                             {invoice.qrImage ? (
@@ -380,7 +405,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
 
                             <div className="flex items-center gap-2 mt-4 text-xs text-slate-500">
                                 <RefreshCw className={cn("w-3 h-3", checkCount > 0 && "animate-spin")} />
-                                Төлбөр хүлээж байна... ({checkCount})
+                                {t("waitingPayment")} ({checkCount})
                             </div>
                         </div>
                     </Card>
@@ -390,7 +415,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         <div className="space-y-2">
                             <p className="text-sm font-medium text-slate-700 flex items-center gap-2">
                                 <Smartphone className="w-4 h-4" />
-                                Банкны аппаар төлөх
+                                {t("bankAppPay")}
                             </p>
                             <div className="grid grid-cols-3 gap-2">
                                 {invoice.deeplinks.slice(0, 9).map((bank, index) => (
@@ -433,7 +458,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         className="mt-4"
                     >
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Төлбөр шалгах
+                        {t("checkPayment")}
                     </Button>
                 </div>
             </div>
@@ -448,7 +473,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                 <button onClick={() => router.back()} className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors">
                     <ArrowLeft className="w-5 h-5 text-slate-700" />
                 </button>
-                <h1 className="font-bold text-lg text-slate-900">Захиалга баталгаажуулах</h1>
+                <h1 className="font-bold text-lg text-slate-900">{t("checkoutTitle")}</h1>
             </div>
 
             <div className="p-4 space-y-6 max-w-lg mx-auto pt-6">
@@ -459,14 +484,14 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             <div className="flex items-center gap-3 mb-1">
                                 <span className="text-3xl drop-shadow-sm">{flag}</span>
                                 <div>
-                                    <h3 className="font-bold text-slate-900 text-lg leading-tight">{pkg.title}</h3>
+                                    <h3 className="font-bold text-slate-900 text-lg leading-tight">{displayTitle}</h3>
                                     <p className="text-xs text-slate-500 font-medium">{pkg.operatorTitle}</p>
                                 </div>
                             </div>
                             <div className="flex gap-2 text-xs text-slate-500 mt-2 bg-slate-50 inline-flex px-2 py-1 rounded-md border border-slate-100">
                                 <span className="font-medium text-slate-700">{pkg.data}</span>
                                 <span className="text-slate-300">•</span>
-                                <span className="font-medium text-slate-700">{pkg.validityDays} хоног</span>
+                                <span className="font-medium text-slate-700">{pkg.validityDays} {t("day")}</span>
                             </div>
                         </div>
                         <div className="text-right">
@@ -477,7 +502,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
 
                 {/* Email Input */}
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Хүлээн авах имэйл</label>
+                    <label className="text-sm font-bold text-slate-700 ml-1">{t("receiveEmail")}</label>
                     <Input
                         icon={Mail}
                         type="email"
@@ -492,19 +517,19 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     />
                     {email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? (
                         <p className="text-xs text-red-500 ml-1 flex items-center gap-1 font-medium">
-                            Буруу форматтай имэйл байна
+                            {t("invalidEmail")}
                         </p>
                     ) : (
                         <p className="text-xs text-slate-400 ml-1 flex items-center gap-1">
                             <Shield className="w-3 h-3" />
-                            QR код энэ хаягаар илгээгдэнэ
+                            {t("emailNote")}
                         </p>
                     )}
                 </div>
 
                 {/* Payment Method */}
                 <div className="space-y-3">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Төлбөрийн хэлбэр</label>
+                    <label className="text-sm font-bold text-slate-700 ml-1">{t("paymentMethod")}</label>
 
                     <div
                         onClick={() => setPaymentMethod("qpay")}
@@ -521,7 +546,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             </div>
                             <div>
                                 <div className="font-bold text-slate-900">QPay</div>
-                                <div className="text-xs text-slate-500">Банкны аппаар төлөх</div>
+                                <div className="text-xs text-slate-500">{t("qpayDesc")}</div>
                             </div>
                         </div>
                         {paymentMethod === "qpay" && <div className="w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />}
@@ -539,7 +564,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             <div>
                                 <div className="font-bold text-slate-500 flex items-center gap-2">
                                     Stripe / Card
-                                    <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full font-bold">Тун удахгүй</span>
+                                    <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full font-bold">{t("comingSoon")}</span>
                                 </div>
                                 <div className="text-xs text-slate-400">Олон улсын карт</div>
                             </div>
@@ -551,7 +576,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-lg border-t border-slate-200 z-20">
                     <div className="max-w-lg mx-auto">
                         <div className="flex items-center justify-between mb-3">
-                            <span className="text-slate-500 font-medium text-sm">Нийт төлөх</span>
+                            <span className="text-slate-500 font-medium text-sm">{t("totalAmount")}</span>
                             <span className="text-xl font-extrabold text-slate-900">{displayPrice}</span>
                         </div>
                         <Button
@@ -569,11 +594,11 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             {isLoading ? (
                                 <>
                                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    Уншиж байна...
+                                    {t("loading")}
                                 </>
                             ) : (
                                 <>
-                                    Төлбөр төлөх
+                                    {t("payNow")}
                                     <ChevronRight className="w-5 h-5 ml-1" />
                                 </>
                             )}

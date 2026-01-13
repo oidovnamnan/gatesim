@@ -26,6 +26,7 @@ import { collection, query, where, orderBy, onSnapshot } from "firebase/firestor
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/providers/auth-provider";
 import { Order } from "@/types/db";
+import { useTranslation } from "@/providers/language-provider";
 
 // Helper to format date
 const formatDate = (timestamp: number) => {
@@ -40,6 +41,7 @@ interface EsimCardProps {
 }
 
 function EsimCard({ order, onSelect }: EsimCardProps) {
+    const { t } = useTranslation();
     const flag = getCountryFlag(order.countryCode);
     const isActive = order.status === "COMPLETED" && order.daysRemaining > 0;
     const isProcessing = order.status === "PAID" || order.status === "PROVISIONING";
@@ -69,7 +71,7 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                                             "bg-slate-100 text-slate-500 border-slate-200"
                                 )}
                             >
-                                {isActive ? "Идэвхтэй" : isProcessing ? "Хүлээж байна" : "Дууссан"}
+                                {isActive ? t("statusActive") : isProcessing ? t("statusPending") : t("statusCompleted")}
                             </Badge>
                         </div>
                         <p className="text-sm text-slate-500 font-medium">{order.packageName}</p>
@@ -85,7 +87,7 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                             return (
                                 <>
                                     <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
-                                        <span>Дата ашиглалт</span>
+                                        <span>{t("dataUsage")}</span>
                                         <span className="text-slate-900">{order.dataUsed} GB <span className="text-slate-400 font-normal">/ {order.data}</span></span>
                                     </div>
                                     <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
@@ -102,7 +104,7 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                         <div className="flex items-center gap-2 text-sm bg-amber-50 text-amber-900/80 px-3 py-2 rounded-xl border border-amber-100/50">
                             <Clock className="h-4 w-4 text-amber-500" />
                             <span className="font-medium">
-                                {order.daysRemaining} хоног үлдсэн
+                                {t("daysRemaining").replace("{count}", order.daysRemaining.toString())}
                             </span>
                         </div>
                     </div>
@@ -118,6 +120,7 @@ interface EsimDetailModalProps {
 }
 
 function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
+    const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const flag = getCountryFlag(order.countryCode);
 
@@ -136,12 +139,10 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
     };
 
     const handleShare = async () => {
-        const shareText = `🌍 GateSIM eSIM: ${order.countryName}\n📦 Багц: ${order.packageName}\n🔑 LPA Код: ${order.activationCode}\n🆔 ICCID: ${order.iccid}\n📖 Суулгах заавар: https://support.apple.com/guide/iphone/set-up-an-esim-iph3dd5f213/ios`;
+        const shareText = `🌍 GateSIM eSIM: ${order.countryName}\n📦 ${t("packages")}: ${order.packageName}\n🔑 LPA: ${order.activationCode}\n🆔 ICCID: ${order.iccid}\n📖 ${t("installationGuide")}: https://gatesim.mn/my-esims?ai=install`;
 
         try {
-            // Check if we can share files
             if (navigator.share && order.qrImg) {
-                // Manually convert base64 to Blob to avoid CSP fetch restriction
                 const base64Content = order.qrImg.split(',')[1];
                 const mimeType = order.qrImg.split(',')[0].split(':')[1].split(';')[0];
                 const byteCharacters = atob(base64Content);
@@ -170,14 +171,12 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                 }
             }
 
-            // Fallback for text only sharing if files not supported
             if (navigator.share) {
                 await navigator.share({
                     title: `GateSIM - ${order.countryName} eSIM`,
                     text: shareText
                 });
             } else {
-                // Clipboard fallback
                 await navigator.clipboard.writeText(shareText);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
@@ -215,7 +214,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
             >
                 {/* Header */}
                 <div className="bg-slate-50 px-6 py-4 flex items-center justify-between border-b border-slate-100">
-                    <h3 className="font-bold text-slate-900">eSIM Дэлгэрэнгүй</h3>
+                    <h3 className="font-bold text-slate-900">{t("esimDetails")}</h3>
                     <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-slate-200">
                         <X className="w-5 h-5 text-slate-500" />
                     </Button>
@@ -236,7 +235,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                     {/* QR Code */}
                     <div className="bg-slate-50 rounded-2xl p-6 mb-6 border border-slate-100 flex flex-col items-center text-center relative group">
                         <p className="text-slate-500 text-sm font-medium mb-4">
-                            Доорх QR кодыг уншуулж eSIM-ээ идэвхжүүлээрэй
+                            {t("qrScanInstructions")}
                         </p>
                         <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4 relative overflow-hidden">
                             {order.qrImg ? (
@@ -246,7 +245,6 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                                         alt="eSIM QR Code"
                                         className="w-48 h-48 object-contain"
                                     />
-                                    {/* Overlay Download Button for Desktop Hover */}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hidden md:flex">
                                         <Button
                                             size="sm"
@@ -254,7 +252,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                                             onClick={handleDownload}
                                         >
                                             <Download className="w-4 h-4 mr-2" />
-                                            Татах
+                                            {t("download")}
                                         </Button>
                                     </div>
                                 </>
@@ -273,18 +271,18 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                                 className="mb-4 md:hidden border-blue-200 text-blue-600 hover:bg-blue-50 bg-white rounded-full px-6 font-bold"
                             >
                                 <Download className="w-4 h-4 mr-2" />
-                                QR татах (Зураг)
+                                {t("downloadQr")}
                             </Button>
                         )}
 
                         <p className="text-xs text-slate-400">
-                            Код зөвхөн нэг удаа уншигдана
+                            {t("qrOneTime")}
                         </p>
                     </div>
 
                     {/* Manual entry code */}
                     <div className="mb-6">
-                        <p className="text-xs font-bold text-slate-900 uppercase mb-2 ml-1">Гараар оруулах код</p>
+                        <p className="text-xs font-bold text-slate-900 uppercase mb-2 ml-1">{t("manualEntry")}</p>
                         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center gap-3">
                             <code className="flex-1 font-mono text-sm text-slate-700 truncate select-all">
                                 {order.activationCode}
@@ -302,7 +300,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
 
                     {/* ICCID */}
                     <div className="mb-8">
-                        <p className="text-xs font-bold text-slate-900 uppercase mb-2 ml-1">ICCID (Сериал дугаар)</p>
+                        <p className="text-xs font-bold text-slate-900 uppercase mb-2 ml-1">{t("iccid")}</p>
                         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                             <code className="text-sm font-mono text-slate-600 tracking-wide">{order.iccid}</code>
                         </div>
@@ -312,12 +310,12 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                     <div className="space-y-3">
                         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 py-6 rounded-2xl font-bold" onClick={handleShare}>
                             <Share className="h-4 w-4 mr-2" />
-                            Найздаа илгээх
+                            {t("sendToFriend")}
                         </Button>
                         <Link href="?ai=install" className="block">
                             <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 py-6 rounded-2xl font-bold">
                                 <ExternalLink className="h-4 w-4 mr-2" />
-                                Суулгах заавар харах
+                                {t("installationGuide")}
                             </Button>
                         </Link>
                     </div>
@@ -328,6 +326,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
 }
 
 export default function MyEsimsPage() {
+    const { t } = useTranslation();
     const { user, loading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState<TabType>("active");
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -353,27 +352,19 @@ export default function MyEsimsPage() {
 
         const updateOrders = () => {
             const allOrders = [...userOrdersMap.values(), ...emailOrdersMap.values()];
-            // Deduplicate by ID
             const uniqueOrdersMap = new Map();
             allOrders.forEach(o => uniqueOrdersMap.set(o.id, o));
 
             const uniqueOrders = Array.from(uniqueOrdersMap.values());
-
-            // Sort by createdAt desc
             uniqueOrders.sort((a: any, b: any) => b.createdAt - a.createdAt);
 
             const formattedOrders = uniqueOrders.map((data: any) => {
                 const esim = data.esim || {};
                 const pkg = data.package || (data.items && data.items[0]) || {};
                 const metadata = pkg.metadata || {};
-
-                // Normalize status
                 const status = (data.status || "pending").toUpperCase();
-
-                // Determine Country Name & Code
-                // Fallback priorities: pkg.countryName -> pkg.countries[0] -> metadata.country -> "Global"
                 const countryName = pkg.countryName || (pkg.countries && pkg.countries[0]) || metadata.country || "Global";
-                // Country Name to Code Mapping (Fallback for legacy orders)
+
                 const nameToCode: Record<string, string> = {
                     "China": "CN", "China Short Trip": "CN", "China Premium": "CN",
                     "South Korea": "KR", "Korea": "KR",
@@ -390,15 +381,12 @@ export default function MyEsimsPage() {
 
                 let countryCode = (pkg.countries && pkg.countries[0]) || "WO";
 
-                // If code is generic/unknown, try to infer from metadata or name
                 if (countryCode === "WO") {
-                    // 1. Try Country Name
                     if (nameToCode[countryName]) countryCode = nameToCode[countryName];
                     else if (countryName.includes("China")) countryCode = "CN";
                     else if (countryName.includes("Korea")) countryCode = "KR";
                     else if (countryName.includes("Japan")) countryCode = "JP";
 
-                    // 2. If still unknown, try Package Title
                     if (countryCode === "WO") {
                         const title = (pkg.name || pkg.title || "").toString();
                         if (title.includes("China")) countryCode = "CN";
@@ -416,14 +404,12 @@ export default function MyEsimsPage() {
                     }
                 }
 
-                // Validity Calculation
                 const validityDays = parseInt(pkg.durationDays || metadata.validity || "30");
                 const created = new Date(data.createdAt || Date.now());
                 const expiresAt = new Date(created.getTime() + validityDays * 24 * 60 * 60 * 1000);
                 const now = new Date();
                 const daysRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
 
-                // Data Formatting
                 let dataAmountStr = "Unlimited";
                 if (pkg.dataAmount) dataAmountStr = `${pkg.dataAmount / 1024} GB`;
                 else if (metadata.data) dataAmountStr = metadata.data;
@@ -436,12 +422,12 @@ export default function MyEsimsPage() {
                     countryCode: countryCode,
                     countryName: countryName,
                     data: dataAmountStr,
-                    dataUsed: 0, // Mock usage for now
+                    dataUsed: 0,
                     validityDays: validityDays,
                     daysRemaining: daysRemaining,
                     price: data.totalAmount,
-                    qrImg: esim.qrData || null, // Base64 Image
-                    activationCode: esim.lpa || "Generating...", // LPA String
+                    qrImg: esim.qrData || null,
+                    activationCode: esim.lpa || "Generating...",
                     iccid: esim.iccid || "Pending...",
                     createdAt: formatDate(data.createdAt),
                     raw: data
@@ -452,7 +438,6 @@ export default function MyEsimsPage() {
             setLoading(false);
         };
 
-        // Listener 1: By User ID
         const userQuery = query(ordersRef, where("userId", "==", user.uid), orderBy("createdAt", "desc"));
         unsubUser = onSnapshot(userQuery, (snapshot) => {
             userOrdersMap.clear();
@@ -463,18 +448,14 @@ export default function MyEsimsPage() {
             setLoading(false);
         });
 
-        // Listener 2: By Email (if available)
         if (user.email) {
-            // Note: Simple query without orderBy to avoid index requirement for now
             const emailQuery = query(ordersRef, where("contactEmail", "==", user.email));
-
             unsubEmail = onSnapshot(emailQuery, (snapshot) => {
                 emailOrdersMap.clear();
                 snapshot.docs.forEach(doc => emailOrdersMap.set(doc.id, { id: doc.id, ...doc.data() }));
                 updateOrders();
             }, (error) => {
                 console.error("Error fetching email orders:", error);
-                // Don't stop loading here, user orders might still come
             });
         }
 
@@ -489,8 +470,6 @@ export default function MyEsimsPage() {
             const isCompleted = o.status === "COMPLETED";
             const isProcessing = o.status === "PAID" || o.status === "PROVISIONING";
             const isNotExpired = o.daysRemaining > 0;
-
-            // Active if: (Completed AND Not Expired) OR Processing
             return (isCompleted && isNotExpired) || isProcessing;
         }
     );
@@ -500,8 +479,6 @@ export default function MyEsimsPage() {
             const isCompleted = o.status === "COMPLETED";
             const isExpired = o.daysRemaining <= 0;
             const isOther = o.status !== "COMPLETED" && o.status !== "PAID" && o.status !== "PROVISIONING";
-
-            // History if: (Completed AND Expired) OR Failed/Cancelled/Pending
             return (isCompleted && isExpired) || isOther;
         }
     );
@@ -511,20 +488,14 @@ export default function MyEsimsPage() {
     return (
         <div className="min-h-screen bg-background pb-24 md:pt-28">
             <div className="md:hidden">
-                <MobileHeader title="Миний eSIM" />
+                <MobileHeader title={t("myEsims")} />
             </div>
 
-            {/* Desktop Header */}
             <div className="hidden md:block container mx-auto px-6 mb-8 pt-8">
-                <h1 className="text-3xl font-black text-slate-900">Миний eSIM</h1>
-                <p className="text-slate-500 mt-2">Худалдаж авсан багцуудаа эндээс удирдаарай</p>
-                {/* Temporary Debug Info */}
-                <p className="text-xs text-slate-400 mt-1 font-mono">
-                    User: {user?.email || "Not logged in"} | ID: {user?.uid}
-                </p>
+                <h1 className="text-3xl font-black text-slate-900">{t("myEsimsHeroTitle")}</h1>
+                <p className="text-slate-500 mt-2">{t("myEsimsHeroDesc")}</p>
             </div>
 
-            {/* Tabs */}
             <div className="container mx-auto px-4 md:px-6 mb-6">
                 <div className="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 inline-flex w-full md:w-auto">
                     <button
@@ -536,7 +507,7 @@ export default function MyEsimsPage() {
                                 : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                         )}
                     >
-                        Идэвхтэй ({activeOrders.length})
+                        {t("active")} ({activeOrders.length})
                     </button>
                     <button
                         onClick={() => setActiveTab("history")}
@@ -547,25 +518,24 @@ export default function MyEsimsPage() {
                                 : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                         )}
                     >
-                        Түүх ({historyOrders.length})
+                        {t("history")} ({historyOrders.length})
                     </button>
                 </div>
             </div>
 
-            {/* Content */}
             <div className="container mx-auto px-4 md:px-6">
                 {!user ? (
                     <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm mx-auto max-w-md">
                         <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6 border border-slate-100">
                             <User className="h-8 w-8 text-slate-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">Нэвтрэх шаардлагатай</h3>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">{t("loginRequired")}</h3>
                         <p className="text-slate-500 text-sm mb-8 px-8">
-                            Та өөрийн захиалгуудыг харахын тулд системд нэвтэрч орно уу.
+                            {t("loginRequiredDesc")}
                         </p>
                         <Link href="/login">
                             <Button className="bg-slate-900 hover:bg-slate-800 text-white px-8 rounded-xl shadow-lg">
-                                Нэвтрэх
+                                {t("login")}
                             </Button>
                         </Link>
                     </div>
@@ -586,25 +556,24 @@ export default function MyEsimsPage() {
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 mb-2">
                             {activeTab === "active"
-                                ? "Идэвхтэй eSIM алга"
-                                : "Түүх хоосон байна"}
+                                ? t("noActiveEsims")
+                                : t("noHistory")}
                         </h3>
                         <p className="text-slate-500 text-sm mb-8 px-8">
                             {activeTab === "active"
-                                ? "Дэлхийн хаана ч холбогдох боломжтой eSIM багцаа сонгоод аялалаа эхлүүлээрэй."
-                                : "Таны худалдан авалтын түүх энд харагдах болно."}
+                                ? t("noActiveEsimsDesc")
+                                : t("noHistoryDesc")}
                         </p>
                         <Link href="/packages">
                             <Button className="bg-red-600 hover:bg-red-700 text-white px-8 rounded-xl shadow-lg shadow-red-600/20">
                                 <Plus className="h-4 w-4 mr-2" />
-                                Багц сонгох
+                                {t("selectPackage")}
                             </Button>
                         </Link>
                     </div>
                 )}
             </div>
 
-            {/* Detail Modal */}
             <AnimatePresence>
                 {selectedOrder && (
                     <EsimDetailModal

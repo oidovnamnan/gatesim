@@ -10,6 +10,7 @@ import { AIChat } from "@/components/ai/ai-chat";
 import { popularCountries } from "@/config/site";
 import { Globe } from "@/components/ui/globe";
 import { ReactNode } from "react";
+import { useTranslation } from "@/providers/language-provider";
 
 interface HomeClientProps {
     children?: ReactNode; // Used for injecting Featured Packages (Server Component)
@@ -44,6 +45,8 @@ const countryThemes: Record<string, {
 };
 
 export default function HomeClient({ children }: HomeClientProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="min-h-screen pb-32 md:pb-8 overflow-x-hidden font-sans relative">
             {/* TopHeader in layout */}
@@ -67,13 +70,13 @@ export default function HomeClient({ children }: HomeClientProps) {
                     <div className="w-full md:w-1/2 md:pr-12">
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-left relative z-20">
                             <h1 className="hero-text-title text-3xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-2 md:mb-6">
-                                Your Gateway to <br />
+                                {t("homeHeroTitle")} <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">
-                                    Global Connection
+                                    {t("homeHeroSubtitle")}
                                 </span>
                             </h1>
                             <p className="hero-text-desc text-sm md:text-xl font-bold max-w-md leading-relaxed opacity-90">
-                                Дэлхийн 200+ улсад хамгийн хямд үнээр <br className="hidden md:block" />интернэтэд холбогдоорой.
+                                {t("homeHeroDesc")}
                             </p>
                         </motion.div>
 
@@ -84,7 +87,7 @@ export default function HomeClient({ children }: HomeClientProps) {
                                     <div className="relative z-10 w-7 h-7 rounded-full border border-red-400/30 flex items-center justify-center flex-shrink-0 bg-red-50/30 shadow-inner">
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
                                     </div>
-                                    <div className="relative z-10 flex-1 ml-3 header-text text-sm font-medium group-hover:text-red-600 transition-colors">Таны очих газар...</div>
+                                    <div className="relative z-10 flex-1 ml-3 header-text text-sm font-medium group-hover:text-red-600 transition-colors">{t("homeSearchPlaceholder")}</div>
                                     <div className="relative z-10 bg-white/20 p-2 rounded-xl shadow-sm border border-white/30 backdrop-blur-sm">
                                         <Search className="h-5 w-5 header-icon" />
                                     </div>
@@ -96,11 +99,11 @@ export default function HomeClient({ children }: HomeClientProps) {
                             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-b from-red-600/90 to-red-700/90 backdrop-blur-md text-white shadow-lg shadow-red-600/20 cursor-pointer active:scale-95 border border-white/20 relative overflow-hidden transition-transform">
                                 <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none"></div>
                                 <span className="w-1.5 h-1.5 rounded-full bg-white shadow-sm relative z-10" />
-                                <span className="text-xs font-bold relative z-10">7 хоног</span>
+                                <span className="text-xs font-bold relative z-10">{t("homeDuration7")}</span>
                             </div>
                             <div className="hero-btn-15 flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border border-slate-200 dark:border-white/20 font-bold cursor-pointer hover:bg-white dark:hover:bg-white/20 transition active:scale-95 shadow-sm">
                                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
-                                <span className="text-xs">15 хоног</span>
+                                <span className="text-xs">{t("homeDuration15")}</span>
                             </div>
                         </motion.div>
                     </div>
@@ -140,7 +143,7 @@ export default function HomeClient({ children }: HomeClientProps) {
 
                                     {/* Call to Action */}
                                     <div className="country-card-btn flex items-center gap-1.5 text-xs font-bold mt-auto px-3 py-1.5 rounded-full transition-colors">
-                                        <span>Багцуудыг үзэх</span>
+                                        <span>{t("viewPackages")}</span>
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M5 12h14M12 5l7 7-7 7" />
                                         </svg>
@@ -158,7 +161,7 @@ export default function HomeClient({ children }: HomeClientProps) {
                     <div className="bg-red-50/50 backdrop-blur-sm p-2.5 rounded-2xl shadow-sm border border-red-100/50">
                         <Sparkles className="w-5 h-5 text-red-600 fill-red-500" />
                     </div>
-                    <h2 className="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight drop-shadow-sm">Онцлох багцууд</h2>
+                    <h2 className="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight drop-shadow-sm">{t("homeFeaturedTitle")}</h2>
                 </div>
 
                 {children}
@@ -187,22 +190,22 @@ export default function HomeClient({ children }: HomeClientProps) {
                         {/* Content */}
                         <div className="flex-1 text-center md:text-left">
                             <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">
-                                Аяллын Ухаалаг Туслах 🤖
+                                {t("homeAiAssistantTitle")}
                             </h2>
                             <p className="text-slate-600 dark:text-gray-200 text-sm md:text-base leading-relaxed mb-6 font-medium max-w-xl mx-auto md:mx-0">
-                                Хаашаа явахаа хэлээд л, танд хамгийн тохиромжтой багцыг санал болгоно.
+                                {t("homeAiAssistantDesc")}
                                 <br className="hidden md:block" />
-                                <span className="text-slate-500 dark:text-slate-400 font-normal">"Япон руу 2 долоо хоног" гэхэд л болно!</span>
+                                <span className="text-slate-500 dark:text-slate-400 font-normal">{t("homeAiAssistantExample")}</span>
                             </p>
                             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                                 <span className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/50 dark:border-white/10 text-slate-800 dark:text-white text-xs font-bold backdrop-blur-md shadow-sm">
-                                    💬 Монгол хэлээр
+                                    {t("homeAiFeature1")}
                                 </span>
                                 <span className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/50 dark:border-white/10 text-slate-800 dark:text-white text-xs font-bold backdrop-blur-md shadow-sm">
-                                    ⚡ Шуурхай хариу
+                                    {t("homeAiFeature2")}
                                 </span>
                                 <span className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/50 dark:border-white/10 text-slate-800 dark:text-white text-xs font-bold backdrop-blur-md shadow-sm">
-                                    🎯 Хувийн зөвлөгөө
+                                    {t("homeAiFeature3")}
                                 </span>
                             </div>
                         </div>

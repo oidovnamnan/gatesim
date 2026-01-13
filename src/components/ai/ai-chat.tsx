@@ -26,6 +26,7 @@ import {
 import { generateLocalResponse } from "@/lib/local-ai";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { useTranslation } from "@/providers/language-provider";
 
 interface AIChatProps {
     country?: string;
@@ -44,13 +45,14 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
     const { data: session } = useSession();
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { t, language } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
 
     const greetingVariants = [
-        "Сайн байна уу? Та хаашаа, хэд хоног аялах вэ? 🌍✈️",
-        "Сайн байна уу? Танд аялалдаа тохирох eSIM багц хайхад туслах уу? 🗺️✨",
-        "Сайн уу? Дараагийн аялал хаашаа вэ? Би танд хамгийн хямд багцыг олоод өгье. 🚀",
-        "Сайн байна уу? Та аялах улсаа хэлбэл би танд хамгийн тохиромжтой багцуудыг харуулъя. 💡"
+        t("aiGreeting1"),
+        t("aiGreeting2"),
+        t("aiGreeting3"),
+        t("aiGreeting4")
     ];
 
     const [messages, setMessages] = useState<AIMessage[]>([]);
@@ -69,7 +71,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
 
         // If incompatible, show a proactive warning
         if (!compatible) {
-            initialMessage = `Сайн байна уу? Таны ашиглаж буй ${device} загвар нь eSIM дэмжихгүй байх магадлалтай байна. ⚠️\n\nТа багц худалдан авахаасаа өмнө "Миний утас eSIM дэмжих үү?" гэж асууж эсвэл тохиргооноосоо шалгаарай.`;
+            initialMessage = t("aiCompatibilityWarning").replace("{device}", device);
             setIsOpen(true); // Open proactively if incompatible
         }
 
@@ -164,6 +166,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                 body: JSON.stringify({
                     messages: apiMessages,
                     country: country,
+                    language: language,
                 })
             });
 
@@ -172,7 +175,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             if (!res.ok) {
                 // Handle specific errors potentially
                 console.error('API request failed');
-                responseText = "Уучлаарай, системд алдаа гарлаа. Та дахин оролдоно уу.";
+                responseText = t("error");
             } else {
                 const data = await res.json();
                 responseText = data.content;
@@ -232,7 +235,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
             const errorMessage: AIMessage = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: fallbackResponse || "Уучлаарай, одоогоор хариулах боломжгүй байна.",
+                content: fallbackResponse || t("error"),
                 timestamp: new Date()
             };
             setMessages((prev) => [...prev, errorMessage]);
@@ -293,7 +296,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                                        Аяллын Туслах
+                                        {t("aiTitle")}
                                         {isPremium && (
                                             <Badge variant="warning" size="sm" className="shadow-none">
                                                 <Crown className="h-3 w-3 mr-1" /> Premium
@@ -301,7 +304,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                         )}
                                     </h3>
                                     <p className="text-xs text-slate-500 font-medium">
-                                        {isGuest ? "Зочин горим" : "Ухаалаг зөвлөгөө"}
+                                        {isGuest ? t("aiGuestMode") : t("aiDescription")}
                                     </p>
                                 </div>
                             </div>
@@ -395,7 +398,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                                                     </div>
                                                                     <div className="flex gap-2 text-xs">
                                                                         <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">📊 {pkg.data}</span>
-                                                                        <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} хоног</span>
+                                                                        <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 font-medium">⏱️ {pkg.validityDays} {t("day")}</span>
                                                                     </div>
                                                                 </a>
                                                             ))}
@@ -404,7 +407,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                                                 href={seeMoreUrl.toString()}
                                                                 className="block w-full py-3 mt-2 text-center text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100"
                                                             >
-                                                                Бүх багцыг харах {remainingCount > 0 && `(+${remainingCount})`} →
+                                                                {t("aiSeeAll")} {remainingCount > 0 && `(+${remainingCount})`} →
                                                             </a>
                                                         </>
                                                     );
@@ -429,7 +432,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                         <Loader2 className="h-4 w-4 text-red-500 animate-spin" />
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                                        <p className="text-sm text-slate-500">Бодож байна...</p>
+                                        <p className="text-sm text-slate-500">{t("aiThinking")}</p>
                                     </div>
                                 </motion.div>
                             )}
@@ -440,21 +443,21 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                         {/* Quick questions: Show only at start */}
                         {messages.length <= 1 && (
                             <div className="px-4 pb-3">
-                                <p className="text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">Эрэлттэй багцууд:</p>
+                                <p className="text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">{t("aiPopularPackages")}</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
-                                        onClick={() => handleSend("Япон 7 хоног")}
+                                        onClick={() => handleSend(language === 'mn' ? "Япон 7 хоног" : "Japan 7 days")}
                                         className="px-3 py-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-red-200 hover:shadow-sm hover:text-red-700 transition-all text-left group shadow-sm"
                                     >
                                         <span className="block mb-1 text-lg">🇯🇵</span>
-                                        <span className="font-bold">Япон 7 хоног</span>
+                                        <span className="font-bold">{language === 'mn' ? "Япон" : language === 'cn' ? "日本" : "Japan"} 7 {t("day")}</span>
                                     </button>
                                     <button
-                                        onClick={() => handleSend("Солонгос 5 хоног")}
+                                        onClick={() => handleSend(language === 'mn' ? "Солонгос 5 хоног" : "Korea 5 days")}
                                         className="px-3 py-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-red-200 hover:shadow-sm hover:text-red-700 transition-all text-left group shadow-sm"
                                     >
                                         <span className="block mb-1 text-lg">🇰🇷</span>
-                                        <span className="font-bold">Солонгос 5 хоног</span>
+                                        <span className="font-bold">{language === 'mn' ? "Солонгос" : language === 'cn' ? "韩国" : "Korea"} 5 {t("day")}</span>
                                     </button>
                                 </div>
                             </div>
@@ -468,7 +471,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                    placeholder="Ямар багц хайж байна вэ?"
+                                    placeholder={t("aiPlaceholder")}
                                     disabled={isLoading}
                                     className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white focus:ring-4 focus:ring-red-500/10 transition-all font-medium disabled:opacity-50 disabled:bg-slate-100"
                                 />

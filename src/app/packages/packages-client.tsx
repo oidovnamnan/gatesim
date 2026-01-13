@@ -8,6 +8,8 @@ import { PackageCard, PackageCardCompact } from "@/components/packages/package-c
 import { popularCountries } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useInView } from "react-intersection-observer";
+import { useTranslation } from "@/providers/language-provider";
+import { useSearchParams } from "next/navigation";
 
 interface Package {
     id: string;
@@ -34,9 +36,8 @@ type SortOption = "price-asc" | "price-desc" | "popular";
 // Number of packages to show per page
 const PACKAGES_PER_PAGE = 20;
 
-import { useSearchParams } from "next/navigation";
-
 export default function PackagesClient({ initialPackages }: PackagesClientProps) {
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
 
     const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -86,9 +87,6 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         // 2. Deduplicate: Group by relevant scope+data+duration, keep only the cheapest
         const packageGroups = new Map<string, Package>();
         packages.forEach(pkg => {
-            // Smart grouping: If checking specific country, ignore regional differences
-            // This ensures "China Only" ($4.49) and "Asia (inc. China)" ($5.49) are duplicates for "China 3GB 5Days"
-            // and we keep the cheapest one.
             let scopeKey = selectedCountry ? selectedCountry : [...pkg.countries].sort().join(",");
             const key = `${scopeKey}-${pkg.data}-${pkg.validityDays}`;
 
@@ -113,7 +111,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         // 4. Filter by duration
         if (selectedDuration) {
             packages = packages.filter((pkg) => {
-                if (pkg.validityDays === -1) return true; // Keep unlimited if fitting context
+                if (pkg.validityDays === -1) return true;
                 if (selectedDuration === "short") return pkg.validityDays <= 7;
                 if (selectedDuration === "medium") return pkg.validityDays > 7 && pkg.validityDays <= 15;
                 if (selectedDuration === "long") return pkg.validityDays > 15;
@@ -146,9 +144,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             const selectedCountryName = selectedCountryInfo?.name || selectedCountry;
 
             packages = packages.map(pkg => {
-                // If this is a regional package (covers multiple countries) and was matched by filter
                 if (pkg.countries.length > 1 && pkg.countries.includes(selectedCountry)) {
-                    // Reorder countries to put selected country first (for correct flag display)
                     const reorderedCountries = [
                         selectedCountry,
                         ...pkg.countries.filter(c => c !== selectedCountry)
@@ -158,7 +154,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         ...pkg,
                         countries: reorderedCountries,
                         countryName: selectedCountryName,
-                        title: `${selectedCountryName} + ${pkg.countries.length - 1} улс` // e.g., "Хятад + 3 улс"
+                        title: `${selectedCountryName} ${t("plusCountries").replace("{count}", (pkg.countries.length - 1).toString())}`
                     };
                 }
                 return pkg;
@@ -166,7 +162,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         }
 
         return packages;
-    }, [initialPackages, searchQuery, selectedCountry, selectedDuration, sortBy]);
+    }, [initialPackages, searchQuery, selectedCountry, selectedDuration, sortBy, t]);
 
     // Reset display count when filters change
     useEffect(() => {
@@ -178,7 +174,6 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         if (displayCount >= filteredPackages.length) return;
 
         setIsLoadingMore(true);
-        // Small delay for smooth UX
         setTimeout(() => {
             setDisplayCount(prev => Math.min(prev + PACKAGES_PER_PAGE, filteredPackages.length));
             setIsLoadingMore(false);
@@ -201,28 +196,25 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
     return (
         <div className="min-h-screen pb-24 md:pb-8 bg-background">
-            {/* Header - Mobile Only (Desktop uses TopHeader from layout) */}
             <div className="md:hidden bg-white/30 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 shadow-sm">
                 <div className="h-14 flex items-center justify-center relative px-4">
-                    <h1 className="text-lg font-bold text-slate-900 drop-shadow-sm">Багцууд</h1>
+                    <h1 className="text-lg font-bold text-slate-900 drop-shadow-sm">{t("packages")}</h1>
                 </div>
             </div>
 
-            {/* Search & Filters */}
             <div className="sticky top-14 md:top-0 z-30 bg-background/80 backdrop-blur-xl px-4 py-3 border-b border-border shadow-sm space-y-3">
                 <div className="flex gap-2">
                     <div className="flex-1 relative">
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Улс, багц хайх..."
+                            placeholder={t("searchPackagesPlaceholder")}
                             className="w-full pl-4 pr-10 py-2.5 bg-muted border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-red-500/20 placeholder:text-muted-foreground"
                         />
                         <Filter className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
                     </div>
                 </div>
 
-                {/* Duration Filters */}
                 <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     <button
                         onClick={() => setSelectedDuration(null)}
@@ -233,7 +225,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        Бүгд
+                        {t("all")}
                     </button>
                     <button
                         onClick={() => setSelectedDuration("short")}
@@ -244,7 +236,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        1-7 хоног
+                        1-7 {t("day")}
                     </button>
                     <button
                         onClick={() => setSelectedDuration("medium")}
@@ -255,7 +247,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        8-15 хоног
+                        8-15 {t("day")}
                     </button>
                     <button
                         onClick={() => setSelectedDuration("long")}
@@ -266,11 +258,10 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        15+ хоног
+                        15+ {t("day")}
                     </button>
                 </div>
 
-                {/* Country Filters - Horizontal Scroll */}
                 <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     <button
                         onClick={() => setSelectedCountry(null)}
@@ -281,7 +272,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 : "bg-muted text-foreground border-border hover:bg-accent"
                         )}
                     >
-                        Бүх улс
+                        {t("allCountries")}
                     </button>
                     {popularCountries.map((country) => (
                         <button
@@ -304,10 +295,9 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             <div className="px-4 py-4 space-y-4">
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-foreground font-bold pl-1">
-                        {displayedPackages.length} / {filteredPackages.length} багц
+                        {t("countPackages").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
                     </p>
 
-                    {/* View Mode Toggle */}
                     <div className="flex bg-white/50 rounded-xl p-1">
                         <button
                             onClick={() => setViewMode("grid")}
@@ -371,7 +361,6 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     )}
                 </AnimatePresence>
 
-                {/* Infinite Scroll Trigger */}
                 {hasMore && (
                     <div
                         ref={loadMoreRef}
@@ -380,20 +369,19 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         {isLoadingMore ? (
                             <div className="flex items-center gap-2 text-slate-500">
                                 <Loader2 className="h-5 w-5 animate-spin" />
-                                <span className="text-sm">Ачааллаж байна...</span>
+                                <span className="text-sm">{t("loadingMore")}</span>
                             </div>
                         ) : (
                             <div className="text-sm text-slate-400">
-                                Доош гүйлгэж илүү ихийг үзнэ үү
+                                {t("scrollMore")}
                             </div>
                         )}
                     </div>
                 )}
 
-                {/* Show total loaded */}
                 {!hasMore && displayedPackages.length > 0 && (
                     <div className="text-center py-6 text-sm text-slate-400">
-                        Бүх {filteredPackages.length} багц харагдлаа ✓
+                        {t("allPackagesShown").replace("{count}", filteredPackages.length.toString())}
                     </div>
                 )}
 
@@ -402,8 +390,8 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         <div className="bg-white/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/50">
                             <Search className="h-8 w-8 text-slate-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-1">Багц олдсонгүй</h3>
-                        <p className="text-slate-500 text-sm">Хайлт эсвэл шүүлтүүрээ өөрчлөөд үзнэ үү.</p>
+                        <h3 className="text-lg font-bold text-slate-800 mb-1">{t("noPackagesFound")}</h3>
+                        <p className="text-slate-500 text-sm">{t("noPackagesDesc")}</p>
                         <Button
                             variant="ghost"
                             className="text-red-600 mt-2 hover:bg-red-50 hover:text-red-700"
@@ -413,7 +401,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                                 setSelectedDuration(null);
                             }}
                         >
-                            Шүүлтүүр цэвэрлэх
+                            {t("clearFilters")}
                         </Button>
                     </div>
                 )}
