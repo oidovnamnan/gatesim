@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         const maxDays = parseInt(searchParams.get('maxDays') || '365');
         const minData = parseInt(searchParams.get('minData') || '0'); // in MB
         const maxData = parseInt(searchParams.get('maxData') || '999999'); // in MB
-        const limit = parseInt(searchParams.get('limit') || '5');
+        const limit = parseInt(searchParams.get('limit') || '20');
         const query = searchParams.get('q')?.toLowerCase(); // text search
 
         const [products, settings] = await Promise.all([
@@ -63,7 +63,7 @@ export async function GET(request: Request) {
                 data: p.dataAmount === -1 ? "Unlimited" : (p.dataAmount >= 1024 ? `${(p.dataAmount / 1024).toFixed(0)} GB` : `${p.dataAmount} MB`),
                 dataAmount: p.dataAmount,
                 validityDays: p.durationDays,
-                price: calculatePrice(p.price, usdToMnt, marginPercent),
+                price: p.price,
                 countries: p.countries,
                 countryName: getCountryName(p.countries[0]),
             }));

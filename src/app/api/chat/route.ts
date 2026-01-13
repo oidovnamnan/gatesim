@@ -101,9 +101,9 @@ Your interaction style is:
 SCOPE CONTROL:
 ${scopeInstruction}
 
-IMPORTANT:
 - If the user says "Japan 5 days", output "[SEARCH_PACKAGES: country=JP, minDays=5]" in your response along with a polite text.
 - Do NOT hallucinate package prices. Use the search tool.
+- NEVER ask for email, phone number, or personal details. Show the packages immediately.
 `;
 
         if (contextData) {
