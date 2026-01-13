@@ -56,17 +56,20 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
         >
             {/* Flag Background - covers entire card */}
             {!imageError ? (
-                <Image
-                    src={flagUrl}
-                    alt={`${countryCode} flag`}
-                    fill
-                    className="object-cover scale-[1.5]" // Increased scale for full fill
-                    sizes={`${config.width}px`}
-                    unoptimized
-                    onError={() => setImageError(true)}
-                />
+                <div className="absolute inset-[-2px] w-[calc(100%+4px)] h-[calc(100%+4px)]">
+                    <Image
+                        src={flagUrl}
+                        alt={`${countryCode} flag`}
+                        fill
+                        className="object-cover"
+                        sizes={`${config.width * 1.5}px`}
+                        unoptimized
+                        priority
+                        onError={() => setImageError(true)}
+                    />
+                </div>
             ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-200 text-3xl">
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-200 text-3xl">
                     {getCountryFlag(countryCode)}
                 </div>
             )}
