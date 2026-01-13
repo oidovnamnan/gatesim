@@ -287,7 +287,8 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                                                     const displayPackages = allPackages.slice(0, 5);
                                                     const remainingCount = allPackages.length - 5;
                                                     // Derive country from the first package for the "See More" link
-                                                    const targetCountry = displayPackages[0]?.countries?.length === 1 ? displayPackages[0].countries[0] : null;
+                                                    // (The search API ensures the searched country is at index 0)
+                                                    const targetCountry = displayPackages[0]?.countries?.[0] || null;
 
                                                     return (
                                                         <>

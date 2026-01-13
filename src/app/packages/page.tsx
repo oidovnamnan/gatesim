@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getMobiMatterProducts } from "@/lib/mobimatter";
 import PackagesClient from "./packages-client";
 
@@ -31,5 +32,9 @@ export default async function PackagesPage() {
         };
     });
 
-    return <PackagesClient initialPackages={packages} />;
+    return (
+        <Suspense fallback={<div className="min-h-screen" />}>
+            <PackagesClient initialPackages={packages} />
+        </Suspense>
+    );
 }
