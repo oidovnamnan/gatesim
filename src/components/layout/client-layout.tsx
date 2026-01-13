@@ -5,6 +5,7 @@ import { BottomNav } from "@/components/layout/bottom-nav";
 import { TopHeader } from "@/components/layout/top-header";
 import { MaintenanceGuard } from "@/components/layout/maintenance-guard";
 import { AIChat } from "@/components/ai/ai-chat";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 interface ClientLayoutProps {
     children: React.ReactNode;
@@ -36,6 +37,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
 
             {/* Global AI Chat */}
             <AIChat />
+
+            {/* PWA Install Prompt */}
+            <InstallPrompt />
         </MaintenanceGuard>
     );
 }
