@@ -70,10 +70,6 @@ const bankLogos: Record<string, string> = {
     "Arig Bank": "/banks/arig.png",
     "Chinggis Khaan Bank": "/banks/chinggis.png",
     "SocialPay": "/banks/socialpay.png",
-    "Capitron Bank": "/banks/capitron.png",
-    "National Investment Bank": "/banks/nibank.png",
-    "QPay Wallet": "/banks/qpay.png",
-    "TransBank": "/banks/transbank.png",
 };
 
 export default function CheckoutClient({ pkg }: CheckoutClientProps) {
@@ -433,15 +429,11 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                         if (cleanName.includes("chinggis")) return "/banks/chinggis.png";
                                         if (cleanName.includes("most")) return "/banks/most.png";
                                         if (cleanName.includes("social")) return "/banks/socialpay.png";
-                                        if (cleanName.includes("capitron")) return "/banks/capitron.png";
-                                        if (cleanName.includes("national") || cleanName.includes("nibank")) return "/banks/nibank.png";
-                                        if (cleanName.includes("trans")) return "/banks/transbank.png";
-                                        if (cleanName.includes("wallet")) return "/banks/qpay.png";
-                                        return bankLogos[name]; // Fallback to exact match or undefined
+                                        // Missing local icons for these, let them fall through to remote or map null
+                                        return bankLogos[name];
                                     };
 
                                     const localLogo = getBankLogo(bank.name);
-                                    const isLocalImage = localLogo?.startsWith("/");
 
                                     return (
                                         <a
@@ -449,7 +441,6 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                             href={bank.link}
                                             className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
                                         >
-                                            {/* Priority: Local File (if exists) -> QPay Logo -> Emoji Defaults */}
                                             <div className="w-10 h-10 relative mb-1 flex items-center justify-center">
                                                 <img
                                                     src={localLogo || bank.logo}
@@ -457,18 +448,16 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                                     className="w-full h-full object-contain rounded-lg"
                                                     onError={(e) => {
                                                         const target = e.target as HTMLImageElement;
-                                                        // If we started with local and it failed (rare), or started with remote and it failed:
-                                                        // If we are currently showing remote and have a local option, switch to local
-                                                        if (target.src !== window.location.origin + localLogo && isLocalImage && localLogo) {
-                                                            target.src = localLogo;
-                                                        } else {
-                                                            // If all fails, hide image and show emoji fallback
+                                                        // 1. If failed local, try remote
+                                                        if (localLogo && target.src.includes(localLogo)) {
+                                                            target.src = bank.logo;
+                                                        }
+                                                        // 2. If failed remote (or local again), hide and show text
+                                                        else {
                                                             target.style.display = 'none';
                                                             const parent = target.parentElement;
                                                             if (parent) {
-                                                                // Create text node for emoji
-                                                                const emoji = !isLocalImage ? localLogo : "🏦";
-                                                                parent.innerText = emoji || "🏦";
+                                                                parent.innerText = "🏦";
                                                                 parent.className = "w-10 h-10 relative mb-1 flex items-center justify-center text-2xl";
                                                             }
                                                         }
