@@ -145,25 +145,39 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
 
         try {
             if (navigator.share && order.qrImg) {
-                const base64Content = order.qrImg.split(',')[1];
-                const mimeType = order.qrImg.split(',')[0].split(':')[1].split(';')[0];
-                const byteCharacters = atob(base64Content);
-                const byteArrays = [];
+                let file: File | null = null;
 
-                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                    const slice = byteCharacters.slice(offset, offset + 512);
-                    const byteNumbers = new Array(slice.length);
-                    for (let i = 0; i < slice.length; i++) {
-                        byteNumbers[i] = slice.charCodeAt(i);
+                if (order.qrImg.startsWith('data:')) {
+                    // Handle Base64
+                    const base64Content = order.qrImg.split(',')[1];
+                    const mimeType = order.qrImg.split(',')[0].split(':')[1].split(';')[0];
+                    const byteCharacters = atob(base64Content);
+                    const byteArrays = [];
+
+                    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                        const slice = byteCharacters.slice(offset, offset + 512);
+                        const byteNumbers = new Array(slice.length);
+                        for (let i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        byteArrays.push(byteArray);
                     }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    byteArrays.push(byteArray);
+
+                    const blob = new Blob(byteArrays, { type: mimeType });
+                    file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: mimeType });
+                } else if (order.qrImg.startsWith('http')) {
+                    // Handle URL (QuickChart)
+                    try {
+                        const response = await fetch(order.qrImg);
+                        const blob = await response.blob();
+                        file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: blob.type });
+                    } catch (e) {
+                        console.error("Failed to fetch QR for sharing", e);
+                    }
                 }
 
-                const blob = new Blob(byteArrays, { type: mimeType });
-                const file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: mimeType });
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         title: `GateSIM - ${order.countryName} eSIM`,
                         text: shareText,
@@ -432,7 +446,7 @@ export default function MyEsimsPage() {
                         validityDays: validityDays,
                         daysRemaining: daysRemaining,
                         price: data.totalAmount,
-                        qrImg: esim.qrData || null,
+                        qrImg: esim.qrData || esim.qrUrl || null,
                         activationCode: esim.lpa || "Generating...",
                         iccid: esim.iccid || "Pending...",
                         createdAt: formatDate(data.createdAt),
@@ -535,7 +549,7 @@ export default function MyEsimsPage() {
                     validityDays: validityDays,
                     daysRemaining: daysRemaining,
                     price: data.totalAmount,
-                    qrImg: esim.qrData || null,
+                    qrImg: esim.qrData || esim.qrUrl || null,
                     activationCode: esim.lpa || "Generating...",
                     iccid: esim.iccid || "Pending...",
                     createdAt: formatDate(data.createdAt),
