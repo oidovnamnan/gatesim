@@ -32,7 +32,7 @@ export const getMobiMatterProducts = cache(async function (): Promise<MobiMatter
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
         let rawData;
         try {
@@ -44,7 +44,7 @@ export const getMobiMatterProducts = cache(async function (): Promise<MobiMatter
                     'Accept': 'application/json'
                 },
                 next: {
-                    revalidate: 3600, // Cache for 1 hour (prices don't change that often)
+                    revalidate: 86400, // Cache for 24 hours (prices/products are stable)
                     tags: ['products']
                 },
                 signal: controller.signal
