@@ -133,6 +133,16 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
         };
     }, []);
 
+    // Helper to normalize QR code source
+    const getQrSrc = (qrData: string | null) => {
+        if (!qrData) return null;
+        if (qrData.startsWith("http") || qrData.startsWith("data:")) return qrData;
+        // Assume raw base64 if no prefix
+        return `data:image/png;base64,${qrData}`;
+    };
+
+    const qrSrc = getQrSrc(order.qrImg);
+
     const handleCopy = () => {
         navigator.clipboard.writeText(order.activationCode);
         setCopied(true);
@@ -144,32 +154,36 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
         const shareText = `🌍 GateSIM eSIM: ${localizedCountry}\n📦 ${t("packages")}: ${order.packageName}\n🔑 LPA: ${order.activationCode}\n🆔 ICCID: ${order.iccid}\n📖 ${t("installationGuide")}: https://gatesim.mn/my-esims?ai=install`;
 
         try {
-            if (navigator.share && order.qrImg) {
+            if (navigator.share && qrSrc) {
                 let file: File | null = null;
 
-                if (order.qrImg.startsWith('data:')) {
+                if (qrSrc.startsWith('data:')) {
                     // Handle Base64
-                    const base64Content = order.qrImg.split(',')[1];
-                    const mimeType = order.qrImg.split(',')[0].split(':')[1].split(';')[0];
-                    const byteCharacters = atob(base64Content);
-                    const byteArrays = [];
+                    try {
+                        const base64Content = qrSrc.split(',')[1];
+                        const mimeType = qrSrc.split(',')[0].split(':')[1].split(';')[0] || 'image/png';
+                        const byteCharacters = atob(base64Content);
+                        const byteArrays = [];
 
-                    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                        const slice = byteCharacters.slice(offset, offset + 512);
-                        const byteNumbers = new Array(slice.length);
-                        for (let i = 0; i < slice.length; i++) {
-                            byteNumbers[i] = slice.charCodeAt(i);
+                        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                            const slice = byteCharacters.slice(offset, offset + 512);
+                            const byteNumbers = new Array(slice.length);
+                            for (let i = 0; i < slice.length; i++) {
+                                byteNumbers[i] = slice.charCodeAt(i);
+                            }
+                            const byteArray = new Uint8Array(byteNumbers);
+                            byteArrays.push(byteArray);
                         }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        byteArrays.push(byteArray);
-                    }
 
-                    const blob = new Blob(byteArrays, { type: mimeType });
-                    file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: mimeType });
-                } else if (order.qrImg.startsWith('http')) {
+                        const blob = new Blob(byteArrays, { type: mimeType });
+                        file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: mimeType });
+                    } catch (e) {
+                        console.error("Failed to process base64 QR", e);
+                    }
+                } else if (qrSrc.startsWith('http')) {
                     // Handle URL (QuickChart)
                     try {
-                        const response = await fetch(order.qrImg);
+                        const response = await fetch(qrSrc);
                         const blob = await response.blob();
                         file = new File([blob], `GateSIM-${order.countryName}-QR.png`, { type: blob.type });
                     } catch (e) {
@@ -203,9 +217,9 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
     };
 
     const handleDownload = () => {
-        if (!order.qrImg) return;
+        if (!qrSrc) return;
         const link = document.createElement("a");
-        link.href = order.qrImg;
+        link.href = qrSrc;
         link.download = `GateSIM-${order.countryName}-${order.orderNumber}-QR.png`;
         document.body.appendChild(link);
         link.click();
@@ -254,10 +268,10 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                             {t("qrScanInstructions")}
                         </p>
                         <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4 relative overflow-hidden">
-                            {order.qrImg ? (
+                            {qrSrc ? (
                                 <>
                                     <img
-                                        src={order.qrImg}
+                                        src={qrSrc}
                                         alt="eSIM QR Code"
                                         className="w-48 h-48 object-contain"
                                     />
@@ -279,7 +293,7 @@ function EsimDetailModal({ order, onClose }: EsimDetailModalProps) {
                             )}
                         </div>
 
-                        {order.qrImg && (
+                        {qrSrc && (
                             <Button
                                 variant="outline"
                                 size="sm"
