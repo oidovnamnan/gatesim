@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'qpay.mn',
+        hostname: '*.qpay.mn',
       },
       {
         protocol: 'https',
