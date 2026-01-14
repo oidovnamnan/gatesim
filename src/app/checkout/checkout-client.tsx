@@ -65,12 +65,12 @@ const bankLogos: Record<string, string> = {
     "TDB": "/banks/tdb.png",
     "State Bank": "/banks/statebank.png",
     "Xac Bank": "/banks/xacbank.png",
-    "M Bank": "📱",
-    "Bogd Bank": "🏰",
-    "Arig Bank": "🦁",
-    "Chinggis Khaan Bank": "👑",
-    "Most Money": "💰",
-    "SocialPay": "📲",
+    "M Bank": "/banks/mbank.png",
+    "Bogd Bank": "/banks/bogd.png",
+    "Arig Bank": "/banks/arig.png",
+    "Chinggis Khaan Bank": "/banks/chinggis.png",
+    "Most Money": "/banks/most.png",
+    "SocialPay": "/banks/socialpay.png",
 };
 
 export default function CheckoutClient({ pkg }: CheckoutClientProps) {
@@ -424,6 +424,12 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                         if (cleanName.includes("state")) return "/banks/statebank.png";
                                         if (cleanName.includes("tdb") || cleanName.includes("trade")) return "/banks/tdb.png";
                                         if (cleanName.includes("xac")) return "/banks/xacbank.png";
+                                        if (cleanName.includes("mbank") || cleanName.includes("m bank")) return "/banks/mbank.png";
+                                        if (cleanName.includes("bogd")) return "/banks/bogd.png";
+                                        if (cleanName.includes("arig")) return "/banks/arig.png";
+                                        if (cleanName.includes("chinggis")) return "/banks/chinggis.png";
+                                        if (cleanName.includes("most")) return "/banks/most.png";
+                                        if (cleanName.includes("social")) return "/banks/socialpay.png";
                                         return bankLogos[name]; // Fallback to exact match or undefined
                                     };
 
