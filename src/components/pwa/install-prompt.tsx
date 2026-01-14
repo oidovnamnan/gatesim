@@ -6,12 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
+const DISMISS_KEY = "gatesim_pwa_prompt_dismissed_at";
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
 export function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [show, setShow] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
 
     useEffect(() => {
+        // Check if recently dismissed
+        const lastDismissed = localStorage.getItem(DISMISS_KEY);
+        if (lastDismissed) {
+            const timeSinceDismissed = Date.now() - parseInt(lastDismissed);
+            if (timeSinceDismissed < TWENTY_FOUR_HOURS) {
+                return;
+            }
+        }
+
         // 1. Check for iOS
         const isIosDevice = /iPhone|iPad|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
         // Check if running in standalone mode (already installed)
@@ -26,13 +38,9 @@ export function InstallPrompt() {
 
         if (isIosDevice) {
             setIsIOS(true);
-            // On iOS, we only show the tip if they are NOT in standalone mode
-            // We can check local storage to not show it every time if needed,
-            // but for now let's just show it if not installed.
             setShow(true);
         }
 
-        // 2. Check for Android/Desktop (beforeinstallprompt)
         // 2. Check for Android/Desktop (beforeinstallprompt)
         const handler = (e: any) => {
             // Prevent default to capture the event and suppress auto-prompt
@@ -50,20 +58,22 @@ export function InstallPrompt() {
         };
     }, []);
 
+    const handleDismiss = () => {
+        setShow(false);
+        localStorage.setItem(DISMISS_KEY, Date.now().toString());
+    };
+
     const handleInstall = async () => {
         if (isIOS) {
-            // iOS doesn't support programmatic install, just close logic or tooltip? 
-            // We will just show instructions in the render
             return;
         }
 
         if (!deferredPrompt) return;
 
         // Close the custom UI immediately
-        setShow(false);
+        handleDismiss();
 
         // Wait for the UI to close before triggering the native prompt
-        // This prevents the "double modal" or overlapping visual glitch
         setTimeout(async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -85,7 +95,7 @@ export function InstallPrompt() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-                onClick={() => setShow(false)}
+                onClick={handleDismiss}
             >
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -95,9 +105,9 @@ export function InstallPrompt() {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <Card className="p-4 shadow-2xl border-none bg-white rounded-2xl overflow-hidden relative text-slate-900">
-                        {/* Close button for iOS/Desktop if needed */}
+                        {/* Close button */}
                         <button
-                            onClick={() => setShow(false)}
+                            onClick={handleDismiss}
                             className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         >
                             <X className="w-4 h-4" />
