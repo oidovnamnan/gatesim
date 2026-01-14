@@ -6,6 +6,7 @@ export const SUPER_ADMINS = [
     'suren@gatesim.mn',
     'nsurenoidov@gmail.com',
     'admin@gatesim.travel',
+    'oidovnamnan7@gmail.com',
 ];
 
 export const STAFF_EMAILS = [
