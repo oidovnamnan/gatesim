@@ -17,8 +17,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Magic Link (Email)
         Email({
             server: {
-                host: process.env.SMTP_HOST,
-                port: Number(process.env.SMTP_PORT),
+                ...(process.env.SMTP_HOST ? {
+                    host: process.env.SMTP_HOST,
+                    port: Number(process.env.SMTP_PORT || 587),
+                    secure: process.env.SMTP_SECURE === "true",
+                } : {
+                    service: "gmail",
+                }),
                 auth: {
                     user: process.env.SMTP_EMAIL,
                     pass: process.env.SMTP_PASSWORD,
@@ -96,5 +101,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return session;
         },
     },
-    debug: process.env.NODE_ENV === "development",
+    debug: true,
 });

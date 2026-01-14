@@ -40,7 +40,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         setLoading(true);
         try {
             await signInWithGoogle();
-            onClose();
+            // next-auth handles redirect
         } catch (error) {
             console.error(error);
         } finally {

@@ -106,9 +106,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [session, status]);
 
     const signInWithGoogle = async () => {
-        const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
+            await nextAuthSignIn("google", { callbackUrl: "/profile" });
         } catch (error) {
             console.error("Error signing in with Google", error);
             throw error;
