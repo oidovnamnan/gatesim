@@ -3,6 +3,10 @@
         {
             "path": "/api/cron/smart-alerts",
             "schedule": "0 10 * * *"
+        },
+        {
+            "path": "/api/cron/update-products",
+            "schedule": "30 22 * * *"
         }
     ]
 }
