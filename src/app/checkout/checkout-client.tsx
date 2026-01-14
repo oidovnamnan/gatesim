@@ -436,19 +436,20 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                             href={bank.link}
                                             className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
                                         >
-                                            {/* Priority: QPay Logo (if valid) -> Local File -> Emoji Defaults */}
+                                            {/* Priority: Local File (if exists) -> QPay Logo -> Emoji Defaults */}
                                             <div className="w-10 h-10 relative mb-1 flex items-center justify-center">
                                                 <img
-                                                    src={bank.logo || localLogo}
+                                                    src={localLogo || bank.logo}
                                                     alt={bank.name}
                                                     className="w-full h-full object-contain rounded-lg"
                                                     onError={(e) => {
                                                         const target = e.target as HTMLImageElement;
-                                                        // If remote failed, try local
-                                                        if (target.src !== window.location.origin + localLogo && isLocalImage) {
+                                                        // If we started with local and it failed (rare), or started with remote and it failed:
+                                                        // If we are currently showing remote and have a local option, switch to local
+                                                        if (target.src !== window.location.origin + localLogo && isLocalImage && localLogo) {
                                                             target.src = localLogo;
                                                         } else {
-                                                            // If local also fails (or wasn't an image), hide image and show emoji fallback
+                                                            // If all fails, hide image and show emoji fallback
                                                             target.style.display = 'none';
                                                             const parent = target.parentElement;
                                                             if (parent) {
