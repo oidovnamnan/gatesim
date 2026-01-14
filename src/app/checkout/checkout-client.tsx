@@ -70,6 +70,10 @@ const bankLogos: Record<string, string> = {
     "Arig Bank": "/banks/arig.png",
     "Chinggis Khaan Bank": "/banks/chinggis.png",
     "SocialPay": "/banks/socialpay.png",
+    "Capitron Bank": "/banks/capitron.png",
+    "National Investment Bank": "/banks/nibank.png",
+    "QPay Wallet": "/banks/qpay.png",
+    "TransBank": "/banks/transbank.png",
 };
 
 export default function CheckoutClient({ pkg }: CheckoutClientProps) {
@@ -429,11 +433,15 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                         if (cleanName.includes("chinggis")) return "/banks/chinggis.png";
                                         if (cleanName.includes("most")) return "/banks/most.png";
                                         if (cleanName.includes("social")) return "/banks/socialpay.png";
-                                        // Missing local icons for these, let them fall through to remote or map null
-                                        return bankLogos[name];
+                                        if (cleanName.includes("capitron")) return "/banks/capitron.png";
+                                        if (cleanName.includes("national") || cleanName.includes("nibank")) return "/banks/nibank.png";
+                                        if (cleanName.includes("trans")) return "/banks/transbank.png";
+                                        if (cleanName.includes("wallet")) return "/banks/qpay.png";
+                                        return bankLogos[name]; // Fallback to exact match or undefined
                                     };
 
                                     const localLogo = getBankLogo(bank.name);
+                                    const isLocalImage = localLogo?.startsWith("/");
 
                                     return (
                                         <a
