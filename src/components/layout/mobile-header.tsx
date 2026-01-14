@@ -6,7 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MobileHeaderProps {
-    title?: string;
+    title?: ReactNode | string;
     showBack?: boolean;
     rightAction?: ReactNode;
     transparent?: boolean;

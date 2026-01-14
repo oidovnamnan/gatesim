@@ -20,6 +20,7 @@ export async function GET(request: Request) {
     }
 
     try {
+        // @ts-ignore - Next.js type definition conflict
         revalidateTag('products');
         console.log('[Cron] Revalidated "products" tag at', new Date().toISOString());
         return NextResponse.json({ revalidated: true, now: Date.now() });
