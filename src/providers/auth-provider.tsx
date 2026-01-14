@@ -60,9 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            // 2. If no NextAuth session, listen to Firebase
-            if (status === "unauthenticated" || status === "loading") {
-                console.log("AuthProvider: Listening to Firebase Auth");
+            // 2. If no NextAuth session (and check is done), listen to Firebase
+            if (status === "unauthenticated") {
+                console.log("AuthProvider: Listening to Firebase Auth (Fallback)");
                 unsubscribeFirebase = onAuthStateChanged(auth, async (firebaseUser) => {
                     console.log("AuthProvider: Firebase User Changed", firebaseUser?.email);
                     setUser(firebaseUser);

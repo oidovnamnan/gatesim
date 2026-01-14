@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'flagcdn.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'qpay.mn',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.mobimatter.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.airalo.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      }
     ],
   },
   async headers() {

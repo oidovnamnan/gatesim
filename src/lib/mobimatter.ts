@@ -19,8 +19,6 @@ const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
 import { cache } from "react";
 import { getPricingSettings } from "@/lib/settings";
 
-// ... existing imports
-
 // Cache the product fetch for the duration of a single request
 export const getMobiMatterProducts = cache(async function (): Promise<MobiMatterProduct[]> {
     // Check credentials immediately
@@ -33,25 +31,35 @@ export const getMobiMatterProducts = cache(async function (): Promise<MobiMatter
     const { usdToMnt, marginPercent } = await getPricingSettings();
 
     try {
-        console.log("[MobiMatter] Connecting to API...");
-        const res = await fetch(`${BASE_URL}/products`, {
-            headers: {
-                'api-key': process.env.MOBIMATTER_API_KEY,
-                'merchantId': process.env.MOBIMATTER_MERCHANT_ID, // camelCase as required
-                'Accept': 'application/json'
-            },
-            next: {
-                revalidate: 300, // Cache for 5 minutes
-                tags: ['products'] // Allow manual revalidation
-            }
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-        if (!res.ok) {
-            console.error(`[MobiMatter] API Request Failed: ${res.status} ${res.statusText}`);
-            return [];
+        let rawData;
+        try {
+            console.log("[MobiMatter] Connecting to API...");
+            const res = await fetch(`${BASE_URL}/products`, {
+                headers: {
+                    'api-key': process.env.MOBIMATTER_API_KEY,
+                    'merchantId': process.env.MOBIMATTER_MERCHANT_ID, // camelCase as required
+                    'Accept': 'application/json'
+                },
+                next: {
+                    revalidate: 3600, // Cache for 1 hour (prices don't change that often)
+                    tags: ['products']
+                },
+                signal: controller.signal
+            });
+
+            if (!res.ok) {
+                console.error(`[MobiMatter] API Request Failed: ${res.status} ${res.statusText}`);
+                return [];
+            }
+
+            rawData = await res.json();
+        } finally {
+            clearTimeout(timeoutId);
         }
 
-        const rawData = await res.json();
         const productsList = Array.isArray(rawData) ? rawData : (rawData.result || []);
 
         if (productsList.length === 0) {
@@ -140,6 +148,10 @@ export const getMobiMatterProducts = cache(async function (): Promise<MobiMatter
         return mappedProducts;
 
     } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') {
+            console.error("[MobiMatter] Fetch timed out after 8s");
+            return [];
+        }
         console.error("[MobiMatter] Fetch Error:", e);
         throw e;
     }
