@@ -28,6 +28,10 @@ model User {
   password      String?
   role          Role      @default(USER)
   
+  // Password Reset
+  passwordResetToken   String?   @unique
+  passwordResetExpires DateTime?
+  
   // Relations
   accounts      Account[]
   sessions      Session[]

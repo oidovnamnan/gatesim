@@ -168,4 +168,75 @@ export class MailService {
             console.error("[MailService] Failed to send email:", error);
         }
     }
+
+    static async sendPasswordReset(to: string, resetUrl: string) {
+        if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+            console.warn("[MailService] SMTP credentials missing. Skipping email.");
+            return;
+        }
+
+        const subject = "GateSIM - Нууц үг сэргээх";
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Нууц үг сэргээх</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-top: 20px; margin-bottom: 20px;">
+                    
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <h1 style="color: #0f172a; margin: 0; font-size: 24px; font-weight: 800;">Нууц Үг Сэргээх</h1>
+                        <p style="color: #64748b; margin-top: 8px; font-size: 16px;">GateSIM бүртгэлийн нууц үг солих хүсэлт</p>
+                    </div>
+
+                    <div style="background-color: #f8fafc; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid #e2e8f0;">
+                        <p style="color: #475569; margin: 0 0 16px 0; line-height: 1.6;">
+                            Та GateSIM бүртгэлийнхээ нууц үгийг солих хүсэлт илгээсэн байна. 
+                            Доорх товчийг дарж шинэ нууц үгээ тохируулна уу.
+                        </p>
+                        
+                        <div style="text-align: center; margin: 24px 0;">
+                            <a href="${resetUrl}" style="display: inline-block; background-color: #dc2626; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 16px;">
+                                Нууц үг солих
+                            </a>
+                        </div>
+
+                        <p style="color: #94a3b8; font-size: 13px; margin: 0; text-align: center;">
+                            Энэ линк 1 цагийн дотор хүчинтэй.
+                        </p>
+                    </div>
+
+                    <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; border: 1px solid #fde68a;">
+                        <p style="color: #92400e; font-size: 13px; margin: 0;">
+                            ⚠️ Хэрэв та энэ хүсэлтийг илгээгээгүй бол энэ имэйлийг үл тоомсорлоорой.
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                        <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+                            © ${new Date().getFullYear()} GateSIM. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        try {
+            await transporter.sendMail({
+                from: `"GateSIM Support" <${process.env.SMTP_EMAIL}>`,
+                to,
+                subject,
+                html
+            });
+            console.log(`[MailService] Password reset email sent to ${to}`);
+        } catch (error) {
+            console.error("[MailService] Failed to send password reset email:", error);
+            throw error;
+        }
+    }
 }
