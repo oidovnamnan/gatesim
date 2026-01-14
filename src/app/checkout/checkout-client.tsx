@@ -416,7 +416,18 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             </p>
                             <div className="grid grid-cols-3 gap-2">
                                 {invoice.deeplinks.slice(0, 9).map((bank, index) => {
-                                    const localLogo = bankLogos[bank.name];
+                                    // Helper to match bank names fuzzily (e.g. "Khan Bank LLC" -> "Khan Bank")
+                                    const getBankLogo = (name: string) => {
+                                        const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                        if (cleanName.includes("khan")) return "/banks/khanbank.png";
+                                        if (cleanName.includes("golomt")) return "/banks/golomt.png";
+                                        if (cleanName.includes("state")) return "/banks/statebank.png";
+                                        if (cleanName.includes("tdb") || cleanName.includes("trade")) return "/banks/tdb.png";
+                                        if (cleanName.includes("xac")) return "/banks/xacbank.png";
+                                        return bankLogos[name]; // Fallback to exact match or undefined
+                                    };
+
+                                    const localLogo = getBankLogo(bank.name);
                                     const isLocalImage = localLogo?.startsWith("/");
 
                                     return (
