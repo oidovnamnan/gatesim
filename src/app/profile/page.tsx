@@ -8,10 +8,11 @@ import { MobileHeader } from "@/components/layout/mobile-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, User, Phone, Mail, Moon, Sun, Loader2 } from "lucide-react";
+import { SUPER_ADMINS } from "@/config/admin";
+import { LogOut, User, Phone, Mail, Moon, Sun, Loader2, LayoutDashboard } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { useToast } from "@/providers/toast-provider"; // Ensure this provider exists or use local state
+import { useToast } from "@/providers/toast-provider";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/providers/language-provider";
 import { LoginForm } from "@/components/auth/login-form";
@@ -75,6 +76,8 @@ export default function ProfilePage() {
         }
     };
 
+    const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
+
     return (
         <div className="min-h-screen pb-24 bg-background transition-colors duration-300">
             <MobileHeader title={t("profile")} showBack />
@@ -94,6 +97,19 @@ export default function ProfilePage() {
                     <h2 className="text-xl font-bold text-foreground mb-1">{userData?.displayName || t("profile")}</h2>
                     <p className="text-muted-foreground text-sm">{user.email}</p>
                 </div>
+
+                {/* Admin Panel Button - Only for Admins */}
+                {isAdmin && (
+                    <Button
+                        variant="default"
+                        fullWidth
+                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border-none shadow-lg shadow-indigo-500/20 mb-2"
+                        onClick={() => router.push("/admin")}
+                    >
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Admin Panel
+                    </Button>
+                )}
 
                 {/* Notifications */}
                 <NotificationManager />
