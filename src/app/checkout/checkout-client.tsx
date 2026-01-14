@@ -60,11 +60,11 @@ interface QPayInvoice {
 
 // Bank logos mapping
 const bankLogos: Record<string, string> = {
-    "Khan Bank": "/banks/khanbank.png",
+    "Khan Bank": "/banks/khanbank.svg",
     "Golomt Bank": "/banks/golomt.png",
     "TDB": "/banks/tdb.png",
     "State Bank": "/banks/statebank.png",
-    "Xac Bank": "/banks/xacbank.png",
+    "Xac Bank": "/banks/xacbank.svg",
     "M Bank": "/banks/mbank.png",
     "Bogd Bank": "/banks/bogd.png",
     "Arig Bank": "/banks/arig.png",
@@ -422,11 +422,11 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                     // Helper to match bank names fuzzily (e.g. "Khan Bank LLC" -> "Khan Bank")
                                     const getBankLogo = (name: string) => {
                                         const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                                        if (cleanName.includes("khan")) return "/banks/khanbank.png";
+                                        if (cleanName.includes("khan")) return "/banks/khanbank.svg";
                                         if (cleanName.includes("golomt")) return "/banks/golomt.png";
                                         if (cleanName.includes("state")) return "/banks/statebank.png";
                                         if (cleanName.includes("tdb") || cleanName.includes("trade")) return "/banks/tdb.png";
-                                        if (cleanName.includes("xac")) return "/banks/xacbank.png";
+                                        if (cleanName.includes("xac")) return "/banks/xacbank.svg";
                                         if (cleanName.includes("mbank") || cleanName.includes("m bank")) return "/banks/mbank.png";
                                         if (cleanName.includes("bogd")) return "/banks/bogd.png";
                                         if (cleanName.includes("arig")) return "/banks/arig.png";
