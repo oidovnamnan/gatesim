@@ -104,7 +104,7 @@ export function NotificationManager({ className }: { className?: string }) {
     if (loading) return null;
 
     return (
-        <div className={`flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors p-2 rounded-lg ${className || ""}`}>
+        <div className={`flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-2 rounded-lg ${className || ""}`}>
             <div className="flex items-center gap-3">
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${isSubscribed ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'}`}>
                     {isSubscribed ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}

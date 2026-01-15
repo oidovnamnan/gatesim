@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 /* ============================================
    GateSIM - Mobile-First Design System
@@ -393,10 +394,12 @@ select:focus {
     display: none !important;
   }
 }
+
 /* Force hero text colors explicitly based on class, ignoring system preference */
 .hero-text-title {
   color: #000000 !important;
 }
+
 .dark .hero-text-title {
   color: #ffffff !important;
 }
@@ -404,6 +407,7 @@ select:focus {
 .hero-text-desc {
   color: #000000 !important;
 }
+
 .dark .hero-text-desc {
   color: #ffffff !important;
 }
@@ -412,6 +416,7 @@ select:focus {
   background-color: #f1f5f9 !important;
   color: #334155 !important;
 }
+
 .dark .hero-btn-15 {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
@@ -422,6 +427,7 @@ select:focus {
   background-color: rgba(255, 255, 255, 0.9) !important;
   border-bottom-color: rgba(226, 232, 240, 0.5) !important;
 }
+
 .dark .header-bg {
   background-color: rgba(0, 0, 0, 0.8) !important;
   border-bottom-color: rgba(255, 255, 255, 0.1) !important;
@@ -430,15 +436,19 @@ select:focus {
 .header-text {
   color: #0f172a !important;
 }
+
 .dark .header-text {
   color: #ffffff !important;
 }
 
 .header-icon {
-  color: #475569 !important; /* slate-600 */
+  color: #475569 !important;
+  /* slate-600 */
 }
+
 .dark .header-icon {
-  color: #94a3b8 !important; /* slate-400 */
+  color: #94a3b8 !important;
+  /* slate-400 */
 }
 
 /* Country Card Fixes for Mobile Theme Consistency */
@@ -446,14 +456,18 @@ select:focus {
   background-color: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(255, 255, 255, 0.6) !important;
 }
+
 .dark .country-card {
-  background-color: rgba(30, 41, 59, 0.9) !important; /* slate-800 */
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  /* slate-800 */
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .country-card-title {
-  color: #0f172a !important; /* slate-900 */
+  color: #0f172a !important;
+  /* slate-900 */
 }
+
 .dark .country-card-title {
   color: #ffffff !important;
 }
@@ -462,6 +476,7 @@ select:focus {
   background-color: #fef2f2 !important;
   color: #dc2626 !important;
 }
+
 .dark .country-card-btn {
   background-color: rgba(127, 29, 29, 0.2) !important;
   color: #f87171 !important;
@@ -472,6 +487,7 @@ select:focus {
   background-color: #ffffff !important;
   border-color: rgba(226, 232, 240, 0.8) !important;
 }
+
 .dark .package-card {
   background-color: rgba(30, 41, 59, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
@@ -480,6 +496,7 @@ select:focus {
 .package-card-text {
   color: #0f172a !important;
 }
+
 .dark .package-card-text {
   color: #ffffff !important;
 }
@@ -489,6 +506,7 @@ select:focus {
   color: #334155 !important;
   border-color: #e2e8f0 !important;
 }
+
 .dark .package-badge {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: #e2e8f0 !important;
