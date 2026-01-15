@@ -451,6 +451,8 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                         <a
                                             key={index}
                                             href={bank.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
                                         >
                                             <div className="w-10 h-10 relative mb-1 flex items-center justify-center">
