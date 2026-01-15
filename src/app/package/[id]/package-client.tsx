@@ -333,7 +333,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
             </div>
 
             {/* Fixed bottom CTA */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom)+85px)] md:pb-4 bg-gradient-to-t from-background via-background to-transparent z-30">
+            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom)+100px)] md:pb-4 bg-gradient-to-t from-background via-background to-transparent z-30">
                 <div className="max-w-md mx-auto bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-4 shadow-xl shadow-slate-900/10 border border-slate-200 pointer-events-auto flex items-center justify-between gap-4">
                     <div>
                         <p className="text-xs text-slate-500 font-medium ml-1">{t("totalAmount")}</p>
