@@ -134,7 +134,7 @@ export function LoginForm() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="h-14 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white transition-all px-4"
+                                className="h-14 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white transition-all"
                             />
 
                             <Button
