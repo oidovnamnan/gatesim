@@ -82,7 +82,7 @@ export default function ProfilePage() {
     const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
 
     return (
-        <div className="min-h-screen pb-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div className="min-h-screen pb-8 bg-white dark:bg-slate-950 transition-colors duration-300">
             <MobileHeader title={t("profile")} showBack />
 
             <div className="px-4 pt-4 space-y-4 max-w-lg mx-auto">
@@ -105,7 +105,7 @@ export default function ProfilePage() {
                         <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 border-indigo-200 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-700"
+                            className="h-8 border-indigo-200 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-400"
                             onClick={() => router.push("/admin")}
                         >
                             Admin
@@ -116,11 +116,11 @@ export default function ProfilePage() {
                 {/* Settings Group */}
                 <div className="space-y-2">
                     <h3 className="text-xs font-bold text-slate-500 uppercase ml-2 tracking-wider">Тохиргоо</h3>
-                    <Card className="p-1 space-y-0.5 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <Card className="p-1 space-y-0.5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         {/* Appearance */}
                         <div
                             onClick={toggleMode}
-                            className="flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors p-3 rounded-lg"
+                            className="flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-3 rounded-lg"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-slate-800 text-orange-600 dark:text-slate-400 flex items-center justify-center">
@@ -145,7 +145,7 @@ export default function ProfilePage() {
                         {/* Change Password */}
                         <div
                             onClick={() => setIsChangePasswordOpen(true)}
-                            className="flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors p-3 rounded-lg"
+                            className="flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-3 rounded-lg"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/20 text-rose-600 flex items-center justify-center">
@@ -161,11 +161,16 @@ export default function ProfilePage() {
                 {/* Personal Info Group */}
                 <div className="space-y-2">
                     <h3 className="text-xs font-bold text-slate-500 uppercase ml-2 tracking-wider">Хувийн мэдээлэл</h3>
-                    <Card className="p-4 space-y-4 border-slate-200 dark:border-slate-800 shadow-sm">
+                    <Card className="p-4 space-y-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="grid gap-4">
                             <div>
                                 <label className="text-xs font-medium text-slate-500 mb-1.5 block">{t("email")}</label>
-                                <Input icon={Mail} value={user.email || ""} disabled className="bg-slate-50/50 dark:bg-slate-900/50 border-dashed" />
+                                <Input
+                                    icon={Mail}
+                                    value={user.email || ""}
+                                    disabled
+                                    className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-100 dark:text-slate-200"
+                                />
                             </div>
                             <div>
                                 <label className="text-xs font-medium text-slate-500 mb-1.5 block">{t("phone")}</label>
@@ -175,7 +180,7 @@ export default function ProfilePage() {
                                         value={phone}
                                         placeholder={t("phonePlaceholder")}
                                         onChange={(e) => setPhone(e.target.value)}
-                                        className="bg-white dark:bg-slate-900"
+                                        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white"
                                     />
                                     <Button
                                         onClick={handleSave}
