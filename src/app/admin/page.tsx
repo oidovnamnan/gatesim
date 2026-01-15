@@ -171,33 +171,33 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
-                <h1 className="text-2xl font-bold text-white mb-2">Хяналтын Самбар</h1>
-                <p className="text-slate-400">Системийн ерөнхий төлөв байдал.</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Хяналтын Самбар</h1>
+                <p className="text-slate-500 dark:text-slate-400">Системийн ерөнхий төлөв байдал.</p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {statCards.map((stat, i) => (
-                    <Card key={i} className="p-3 md:p-4 bg-slate-900/50 border-slate-800 hover:border-blue-500/20 transition-all">
+                    <Card key={i} className="p-3 md:p-4 bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-blue-500/20 transition-all shadow-sm dark:shadow-none">
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <span className="text-xs md:text-sm text-slate-500 font-medium truncate">{stat.title}</span>
-                                <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10 shrink-0">
-                                    <stat.icon className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-500" />
+                                <div className="p-1.5 md:p-2 rounded-lg bg-blue-50 dark:bg-blue-500/10 shrink-0">
+                                    <stat.icon className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-600 dark:text-blue-500" />
                                 </div>
                             </div>
-                            <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{stat.value}</h3>
+                            <h3 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
                         </div>
                     </Card>
                 ))}
             </div>
 
             {/* Recent Orders */}
-            <Card className="bg-slate-900/50 border-slate-800 p-6">
+            <Card className="bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 p-6 shadow-sm dark:shadow-none">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-bold text-white">Сүүлийн захиалгууд</h3>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Сүүлийн захиалгууд</h3>
                     <Link href="/admin/orders">
-                        <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                        <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
                             Бүгдийг харах
                         </Button>
                     </Link>
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
                     ) : (
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="border-b border-slate-800 text-slate-400 text-sm">
+                                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm">
                                     <th className="pb-3 pl-2">Захиалга ID</th>
                                     <th className="pb-3">Хэрэглэгч</th>
                                     <th className="pb-3">Багц</th>
@@ -220,13 +220,13 @@ export default function AdminDashboard() {
                                     <th className="pb-3"></th>
                                 </tr>
                             </thead>
-                            <tbody className="text-sm text-slate-300">
+                            <tbody className="text-sm text-slate-600 dark:text-slate-300">
                                 {recentOrders.map((order) => (
-                                    <tr key={order.id} className="border-b border-slate-800/50 hover:bg-white/5 transition-colors">
-                                        <td className="py-4 pl-2 font-mono text-blue-400">
+                                    <tr key={order.id} className="border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                        <td className="py-4 pl-2 font-mono text-blue-600 dark:text-blue-400">
                                             {order.orderNumber || order.id.slice(0, 8)}
                                         </td>
-                                        <td className="py-4 font-medium text-white">
+                                        <td className="py-4 font-medium text-slate-900 dark:text-white">
                                             {order.contactName || order.contactEmail?.split("@")[0] || "Guest"}
                                         </td>
                                         <td className="py-4">{order.package?.name || "N/A"}</td>
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="py-4 text-slate-500">{formatTimeAgo(order.createdAt)}</td>
                                         <td className="py-4 text-right">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-white/10">
                                                 <MoreHorizontal className="w-4 h-4" />
                                             </Button>
                                         </td>

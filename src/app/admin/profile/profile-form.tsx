@@ -38,62 +38,62 @@ export function ProfileForm({ user }: { user: User }) {
     return (
         <form action={handleSubmit} ref={ref} className="space-y-8 max-w-2xl">
             {/* Personal Info */}
-            <Card className="p-6 border-white/10 bg-white/5 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
                         <UserIcon className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Хувийн мэдээлэл</h2>
-                        <p className="text-sm text-white/50">Таны нэр болон имэйл хаяг</p>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Хувийн мэдээлэл</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Таны нэр болон имэйл хаяг</p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <Label className="text-slate-300">Имэйл (Өөрчлөх боломжгүй)</Label>
-                        <Input disabled value={user.email || ""} className="bg-slate-900/50 border-slate-800 text-slate-500" />
+                        <Label className="text-slate-700 dark:text-slate-300">Имэйл (Өөрчлөх боломжгүй)</Label>
+                        <Input disabled value={user.email || ""} className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-500" />
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-slate-300">Нэр</Label>
+                        <Label className="text-slate-700 dark:text-slate-300">Нэр</Label>
                         <Input
                             name="name"
                             defaultValue={user.name || ""}
                             placeholder="Таны нэр"
-                            className="bg-slate-950 border-slate-800 text-white focus:ring-primary"
+                            className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-blue-500"
                         />
                     </div>
                 </div>
             </Card>
 
             {/* Password Change */}
-            <Card className="p-6 border-white/10 bg-white/5 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
                         <ShieldIcon className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Нууц үг солих</h2>
-                        <p className="text-sm text-white/50">Хэрэв та Google-ээр нэвтэрсэн бол нууц үг солих шаардлагагүй</p>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Нууц үг солих</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Хэрэв та Google-ээр нэвтэрсэн бол нууц үг солих шаардлагагүй</p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <Label className="text-slate-300">Одоогийн нууц үг</Label>
+                        <Label className="text-slate-700 dark:text-slate-300">Одоогийн нууц үг</Label>
                         <Input
                             name="currentPassword"
                             type="password"
-                            className="bg-slate-950 border-slate-800 text-white focus:ring-primary"
+                            className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-blue-500"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-slate-300">Шинэ нууц үг</Label>
+                        <Label className="text-slate-700 dark:text-slate-300">Шинэ нууц үг</Label>
                         <Input
                             name="newPassword"
                             type="password"
-                            className="bg-slate-950 border-slate-800 text-white focus:ring-primary"
+                            className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-blue-500"
                         />
                     </div>
                 </div>

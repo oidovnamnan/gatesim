@@ -14,8 +14,8 @@ export default async function ProfilePage() {
     return (
         <div className="space-y-6 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
             <div>
-                <h1 className="text-2xl font-bold text-white mb-2">Миний Профайл</h1>
-                <p className="text-slate-400">Хувийн мэдээлэл болон нууц үгийн тохиргоо</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Миний Профайл</h1>
+                <p className="text-slate-500 dark:text-slate-400">Хувийн мэдээлэл болон нууц үгийн тохиргоо</p>
             </div>
             <ProfileForm user={session.user} />
         </div>

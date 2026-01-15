@@ -158,20 +158,20 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
     return (
         <div className="space-y-6">
             {/* Filters Bar */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
                 <div className="flex-1 w-full md:w-auto relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                         placeholder="Search by name, SKU, country..."
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                        className="pl-9 bg-slate-950 border-slate-800 text-slate-200"
+                        className="pl-9 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     />
                 </div>
 
                 <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     <Select value={providerFilter} onValueChange={(v) => { setProviderFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] h-10 bg-slate-950 border-slate-800 text-slate-200">
+                        <SelectTrigger className="w-[140px] h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
                             <SelectValue placeholder="Provider" />
                         </SelectTrigger>
                         <SelectContent>
@@ -183,7 +183,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                     </Select>
 
                     <Select value={regionFilter} onValueChange={(v) => { setRegionFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] h-10 bg-slate-950 border-slate-800 text-slate-200">
+                        <SelectTrigger className="w-[140px] h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
                             <SelectValue placeholder="Region" />
                         </SelectTrigger>
                         <SelectContent>
@@ -198,7 +198,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                         onClick={() => { setDeduplicateFilter(!deduplicateFilter); setPage(1); }}
                         className={`h-10 px-4 ${deduplicateFilter
                             ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                            : "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
+                            : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
                     >
                         Давхардалгүй
                     </Button>
@@ -208,37 +208,37 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
             </div>
 
             {/* Stats */}
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
                 Showing {filteredAndSortedProducts.length} packages
             </div>
 
             {/* Table */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-slate-300">
-                        <thead className="text-xs text-slate-400 uppercase bg-slate-950/50 border-b border-slate-800">
+                    <table className="w-full text-sm text-left text-slate-600 dark:text-slate-300">
+                        <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th className="px-4 py-3 font-medium">SKU / Name</th>
                                 <th className="px-4 py-3 font-medium">Provider</th>
-                                <th onClick={() => handleSort('data')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('data')} className="px-4 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-white">
                                     <div className="flex items-center gap-1">
                                         Data
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th onClick={() => handleSort('cost')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('cost')} className="px-4 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-white">
                                     <div className="flex items-center gap-1">
                                         Cost
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th onClick={() => handleSort('price')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('price')} className="px-4 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-white">
                                     <div className="flex items-center gap-1">
                                         Sell
                                         <ArrowUpDown className="w-3 h-3" />
                                     </div>
                                 </th>
-                                <th onClick={() => handleSort('margin')} className="px-4 py-3 font-medium cursor-pointer hover:text-white">
+                                <th onClick={() => handleSort('margin')} className="px-4 py-3 font-medium cursor-pointer hover:text-slate-900 dark:hover:text-white">
                                     <div className="flex items-center gap-1">
                                         Margin
                                         <ArrowUpDown className="w-3 h-3" />
@@ -247,7 +247,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                                 <th className="px-4 py-3 font-medium text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {paginatedProducts.map((p) => {
                                 const costUSD = p.originalPrice || 0;
                                 const sellMNT = p.price;
@@ -260,40 +260,40 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                                 const marginPercent = costMNT > 0 ? ((sellMNT - costMNT) / costMNT) * 100 : 0;
 
                                 return (
-                                    <tr key={p.sku} className="hover:bg-slate-800/50 transition-colors">
+                                    <tr key={p.sku} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <td className="px-4 py-3 max-w-[200px]">
-                                            <div className="font-bold text-white mb-0.5 truncate" title={p.name}>{p.name}</div>
+                                            <div className="font-bold text-slate-900 dark:text-white mb-0.5 truncate" title={p.name}>{p.name}</div>
                                             <div className="font-mono text-[10px] text-slate-500 truncate" title={p.sku}>{p.sku}</div>
                                             {p.isRegional && (
-                                                <Badge variant="outline" className="mt-1 text-[10px] border-blue-500/50 text-blue-400 bg-blue-500/10 px-1 py-0 h-4">
+                                                <Badge variant="outline" className="mt-1 text-[10px] border-blue-500/50 text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1 py-0 h-4">
                                                     Regional
                                                 </Badge>
                                             )}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <Badge variant="secondary" className="bg-slate-800 text-slate-300 pointer-events-none text-[10px] px-1.5 h-5">
+                                            <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 pointer-events-none text-[10px] px-1.5 h-5">
                                                 {p.provider}
                                             </Badge>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-slate-200 text-xs">
+                                            <div className="font-medium text-slate-700 dark:text-slate-200 text-xs">
                                                 {formatData(p.dataAmount)}
                                             </div>
-                                            <div className="text-[10px] text-white/50">{p.durationDays} Days</div>
+                                            <div className="text-[10px] text-slate-400 dark:text-white/50">{p.durationDays} Days</div>
                                         </td>
-                                        <td className="px-4 py-3 text-emerald-400 font-mono text-xs">
-                                            {p.originalPrice?.toLocaleString()} <span className="text-[10px] text-white/50">{p.originalCurrency}</span>
+                                        <td className="px-4 py-3 text-emerald-600 dark:text-emerald-400 font-mono text-xs">
+                                            {p.originalPrice?.toLocaleString()} <span className="text-[10px] text-slate-400 dark:text-white/50">{p.originalCurrency}</span>
                                         </td>
-                                        <td className="px-4 py-3 font-bold text-white text-xs">
+                                        <td className="px-4 py-3 font-bold text-slate-900 dark:text-white text-xs">
                                             {formatPrice(sellMNT, "MNT")}
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col items-start gap-0.5">
-                                                <Badge className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border-0 text-[10px] px-1.5 h-5">
+                                                <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30 border-0 text-[10px] px-1.5 h-5">
                                                     {marginPercent.toFixed(1)}%
                                                 </Badge>
                                                 {profitMNT > 0 && (
-                                                    <span className="text-[10px] text-emerald-500/70 font-mono">
+                                                    <span className="text-[10px] text-emerald-600/70 dark:text-emerald-500/70 font-mono">
                                                         +{formatPrice(profitMNT, "MNT")}
                                                     </span>
                                                 )}
@@ -313,17 +313,17 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+            <div className="flex justify-between items-center bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                     Previous
                 </Button>
-                <div className="text-sm text-slate-400">
+                <div className="text-sm text-slate-500 dark:text-slate-400">
                     Page {page} of {totalPages}
                 </div>
                 <Button
@@ -331,7 +331,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                     size="sm"
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                     Next
                 </Button>

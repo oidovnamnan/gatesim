@@ -16,13 +16,13 @@ export default async function AdminPackagesPage() {
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                         Packages Management
-                        <span className="text-sm font-normal text-slate-400 bg-slate-800 px-2 py-1 rounded-full">
+                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
                             {products.length}
                         </span>
                     </h2>
-                    <p className="text-slate-400">
+                    <p className="text-slate-500 dark:text-slate-400">
                         Manage your eSIM products and pricing
                     </p>
                 </div>

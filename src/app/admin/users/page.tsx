@@ -144,17 +144,17 @@ export default function UsersPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         Users Management
-                        <span className="text-sm font-normal text-slate-400 bg-slate-800 px-2 py-1 rounded-full">
+                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
                             {users.length}
                         </span>
                     </h1>
-                    <p className="text-slate-400 text-sm mt-1">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                         Бүртгэлтэй хэрэглэгчдийг удирдах
                     </p>
                 </div>
@@ -163,7 +163,7 @@ export default function UsersPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                         placeholder="Хайх..."
-                        className="pl-9 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500"
+                        className="pl-9 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -172,46 +172,46 @@ export default function UsersPage() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
+                <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                            <User className="w-5 h-5 text-blue-400" />
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/20 flex items-center justify-center">
+                            <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-white">{stats.total}</p>
-                            <p className="text-sm text-slate-400">Нийт хэрэглэгч</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Нийт хэрэглэгч</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
+                <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                            <ShoppingCart className="w-5 h-5 text-emerald-400" />
+                        <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-500/20 flex items-center justify-center">
+                            <ShoppingCart className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-white">{stats.withOrders}</p>
-                            <p className="text-sm text-slate-400">Захиалга хийсэн</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.withOrders}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Захиалга хийсэн</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
+                <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                            <Calendar className="w-5 h-5 text-purple-400" />
+                        <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-500/20 flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-white">{stats.newThisMonth}</p>
-                            <p className="text-sm text-slate-400">Энэ сард шинэ</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.newThisMonth}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Энэ сард шинэ</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Users Table */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-slate-300">
-                        <thead className="text-xs text-slate-400 uppercase bg-slate-950/50 border-b border-slate-800">
+                    <table className="w-full text-sm text-left text-slate-600 dark:text-slate-300">
+                        <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th className="px-4 py-3 font-medium">Хэрэглэгч</th>
                                 <th className="px-4 py-3 font-medium">Имэйл</th>
@@ -220,7 +220,7 @@ export default function UsersPage() {
                                 <th className="px-4 py-3 font-medium">Бүртгэгдсэн</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {filteredUsers.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
@@ -229,7 +229,7 @@ export default function UsersPage() {
                                 </tr>
                             ) : (
                                 filteredUsers.map((user) => (
-                                    <tr key={user.id} className="hover:bg-slate-800/50 transition-colors">
+                                    <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
                                                 {user.photoURL ? (
@@ -239,23 +239,23 @@ export default function UsersPage() {
                                                         className="w-8 h-8 rounded-full object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
-                                                        <User className="w-4 h-4 text-slate-400" />
+                                                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                                        <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                                     </div>
                                                 )}
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <p className="font-medium text-white">
+                                                        <p className="font-medium text-slate-900 dark:text-white">
                                                             {user.displayName || "Нэргүй"}
                                                         </p>
                                                         {user.role === 'super_admin' && (
-                                                            <Badge className="bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border-0 text-[10px] px-1.5 h-4 flex items-center gap-1">
+                                                            <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 border-0 text-[10px] px-1.5 h-4 flex items-center gap-1">
                                                                 <Shield className="w-2.5 h-2.5" />
                                                                 Admin
                                                             </Badge>
                                                         )}
                                                         {user.role === 'staff' && (
-                                                            <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border-0 text-[10px] px-1.5 h-4 flex items-center gap-1">
+                                                            <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/30 border-0 text-[10px] px-1.5 h-4 flex items-center gap-1">
                                                                 <Shield className="w-2.5 h-2.5" />
                                                                 Staff
                                                             </Badge>
@@ -269,10 +269,10 @@ export default function UsersPage() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
-                                                <Mail className="w-3.5 h-3.5 text-slate-500" />
-                                                <span className="text-slate-300">{user.email}</span>
+                                                <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                                                <span className="text-slate-600 dark:text-slate-300">{user.email}</span>
                                                 {user.emailVerified && (
-                                                    <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-400 bg-emerald-500/10 h-4 px-1">
+                                                    <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 h-4 px-1">
                                                         Verified
                                                     </Badge>
                                                 )}
@@ -280,24 +280,24 @@ export default function UsersPage() {
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             {user.orderCount > 0 ? (
-                                                <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border-0">
+                                                <Badge className="bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 border-0">
                                                     {user.orderCount}
                                                 </Badge>
                                             ) : (
-                                                <span className="text-slate-500">0</span>
+                                                <span className="text-slate-400 dark:text-slate-500">0</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             {user.totalSpent > 0 ? (
-                                                <span className="font-medium text-emerald-400">
+                                                <span className="font-medium text-emerald-600 dark:text-emerald-400">
                                                     ₮{user.totalSpent.toLocaleString()}
                                                 </span>
                                             ) : (
-                                                <span className="text-slate-500">-</span>
+                                                <span className="text-slate-400 dark:text-slate-500">-</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <span className="text-slate-400 text-xs">
+                                            <span className="text-slate-500 dark:text-slate-400 text-xs">
                                                 {user.createdAt ? formatRelativeTime(new Date(user.createdAt)) : "-"}
                                             </span>
                                         </td>

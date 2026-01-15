@@ -44,24 +44,24 @@ export function AddMemberForm() {
     }
 
     return (
-        <form action={handleSubmit} ref={ref} className="flex flex-col md:flex-row gap-4 items-end bg-slate-900/50 p-4 rounded-lg border border-slate-800">
+        <form action={handleSubmit} ref={ref} className="flex flex-col md:flex-row gap-4 items-end bg-white dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
             <div className="space-y-2 flex-1 w-full">
-                <label className="text-sm font-medium text-slate-300">Имэйл хаяг</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Имэйл хаяг</label>
                 <Input
                     name="email"
                     type="email"
                     placeholder="user@example.com"
                     required
-                    className="bg-slate-950 border-slate-800 text-white"
+                    className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
             </div>
             <div className="space-y-2 w-full md:w-[200px]">
-                <label className="text-sm font-medium text-slate-300">Эрх (Role)</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Эрх (Role)</label>
                 <Select name="role" defaultValue="STAFF" required>
-                    <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+                    <SelectTrigger className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                         <SelectValue placeholder="Select role" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                         <SelectItem value="STAFF">Staff (Ажилтан)</SelectItem>
                         <SelectItem value="ADMIN">Admin (Админ)</SelectItem>
                     </SelectContent>

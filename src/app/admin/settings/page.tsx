@@ -85,23 +85,23 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="space-y-8 max-w-4xl pb-20">
+        <div className="space-y-8 max-w-4xl pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Тохиргоо</h1>
-                    <p className="text-white/60">Системийн үндсэн тохиргоо болон үнийн бодлого (Real-time synced)</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Тохиргоо</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Системийн үндсэн тохиргоо болон үнийн бодлого (Real-time synced)</p>
                 </div>
             </div>
 
             {/* 0. Appearance - Design Theme */}
-            <Card className="p-6 border-white/10 bg-white/5 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="p-2 rounded-lg bg-primary/20 text-primary">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
                         <Palette className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Харагдах Байдал (Design Theme)</h2>
-                        <p className="text-sm text-white/50">Системийн үндсэн өнгийг эндээс солино (Real-time)</p>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Харагдах Байдал (Design Theme)</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Системийн үндсэн өнгийг эндээс солино (Real-time)</p>
                     </div>
                 </div>
 
@@ -109,51 +109,51 @@ export default function SettingsPage() {
             </Card>
 
             {/* 1. Pricing Strategy - Үнийн бодлого */}
-            <Card className="p-6 border-white/10 bg-white/5 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="p-2 rounded-lg bg-primary/20 text-primary">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
                         <RefreshCw className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Үнийн Бодлого (Pricing Rules)</h2>
-                        <p className="text-sm text-white/50">Энд өөрчилсөн тохиргоо бүх багцын үнэд шууд нөлөөлнө</p>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Үнийн Бодлого (Pricing Rules)</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Энд өөрчилсөн тохиргоо бүх багцын үнэд шууд нөлөөлнө</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                        <Label className="text-white">USD Ханш (₮)</Label>
+                        <Label className="text-slate-700 dark:text-slate-300">USD Ханш (₮)</Label>
                         <div className="relative">
                             <Input
                                 type="number"
                                 value={settings.usdToMnt}
                                 onChange={(e) => setSettings(s => ({ ...s, usdToMnt: Number(e.target.value) }))}
-                                className="bg-black/20 border-white/10 text-white pr-12 font-mono text-lg"
+                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white pr-12 font-mono text-lg"
                             />
-                            <div className="absolute right-3 top-3 text-xs text-white/40">MNT</div>
+                            <div className="absolute right-3 top-3 text-xs text-slate-400">MNT</div>
                         </div>
-                        <p className="text-xs text-white/40 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             MobiMatter-аас ирж буй USD үнийг MNT руу хөрвүүлэхэд ашиглана.
                             <br />
-                            <span className="text-yellow-400/80">Жишээ: $10 * {settings.usdToMnt} = ₮{(10 * settings.usdToMnt).toLocaleString()}</span>
+                            <span className="text-amber-600 dark:text-amber-400/80">Жишээ: $10 * {settings.usdToMnt} = ₮{(10 * settings.usdToMnt).toLocaleString()}</span>
                         </p>
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-white">Ашгийн Маржин (%)</Label>
+                        <Label className="text-slate-700 dark:text-slate-300">Ашгийн Маржин (%)</Label>
                         <div className="relative">
                             <Input
                                 type="number"
                                 value={settings.marginPercent}
                                 onChange={(e) => setSettings(s => ({ ...s, marginPercent: Number(e.target.value) }))}
-                                className="bg-black/20 border-white/10 text-white pr-12 font-mono text-lg"
+                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white pr-12 font-mono text-lg"
                             />
-                            <div className="absolute right-3 top-3 text-xs text-white/40">%</div>
+                            <div className="absolute right-3 top-3 text-xs text-slate-400">%</div>
                         </div>
-                        <p className="text-xs text-white/40 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Үндсэн өртөг дээр нэмэгдэх ашиг.
                             <br />
-                            <span className="text-primary font-bold">
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">
                                 Жишээ: $10 * {settings.usdToMnt} * {(1 + settings.marginPercent / 100).toFixed(2)} = ₮{Math.ceil((10 * settings.usdToMnt * (1 + settings.marginPercent / 100)) / 100) * 100}
                             </span>
                         </p>
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                 <div className="pt-4 flex justify-end">
                     <Button
                         onClick={handleSave}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                         {saved ? (
                             <>
@@ -181,14 +181,14 @@ export default function SettingsPage() {
             </Card>
 
             {/* 2. API Integrations */}
-            <Card className="p-6 border-white/10 bg-white/5 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
                         <Globe className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">API Холболтууд</h2>
-                        <p className="text-sm text-white/50">Гадаад системүүдтэй хийх холболтын тохиргоо</p>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">API Холболтууд</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Гадаад системүүдтэй хийх холболтын тохиргоо</p>
                     </div>
                 </div>
 
@@ -197,35 +197,35 @@ export default function SettingsPage() {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <span className="font-medium text-white">MobiMatter API</span>
-                                <Badge variant="success" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Connected</Badge>
+                                <span className="font-medium text-slate-900 dark:text-white">MobiMatter API</span>
+                                <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20">Connected</Badge>
                             </div>
-                            <span className="text-xs text-white/40">Last sync: 10 mins ago</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-500">Last sync: 10 mins ago</span>
                         </div>
-                        <div className="grid grid-cols-1 gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div className="grid grid-cols-1 gap-4 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-white/5">
                             <div className="space-y-2">
-                                <Label className="text-xs text-white/60">API Key</Label>
-                                <Input type="password" value="************************" disabled className="bg-transparent border-white/10 text-white/50 h-8 text-xs font-mono" />
+                                <Label className="text-xs text-slate-500 dark:text-white/60">API Key</Label>
+                                <Input type="password" value="************************" disabled className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/50 h-8 text-xs font-mono" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs text-white/60">Merchant ID</Label>
-                                <Input value="7af9****-****-****-****-********2b1a" disabled className="bg-transparent border-white/10 text-white/50 h-8 text-xs font-mono" />
+                                <Label className="text-xs text-slate-500 dark:text-white/60">Merchant ID</Label>
+                                <Input value="7af9****-****-****-****-********2b1a" disabled className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/50 h-8 text-xs font-mono" />
                             </div>
                         </div>
                     </div>
 
                     {/* QPay */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
+                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-white/5">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <span className="font-medium text-white">QPay Payment</span>
-                                <Badge variant="warning" className="text-yellow-400 border-yellow-400/20 bg-yellow-400/5">Sandbox Mode</Badge>
+                                <span className="font-medium text-slate-900 dark:text-white">QPay Payment</span>
+                                <Badge variant="secondary" className="text-amber-600 dark:text-amber-400 border-amber-400/20 bg-amber-400/10 hover:bg-amber-400/20">Sandbox Mode</Badge>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div className="grid grid-cols-1 gap-4 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-white/5">
                             <div className="space-y-2">
-                                <Label className="text-xs text-white/60">Username</Label>
-                                <Input value="GATE_SIM_TEST" disabled className="bg-transparent border-white/10 text-white/50 h-8 text-xs font-mono" />
+                                <Label className="text-xs text-slate-500 dark:text-white/60">Username</Label>
+                                <Input value="GATE_SIM_TEST" disabled className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/50 h-8 text-xs font-mono" />
                             </div>
                         </div>
                     </div>
@@ -233,25 +233,25 @@ export default function SettingsPage() {
             </Card>
 
             {/* 3. System */}
-            <Card className="p-6 border-white/10 bg-white/5 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="p-2 rounded-lg bg-red-500/20 text-red-400">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-red-50 dark:bg-red-500/20 text-red-600 dark:text-red-400">
                         <Shield className="w-5 h-5" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Систем</h2>
-                        <p className="text-sm text-white/50">Аюулгүй байдал болон бусад</p>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Систем</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Аюулгүй байдал болон бусад</p>
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
                     <div>
-                        <h3 className="font-medium text-white">Maintenance Mode</h3>
-                        <p className="text-xs text-white/50">Вэбсайтыг түр хааж, засварын хуудас харуулах</p>
+                        <h3 className="font-medium text-slate-900 dark:text-white">Maintenance Mode</h3>
+                        <p className="text-xs text-slate-500 dark:text-white/50">Вэбсайтыг түр хааж, засварын хуудас харуулах</p>
                     </div>
                     <Button
                         variant={settings.maintenanceMode ? "danger" : "outline"}
-                        className={settings.maintenanceMode ? "bg-red-500 hover:bg-red-600 text-white" : "text-white border-white/10 hover:bg-white/10"}
+                        className={settings.maintenanceMode ? "bg-red-600 hover:bg-red-700 text-white" : "text-slate-700 dark:text-white border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10"}
                         onClick={toggleMaintenance}
                     >
                         <Power className="w-4 h-4 mr-2" />
@@ -260,7 +260,7 @@ export default function SettingsPage() {
                 </div>
             </Card>
 
-            <div className="flex items-center gap-2 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm">
+            <div className="flex items-center gap-2 p-4 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-300 text-sm">
                 <AlertCircle className="w-4 h-4" />
                 <span>Таны хийсэн өөрчлөлтүүд шууд хадгалагдах бөгөөд хэрэглэгчдэд шууд харагдана.</span>
             </div>
