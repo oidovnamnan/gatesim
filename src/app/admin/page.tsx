@@ -64,22 +64,24 @@ export default function AdminDashboard() {
     });
     const [recentOrders, setRecentOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
-    // Simulation for Online Users (for "Super" UI feel)
     const [onlineUsers, setOnlineUsers] = useState(0);
 
     useEffect(() => {
-        // Simulate live users count (random between 3 and 8, changing every few seconds)
-        setOnlineUsers(Math.floor(Math.random() * 5) + 3);
+        const sessionsRef = collection(db, "sessions");
 
-        const interval = setInterval(() => {
-            setOnlineUsers(prev => {
-                const change = Math.random() > 0.5 ? 1 : -1;
-                const next = prev + change;
-                return next < 3 ? 3 : next > 12 ? 12 : next;
-            });
-        }, 5000);
+        // Listen to all sessions and filter locally for < 60s activity
+        // This is more reliable for "now" than server-side queries if times drift slightly or if indexes are missing.
+        const unsubscribe = onSnapshot(query(sessionsRef), (snapshot) => {
+            const now = Date.now();
+            const activeCount = snapshot.docs.filter(doc => {
+                const data = doc.data();
+                const lastSeen = data.lastSeen?.toMillis?.() || data.lastSeen?.seconds * 1000 || 0;
+                return (now - lastSeen) < 60000; // Active in last 60s
+            }).length;
+            setOnlineUsers(activeCount);
+        });
 
-        return () => clearInterval(interval);
+        return () => unsubscribe();
     }, []);
 
     useEffect(() => {
@@ -103,35 +105,59 @@ export default function AdminDashboard() {
         // For now, client-side aggregation is acceptable for this scale.
         const allOrdersQuery = query(ordersRef); // orderBy createdAt if needed for optimization
         const unsubscribeStats = onSnapshot(allOrdersQuery, (snapshot) => {
-            let totalRevenue = 0;
-            let newOrders = 0;
+            let monthlyRevenue = 0;
+            let dailyRevenue = 0;
+            let todayOrders = 0;
             let activeEsims = 0;
+
             const uniqueUsers = new Set<string>();
             const countryCounts: Record<string, number> = {};
             const packageCounts: Record<string, number> = {};
 
-            const now = Date.now();
-            const oneDayAgo = now - 24 * 60 * 60 * 1000;
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
             snapshot.docs.forEach(doc => {
                 const data = doc.data() as Order;
 
-                // Count revenue from completed/paid orders
-                if (data.status === "completed" || data.status === "paid" || data.status === "COMPLETED") {
-                    totalRevenue += data.totalAmount || 0;
+                // Robust date parsing
+                let createdAt = 0;
+                if (data.createdAt?.seconds) {
+                    createdAt = data.createdAt.seconds * 1000;
+                } else if (typeof data.createdAt === 'string') {
+                    createdAt = new Date(data.createdAt).getTime();
+                } else if (typeof data.createdAt === 'number') {
+                    createdAt = data.createdAt;
+                }
+
+                // Robust Number casting
+                const amount = typeof data.totalAmount === 'number' ? data.totalAmount : Number(data.totalAmount) || 0;
+                const status = (data.status || "").toLowerCase();
+                const isPaid = ["completed", "paid", "success", "completed"].includes(status);
+
+                // Count active eSIMs (Lifetime)
+                if (isPaid) {
                     activeEsims++;
                 }
 
-                // Count unique users
-                if (data.contactEmail) uniqueUsers.add(data.contactEmail);
-                if (data.userId && data.userId !== 'guest') uniqueUsers.add(data.userId);
-
-                // Count orders from last 24 hours
-                // Handle different timestamp formats if necessary
-                const createdAt = data.createdAt?.seconds ? data.createdAt.seconds * 1000 : 0;
-                if (createdAt > oneDayAgo) {
-                    newOrders++;
+                // Monthly Revenue (This Month) - Paid Orders Only
+                if (isPaid && createdAt >= startOfMonth) {
+                    monthlyRevenue += amount;
                 }
+
+                // Daily Revenue (Today) - Paid Orders Only
+                if (isPaid && createdAt >= startOfDay) {
+                    dailyRevenue += amount;
+                }
+
+                // Daily Orders (Today) - Successful Orders Only
+                if (isPaid && createdAt >= startOfDay) {
+                    todayOrders++;
+                }
+
+                // Internal tracking (unused in cards but kept for logic)
+                if (data.contactEmail) uniqueUsers.add(data.contactEmail);
 
                 // Aggregate Countries & Packages
                 const pkgName = data.items?.[0]?.name || data.package?.name;
@@ -169,9 +195,9 @@ export default function AdminDashboard() {
                 .slice(0, 5);
 
             setStats({
-                totalRevenue,
-                activeUsers: uniqueUsers.size,
-                newOrders,
+                totalRevenue: monthlyRevenue, // Mapped to Monthly
+                activeUsers: dailyRevenue,    // Mapped to Daily Revenue
+                newOrders: todayOrders,       // Mapped to Today's Orders
                 activeEsims,
                 topCountries: sortedCountries,
                 topPackages: sortedPackages
