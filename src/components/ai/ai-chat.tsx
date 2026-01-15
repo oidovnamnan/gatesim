@@ -282,7 +282,7 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                     bottom: 80 // Allow moving down towards the bottom nav
                 }}
                 whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-                className={cn("fixed bottom-28 right-4 z-50 transition-opacity duration-300", isOpen && "opacity-0 pointer-events-none")}
+                className={cn("fixed bottom-44 right-4 z-50 transition-opacity duration-300", isOpen && "opacity-0 pointer-events-none")}
             >
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
