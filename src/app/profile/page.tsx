@@ -82,10 +82,10 @@ export default function ProfilePage() {
     const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
 
     return (
-        <div className="min-h-screen pb-8 bg-white dark:bg-slate-950 transition-colors duration-300">
+        <div className="min-h-screen pb-0 bg-white dark:bg-slate-950 transition-colors duration-300">
             <MobileHeader title={t("profile")} showBack />
 
-            <div className="px-4 pt-4 space-y-4 max-w-lg mx-auto">
+            <div className="w-full px-4 pt-2 space-y-3 max-w-lg mx-auto">
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 p-0.5 shadow-md">
@@ -196,7 +196,7 @@ export default function ProfilePage() {
                     </Card>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-2">
                     <Button
                         variant="ghost"
                         fullWidth
