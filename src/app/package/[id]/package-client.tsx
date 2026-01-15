@@ -134,7 +134,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
                     {/* Compact header with title and price */}
                     <div className="flex items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
                         <h2 className="text-base font-bold text-slate-800 flex-1">{displayTitle}</h2>
-                        <div className="bg-blue-600 text-white px-4 py-2 rounded-xl shadow-sm">
+                        <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl border border-blue-100">
                             <p className="text-lg font-bold whitespace-nowrap">
                                 ₮{pkg.price.toLocaleString()}
                             </p>
