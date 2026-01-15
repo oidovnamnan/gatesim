@@ -81,6 +81,17 @@ export default function ProfilePage() {
 
     const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
 
+    const [adminTapCount, setAdminTapCount] = useState(0);
+
+    const handleAdminTap = () => {
+        const newCount = adminTapCount + 1;
+        setAdminTapCount(newCount);
+        if (newCount >= 5) {
+            router.push("/admin");
+            setAdminTapCount(0);
+        }
+    };
+
     return (
         <div className="pb-0 bg-white dark:bg-slate-950 transition-colors duration-300">
             <MobileHeader title={t("profile")} showBack />
@@ -88,7 +99,10 @@ export default function ProfilePage() {
             <div className="w-full px-4 pt-2 space-y-3 max-w-lg mx-auto">
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 p-0.5 shadow-md">
+                    <div
+                        onClick={handleAdminTap}
+                        className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 p-0.5 shadow-md cursor-pointer active:scale-95 transition-transform"
+                    >
                         <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
                             {user.photoURL ? (
                                 <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
