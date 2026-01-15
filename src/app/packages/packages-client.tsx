@@ -195,7 +195,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
     const hasMore = displayCount < filteredPackages.length;
 
     return (
-        <div className="min-h-screen pb-24 md:pb-8 bg-background">
+        <div className="min-h-screen pb-20 md:pb-8 bg-background">
             <div className="md:hidden bg-white/30 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 shadow-sm">
                 <div className="h-14 flex items-center justify-center relative px-4">
                     <h1 className="text-lg font-bold text-slate-900 drop-shadow-sm">{t("packages")}</h1>
@@ -380,7 +380,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                 )}
 
                 {!hasMore && displayedPackages.length > 0 && (
-                    <div className="text-center py-6 text-sm text-slate-400">
+                    <div className="text-center py-2 text-sm text-slate-400">
                         {t("allPackagesShown").replace("{count}", filteredPackages.length.toString())}
                     </div>
                 )}
