@@ -132,7 +132,17 @@ export default function AdminDashboard() {
                 }
 
                 // Robust Number casting
-                const amount = typeof data.totalAmount === 'number' ? data.totalAmount : Number(data.totalAmount) || 0;
+                let amount = typeof data.totalAmount === 'number' ? data.totalAmount : Number(data.totalAmount) || 0;
+
+                // Currency conversion (Approximate USD -> MNT)
+                // If currency is explicitly USD or if amount is small (< 100) and likely USD
+                // This is a heuristic if currency field is missing or unreliable
+                const currency = (data.currency || "").toUpperCase();
+
+                if (currency === 'USD' || (amount > 0 && amount < 500 && currency !== 'MNT')) {
+                    amount = amount * 3450;
+                }
+
                 const status = (data.status || "").toLowerCase();
                 const isPaid = ["completed", "paid", "success", "completed"].includes(status);
 
