@@ -27,7 +27,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
             <div className="relative z-50">
                 <TopHeader />
             </div>
-            <div className="app-container min-h-screen relative z-10 pb-24 md:pb-0">
+            <div className="app-container relative z-10 pb-24 md:pb-0">
                 {children}
             </div>
             {/* Mobile Navigation */}
