@@ -29,6 +29,16 @@ export default function ProfilePage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
     const { success, error } = useToast();
+    const [adminTapCount, setAdminTapCount] = useState(0);
+
+    const handleAdminTap = () => {
+        const newCount = adminTapCount + 1;
+        setAdminTapCount(newCount);
+        if (newCount >= 5) {
+            router.push("/admin");
+            setAdminTapCount(0);
+        }
+    };
 
     useEffect(() => {
         if (userData?.phone) {
@@ -81,16 +91,8 @@ export default function ProfilePage() {
 
     const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
 
-    const [adminTapCount, setAdminTapCount] = useState(0);
 
-    const handleAdminTap = () => {
-        const newCount = adminTapCount + 1;
-        setAdminTapCount(newCount);
-        if (newCount >= 5) {
-            router.push("/admin");
-            setAdminTapCount(0);
-        }
-    };
+
 
     return (
         <div className="pb-0 bg-white dark:bg-slate-950 transition-colors duration-300">
