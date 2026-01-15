@@ -79,7 +79,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
     };
 
     return (
-        <div className="min-h-screen pb-48 md:pb-8 bg-background">
+        <div className="min-h-screen pb-36 md:pb-8 bg-background">
             <MobileHeader showBack title={countryName} />
 
             {/* Hero Section */}
@@ -318,7 +318,7 @@ export default function PackageClient({ pkg }: PackageClientProps) {
             </div>
 
             {/* Important notes */}
-            <div className="px-4 mt-4 mb-24">
+            <div className="px-4 mt-4 mb-4">
                 <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200">
                     <div className="flex items-start gap-3">
                         <Info className="h-5 w-5 text-amber-500 mt-0.5" />
