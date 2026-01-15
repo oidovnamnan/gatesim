@@ -158,52 +158,69 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
     return (
         <div className="space-y-6">
             {/* Filters Bar */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
-                <div className="flex-1 w-full md:w-auto relative">
+            {/* Filters Bar */}
+            <div className="flex flex-col gap-2 bg-white dark:bg-slate-900/50 p-2 md:p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
+                <div className="w-full relative">
                     <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                         placeholder="Search by name, SKU, country..."
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                        className="pl-9 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                        className="pl-9 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 w-full"
                     />
                 </div>
 
-                <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                    <Select value={providerFilter} onValueChange={(v) => { setProviderFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
-                            <SelectValue placeholder="Provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Providers</SelectItem>
-                            {providers.map(p => (
-                                <SelectItem key={p} value={p}>{p}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                <div className="flex flex-col md:flex-row gap-2 w-full">
+                    {/* Selects Row */}
+                    <div className="grid grid-cols-2 gap-2 w-full md:w-auto">
+                        <Select value={providerFilter} onValueChange={(v) => { setProviderFilter(v); setPage(1); }}>
+                            <SelectTrigger className="w-full md:w-[140px] h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
+                                <SelectValue placeholder="Provider" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Providers</SelectItem>
+                                {providers.map(p => (
+                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
 
-                    <Select value={regionFilter} onValueChange={(v) => { setRegionFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-[140px] h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
-                            <SelectValue placeholder="Region" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Regions</SelectItem>
-                            <SelectItem value="single">Single Country</SelectItem>
-                            <SelectItem value="regional">Regional / Global</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        <Select value={regionFilter} onValueChange={(v) => { setRegionFilter(v); setPage(1); }}>
+                            <SelectTrigger className="w-full md:w-[140px] h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
+                                <SelectValue placeholder="Region" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Regions</SelectItem>
+                                <SelectItem value="single">Single Country</SelectItem>
+                                <SelectItem value="regional">Regional / Global</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                    <Button
-                        variant={deduplicateFilter ? "default" : "outline"}
-                        onClick={() => { setDeduplicateFilter(!deduplicateFilter); setPage(1); }}
-                        className={`h-10 px-4 ${deduplicateFilter
-                            ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                            : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
-                    >
-                        Давхардалгүй
-                    </Button>
+                    {/* Buttons Row / Area */}
+                    <div className="grid grid-cols-1 md:flex gap-2 md:w-auto">
+                        <Button
+                            variant={deduplicateFilter ? "default" : "outline"}
+                            onClick={() => { setDeduplicateFilter(!deduplicateFilter); setPage(1); }}
+                            className={`h-10 w-full md:w-auto px-4 ${deduplicateFilter
+                                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
+                        >
+                            Давхардалгүй
+                        </Button>
 
-                    <RefreshButton />
+                        {/* Mobile only: Hidden on desktop to avoid duplication if header has it, but shown here for filter context if needed. 
+                            However, user complained about 'empty button'. 
+                            If RefreshButton renders just an icon or empty on mobile, checking its code... 
+                            It renders text "Sync from MobiMatter", but maybe it was squeezed?
+                            Let's hide it on mobile if it's redundant or broken, or ensure it's full width.
+                            User said "empty button like thing" (цагаан хоосон товч шиг зүйл).
+                            If the RefreshButton component has className="h-10 gap-2", maybe it had no content or failed to render text?
+                            Actually, I will remove it from here if it's already in the header (which it is in page.tsx).
+                            Wait, page.tsx has it. So this might be duplicate.
+                            Let's remove it from the filter bar to clean up mobile view.
+                        */}
+                    </div>
                 </div>
             </div>
 
