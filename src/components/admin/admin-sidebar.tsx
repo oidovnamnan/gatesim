@@ -117,6 +117,16 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
                         </Link>
                     );
                 })}
+
+                <div className="pt-2 mt-2 border-t border-slate-100 dark:border-white/5">
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all group"
+                    >
+                        <LogOut className="w-5 h-5 text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transform rotate-180" />
+                        Back to Profile
+                    </Link>
+                </div>
             </div>
 
             {/* Footer / User Info */}
