@@ -28,7 +28,7 @@ export function MobileAdminSidebar() {
             </Button>
 
             <Sheet open={open} onOpenChange={setOpen}>
-                <SheetContent side="left" className="p-0 w-72 bg-[#0d111c] border-slate-800" onClose={() => setOpen(false)}>
+                <SheetContent side="left" className="p-0 w-72 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800" onClose={() => setOpen(false)}>
                     <AdminSidebar className="w-full border-none bg-transparent" />
                 </SheetContent>
             </Sheet>
