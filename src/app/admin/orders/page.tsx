@@ -112,79 +112,80 @@ export default function AdminOrdersPage() {
                 </div>
             </div>
 
-            {/* Table */}
             <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden bg-white dark:bg-white/5 shadow-sm dark:shadow-none">
-                <table className="w-full text-sm text-left text-slate-600 dark:text-white/80">
-                    <thead className="bg-slate-50 dark:bg-[#11141d] text-slate-700 dark:text-white font-medium border-b border-slate-200 dark:border-white/10">
-                        <tr>
-                            <th className="px-6 py-4">Order ID</th>
-                            <th className="px-6 py-4">User / Contact</th>
-                            <th className="px-6 py-4">Package</th>
-                            <th className="px-6 py-4">Amount</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4">Date</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-white/10">
-                        {loading ? (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-slate-600 dark:text-white/80 min-w-[800px]">
+                        <thead className="bg-slate-50 dark:bg-[#11141d] text-slate-700 dark:text-white font-medium border-b border-slate-200 dark:border-white/10">
                             <tr>
-                                <td colSpan={7} className="px-6 py-12 text-center">
-                                    <div className="flex flex-col items-center justify-center">
-                                        <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-2" />
-                                        <p className="text-slate-500 dark:text-white/50">Loading orders...</p>
-                                    </div>
-                                </td>
+                                <th className="px-6 py-4">Order ID</th>
+                                <th className="px-6 py-4">User / Contact</th>
+                                <th className="px-6 py-4">Package</th>
+                                <th className="px-6 py-4">Amount</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        ) : filteredOrders.length === 0 ? (
-                            <tr>
-                                <td colSpan={7} className="px-6 py-12 text-center text-slate-500 dark:text-white/50">
-                                    {searchTerm || statusFilter !== 'all' ? 'No matching orders found.' : 'No orders found.'}
-                                </td>
-                            </tr>
-                        ) : (
-                            filteredOrders.map(order => {
-                                const item = order.items[0];
-                                return (
-                                    <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 font-mono text-blue-600 dark:text-white/70 truncate max-w-[150px]" title={order.id}>
-                                            {order.id.slice(0, 12)}...
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-slate-900 dark:text-white">{order.contactEmail}</div>
-                                            <div className="text-xs text-slate-500 dark:text-white/50">{order.userId !== 'guest' ? 'Registered' : 'Guest'}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-slate-900 dark:text-white">{item?.name || 'Unknown Package'}</div>
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                                            {formatPrice(order.totalAmount, order.currency)}
-                                            <div className="text-xs text-slate-500 dark:text-white/40 font-normal mt-0.5 uppercase">{order.paymentMethod}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <Badge variant={statusStyles[order.status] || "default"}>
-                                                {order.status.toUpperCase()}
-                                            </Badge>
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-500 dark:text-white/60">
-                                            {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-white/10"
-                                                onClick={() => setSelectedOrder(order)}
-                                            >
-                                                <Eye className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-white/10">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-2" />
+                                            <p className="text-slate-500 dark:text-white/50">Loading orders...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredOrders.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500 dark:text-white/50">
+                                        {searchTerm || statusFilter !== 'all' ? 'No matching orders found.' : 'No orders found.'}
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredOrders.map(order => {
+                                    const item = order.items[0];
+                                    return (
+                                        <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                            <td className="px-6 py-4 font-mono text-blue-600 dark:text-white/70 truncate max-w-[150px]" title={order.id}>
+                                                {order.id.slice(0, 12)}...
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-slate-900 dark:text-white">{order.contactEmail}</div>
+                                                <div className="text-xs text-slate-500 dark:text-white/50">{order.userId !== 'guest' ? 'Registered' : 'Guest'}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-slate-900 dark:text-white">{item?.name || 'Unknown Package'}</div>
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                                                {formatPrice(order.totalAmount, order.currency)}
+                                                <div className="text-xs text-slate-500 dark:text-white/40 font-normal mt-0.5 uppercase">{order.paymentMethod}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <Badge variant={statusStyles[order.status] || "default"}>
+                                                    {order.status.toUpperCase()}
+                                                </Badge>
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-500 dark:text-white/60">
+                                                {order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-white/10"
+                                                    onClick={() => setSelectedOrder(order)}
+                                                >
+                                                    <Eye className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <OrderDetailsSheet
