@@ -131,12 +131,12 @@ export default function PackageClient({ pkg }: PackageClientProps) {
             {/* Package Info Card */}
             <div className="px-4">
                 <Card className="p-5 bg-white border-slate-200 shadow-sm">
-                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-800">{displayTitle}</h2>
-                        <div className="text-right">
-                            <p className="text-sm text-slate-400">{t("price")}</p>
-                            <p className="text-2xl font-bold text-blue-600">
-                                {formatPrice(pkg.price, pkg.currency)}
+                    {/* Compact header with title and price */}
+                    <div className="flex items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
+                        <h2 className="text-base font-bold text-slate-800 flex-1">{displayTitle}</h2>
+                        <div className="bg-blue-600 text-white px-4 py-2 rounded-xl shadow-sm">
+                            <p className="text-lg font-bold whitespace-nowrap">
+                                ₮{pkg.price.toLocaleString()}
                             </p>
                         </div>
                     </div>
