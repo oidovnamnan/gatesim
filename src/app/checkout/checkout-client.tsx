@@ -418,7 +418,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                 {t("bankAppPay")}
                             </p>
                             <div className="grid grid-cols-3 gap-2">
-                                {invoice.deeplinks.slice(0, 9).map((bank, index) => {
+                                {invoice.deeplinks.map((bank, index) => {
                                     // Helper to match bank names fuzzily (e.g. "Khan Bank LLC" -> "Khan Bank")
                                     const getBankLogo = (name: string) => {
                                         const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
