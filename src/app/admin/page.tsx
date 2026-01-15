@@ -176,16 +176,18 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {statCards.map((stat, i) => (
-                    <Card key={i} className="p-4 bg-slate-900/50 border-slate-800 hover:border-blue-500/20 transition-all">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-2 rounded-lg bg-blue-500/10">
-                                <stat.icon className="w-5 h-5 text-blue-500" />
+                    <Card key={i} className="p-3 md:p-4 bg-slate-900/50 border-slate-800 hover:border-blue-500/20 transition-all">
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs md:text-sm text-slate-500 font-medium truncate">{stat.title}</span>
+                                <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10 shrink-0">
+                                    <stat.icon className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-500" />
+                                </div>
                             </div>
+                            <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">{stat.value}</h3>
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-1">{stat.value}</h3>
-                        <p className="text-sm text-slate-500">{stat.title}</p>
                     </Card>
                 ))}
             </div>
