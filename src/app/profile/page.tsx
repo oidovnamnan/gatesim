@@ -82,7 +82,7 @@ export default function ProfilePage() {
     const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
 
     return (
-        <div className="min-h-screen -mb-24 pb-24 md:mb-0 md:pb-8 bg-white dark:bg-slate-950 transition-colors duration-300">
+        <div className="pb-0 bg-white dark:bg-slate-950 transition-colors duration-300">
             <MobileHeader title={t("profile")} showBack />
 
             <div className="w-full px-4 pt-2 space-y-3 max-w-lg mx-auto">
