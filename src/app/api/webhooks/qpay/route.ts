@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc, runTransaction } from "firebase/firestore";
 import { createMobiMatterOrder } from "@/lib/mobimatter";
 import { MailService } from "@/lib/mail";
 import { qpay } from "@/services/payments/qpay/client";
+import { sendAdminOrderNotification, formatOrderForNotification } from "@/lib/admin-notifications";
 
 // 🔐 SECURITY: Webhook secret for verification
 const WEBHOOK_SECRET = process.env.QPAY_WEBHOOK_SECRET;
@@ -176,6 +177,15 @@ async function provisionEsim(orderId: string, packageId: string) {
             });
         } else {
             console.warn(`[Webhook] No contact email for order ${orderId}, skipping email.`);
+        }
+
+        // 6. Send Admin Push Notification
+        try {
+            const notificationData = formatOrderForNotification(orderData, orderId);
+            await sendAdminOrderNotification(notificationData);
+        } catch (notifError) {
+            // Don't fail the webhook if notification fails
+            console.error(`[Webhook] Admin notification failed for order ${orderId}:`, notifError);
         }
 
         console.log(`[Webhook] Order ${orderId} completed successfully.`);

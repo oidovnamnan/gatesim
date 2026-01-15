@@ -31,3 +31,11 @@ export function canAccess(role: AdminRole, resource: 'users' | 'settings' | 'ai'
     }
     return false;
 }
+
+/**
+ * Quick check if email belongs to any admin role
+ */
+export function isAdmin(email: string | null | undefined): boolean {
+    return getAdminRole(email) !== null;
+}
+

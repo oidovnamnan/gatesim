@@ -3,8 +3,16 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc, runTransaction } from "firebase/firestore";
 import { createMobiMatterOrder } from "@/lib/mobimatter";
 import { MailService } from "@/lib/mail";
+import { auth } from "@/lib/auth";
+import { isAdmin } from "@/config/admin";
 
 export async function POST(req: Request) {
+    // 🔐 Admin-only endpoint
+    const session = await auth();
+    if (!session?.user?.email || !isAdmin(session.user.email)) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     let orderId: string | undefined;
 
     try {
