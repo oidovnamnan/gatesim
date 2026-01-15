@@ -40,7 +40,7 @@ export function BottomNav() {
         <>
             <div className="fixed bottom-0 left-0 right-0 z-40 px-6 pb-8 pt-4 pointer-events-none md:hidden text-center [body.ai-chat-open_&]:hidden [body.modal-open_&]:hidden">
                 {/* Ultra Glass Bottom Nav */}
-                <nav className="inline-block bg-white/30 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[28px] shadow-2xl shadow-red-900/5 pointer-events-auto overflow-hidden ring-1 ring-white/20 dark:ring-white/5">
+                <nav className="inline-block bg-white/85 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 rounded-[28px] shadow-xl shadow-slate-900/10 pointer-events-auto overflow-hidden">
                     <div className="flex items-center justify-between px-2 py-2 relative gap-1">
                         {navItems.map((item) => (
                             <Link
@@ -50,8 +50,8 @@ export function BottomNav() {
                                 className={cn(
                                     "flex flex-col items-center justify-center gap-1 w-16 h-14 rounded-2xl transition-all duration-300 relative",
                                     item.active
-                                        ? "text-red-600 bg-white/50 dark:bg-white/10 shadow-inner border border-white/40 dark:border-white/5"
-                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-white/5"
+                                        ? "text-red-600 bg-red-50 dark:bg-red-900/30 shadow-inner border border-red-100 dark:border-red-800/30"
+                                        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/10"
                                 )}
                             >
                                 <item.icon
