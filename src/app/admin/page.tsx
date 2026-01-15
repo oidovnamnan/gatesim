@@ -266,7 +266,7 @@ export default function AdminDashboard() {
 
             {/* Main Stats Grid - Super Visuals */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Revenue Card */}
+                {/* Monthly Revenue Card (Was Total Revenue) */}
                 <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-white shadow-lg transition-all hover:shadow-blue-500/25">
                     <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
                     <div className="relative flex flex-col justify-between h-full">
@@ -275,36 +275,36 @@ export default function AdminDashboard() {
                                 <DollarSign className="h-6 w-6 text-white" />
                             </div>
                             <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-blue-100">
-                                <TrendingUp className="w-3 h-3 mr-1" /> +12.5%
+                                This Month
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
+                            <p className="text-blue-100 text-sm font-medium">Monthly Revenue</p>
                             <h3 className="text-3xl font-bold mt-1">₮{stats.totalRevenue.toLocaleString()}</h3>
                         </div>
                     </div>
                 </div>
 
-                {/* Users Card */}
+                {/* Daily Revenue Card (Was Total Users) */}
                 <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg transition-all hover:shadow-emerald-500/25">
                     <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
                     <div className="relative flex flex-col justify-between h-full">
                         <div className="flex items-start justify-between">
                             <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                                <Users className="h-6 w-6 text-white" />
+                                <TrendingUp className="h-6 w-6 text-white" />
                             </div>
                             <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-emerald-100">
-                                Active Now
+                                Today
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-emerald-100 text-sm font-medium">Total Users</p>
-                            <h3 className="text-3xl font-bold mt-1">{stats.activeUsers.toLocaleString()}</h3>
+                            <p className="text-emerald-100 text-sm font-medium">Daily Revenue</p>
+                            <h3 className="text-3xl font-bold mt-1">₮{stats.activeUsers.toLocaleString()}</h3>
                         </div>
                     </div>
                 </div>
 
-                {/* Orders Card */}
+                {/* Today's Orders Card (Was New Orders) */}
                 <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 p-6 text-white shadow-lg transition-all hover:shadow-orange-500/25">
                     <div className="absolute top-0 left-0 -mt-2 -ml-2 h-20 w-20 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
                     <div className="relative flex flex-col justify-between h-full">
@@ -313,11 +313,11 @@ export default function AdminDashboard() {
                                 <ShoppingBag className="h-6 w-6 text-white" />
                             </div>
                             <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-orange-100">
-                                Last 24h
+                                Today
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-orange-100 text-sm font-medium">New Orders</p>
+                            <p className="text-orange-100 text-sm font-medium">Daily Orders</p>
                             <h3 className="text-3xl font-bold mt-1">{stats.newOrders}</h3>
                         </div>
                     </div>
