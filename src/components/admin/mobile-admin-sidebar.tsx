@@ -22,7 +22,7 @@ export function MobileAdminSidebar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setOpen(true)}
-                className="md:hidden text-white hover:bg-white/10"
+                className="md:hidden text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10"
             >
                 <Menu className="h-6 w-6" />
             </Button>

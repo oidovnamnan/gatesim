@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
 
     return (
-        <div className="flex h-screen bg-[#0d111c] w-full overflow-hidden">
+        <div className="flex h-screen bg-slate-50 dark:bg-[#0d111c] w-full overflow-hidden transition-colors">
             {/* Desktop Sidebar - Hidden on mobile */}
             <div className="hidden md:block h-full">
                 <AdminSidebar />
@@ -46,9 +46,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
             <main className="flex-1 overflow-y-auto relative h-full flex flex-col">
                 {/* Mobile Header - Visible only on mobile */}
-                <div className="md:hidden flex items-center p-4 border-b border-white/10 bg-[#0d111c] sticky top-0 z-20">
+                <div className="md:hidden flex items-center p-4 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d111c] sticky top-0 z-20 transition-colors">
                     <MobileAdminSidebar />
-                    <span className="ml-3 text-lg font-bold text-white">GateSIM Admin</span>
+                    <span className="ml-3 text-lg font-bold text-slate-900 dark:text-white">GateSIM Admin</span>
                 </div>
 
                 {/* Top decorative gradient line (Desktop only or adjusted) */}
