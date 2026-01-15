@@ -419,24 +419,28 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             </p>
                             <div className="grid grid-cols-3 gap-2">
                                 {invoice.deeplinks.map((bank, index) => {
-                                    // Helper to match bank names fuzzily (e.g. "Khan Bank LLC" -> "Khan Bank")
+                                    // Helper to match bank names fuzzily (supports Cyrillic and Latin)
                                     const getBankLogo = (name: string) => {
-                                        const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                                        if (cleanName.includes("khan")) return "/banks/khanbank.svg";
-                                        if (cleanName.includes("golomt")) return "/banks/golomt.png";
-                                        if (cleanName.includes("state")) return "/banks/statebank.png";
-                                        if (cleanName.includes("tdb") || cleanName.includes("trade")) return "/banks/tdb.png";
-                                        if (cleanName.includes("xac")) return "/banks/xacbank.svg";
-                                        if (cleanName.includes("mbank") || cleanName.includes("m bank")) return "/banks/mbank.png";
-                                        if (cleanName.includes("bogd")) return "/banks/bogd.png";
-                                        if (cleanName.includes("arig")) return "/banks/arig.png";
-                                        if (cleanName.includes("chinggis")) return "/banks/chinggis.png";
-                                        if (cleanName.includes("most")) return "/banks/most.png";
-                                        if (cleanName.includes("social")) return "/banks/socialpay.png";
-                                        if (cleanName.includes("capitron")) return "/banks/capitron.png";
-                                        if (cleanName.includes("national") || cleanName.includes("nibank")) return "/banks/nibank.png";
-                                        if (cleanName.includes("trans")) return "/banks/transbank.png";
-                                        if (cleanName.includes("wallet")) return "/banks/qpay.png";
+                                        const lower = name.toLowerCase();
+
+                                        if (lower.includes("khan") || lower.includes("хаан")) return "/banks/khanbank.svg";
+                                        if (lower.includes("golomt") || lower.includes("голомт")) return "/banks/golomt.png";
+                                        if (lower.includes("state") || lower.includes("төрийн")) return "/banks/statebank.png";
+                                        if (lower.includes("tdb") || lower.includes("trade") || lower.includes("худалдаа")) return "/banks/tdb.png";
+                                        if (lower.includes("xac") || lower.includes("хас")) return "/banks/xacbank.svg";
+                                        if (lower.includes("mbank") || lower.includes("m bank") || lower.includes("м банк")) return "/banks/mbank.png";
+                                        if (lower.includes("bogd") || lower.includes("богд")) return "/banks/bogd.png";
+                                        if (lower.includes("arig") || lower.includes("ариг")) return "/banks/arig.png";
+                                        if (lower.includes("chinggis") || lower.includes("чингис")) return "/banks/chinggis.png";
+                                        if (lower.includes("most") || lower.includes("мост")) return "/banks/most.png";
+                                        if (lower.includes("social") || lower.includes("socialpay")) return "/banks/socialpay.png";
+                                        if (lower.includes("capitron") || lower.includes("капитрон")) return "/banks/capitron.png";
+                                        if (lower.includes("national") || lower.includes("nibank") || lower.includes("үндэсний")) return "/banks/nibank.png";
+                                        if (lower.includes("trans") || lower.includes("тээвэр")) return "/banks/transbank.png";
+                                        if (lower.includes("wallet") || lower.includes("qpay") || lower.includes("хэтэвч")) return "/banks/qpay.png";
+                                        if (lower.includes("ard") || lower.includes("ард")) return "/banks/ard.png";
+                                        if (lower.includes("toki") || lower.includes("токи")) return "/banks/toki.png";
+
                                         return bankLogos[name]; // Fallback to exact match or undefined
                                     };
 
