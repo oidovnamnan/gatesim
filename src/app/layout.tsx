@@ -7,6 +7,7 @@ import { ToastProvider } from "@/providers/toast-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { NextAuthProvider } from "@/providers/next-auth-provider";
 import { LanguageProvider } from "@/providers/language-provider";
+import { PresenceProvider } from "@/components/providers/presence-provider";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -92,9 +93,11 @@ export default function RootLayout({
             <LanguageProvider>
               <ThemeProvider>
                 <ToastProvider>
-                  <ClientLayout>
-                    {children}
-                  </ClientLayout>
+                  <PresenceProvider>
+                    <ClientLayout>
+                      {children}
+                    </ClientLayout>
+                  </PresenceProvider>
                 </ToastProvider>
               </ThemeProvider>
             </LanguageProvider>
