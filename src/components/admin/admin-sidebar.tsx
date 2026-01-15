@@ -62,14 +62,18 @@ const sidebarItems = [
     },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+    className?: string;
+}
+
+export function AdminSidebar({ className }: AdminSidebarProps) {
     const pathname = usePathname();
     const { data: session } = useSession();
     const userEmail = session?.user?.email;
     const role = getAdminRole(userEmail);
 
     return (
-        <div className="flex flex-col h-full w-64 bg-slate-900 text-white border-r border-slate-800">
+        <div className={cn("flex flex-col h-full w-64 bg-slate-900 text-white border-r border-slate-800", className)}>
             {/* Logo Area */}
             <div className="h-16 flex items-center px-6 border-b border-white/10">
                 <div className="flex items-center gap-2">

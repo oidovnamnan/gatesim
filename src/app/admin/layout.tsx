@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { MobileAdminSidebar } from "@/components/admin/mobile-admin-sidebar";
 import { getAdminRole } from "@/config/admin";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -38,11 +39,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
     return (
         <div className="flex h-screen bg-[#0d111c] w-full overflow-hidden">
-            <AdminSidebar />
-            <main className="flex-1 overflow-y-auto relative h-full">
-                {/* Top decorative gradient line */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-                <div className="p-8 pb-20">
+            {/* Desktop Sidebar - Hidden on mobile */}
+            <div className="hidden md:block h-full">
+                <AdminSidebar />
+            </div>
+
+            <main className="flex-1 overflow-y-auto relative h-full flex flex-col">
+                {/* Mobile Header - Visible only on mobile */}
+                <div className="md:hidden flex items-center p-4 border-b border-white/10 bg-[#0d111c] sticky top-0 z-20">
+                    <MobileAdminSidebar />
+                    <span className="ml-3 text-lg font-bold text-white">GateSIM Admin</span>
+                </div>
+
+                {/* Top decorative gradient line (Desktop only or adjusted) */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent md:block hidden" />
+
+                <div className="flex-1 p-4 md:p-8 pb-20">
                     {children}
                 </div>
             </main>
