@@ -13,17 +13,17 @@ interface SimCardFlagProps {
 const sizeConfig = {
     sm: {
         width: 80, height: 50, // Standard small
-        chipSize: 12, chipX: 52, chipY: 18,
+        chipSize: 12, chipX: 58, chipY: 18,
         outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     md: {
         width: 120, height: 75, // Standard medium (3:2 approx)
-        chipSize: 18, chipX: 85, chipY: 28,
+        chipSize: 18, chipX: 95, chipY: 28,
         outlinePadding: 2, outlineRadius: 4, outlineWidth: 1
     },
     lg: {
         width: 180, height: 112,
-        chipSize: 32, chipX: 130, chipY: 42,
+        chipSize: 32, chipX: 145, chipY: 42,
         outlinePadding: 3, outlineRadius: 6, outlineWidth: 1.5
     },
 };
