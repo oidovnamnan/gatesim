@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, BellOff, Loader2 } from "lucide-react";
 import { useToast } from "@/providers/toast-provider";
 
-export function NotificationManager() {
+export function NotificationManager({ className }: { className?: string }) {
     const { user } = useAuth();
     const { success, error } = useToast();
     const [isSubscribed, setIsSubscribed] = useState(false);
@@ -104,27 +104,26 @@ export function NotificationManager() {
     if (loading) return null;
 
     return (
-        <Card className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors">
+        <div className={`flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors p-2 rounded-lg ${className || ""}`}>
             <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isSubscribed ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'}`}>
-                    {isSubscribed ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${isSubscribed ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'}`}>
+                    {isSubscribed ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                 </div>
                 <div>
-                    <div className="font-bold text-foreground">Мэдэгдэл</div>
-                    <div className="text-xs text-muted-foreground">
-                        {isSubscribed ? "Идэвхтэй: Дата дуусах сануулга ирнэ" : "Идэвхжүүлж чухал сануулгууд авах"}
+                    <div className="font-semibold text-sm text-foreground">Мэдэгдэл</div>
+                    <div className="text-[10px] text-muted-foreground">
+                        {isSubscribed ? "Идэвхтэй" : "Идэвхжүүлэх"}
                     </div>
                 </div>
             </div>
-            <Button
-                variant={isSubscribed ? "outline" : "default"}
+            <div
                 onClick={handleToggle}
-                disabled={processing}
-                size="sm"
-                className={isSubscribed ? "" : "bg-blue-600 hover:bg-blue-700"}
+                className={`relative w-10 h-6 rounded-full transition-colors duration-200 ease-in-out cursor-pointer ${isSubscribed ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}
             >
-                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isSubscribed ? "Зогсоох" : "Идэвхжүүлэх")}
-            </Button>
-        </Card>
+                <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${isSubscribed ? 'translate-x-4' : 'translate-x-0'}`}>
+                    {processing && <Loader2 className="w-3 h-3 text-blue-500 animate-spin m-0.5" />}
+                </div>
+            </div>
+        </div>
     );
 }

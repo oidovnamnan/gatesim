@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/providers/language-provider";
 import { LoginForm } from "@/components/auth/login-form";
 import { NotificationManager } from "@/components/profile/notification-manager";
+import { ChangePasswordDialog } from "@/components/profile/change-password-dialog";
+import { Lock, ChevronRight } from "lucide-react";
 
 export default function ProfilePage() {
     const { user, userData, loading, signOut } = useAuth();
@@ -25,6 +27,7 @@ export default function ProfilePage() {
     const { t } = useTranslation();
     const [phone, setPhone] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
     const { success, error } = useToast();
 
     useEffect(() => {
@@ -79,94 +82,132 @@ export default function ProfilePage() {
     const isAdmin = user?.email && SUPER_ADMINS.includes(user.email);
 
     return (
-        <div className="min-h-screen pb-24 bg-background transition-colors duration-300">
+        <div className="min-h-screen pb-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
             <MobileHeader title={t("profile")} showBack />
 
-            <div className="px-4 pt-6 space-y-6">
-                {/* Profile Card */}
-                <div className="flex flex-col items-center">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 p-1 mb-4 shadow-lg shadow-blue-500/20">
-                        <div className="w-full h-full rounded-full bg-muted flex items-center justify-center overflow-hidden">
+            <div className="px-4 pt-4 space-y-4 max-w-lg mx-auto">
+                {/* Profile Header */}
+                <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 p-0.5 shadow-md">
+                        <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
                             {user.photoURL ? (
                                 <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
-                                <User className="w-10 h-10 text-muted-foreground" />
+                                <User className="w-6 h-6 text-slate-400" />
                             )}
                         </div>
                     </div>
-                    <h2 className="text-xl font-bold text-foreground mb-1">{userData?.displayName || t("profile")}</h2>
-                    <p className="text-muted-foreground text-sm">{user.email}</p>
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-lg font-bold text-foreground truncate">{userData?.displayName || t("profile")}</h2>
+                        <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    {isAdmin && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 border-indigo-200 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-700"
+                            onClick={() => router.push("/admin")}
+                        >
+                            Admin
+                        </Button>
+                    )}
                 </div>
 
-                {/* Admin Panel Button - Only for Admins */}
-                {isAdmin && (
+                {/* Settings Group */}
+                <div className="space-y-2">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase ml-2 tracking-wider">Тохиргоо</h3>
+                    <Card className="p-1 space-y-0.5 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                        {/* Appearance */}
+                        <div
+                            onClick={toggleMode}
+                            className="flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors p-3 rounded-lg"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-slate-800 text-orange-600 dark:text-slate-400 flex items-center justify-center">
+                                    {mode === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                                </div>
+                                <span className="font-semibold text-sm text-foreground">{t("appearance")}</span>
+                            </div>
+                            <div className={cn(
+                                "w-10 h-6 rounded-full p-1 transition-colors duration-300 relative",
+                                mode === "dark" ? "bg-slate-700" : "bg-slate-200"
+                            )}>
+                                <div className={cn(
+                                    "w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300",
+                                    mode === "dark" ? "translate-x-4" : "translate-x-0"
+                                )} />
+                            </div>
+                        </div>
+
+                        {/* Notifications */}
+                        <NotificationManager className="p-3" />
+
+                        {/* Change Password */}
+                        <div
+                            onClick={() => setIsChangePasswordOpen(true)}
+                            className="flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors p-3 rounded-lg"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/20 text-rose-600 flex items-center justify-center">
+                                    <Lock className="w-4 h-4" />
+                                </div>
+                                <span className="font-semibold text-sm text-foreground">Нууц үг солих</span>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-slate-400" />
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Personal Info Group */}
+                <div className="space-y-2">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase ml-2 tracking-wider">Хувийн мэдээлэл</h3>
+                    <Card className="p-4 space-y-4 border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div className="grid gap-4">
+                            <div>
+                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">{t("email")}</label>
+                                <Input icon={Mail} value={user.email || ""} disabled className="bg-slate-50/50 dark:bg-slate-900/50 border-dashed" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">{t("phone")}</label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        icon={Phone}
+                                        value={phone}
+                                        placeholder={t("phonePlaceholder")}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        className="bg-white dark:bg-slate-900"
+                                    />
+                                    <Button
+                                        onClick={handleSave}
+                                        disabled={isSaving || phone === userData?.phone}
+                                        size="icon"
+                                        className="shrink-0"
+                                    >
+                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="text-xs font-bold">OK</div>}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                <div className="pt-4">
                     <Button
-                        variant="default"
+                        variant="ghost"
                         fullWidth
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border-none shadow-lg shadow-indigo-500/20 mb-2"
-                        onClick={() => router.push("/admin")}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        onClick={() => signOut()}
                     >
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Admin Panel
+                        <LogOut className="w-4 h-4 mr-2" />
+                        {t("logout")}
                     </Button>
-                )}
-
-                {/* Notifications */}
-                <NotificationManager />
-
-                {/* Theme Toggle Button */}
-                <Card className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors" onClick={toggleMode}>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                            {mode === "dark" ? <Moon className="w-5 h-5 text-blue-600 dark:text-blue-400" /> : <Sun className="w-5 h-5 text-orange-500" />}
-                        </div>
-                        <div>
-                            <div className="font-bold text-foreground">{t("appearance")}</div>
-                            <div className="text-xs text-muted-foreground">{mode === "dark" ? t("darkMode") : t("lightMode")}</div>
-                        </div>
-                    </div>
-                    <div className={cn(
-                        "w-12 h-6 rounded-full p-1 transition-colors duration-300 relative",
-                        mode === "dark" ? "bg-blue-600" : "bg-slate-200"
-                    )}>
-                        <div className={cn(
-                            "w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300",
-                            mode === "dark" ? "translate-x-6" : "translate-x-0"
-                        )} />
-                    </div>
-                </Card>
-
-                {/* Info Form */}
-                <Card className="p-4 space-y-4">
-                    <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block ml-1">{t("email")}</label>
-                        <Input icon={Mail} value={user.email || ""} disabled className="opacity-70 bg-muted/50" />
-                    </div>
-                    <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block ml-1">{t("phone")}</label>
-                        <Input
-                            icon={Phone}
-                            value={phone}
-                            placeholder={t("phonePlaceholder")}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="bg-background"
-                        />
-                    </div>
-                    <Button fullWidth onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? t("saving") : t("save")}
-                    </Button>
-                </Card>
-
-                <Button
-                    variant="outline"
-                    fullWidth
-                    className="border-red-500/30 text-red-500 hover:bg-red-500/10 hover:text-red-400"
-                    onClick={() => signOut()}
-                >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    {t("logout")}
-                </Button>
+                </div>
             </div>
+
+            <ChangePasswordDialog
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
         </div>
     );
 }
