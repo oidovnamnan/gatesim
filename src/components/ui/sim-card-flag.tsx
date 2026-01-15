@@ -109,16 +109,16 @@ export function SimCardFlag({ countryCode, size = "md", className }: SimCardFlag
                 borderRadius: config.width * 0.08, // Standard SIM roundness
             }}
         >
-            {/* Flag Image - Standard reliable fill */}
+            {/* Flag Image - Fill entire container */}
             {!imageError ? (
                 <div className="absolute inset-0 w-full h-full">
                     <Image
                         src={flagUrl}
                         alt={`${countryCode}`}
                         fill
-                        className="object-cover"
+                        className="object-fill"
                         sizes={`${config.width * 2}px`}
-                        loading="lazy" // Strict lazy loading
+                        loading="lazy"
                         onError={() => setImageError(true)}
                     />
                 </div>
