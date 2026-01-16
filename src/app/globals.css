@@ -518,75 +518,13 @@ select:focus {
    Applied only when data-fb-browser="true" is set on html
    ============================================ */
 
-/* Fix card container in FB WebView - keep fixed height */
-html[data-fb-browser="true"] .package-card-fb-fix {
-  height: 220px !important;
+/* Global scale down for Facebook browser - reduces all rem-based sizes */
+html[data-fb-browser="true"] {
+  font-size: 14px !important;
+  /* Default is 16px, this scales everything down to ~87.5% */
+}
+
+/* Ensure proper overflow handling in FB WebView */
+html[data-fb-browser="true"] .overflow-hidden {
   overflow: hidden !important;
-}
-
-/* Fix flex container issues in FB WebView */
-html[data-fb-browser="true"] .fb-flex-fix {
-  display: block !important;
-}
-
-/* Ensure content stays within card bounds */
-html[data-fb-browser="true"] .fb-card-content {
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-/* Fix badge positioning in FB WebView */
-html[data-fb-browser="true"] .fb-badge-container {
-  position: absolute !important;
-  top: 12px !important;
-  right: 12px !important;
-  z-index: 20 !important;
-  max-width: 45% !important;
-}
-
-html[data-fb-browser="true"] .fb-badge-container>div {
-  flex-wrap: wrap !important;
-  gap: 4px !important;
-}
-
-/* Fix SIM card flag in FB WebView - preserve aspect ratio */
-html[data-fb-browser="true"] .fb-sim-flag {
-  flex-shrink: 0 !important;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* Fix text truncation in FB WebView */
-html[data-fb-browser="true"] .fb-text-fix {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  max-width: 100% !important;
-}
-
-/* Fix country name width */
-html[data-fb-browser="true"] .fb-country-name {
-  max-width: calc(100% - 70px) !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Fix specs badges sizing */
-html[data-fb-browser="true"] .fb-specs-badge {
-  padding: 4px 8px !important;
-  font-size: 12px !important;
-  flex-shrink: 0 !important;
-}
-
-/* Fix image scaling issues */
-html[data-fb-browser="true"] .fb-bg-image {
-  object-fit: cover !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* Ensure proper z-index stacking */
-html[data-fb-browser="true"] .fb-content-z {
-  position: relative !important;
-  z-index: 20 !important;
 }
