@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Save, AlertCircle, RefreshCw, Globe, Shield, Palette, Check, Power } from "lucide-react";
+import { Save, AlertCircle, RefreshCw, Globe, Shield, Palette, Check, Power, ImagePlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { subscribeToSystemConfig, updateSystemConfig } from "@/lib/db";
 import { useToast } from "@/components/ui/use-toast";
@@ -18,13 +18,23 @@ interface PricingSettings {
     usdToMnt: number;
     marginPercent: number;
     maintenanceMode?: boolean;
+    openaiApiKey?: string;
+    googleApiKey?: string;
+    preferredImageAI?: 'openai' | 'google';
 }
 
 export default function SettingsPage() {
     const { toast } = useToast();
     const router = useRouter();
     const { data: session, status } = useSession();
-    const [settings, setSettings] = useState<PricingSettings>({ usdToMnt: 3450, marginPercent: 25, maintenanceMode: false });
+    const [settings, setSettings] = useState<PricingSettings>({
+        usdToMnt: 3450,
+        marginPercent: 25,
+        maintenanceMode: false,
+        openaiApiKey: '',
+        googleApiKey: '',
+        preferredImageAI: 'openai'
+    });
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -52,7 +62,10 @@ export default function SettingsPage() {
                 ...config,
                 usdToMnt: config.usdToMnt || 3450,
                 marginPercent: config.marginPercent || 25,
-                maintenanceMode: config.maintenanceMode || false
+                maintenanceMode: config.maintenanceMode || false,
+                openaiApiKey: config.openaiApiKey || '',
+                googleApiKey: config.googleApiKey || '',
+                preferredImageAI: config.preferredImageAI || 'openai'
             }));
             setLoading(false);
         });
@@ -232,7 +245,122 @@ export default function SettingsPage() {
                 </div>
             </Card>
 
-            {/* 3. System */}
+            {/* 3. AI Image Generation */}
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-pink-50 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400">
+                        <ImagePlus className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">AI Зураг Үүсгэх</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Постер үүсгэхэд ашиглах AI API тохиргоо</p>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    {/* Preferred AI Selection */}
+                    <div className="space-y-3">
+                        <Label className="text-slate-700 dark:text-slate-300">Ашиглах AI сонгох</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={() => setSettings(s => ({ ...s, preferredImageAI: 'openai' }))}
+                                className={`p-4 rounded-xl border-2 transition-all text-left ${settings.preferredImageAI === 'openai'
+                                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'
+                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                    }`}
+                            >
+                                <div className="font-medium text-slate-900 dark:text-white">OpenAI DALL-E</div>
+                                <div className="text-xs text-slate-500 mt-1">$0.04/зураг • Түргэн</div>
+                            </button>
+                            <button
+                                onClick={() => setSettings(s => ({ ...s, preferredImageAI: 'google' }))}
+                                className={`p-4 rounded-xl border-2 transition-all text-left ${settings.preferredImageAI === 'google'
+                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                    }`}
+                            >
+                                <div className="font-medium text-slate-900 dark:text-white">Google Imagen</div>
+                                <div className="text-xs text-slate-500 mt-1">$0.02/зураг • Өндөр чанар</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* OpenAI API Key */}
+                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-white/5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-slate-900 dark:text-white">OpenAI API</span>
+                                {settings.openaiApiKey ? (
+                                    <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">Тохируулсан</Badge>
+                                ) : (
+                                    <Badge variant="secondary" className="text-slate-500 dark:text-slate-400">Тохируулаагүй</Badge>
+                                )}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500 dark:text-white/60">API Key (sk-...)</Label>
+                                <Input
+                                    type="password"
+                                    value={settings.openaiApiKey || ''}
+                                    onChange={(e) => setSettings(s => ({ ...s, openaiApiKey: e.target.value }))}
+                                    placeholder="sk-proj-..."
+                                    className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-10 text-sm font-mono"
+                                />
+                                <p className="text-xs text-slate-400">platform.openai.com → API Keys хэсгээс авна</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Google Imagen API Key */}
+                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-white/5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-slate-900 dark:text-white">Google Imagen API</span>
+                                {settings.googleApiKey ? (
+                                    <Badge variant="default" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">Тохируулсан</Badge>
+                                ) : (
+                                    <Badge variant="secondary" className="text-slate-500 dark:text-slate-400">Тохируулаагүй</Badge>
+                                )}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500 dark:text-white/60">API Key</Label>
+                                <Input
+                                    type="password"
+                                    value={settings.googleApiKey || ''}
+                                    onChange={(e) => setSettings(s => ({ ...s, googleApiKey: e.target.value }))}
+                                    placeholder="AIza..."
+                                    className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-10 text-sm font-mono"
+                                />
+                                <p className="text-xs text-slate-400">Google Cloud Console → Vertex AI → API Keys</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="pt-4 flex justify-end">
+                    <Button
+                        onClick={handleSave}
+                        className="bg-pink-600 hover:bg-pink-700 text-white"
+                    >
+                        {saved ? (
+                            <>
+                                <Check className="w-4 h-4 mr-2" />
+                                Хадгалагдлаа!
+                            </>
+                        ) : (
+                            <>
+                                <Save className="w-4 h-4 mr-2" />
+                                AI тохиргоо хадгалах
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </Card>
+
+            {/* 4. System */}
             <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
                     <div className="p-2 rounded-lg bg-red-50 dark:bg-red-500/20 text-red-600 dark:text-red-400">
