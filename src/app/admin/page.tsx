@@ -145,7 +145,9 @@ export default function AdminDashboard() {
                 }
 
                 const status = (data.status || "").toLowerCase();
-                const isPaid = ["completed", "paid", "success", "completed"].includes(status);
+                // Check for paid/completed orders - using lowercase comparison
+                // Actual statuses: COMPLETED, paid, success, completed
+                const isPaid = ["completed", "paid", "success"].includes(status);
 
                 // Count active eSIMs (Lifetime)
                 if (isPaid) {
