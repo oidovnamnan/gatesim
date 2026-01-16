@@ -46,32 +46,44 @@ export default function ContentManagerPage() {
         setGenerating(true);
         setPoster(null);
 
-        // Simulate API call - in real implementation this would call an API
-        // that uses AI to generate the poster
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Short delay for UX
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Mock generated content
-        const theme = themeOptions.find(t => t.id === selectedTheme);
-        const mockPoster: GeneratedPoster = {
-            imageUrl: `/api/placeholder/${sizeOptions.find(s => s.id === selectedSize)?.dimensions || "1080x1080"}`,
-            captionMN: theme?.id === "morning"
-                ? "🌅 Өглөөний мэнд!\n\n✈️ Аялалаа төлөвлөж байна уу?\n📱 GateSIM-ээр 200+ улсад интернет!\n\n💰 Хамгийн хямд үнэ\n⚡ Шууд идэвхжинэ\n🔒 Байнгын холболт\n\n👉 gatesim.travel"
-                : theme?.id === "evening"
-                    ? "🌙 Сайн оройн мэнд!\n\n🌍 Маргааш аялалд гарах уу?\n📱 GateSIM таны хамгийн найдвартай интернет!\n\n✨ 200+ улс\n💳 QPay төлбөр\n📞 24/7 дэмжлэг\n\n👉 gatesim.travel"
-                    : theme?.id === "promo"
-                        ? "🔥 ОНЦГОЙ САНАЛ!\n\n🎯 Энэ 7 хоногт л!\n📱 Бүх багц -20% хямдралтай\n\n💰 ₮5,000-с эхлэн\n✈️ Япон, Солонгос, Хятад\n⚡ Шууд идэвхжинэ\n\n👉 gatesim.travel"
-                        : "✈️ Аялал таны хүлээж байна!\n\n🌏 200+ улсад интернет\n📱 eSIM - физик карт шаардлагагүй\n\n💰 Хямд үнэ\n⚡ Минутанд идэвхжинэ\n🔒 Найдвартай холболт\n\n👉 gatesim.travel",
-            captionEN: theme?.id === "morning"
-                ? "🌅 Good morning!\n\n✈️ Planning your next trip?\n📱 Stay connected in 200+ countries with GateSIM!\n\n💰 Best prices\n⚡ Instant activation\n🔒 Reliable connection\n\n👉 gatesim.travel"
-                : theme?.id === "evening"
-                    ? "🌙 Good evening!\n\n🌍 Traveling tomorrow?\n📱 GateSIM - Your reliable travel companion!\n\n✨ 200+ countries\n💳 Easy payment\n📞 24/7 support\n\n👉 gatesim.travel"
-                    : theme?.id === "promo"
-                        ? "🔥 SPECIAL OFFER!\n\n🎯 This week only!\n📱 All packages 20% OFF\n\n💰 Starting from $5\n✈️ Japan, Korea, China & more\n⚡ Instant activation\n\n👉 gatesim.travel"
-                        : "✈️ Adventure awaits!\n\n🌏 Stay connected in 200+ countries\n📱 eSIM - No physical SIM needed\n\n💰 Affordable prices\n⚡ Activate in minutes\n🔒 Reliable connection\n\n👉 gatesim.travel",
+        // Use pre-generated AI posters
+        const posterImages: Record<string, string> = {
+            morning: "/posters/morning.png",
+            evening: "/posters/evening.png",
+            travel: "/posters/travel.png",
+            promo: "/posters/promo.png"
+        };
+
+        const captions: Record<string, { mn: string; en: string }> = {
+            morning: {
+                mn: "🌅 Өглөөний мэнд!\n\n✈️ Аялалаа төлөвлөж байна уу?\n📱 GateSIM-ээр 200+ улсад интернет!\n\n💰 Хамгийн хямд үнэ\n⚡ Шууд идэвхжинэ\n🔒 Байнгын холболт\n\n👉 gatesim.travel",
+                en: "🌅 Good morning!\n\n✈️ Planning your next trip?\n📱 Stay connected in 200+ countries with GateSIM!\n\n💰 Best prices\n⚡ Instant activation\n🔒 Reliable connection\n\n👉 gatesim.travel"
+            },
+            evening: {
+                mn: "🌙 Сайн оройн мэнд!\n\n🌍 Маргааш аялалд гарах уу?\n📱 GateSIM таны хамгийн найдвартай интернет!\n\n✨ 200+ улс\n💳 QPay төлбөр\n📞 24/7 дэмжлэг\n\n👉 gatesim.travel",
+                en: "🌙 Good evening!\n\n🌍 Traveling tomorrow?\n📱 GateSIM - Your reliable travel companion!\n\n✨ 200+ countries\n💳 Easy payment\n📞 24/7 support\n\n👉 gatesim.travel"
+            },
+            travel: {
+                mn: "✈️ Аялал таны хүлээж байна!\n\n🌏 200+ улсад интернет\n📱 eSIM - физик карт шаардлагагүй\n\n💰 Хямд үнэ\n⚡ Минутанд идэвхжинэ\n🔒 Найдвартай холболт\n\n👉 gatesim.travel",
+                en: "✈️ Adventure awaits!\n\n🌏 Stay connected in 200+ countries\n📱 eSIM - No physical SIM needed\n\n💰 Affordable prices\n⚡ Activate in minutes\n🔒 Reliable connection\n\n👉 gatesim.travel"
+            },
+            promo: {
+                mn: "🔥 ОНЦГОЙ САНАЛ!\n\n🎯 Энэ 7 хоногт л!\n📱 Бүх багц -20% хямдралтай\n\n💰 ₮5,000-с эхлэн\n✈️ Япон, Солонгос, Хятад\n⚡ Шууд идэвхжинэ\n\n👉 gatesim.travel",
+                en: "🔥 SPECIAL OFFER!\n\n🎯 This week only!\n📱 All packages 20% OFF\n\n💰 Starting from $5\n✈️ Japan, Korea, China & more\n⚡ Instant activation\n\n👉 gatesim.travel"
+            }
+        };
+
+        const generatedPoster: GeneratedPoster = {
+            imageUrl: posterImages[selectedTheme] || posterImages.morning,
+            captionMN: captions[selectedTheme]?.mn || captions.morning.mn,
+            captionEN: captions[selectedTheme]?.en || captions.morning.en,
             hashtags: "#GateSIM #eSIM #Аялал #Travel #Mongolia #TravelTech #DigitalNomad"
         };
 
-        setPoster(mockPoster);
+        setPoster(generatedPoster);
         setGenerating(false);
     };
 
@@ -124,8 +136,8 @@ export default function ContentManagerPage() {
                                     key={size.id}
                                     onClick={() => setSelectedSize(size.id)}
                                     className={`p-3 rounded-xl border-2 transition-all text-center ${selectedSize === size.id
-                                            ? "border-primary bg-primary/5 text-primary"
-                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                                        ? "border-primary bg-primary/5 text-primary"
+                                        : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
                                         }`}
                                 >
                                     <div className="text-xs font-medium">{size.label}</div>
@@ -146,8 +158,8 @@ export default function ContentManagerPage() {
                                     key={theme.id}
                                     onClick={() => setSelectedTheme(theme.id)}
                                     className={`p-3 rounded-xl border-2 transition-all ${selectedTheme === theme.id
-                                            ? "border-primary ring-2 ring-primary/20"
-                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                                        ? "border-primary ring-2 ring-primary/20"
+                                        : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
                                         }`}
                                 >
                                     <div className={`h-8 rounded-lg bg-gradient-to-r ${theme.color} mb-2`} />
@@ -190,16 +202,13 @@ export default function ContentManagerPage() {
                         </div>
                     ) : poster ? (
                         <div className="space-y-4">
-                            {/* Poster Preview */}
-                            <div className={`rounded-xl bg-gradient-to-br ${themeOptions.find(t => t.id === selectedTheme)?.color} flex items-center justify-center text-white p-8 ${selectedSize === "instagram" ? "aspect-square" :
-                                    selectedSize === "facebook" ? "aspect-video" :
-                                        "aspect-[9/16] max-h-[400px]"
-                                }`}>
-                                <div className="text-center">
-                                    <div className="text-4xl mb-2">∞</div>
-                                    <div className="text-2xl font-bold">GateSIM</div>
-                                    <div className="text-sm opacity-80 mt-2">200+ улсад интернет</div>
-                                </div>
+                            {/* Poster Preview - Real AI Image */}
+                            <div className="rounded-xl overflow-hidden shadow-lg">
+                                <img
+                                    src={poster.imageUrl}
+                                    alt="GateSIM Poster"
+                                    className="w-full h-auto object-contain"
+                                />
                             </div>
 
                             {/* Action Buttons */}
