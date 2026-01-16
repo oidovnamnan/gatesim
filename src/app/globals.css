@@ -550,10 +550,11 @@ html[data-fb-browser="true"] .fb-badge-container>div {
   gap: 4px !important;
 }
 
-/* Fix SIM card flag in FB WebView */
+/* Fix SIM card flag in FB WebView - preserve aspect ratio */
 html[data-fb-browser="true"] .fb-sim-flag {
   flex-shrink: 0 !important;
-  max-width: 60px !important;
+  width: auto !important;
+  height: auto !important;
 }
 
 /* Fix text truncation in FB WebView */
