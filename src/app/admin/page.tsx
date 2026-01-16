@@ -394,11 +394,11 @@ export default function AdminDashboard() {
                         <div>
                             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <Globe className="w-5 h-5 text-blue-500" />
-                                Top Active Regions
+                                Идэвхтэй бүс нутаг
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">based on recent sales</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">сүүлийн борлуулалтаар</p>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-xs">View Report</Button>
+                        <Button variant="ghost" size="sm" className="text-xs">Тайлан</Button>
                     </div>
                     <div className="p-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
