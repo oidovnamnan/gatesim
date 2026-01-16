@@ -284,21 +284,21 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 p-1">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex justify-between items-center gap-2 mb-1">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
                         Admin Dashboard
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400">
-                        Welcome back! Here's what's happening today.
+                    <p className="text-slate-500 dark:text-slate-400 text-xs">
+                        Өнөөдрийн тойм
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <AdminNotificationToggle />
-                    <div className="flex items-center gap-2 text-sm font-medium text-slate-500 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
-                        <span className="relative flex h-2 w-2">
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-white dark:bg-slate-900 px-2 py-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <span className="relative flex h-1.5 w-1.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                         </span>
                         System Online
                     </div>
