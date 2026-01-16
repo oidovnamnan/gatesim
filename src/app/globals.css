@@ -518,11 +518,10 @@ select:focus {
    Applied only when data-fb-browser="true" is set on html
    ============================================ */
 
-/* Fix card height and prevent overflow in FB WebView */
+/* Fix card container in FB WebView - keep fixed height */
 html[data-fb-browser="true"] .package-card-fb-fix {
-  height: auto !important;
-  min-height: 220px !important;
-  max-height: none !important;
+  height: 220px !important;
+  overflow: hidden !important;
 }
 
 /* Fix flex container issues in FB WebView */
