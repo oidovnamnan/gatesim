@@ -14,7 +14,8 @@ import {
     LogOut,
     UserCog,
     Shield,
-    Package
+    Package,
+    ImagePlus
 } from "lucide-react";
 
 const sidebarItems = [
@@ -53,6 +54,12 @@ const sidebarItems = [
         href: "/admin/ai",
         icon: Bot,
         resource: 'ai' as const,
+    },
+    {
+        title: "Content",
+        href: "/admin/content",
+        icon: ImagePlus,
+        resource: null,
     },
     {
         title: "Settings",
