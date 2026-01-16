@@ -170,27 +170,28 @@ export default function AdminDashboard() {
                 // Internal tracking (unused in cards but kept for logic)
                 if (data.contactEmail) uniqueUsers.add(data.contactEmail);
 
-                // Aggregate Countries & Packages
-                const pkgName = data.items?.[0]?.name || data.package?.name;
-                const country = data.items?.[0]?.countryCode || "GLOBAL"; // Default or infer ??
+                // Aggregate Countries & Packages - ONLY for paid orders
+                if (isPaid) {
+                    const pkgName = data.items?.[0]?.name || data.package?.name;
+                    const country = data.items?.[0]?.countryCode || "GLOBAL";
 
-                if (pkgName) {
-                    packageCounts[pkgName] = (packageCounts[pkgName] || 0) + 1;
-                }
+                    if (pkgName) {
+                        packageCounts[pkgName] = (packageCounts[pkgName] || 0) + 1;
+                    }
 
-                // Try to guess country from package name if not present
-                // Simple heuristic for demo/visuals
-                let derivedCountry = country;
-                if ((!derivedCountry || derivedCountry === "GLOBAL") && pkgName) {
-                    if (pkgName.includes("China")) derivedCountry = "CN";
-                    else if (pkgName.includes("Japan")) derivedCountry = "JP";
-                    else if (pkgName.includes("Korea")) derivedCountry = "KR";
-                    else if (pkgName.includes("USA")) derivedCountry = "US";
-                    else if (pkgName.includes("Europe")) derivedCountry = "EU";
-                }
+                    // Try to guess country from package name if not present
+                    let derivedCountry = country;
+                    if ((!derivedCountry || derivedCountry === "GLOBAL") && pkgName) {
+                        if (pkgName.includes("China")) derivedCountry = "CN";
+                        else if (pkgName.includes("Japan")) derivedCountry = "JP";
+                        else if (pkgName.includes("Korea")) derivedCountry = "KR";
+                        else if (pkgName.includes("USA")) derivedCountry = "US";
+                        else if (pkgName.includes("Europe")) derivedCountry = "EU";
+                    }
 
-                if (derivedCountry) {
-                    countryCounts[derivedCountry] = (countryCounts[derivedCountry] || 0) + 1;
+                    if (derivedCountry) {
+                        countryCounts[derivedCountry] = (countryCounts[derivedCountry] || 0) + 1;
+                    }
                 }
             });
 
