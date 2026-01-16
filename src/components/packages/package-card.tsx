@@ -161,6 +161,7 @@ export function PackageCard({
                     className={cn(
                         "relative overflow-hidden rounded-[24px] transition-all duration-300 isolate",
                         "shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-red-900/20 hover:-translate-y-1 h-[220px] flex flex-col justify-end",
+                        "package-card-fb-fix fb-card-content", // Facebook WebView fixes
                         !bgImage && "package-card border", // Use custom class here
                         className
                     )}
@@ -187,7 +188,7 @@ export function PackageCard({
                     )}
 
                     {/* Badge */}
-                    <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5">
+                    <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5 fb-badge-container">
                         {(isPopular || isFeatured || isRegional) && (
                             <div className="flex flex-col items-end gap-1.5">
                                 {(isPopular || isFeatured) && (
@@ -241,11 +242,11 @@ export function PackageCard({
                             <SimCardFlag
                                 countryCode={primaryCountry}
                                 size="md"
-                                className="mt-3"
+                                className="mt-3 fb-sim-flag"
                             />
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 fb-country-name">
                                 <h3 className={cn(
-                                    "text-lg font-black tracking-tight leading-tight",
+                                    "text-lg font-black tracking-tight leading-tight fb-text-fix",
                                     bgImage ? "text-white" : "package-card-text"
                                 )}>
                                     {isRegional && contextualCountry
@@ -266,14 +267,14 @@ export function PackageCard({
                         {/* Specs */}
                         <div className="flex items-center gap-2 mb-4">
                             <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm",
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm fb-specs-badge",
                                 bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Wifi className="w-3.5 h-3.5 opacity-70" />
                                 <span className="text-sm font-bold">{data}</span>
                             </div>
                             <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm",
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm fb-specs-badge",
                                 bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Clock className="w-3.5 h-3.5 opacity-70" />

@@ -512,3 +512,81 @@ select:focus {
   color: #e2e8f0 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+/* ============================================
+   Facebook In-App Browser Fixes
+   Applied only when data-fb-browser="true" is set on html
+   ============================================ */
+
+/* Fix card height and prevent overflow in FB WebView */
+html[data-fb-browser="true"] .package-card-fb-fix {
+  height: auto !important;
+  min-height: 220px !important;
+  max-height: none !important;
+}
+
+/* Fix flex container issues in FB WebView */
+html[data-fb-browser="true"] .fb-flex-fix {
+  display: block !important;
+}
+
+/* Ensure content stays within card bounds */
+html[data-fb-browser="true"] .fb-card-content {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Fix badge positioning in FB WebView */
+html[data-fb-browser="true"] .fb-badge-container {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 20 !important;
+  max-width: 45% !important;
+}
+
+html[data-fb-browser="true"] .fb-badge-container>div {
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+
+/* Fix SIM card flag in FB WebView */
+html[data-fb-browser="true"] .fb-sim-flag {
+  flex-shrink: 0 !important;
+  max-width: 60px !important;
+}
+
+/* Fix text truncation in FB WebView */
+html[data-fb-browser="true"] .fb-text-fix {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+}
+
+/* Fix country name width */
+html[data-fb-browser="true"] .fb-country-name {
+  max-width: calc(100% - 70px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Fix specs badges sizing */
+html[data-fb-browser="true"] .fb-specs-badge {
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Fix image scaling issues */
+html[data-fb-browser="true"] .fb-bg-image {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure proper z-index stacking */
+html[data-fb-browser="true"] .fb-content-z {
+  position: relative !important;
+  z-index: 20 !important;
+}

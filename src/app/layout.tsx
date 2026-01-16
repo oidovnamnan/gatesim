@@ -78,6 +78,22 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Facebook In-App Browser Detection */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var ua = navigator.userAgent || navigator.vendor || window.opera || '';
+                  var isFB = /FBAN|FBAV|FB_IAB|FBIOS|FB4A/i.test(ua);
+                  if (isFB) {
+                    document.documentElement.setAttribute('data-fb-browser', 'true');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         {/* Preconnect to external resources */}
 
         {/* PWA meta tags */}
