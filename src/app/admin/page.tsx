@@ -305,84 +305,83 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Main Stats Grid - Super Visuals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Monthly Revenue Card (Was Total Revenue) */}
-                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-white shadow-lg transition-all hover:shadow-blue-500/25">
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
-                    <div className="relative flex flex-col justify-between h-full">
-                        <div className="flex items-start justify-between">
-                            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                                <DollarSign className="h-6 w-6 text-white" />
+            {/* Main Stats Grid - Compact */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                {/* Monthly Revenue */}
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 p-4 text-white shadow-md">
+                    <div className="absolute top-0 right-0 -mt-3 -mr-3 h-16 w-16 rounded-full bg-white/10 blur-lg"></div>
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-1.5 bg-white/10 rounded-md">
+                                <DollarSign className="h-4 w-4" />
                             </div>
-                            <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-blue-100">
-                                This Month
-                            </span>
+                            <span className="text-[10px] font-medium bg-white/10 px-1.5 py-0.5 rounded-full">Сар</span>
                         </div>
-                        <div className="mt-4">
-                            <p className="text-blue-100 text-sm font-medium">Monthly Revenue</p>
-                            <h3 className="text-3xl font-bold mt-1">₮{stats.totalRevenue.toLocaleString()}</h3>
-                        </div>
+                        <p className="text-blue-100 text-xs">Сарын орлого</p>
+                        <h3 className="text-xl font-bold">₮{stats.totalRevenue.toLocaleString()}</h3>
                     </div>
                 </div>
 
-                {/* Daily Revenue Card (Was Total Users) */}
-                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg transition-all hover:shadow-emerald-500/25">
-                    <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
-                    <div className="relative flex flex-col justify-between h-full">
-                        <div className="flex items-start justify-between">
-                            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                                <TrendingUp className="h-6 w-6 text-white" />
+                {/* Daily Revenue */}
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 text-white shadow-md">
+                    <div className="absolute bottom-0 left-0 -mb-3 -ml-3 h-16 w-16 rounded-full bg-white/10 blur-lg"></div>
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-1.5 bg-white/10 rounded-md">
+                                <TrendingUp className="h-4 w-4" />
                             </div>
-                            <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-emerald-100">
-                                Today
-                            </span>
+                            <span className="text-[10px] font-medium bg-white/10 px-1.5 py-0.5 rounded-full">Өнөөдөр</span>
                         </div>
-                        <div className="mt-4">
-                            <p className="text-emerald-100 text-sm font-medium">Daily Revenue</p>
-                            <h3 className="text-3xl font-bold mt-1">₮{stats.activeUsers.toLocaleString()}</h3>
-                        </div>
+                        <p className="text-emerald-100 text-xs">Өдрийн орлого</p>
+                        <h3 className="text-xl font-bold">₮{stats.activeUsers.toLocaleString()}</h3>
                     </div>
                 </div>
 
-                {/* Today's Orders Card (Was New Orders) */}
-                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 p-6 text-white shadow-lg transition-all hover:shadow-orange-500/25">
-                    <div className="absolute top-0 left-0 -mt-2 -ml-2 h-20 w-20 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
-                    <div className="relative flex flex-col justify-between h-full">
-                        <div className="flex items-start justify-between">
-                            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                                <ShoppingBag className="h-6 w-6 text-white" />
+                {/* Daily Orders */}
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 p-4 text-white shadow-md">
+                    <div className="absolute top-0 left-0 -mt-2 -ml-2 h-14 w-14 rounded-full bg-white/10 blur-lg"></div>
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-1.5 bg-white/10 rounded-md">
+                                <ShoppingBag className="h-4 w-4" />
                             </div>
-                            <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-orange-100">
-                                Today
-                            </span>
+                            <span className="text-[10px] font-medium bg-white/10 px-1.5 py-0.5 rounded-full">Өнөөдөр</span>
                         </div>
-                        <div className="mt-4">
-                            <p className="text-orange-100 text-sm font-medium">Daily Orders</p>
-                            <h3 className="text-3xl font-bold mt-1">{stats.newOrders}</h3>
-                        </div>
+                        <p className="text-orange-100 text-xs">Захиалга</p>
+                        <h3 className="text-xl font-bold">{stats.newOrders}</h3>
                     </div>
                 </div>
 
-                {/* Live Visitors Card */}
-                <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 p-6 text-white shadow-lg transition-all hover:shadow-violet-500/25">
-                    <div className="absolute bottom-0 right-0 -mb-2 -mr-2 h-20 w-20 rounded-full bg-white/10 blur-xl transition-all group-hover:bg-white/20"></div>
-                    <div className="relative flex flex-col justify-between h-full">
-                        <div className="flex items-start justify-between">
-                            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                                <Zap className="h-6 w-6 text-white" />
+                {/* Active eSIMs */}
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 p-4 text-white shadow-md">
+                    <div className="absolute bottom-0 right-0 -mb-2 -mr-2 h-14 w-14 rounded-full bg-white/10 blur-lg"></div>
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-1.5 bg-white/10 rounded-md">
+                                <Zap className="h-4 w-4" />
                             </div>
-                            <span className="flex items-center text-xs font-medium bg-white/10 px-2 py-1 rounded-full text-violet-100 animate-pulse">
-                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></span>
-                                Live Now
+                            <span className="text-[10px] font-medium bg-white/10 px-1.5 py-0.5 rounded-full">Нийт</span>
+                        </div>
+                        <p className="text-pink-100 text-xs">Идэвхтэй eSIM</p>
+                        <h3 className="text-xl font-bold">{stats.activeEsims}</h3>
+                    </div>
+                </div>
+
+                {/* Live Visitors */}
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 p-4 text-white shadow-md col-span-2 lg:col-span-1">
+                    <div className="absolute bottom-0 right-0 -mb-2 -mr-2 h-14 w-14 rounded-full bg-white/10 blur-lg"></div>
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-1.5 bg-white/10 rounded-md">
+                                <Users className="h-4 w-4" />
+                            </div>
+                            <span className="text-[10px] font-medium bg-white/10 px-1.5 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                                Live
                             </span>
                         </div>
-                        <div className="mt-4">
-                            <p className="text-violet-100 text-sm font-medium">Online Visitors</p>
-                            <h3 className="text-3xl font-bold mt-1 transition-all duration-500 ease-in-out">
-                                {onlineUsers}
-                            </h3>
-                        </div>
+                        <p className="text-violet-100 text-xs">Онлайн зочид</p>
+                        <h3 className="text-xl font-bold">{onlineUsers}</h3>
                     </div>
                 </div>
             </div>
