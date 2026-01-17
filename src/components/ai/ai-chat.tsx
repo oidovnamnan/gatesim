@@ -13,6 +13,8 @@ import {
     Lock,
     Crown,
     Coins,
+    Mic,
+    MicOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -148,7 +150,9 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
     }, [searchParams, router]);
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const recognitionRef = useRef<any>(null);
 
     const isGuest = !session?.user;
 
@@ -466,13 +470,60 @@ function AIChatContent({ country, isPremium = false }: AIChatProps) {
                         {/* Input */}
                         <div className="px-4 pb-4 md:pb-6 pt-3 bg-white border-t border-slate-200">
                             <div className="flex gap-2 relative">
+                                {/* Voice Input Button */}
+                                <button
+                                    onClick={() => {
+                                        if (typeof window === 'undefined') return;
+                                        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                                        if (!SpeechRecognition) {
+                                            alert(t('voiceNotSupported') || 'Voice input not supported in this browser');
+                                            return;
+                                        }
+
+                                        if (isRecording) {
+                                            recognitionRef.current?.stop();
+                                            setIsRecording(false);
+                                            return;
+                                        }
+
+                                        const recognition = new SpeechRecognition();
+                                        recognition.lang = language === 'mn' ? 'mn-MN' : language === 'cn' ? 'zh-CN' : 'en-US';
+                                        recognition.interimResults = false;
+                                        recognition.maxAlternatives = 1;
+
+                                        recognition.onresult = (event: any) => {
+                                            const transcript = event.results[0][0].transcript;
+                                            setInput(prev => prev + transcript);
+                                            setIsRecording(false);
+                                        };
+
+                                        recognition.onerror = () => {
+                                            setIsRecording(false);
+                                        };
+
+                                        recognition.onend = () => {
+                                            setIsRecording(false);
+                                        };
+
+                                        recognitionRef.current = recognition;
+                                        recognition.start();
+                                        setIsRecording(true);
+                                    }}
+                                    disabled={isLoading}
+                                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isRecording
+                                            ? 'bg-red-500 text-white animate-pulse'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                >
+                                    {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                                </button>
                                 <input
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                    placeholder={t("aiPlaceholder")}
-                                    disabled={isLoading}
+                                    placeholder={isRecording ? (t('listening') || 'Listening...') : t("aiPlaceholder")}
+                                    disabled={isLoading || isRecording}
                                     className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white transition-all font-bold disabled:opacity-50"
                                 />
                                 <Button
