@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -70,7 +71,21 @@ const countryImageCollections: Record<string, string[]> = {
         "https://images.unsplash.com/photo-1499856871940-a09627c6d7db?q=80&w=2020&auto=format&fit=crop", // Paris
         "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=2066&auto=format&fit=crop", // Italy
     ],
-    // Generic Fallback Images (World/Travel/Abstract)
+    // Switzerland - Adding dedicated images to prevent fallback issues
+    CH: [
+        "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=2070&auto=format&fit=crop", // Matterhorn
+        "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?q=80&w=2070&auto=format&fit=crop", // Swiss Alps
+    ],
+    // New Zealand
+    NZ: [
+        "https://images.unsplash.com/photo-1469521669194-babb45599def?q=80&w=2070&auto=format&fit=crop", // Milford Sound
+        "https://images.unsplash.com/photo-1507699622108-4be3abd695ad?q=80&w=2071&auto=format&fit=crop", // Hobbiton
+    ],
+    // Jordan
+    JO: [
+        "https://images.unsplash.com/photo-1579606032821-4e6161c81571?q=80&w=2070&auto=format&fit=crop", // Petra
+    ],
+    // Generic Fallback Images (World/Travel/Abstract) - Using more reliable images
     GENERIC: [
         "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=2070&auto=format&fit=crop", // Travel
         "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop", // Adventure
@@ -86,7 +101,7 @@ const countryCodeAliases: Record<string, string> = {
 };
 
 // helper to safely get images
-const getImageForPackage = (countryCode: string, id: string): string => { // Changed return type to string (never null)
+const getImageForPackage = (countryCode: string, id: string): string | null => {
     let code = countryCode?.toUpperCase().trim() || "GENERIC";
 
     // Check aliases
@@ -97,6 +112,11 @@ const getImageForPackage = (countryCode: string, id: string): string => { // Cha
     // If specific country not found, try to find a fallback or use GENERIC
     if (!images || images.length === 0) {
         images = countryImageCollections["GENERIC"];
+    }
+
+    // If still no images, return null
+    if (!images || images.length === 0) {
+        return null;
     }
 
     // Simple hash from string id
@@ -144,10 +164,11 @@ export function PackageCard({
     className,
 }: PackageCardProps) {
     const { t, language } = useTranslation();
+    const [imageError, setImageError] = useState(false);
     const primaryCountry = contextualCountry || countries[0];
     const flag = primaryCountry ? getCountryFlag(primaryCountry) : "🌐";
 
-    const bgImage = primaryCountry ? getImageForPackage(primaryCountry, id) : null;
+    const bgImage = !imageError && primaryCountry ? getImageForPackage(primaryCountry, id) : null;
     const isRegional = countries.length > 1;
 
     return (
@@ -175,10 +196,7 @@ export function PackageCard({
                                 sizes="(max-width: 768px) 100vw, 33vw"
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                                 loading="lazy"
-                                onError={(e) => {
-                                    // Hide broken image
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
+                                onError={() => setImageError(true)}
                             />
                             {/* Gradient Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 z-10" />
