@@ -80,6 +80,28 @@ const aiFeatures = [
         href: "/ai/poster",
         available: true,
     },
+    {
+        id: "business",
+        icon: Briefcase,
+        title: "Бизнес Аялал",
+        titleEn: "Business Trip",
+        description: "Хятадын бөөний зах",
+        descriptionEn: "China wholesale markets",
+        color: "from-amber-500 to-orange-500",
+        href: "/ai/business",
+        available: true,
+    },
+    {
+        id: "medical",
+        icon: Stethoscope,
+        title: "Эмчилгээний Аялал",
+        titleEn: "Medical Travel",
+        description: "Гоо сайхан, шүд, нүд",
+        descriptionEn: "Cosmetic, dental, vision",
+        color: "from-green-500 to-emerald-500",
+        href: "/ai/medical",
+        available: false,
+    },
 ];
 
 export default function AIHubPage() {
