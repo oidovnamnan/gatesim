@@ -16,146 +16,153 @@ export interface MobiMatterProduct {
 
 const BASE_URL = "https://api.mobimatter.com/mobimatter/api/v2";
 
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { getPricingSettings } from "@/lib/settings";
 
-// Cache the product fetch for the duration of a single request
-export const getMobiMatterProducts = cache(async function (): Promise<MobiMatterProduct[]> {
-    // Check credentials immediately
-    if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
-        console.error("[MobiMatter] API credentials missing! Please check .env file.");
-        return [];
-    }
+// Cache the processed result for 1 hour to avoid re-mapping thousands of items on every request
+export const getMobiMatterProducts = unstable_cache(
+    async function (): Promise<MobiMatterProduct[]> {
+        // Check credentials immediately
+        if (!process.env.MOBIMATTER_API_KEY || !process.env.MOBIMATTER_MERCHANT_ID) {
+            console.error("[MobiMatter] API credentials missing! Please check .env file.");
+            return [];
+        }
 
-    // Fetch pricing settings
-    const { usdToMnt, marginPercent } = await getPricingSettings();
+        // Fetch pricing settings (now fast & cached)
+        const { usdToMnt, marginPercent } = await getPricingSettings();
 
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-
-        let rawData;
         try {
-            console.log("[MobiMatter] Connecting to API...");
-            const res = await fetch(`${BASE_URL}/products`, {
-                headers: {
-                    'api-key': process.env.MOBIMATTER_API_KEY,
-                    'merchantId': process.env.MOBIMATTER_MERCHANT_ID, // camelCase as required
-                    'Accept': 'application/json'
-                },
-                next: {
-                    revalidate: 86400, // Cache for 24 hours (prices/products are stable)
-                    tags: ['products']
-                },
-                signal: controller.signal
-            });
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-            if (!res.ok) {
-                console.error(`[MobiMatter] API Request Failed: ${res.status} ${res.statusText}`);
+            let rawData;
+            try {
+                // console.log("[MobiMatter] Connecting to API...");
+                const res = await fetch(`${BASE_URL}/products`, {
+                    headers: {
+                        'api-key': process.env.MOBIMATTER_API_KEY,
+                        'merchantId': process.env.MOBIMATTER_MERCHANT_ID, // camelCase as required
+                        'Accept': 'application/json'
+                    },
+                    next: {
+                        revalidate: 86400, // Keep fetching cached from Data Cache
+                        tags: ['products-raw']
+                    },
+                    signal: controller.signal
+                });
+
+                if (!res.ok) {
+                    console.error(`[MobiMatter] API Request Failed: ${res.status} ${res.statusText}`);
+                    return [];
+                }
+
+                rawData = await res.json();
+            } finally {
+                clearTimeout(timeoutId);
+            }
+
+            const productsList = Array.isArray(rawData) ? rawData : (rawData.result || []);
+
+            if (productsList.length === 0) {
+                console.warn("[MobiMatter] API returned 0 products.");
                 return [];
             }
 
-            rawData = await res.json();
-        } finally {
-            clearTimeout(timeoutId);
-        }
+            // console.log(`[MobiMatter] Processing ${productsList.length} products...`);
 
-        const productsList = Array.isArray(rawData) ? rawData : (rawData.result || []);
+            // Map API response to our internal format
+            const mappedProducts: MobiMatterProduct[] = productsList.map((p: any) => {
+                const details = p.productDetails || [];
+                const getValue = (key: string) => details.find((d: any) => d.name === key)?.value;
 
-        if (productsList.length === 0) {
-            console.warn("[MobiMatter] API returned 0 products.");
-            return [];
-        }
+                const dataLimit = parseFloat(getValue("PLAN_DATA_LIMIT") || "0");
+                const dataUnit = getValue("PLAN_DATA_UNIT") || "GB";
+                let validity = parseInt(getValue("PLAN_VALIDITY") || "0", 10);
+                const title = getValue("PLAN_TITLE") || p.productCategory || "Unknown Package";
 
-        console.log(`[MobiMatter] Successfully fetched ${productsList.length} products.`);
-
-        // Map API response to our internal format
-        const mappedProducts: MobiMatterProduct[] = productsList.map((p: any) => {
-            const details = p.productDetails || [];
-            const getValue = (key: string) => details.find((d: any) => d.name === key)?.value;
-
-            const dataLimit = parseFloat(getValue("PLAN_DATA_LIMIT") || "0");
-            const dataUnit = getValue("PLAN_DATA_UNIT") || "GB";
-            let validity = parseInt(getValue("PLAN_VALIDITY") || "0", 10);
-            const title = getValue("PLAN_TITLE") || p.productCategory || "Unknown Package";
-
-            // Validity Heuristics
-            if (validity > 60) {
-                const daysFromHours = Math.round(validity / 24);
-                if (daysFromHours > 0 && daysFromHours < 366) validity = daysFromHours;
-            }
-            if (validity === 0 || validity > 365) {
-                const durationMatch = title.match(/(\d+)\s*(days?|day|d)/i);
-                if (durationMatch) {
-                    const parsed = parseInt(durationMatch[1], 10);
-                    if (parsed > 0 && parsed < 366) validity = parsed;
+                // Validity Heuristics
+                if (validity > 60) {
+                    const daysFromHours = Math.round(validity / 24);
+                    if (daysFromHours > 0 && daysFromHours < 366) validity = daysFromHours;
                 }
+                if (validity === 0 || validity > 365) {
+                    const durationMatch = title.match(/(\d+)\s*(days?|day|d)/i);
+                    if (durationMatch) {
+                        const parsed = parseInt(durationMatch[1], 10);
+                        if (parsed > 0 && parsed < 366) validity = parsed;
+                    }
+                }
+
+                // Description
+                let description = "";
+                try {
+                    const descJson = JSON.parse(getValue("PLAN_DETAILS") || "{}");
+                    description = (descJson.items || []).join(". ");
+                } catch {
+                    description = getValue("PLAN_DETAILS") || "";
+                }
+
+                // Calculate MB
+                let mb = 0;
+                if (dataUnit === "MB") mb = dataLimit;
+                else if (dataUnit === "GB") mb = dataLimit * 1024;
+                if (getValue("UNLIMITED") === "1") mb = -1;
+
+                // Countries
+                const countryCodes = p.countries ? p.countries.map((c: any) => (c.alpha2Code || c).toString().toUpperCase()) : [];
+
+                // --- PRICING CALCULATION ---
+                const basePrice = p.retailPrice || 0;
+                const originalCurrency = p.currencyCode;
+                let finalPrice = 0;
+
+                if (originalCurrency === 'MNT') {
+                    // If it's already MNT, we just add margin. No exchange rate multiplication.
+                    const priceWithMargin = basePrice * (1 + marginPercent / 100);
+                    finalPrice = Math.ceil(priceWithMargin / 100) * 100;
+                } else if (originalCurrency === 'USD') {
+                    const priceWithMargin = basePrice * (1 + marginPercent / 100);
+                    const priceMnt = priceWithMargin * usdToMnt;
+                    finalPrice = Math.ceil(priceMnt / 100) * 100;
+                } else {
+                    // Unknown currency (e.g., VND, EUR). Prevent converting as USD!
+                    // console.warn(`[MobiMatter] Skipping price calc for unknown currency: ${originalCurrency} (Value: ${basePrice})`);
+                    finalPrice = 0; // Or handle other currencies if needed
+                }
+
+                return {
+                    sku: p.productId,
+                    name: title,
+                    price: finalPrice, // Transformed to MNT
+                    currency: "MNT",   // Hardcoded since we converted it
+                    dataAmount: mb,
+                    durationDays: validity,
+                    countries: countryCodes.length > 0 ? countryCodes : ["Global"],
+                    provider: p.providerName,
+                    description: description.substring(0, 150) + (description.length > 150 ? "..." : ""),
+                    isRegional: countryCodes.length > 1,
+                    originalPrice: basePrice,
+                    originalCurrency: originalCurrency
+                };
+            });
+
+            return mappedProducts;
+
+        } catch (e) {
+            if (e instanceof Error && e.name === 'AbortError') {
+                console.error("[MobiMatter] Fetch timed out after 15s");
+                return [];
             }
-
-            // Description
-            let description = "";
-            try {
-                const descJson = JSON.parse(getValue("PLAN_DETAILS") || "{}");
-                description = (descJson.items || []).join(". ");
-            } catch {
-                description = getValue("PLAN_DETAILS") || "";
-            }
-
-            // Calculate MB
-            let mb = 0;
-            if (dataUnit === "MB") mb = dataLimit;
-            else if (dataUnit === "GB") mb = dataLimit * 1024;
-            if (getValue("UNLIMITED") === "1") mb = -1;
-
-            // Countries
-            const countryCodes = p.countries ? p.countries.map((c: any) => (c.alpha2Code || c).toString().toUpperCase()) : [];
-
-            // --- PRICING CALCULATION ---
-            const basePrice = p.retailPrice || 0;
-            const originalCurrency = p.currencyCode;
-            let finalPrice = 0;
-
-            if (originalCurrency === 'MNT') {
-                // If it's already MNT, we just add margin. No exchange rate multiplication.
-                const priceWithMargin = basePrice * (1 + marginPercent / 100);
-                finalPrice = Math.ceil(priceWithMargin / 100) * 100;
-            } else if (originalCurrency === 'USD') {
-                const priceWithMargin = basePrice * (1 + marginPercent / 100);
-                const priceMnt = priceWithMargin * usdToMnt;
-                finalPrice = Math.ceil(priceMnt / 100) * 100;
-            } else {
-                // Unknown currency (e.g., VND, EUR). Prevent converting as USD!
-                console.warn(`[MobiMatter] Skipping price calc for unknown currency: ${originalCurrency} (Value: ${basePrice})`);
-                finalPrice = 0; // Or handle other currencies if needed
-            }
-
-            return {
-                sku: p.productId,
-                name: title,
-                price: finalPrice, // Transformed to MNT
-                currency: "MNT",   // Hardcoded since we converted it
-                dataAmount: mb,
-                durationDays: validity,
-                countries: countryCodes.length > 0 ? countryCodes : ["Global"],
-                provider: p.providerName,
-                description: description.substring(0, 150) + (description.length > 150 ? "..." : ""),
-                isRegional: countryCodes.length > 1,
-                originalPrice: basePrice,
-                originalCurrency: originalCurrency
-            };
-        });
-
-        return mappedProducts;
-
-    } catch (e) {
-        if (e instanceof Error && e.name === 'AbortError') {
-            console.error("[MobiMatter] Fetch timed out after 8s");
-            return [];
+            console.error("[MobiMatter] Fetch Error:", e);
+            throw e;
         }
-        console.error("[MobiMatter] Fetch Error:", e);
-        throw e;
+    },
+    ['mobimatter-products-processed'],
+    {
+        revalidate: 3600, // Revalidate every 1 hour
+        tags: ['products-processed']
     }
-});
+);
 
 export async function createMobiMatterOrder(sku: string): Promise<any> {
     const apiKey = process.env.MOBIMATTER_API_KEY;
