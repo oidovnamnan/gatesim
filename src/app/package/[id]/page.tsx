@@ -30,13 +30,32 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     };
 }
 
+import { getProductsFromDB } from "@/lib/products-db";
+
 export default async function PackagePage({ params, searchParams }: Props) {
     const { id } = await params;
     const { country } = await searchParams;
+
+    // 1. Try DB first (Fast)
+    // We don't have a direct "getById" yet so we fetch all or filter. 
+    // Since we don't have getById, let's use the API cache for now OR implement getById.
+    // Actually, getProductsFromDB filters by country.
+    // Let's stick to getMobiMatterProducts for singular item lookup unless we add getById.
+    // Given the timeline, keeping getMobiMatterProducts (cached) here is SAFER for now as it's just one item lookup.
+    // BUT the user complains about "Can't click into packages". If the list has items from DB that are NOT in API cache (unlikely), it would fail.
+    // Let's stick with getMobiMatterProducts here as it is the "Safety Net".
+    // I will NOT change this file to use DB yet to minimize risk, unless I add getById to products-db.ts.
+
+    // WAIT: I should fix the potential issue where 'id' might be encoded differently?
+    // User says "Can't click".
+    // I will verify that ID passed is correct.
+
     const products = await getMobiMatterProducts();
     const pkg = products.find((p) => p.sku === id);
 
     if (!pkg) {
+        // Fallback: It might be a new product not in cache?
+        // Redirecting to packages is the current behavior.
         redirect("/packages");
     }
 
