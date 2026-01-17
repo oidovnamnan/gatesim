@@ -1,6 +1,6 @@
 "use client";
 
-import { AIPosterGenerator } from "@/components/ai/ai-poster-generator";
+import { TravelMemoryPoster } from "@/components/ai/ai-poster-generator";
 import { motion } from "framer-motion";
 import { Image as ImageIcon, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -22,15 +22,15 @@ export default function PosterPage() {
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center">
                             <ImageIcon className="w-5 h-5 text-white" />
                         </div>
                         <div>
                             <h1 className="font-bold text-lg">
-                                {isMongolian ? "AI Постер Үүсгэгч" : "AI Poster Generator"}
+                                {isMongolian ? "Аялалын Дурсамж" : "Travel Memory"}
                             </h1>
                             <p className="text-xs text-muted-foreground">
-                                {isMongolian ? "DALL-E 3 ашигласан" : "Powered by DALL-E 3"}
+                                {isMongolian ? "Зургаа постер болгох" : "Turn photo into poster"}
                             </p>
                         </div>
                     </div>
@@ -43,7 +43,7 @@ export default function PosterPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="container mx-auto px-6 py-8"
             >
-                <AIPosterGenerator />
+                <TravelMemoryPoster />
             </motion.div>
         </div>
     );
