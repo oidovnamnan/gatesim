@@ -8,9 +8,15 @@ import {
 } from "lucide-react";
 import { AIChat } from "@/components/ai/ai-chat";
 import { popularCountries } from "@/config/site";
-import { Globe } from "@/components/ui/globe";
 import { ReactNode } from "react";
 import { useTranslation } from "@/providers/language-provider";
+import dynamic from "next/dynamic";
+
+// Lazy load heavy 3D Globe component
+const Globe = dynamic(() => import("@/components/ui/globe").then((mod) => mod.Globe), {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-slate-100/50 dark:bg-slate-800/50 animate-pulse rounded-full opacity-20" />,
+});
 
 interface HomeClientProps {
     children?: ReactNode; // Used for injecting Featured Packages (Server Component)
