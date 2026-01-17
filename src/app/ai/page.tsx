@@ -243,7 +243,7 @@ export default function AIHubPage() {
             </section>
 
             {/* Primary Action Row */}
-            <section className="px-6 space-y-4 mb-12">
+            <section className="px-6 flex flex-col gap-4 mb-12">
                 <Link href="/ai/poster">
                     <Card className="group p-5 flex items-center gap-5 bg-white border border-slate-100 rounded-[28px] hover:border-orange-200 hover:shadow-xl hover:shadow-orange-500/5 transition-all shadow-sm">
                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
