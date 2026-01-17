@@ -56,7 +56,7 @@ const aiFeatures = [
         descriptionEn: "AI-powered itinerary",
         color: "from-emerald-500 to-teal-600",
         href: "/ai/planner",
-        available: false,
+        available: true,
     },
     {
         id: "translator",
