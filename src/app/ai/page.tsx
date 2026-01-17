@@ -78,7 +78,7 @@ const aiFeatures = [
         descriptionEn: "AI image generation",
         color: "from-orange-500 to-red-600",
         href: "/ai/poster",
-        available: false,
+        available: true,
     },
 ];
 
