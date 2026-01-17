@@ -4,7 +4,7 @@ import { Logo } from "@/components/ui/logo";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Package, Smartphone, Home, Moon, Sun } from "lucide-react";
+import { User, Package, Smartphone, Home, Moon, Sun, Sparkles } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useTheme } from "@/providers/theme-provider";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export function TopHeader() {
     const navItems = [
         { href: "/", label: t("home"), icon: Home },
         { href: "/packages", label: t("packages"), icon: Package },
+        { href: "/ai", label: "AI", icon: Sparkles },
         { href: "/my-esims", label: t("myEsims"), icon: Smartphone },
     ];
 
