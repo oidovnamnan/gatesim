@@ -3,7 +3,8 @@
 import { motion } from "framer-motion";
 import { Bot, ChevronLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useTranslation } from "@/providers/language-provider";
 
 interface ComingSoonProps {
@@ -17,11 +18,15 @@ export function AIComingSoon({ title, description }: ComingSoonProps) {
 
     return (
         <div className="min-h-screen flex flex-col pt-12 px-6">
-            <Link href="/ai">
-                <Button variant="ghost" className="mb-8 pl-0 text-muted-foreground hover:text-foreground">
-                    <ChevronLeft className="w-5 h-5 mr-1" />
-                    {isMongolian ? "Буцах" : "Back"}
-                </Button>
+            <Link
+                href="/ai"
+                className={cn(
+                    buttonVariants({ variant: "ghost" }),
+                    "mb-8 pl-0 text-muted-foreground hover:text-foreground w-fit hover:bg-transparent"
+                )}
+            >
+                <ChevronLeft className="w-5 h-5 mr-1" />
+                {isMongolian ? "Буцах" : "Back"}
             </Link>
 
             <div className="flex-1 flex flex-col items-center justify-center text-center -mt-20">
@@ -53,10 +58,14 @@ export function AIComingSoon({ title, description }: ComingSoonProps) {
                         : "This feature is currently under development. We are working hard to bring you a smarter travel experience soon.")}
                 </p>
 
-                <Link href="/ai" className="mt-12">
-                    <Button size="lg" className="rounded-2xl px-8 font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl">
-                        {isMongolian ? "Бусад боломжуудыг үзэх" : "Explore other features"}
-                    </Button>
+                <Link
+                    href="/ai"
+                    className={cn(
+                        buttonVariants({ size: "lg" }),
+                        "mt-12 rounded-2xl px-8 font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl"
+                    )}
+                >
+                    {isMongolian ? "Бусад боломжуудыг үзэх" : "Explore other features"}
                 </Link>
             </div>
         </div>
