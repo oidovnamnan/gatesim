@@ -16,6 +16,7 @@ import {
     Check,
     MapPin,
     Calendar,
+    Camera,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
     const [enhancedImage, setEnhancedImage] = useState<string | null>(null);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     // Handle file upload
@@ -217,10 +219,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
         <div className={cn("space-y-6", className)}>
             {/* Upload Section */}
             {!uploadedImage ? (
-                <Card
-                    className="p-8 border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 transition-colors cursor-pointer"
-                    onClick={() => fileInputRef.current?.click()}
-                >
+                <Card className="p-8 border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 transition-colors">
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -228,16 +227,51 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                         onChange={handleFileChange}
                         className="hidden"
                     />
-                    <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center">
-                            <Upload className="w-8 h-8 text-white" />
+                    {/* Camera Input - capture="environment" for rear camera */}
+                    <input
+                        ref={cameraInputRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleFileChange}
+                        className="hidden"
+                    />
+
+                    <div className="flex flex-col md:flex-row gap-6 items-center justify-center text-center">
+                        {/* Upload Option */}
+                        <div
+                            className="flex-1 cursor-pointer group"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/20">
+                                <Upload className="w-8 h-8 text-white" />
+                            </div>
+                            <h3 className="font-bold text-lg mb-1">
+                                {isMongolian ? "Зураг хуулах" : "Upload Photo"}
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                                {isMongolian ? "Төхөөрөмжөөс сонгох" : "Choose from device"}
+                            </p>
                         </div>
-                        <h3 className="font-bold text-lg mb-2">
-                            {isMongolian ? "Аялалын зургаа оруулна уу" : "Upload your travel photo"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                            {isMongolian ? "JPG, PNG форматтай зураг" : "JPG, PNG format supported"}
-                        </p>
+
+                        {/* Divider */}
+                        <div className="w-full md:w-px h-px md:h-16 bg-border" />
+
+                        {/* Camera Option */}
+                        <div
+                            className="flex-1 cursor-pointer group"
+                            onClick={() => cameraInputRef.current?.click()}
+                        >
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-orange-500/20">
+                                <Camera className="w-8 h-8 text-white" />
+                            </div>
+                            <h3 className="font-bold text-lg mb-1">
+                                {isMongolian ? "Зураг дарах" : "Take Photo"}
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                                {isMongolian ? "Камер нээх" : "Open camera"}
+                            </p>
+                        </div>
                     </div>
                 </Card>
             ) : (
