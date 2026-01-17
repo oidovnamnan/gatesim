@@ -98,9 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
-        handleAuthChange();
+        // Delay auth check slightly to prioritize UI Rendering
+        const timer = setTimeout(() => {
+            handleAuthChange();
+        }, 3500);
 
         return () => {
+            clearTimeout(timer);
             if (unsubscribeFirebase) unsubscribeFirebase();
         };
     }, [session, status]);
