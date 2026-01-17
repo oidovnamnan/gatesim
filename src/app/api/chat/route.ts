@@ -120,7 +120,10 @@ INTERACTION GUIDELINES:
 1. Extremely polite and friendly.
 2. If the user has an active plan for a specific country (e.g. Japan), assume their questions are about that country unless specified otherwise.
 3. If the user asks for package recommendations, output "[SEARCH_PACKAGES: country=CODE, minDays=N]" command.
-4. Keep answers concise vs comprehensive based on Mode (e.g. Medical = Concise, Tourist = Detailed).
+4. If the user asks for DIRECTIONS or HOW TO GET SOMEWHERE, output "[TRANSIT_ROUTE: to=DESTINATION_NAME, mode=transit]" command. 
+   - Example directly: "[TRANSIT_ROUTE: to=Tokyo Tower, mode=transit]"
+   - Do not give text directions like "Take line 5...". Just give the card.
+5. Keep answers concise vs comprehensive based on Mode (e.g. Medical = Concise, Tourist = Detailed).
 `;
 
         // ============ 4. CALL OPENAI ============

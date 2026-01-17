@@ -96,7 +96,9 @@ export function AIChatWindow({
 
             let finalResponseText = responseText;
             let packageResults: any[] = [];
+            let transitRoute: { to: string; mode: string } | null = null;
 
+            // 1. Check for Package Search
             const searchMatch = responseText.match(/\[SEARCH_PACKAGES:\s*([^\]]+)\]/);
             if (searchMatch) {
                 const paramsStr = searchMatch[1];
@@ -114,10 +116,27 @@ export function AIChatWindow({
                             packageResults = searchData.packages;
                         }
                     }
-                    finalResponseText = responseText.replace(/\[SEARCH_PACKAGES:[^\]]+\]/, '').trim();
+                    finalResponseText = finalResponseText.replace(/\[SEARCH_PACKAGES:[^\]]+\]/, '').trim();
                 } catch (err) {
                     console.error('Package search failed:', err);
                 }
+            }
+
+            // 2. Check for Transit Route
+            const transitMatch = responseText.match(/\[TRANSIT_ROUTE:\s*([^\]]+)\]/);
+            if (transitMatch) {
+                const paramsStr = transitMatch[1];
+                const params: Record<string, string> = {};
+                paramsStr.split(',').forEach(pair => {
+                    const [key, value] = pair.split('=').map(s => s.trim());
+                    if (key && value) params[key] = value;
+                });
+
+                if (params.to) {
+                    transitRoute = { to: params.to, mode: params.mode || 'transit' };
+                }
+
+                finalResponseText = finalResponseText.replace(/\[TRANSIT_ROUTE:[^\]]+\]/, '').trim();
             }
 
             const assistantMessage: AIMessage = {
@@ -137,6 +156,16 @@ export function AIChatWindow({
                     timestamp: new Date(),
                 };
                 setMessages((prev) => [...prev, packagesMessage]);
+            }
+
+            if (transitRoute) {
+                const transitMessage: AIMessage = {
+                    id: (Date.now() + 3).toString(),
+                    role: "assistant", // Using system role or special format would be cleaner but this works
+                    content: `__TRANSIT__:${JSON.stringify(transitRoute)}`,
+                    timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, transitMessage]);
             }
 
         } catch (error) {
@@ -259,6 +288,40 @@ export function AIChatWindow({
                                                     {t("aiSeeAll")} {remainingCount > 0 && `(+${remainingCount})`} →
                                                 </a>
                                             </>
+                                        );
+                                    })()}
+                                </div>
+                            ) : msg.content.startsWith('__TRANSIT__:') ? (
+                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mt-2">
+                                    {(() => {
+                                        const route = JSON.parse(msg.content.replace('__TRANSIT__:', ''));
+                                        return (
+                                            <div>
+                                                <div className="flex items-start gap-3 mb-4">
+                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-slate-500 font-bold uppercase mb-0.5">Route Guide</p>
+                                                        <h4 className="text-base font-black text-slate-900 leading-tight">To {route.to}</h4>
+                                                    </div>
+                                                </div>
+
+                                                <a
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(route.to)}&travelmode=${route.mode || 'transit'}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-500/30"
+                                                >
+                                                    <span>View Route on Maps</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                    </svg>
+                                                </a>
+                                                <p className="text-[10px] text-center text-slate-400 mt-2 font-medium">Opens Google Maps</p>
+                                            </div>
                                         );
                                     })()}
                                 </div>
