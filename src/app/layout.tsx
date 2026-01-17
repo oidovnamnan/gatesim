@@ -94,6 +94,29 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Service Worker Nuker - Fixes stuck CSP headers from old SW */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                      registration.unregister();
+                      console.log('Unregistered stuck service worker');
+                    }
+                  });
+                }
+                if ('caches' in window) {
+                   caches.keys().then(function(names) {
+                     for (let name of names) caches.delete(name);
+                     console.log('Cleared all caches');
+                   });
+                }
+              })();
+            `,
+          }}
+        />
         {/* Preconnect to external resources */}
 
         {/* PWA meta tags */}
