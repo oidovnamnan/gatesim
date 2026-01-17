@@ -17,6 +17,7 @@ import {
     ShoppingBag,
     GraduationCap,
     Plane,
+    Bus,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,15 @@ const aiFeatures = [
         titleEn: "Translator",
         color: "from-purple-500 to-pink-600",
         href: "/ai/translator",
+        modes: ["all"],
+    },
+    {
+        id: "transit",
+        icon: Bus,
+        title: "Нийтийн Тээвэр",
+        titleEn: "Transit Guide",
+        color: "from-blue-400 to-indigo-500",
+        href: "/ai/transit",
         modes: ["all"],
     },
     {
