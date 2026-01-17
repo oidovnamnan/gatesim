@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslation } from "@/providers/language-provider";
 import { AIMessage, installationGuides } from "@/lib/ai-assistant";
 import dynamic from "next/dynamic";
@@ -23,6 +23,7 @@ interface AIChatProps {
 export function AIChat({ country, isPremium = false }: AIChatProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const pathname = usePathname();
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<AIMessage[]>([]);
@@ -145,7 +146,10 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                     bottom: 80
                 }}
                 whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-                className={cn("fixed bottom-44 right-4 z-50 transition-opacity duration-300", isOpen && "opacity-0 pointer-events-none")}
+                className={cn(
+                    "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
+                    (isOpen || pathname?.startsWith("/ai")) && "opacity-0 pointer-events-none"
+                )}
             >
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
