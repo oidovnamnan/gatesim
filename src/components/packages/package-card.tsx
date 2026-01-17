@@ -177,7 +177,7 @@ export function PackageCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <Link href={`/package/${id}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className="block group">
+            <Link href={`/package/${encodeURIComponent(id)}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className="block group">
                 <div
                     className={cn(
                         "relative overflow-hidden rounded-[24px] transition-all duration-300 isolate",
@@ -196,6 +196,7 @@ export function PackageCard({
                                 sizes="(max-width: 768px) 100vw, 33vw"
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                                 loading="lazy"
+                                unoptimized={true}
                                 onError={() => setImageError(true)}
                             />
                             {/* Gradient Overlay */}
@@ -343,7 +344,7 @@ export function PackageCardCompact({
     const isRegional = countries.length > 1;
 
     return (
-        <Link href={`/package/${id}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className={cn("block group", className)}>
+        <Link href={`/package/${encodeURIComponent(id)}${contextualCountry ? `?country=${contextualCountry}` : ""}`} className={cn("block group", className)}>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all hover:bg-slate-50 hover:border-red-200/50">
                 <div className="flex items-center gap-3">
                     {/* Render SimCardFlag instead of Emoji container */}

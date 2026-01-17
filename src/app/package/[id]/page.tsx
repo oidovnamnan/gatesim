@@ -10,11 +10,23 @@ interface Props {
     searchParams: Promise<{ country?: string }>;
 }
 
+import { getProductBySku } from "@/lib/products-db";
+
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-    const { id } = await params;
+    const { id: rawId } = await params;
     const { country } = await searchParams;
-    const products = await getMobiMatterProducts();
-    const pkg = products.find((p) => p.sku === id);
+
+    // Decode ID to handle potential URL encoding
+    const id = decodeURIComponent(rawId);
+
+    // Try DB first
+    let pkg = await getProductBySku(id);
+
+    // Fallback to API cache
+    if (!pkg) {
+        const products = await getMobiMatterProducts();
+        pkg = products.find((p) => p.sku === id) || null;
+    }
 
     if (!pkg) {
         return {
@@ -30,34 +42,28 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     };
 }
 
-import { getProductsFromDB } from "@/lib/products-db";
-
 export default async function PackagePage({ params, searchParams }: Props) {
-    const { id } = await params;
+    const { id: rawId } = await params;
     const { country } = await searchParams;
 
-    // 1. Try DB first (Fast)
-    // We don't have a direct "getById" yet so we fetch all or filter. 
-    // Since we don't have getById, let's use the API cache for now OR implement getById.
-    // Actually, getProductsFromDB filters by country.
-    // Let's stick to getMobiMatterProducts for singular item lookup unless we add getById.
-    // Given the timeline, keeping getMobiMatterProducts (cached) here is SAFER for now as it's just one item lookup.
-    // BUT the user complains about "Can't click into packages". If the list has items from DB that are NOT in API cache (unlikely), it would fail.
-    // Let's stick with getMobiMatterProducts here as it is the "Safety Net".
-    // I will NOT change this file to use DB yet to minimize risk, unless I add getById to products-db.ts.
+    // Decode ID to handle potential URL encoding
+    const id = decodeURIComponent(rawId);
 
-    // WAIT: I should fix the potential issue where 'id' might be encoded differently?
-    // User says "Can't click".
-    // I will verify that ID passed is correct.
+    // 1. Try DB first (Fast & Consistent with the list)
+    let pkg = await getProductBySku(id);
 
-    const products = await getMobiMatterProducts();
-    const pkg = products.find((p) => p.sku === id);
+    // 2. Fallback to API cache
+    if (!pkg) {
+        console.log(`[PackagePage] ID ${id} not in DB, trying API cache`);
+        const products = await getMobiMatterProducts();
+        pkg = products.find((p) => p.sku === id) || null;
+    }
 
     if (!pkg) {
-        // Fallback: It might be a new product not in cache?
-        // Redirecting to packages is the current behavior.
+        console.error(`[PackagePage] Product with ID ${id} not found in DB or API.`);
         redirect("/packages");
     }
+
 
     // Price is already calculated in MNT by getMobiMatterProducts (lib/mobimatter.ts)
     // No need to recalculate or apply exchange rate again.

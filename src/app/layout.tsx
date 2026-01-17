@@ -34,12 +34,8 @@ export const metadata: Metadata = {
     title: "GateSIM - Global Travel eSIM",
     description: "Your Gateway to Global Connection. Affordable eSIM plans worldwide.",
   },
-  manifest: "/manifest.json",
-  icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
-  },
 };
+
 
 export const viewport: Viewport = {
   width: "device-width",

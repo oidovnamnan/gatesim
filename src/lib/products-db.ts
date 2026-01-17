@@ -43,3 +43,21 @@ export async function getProductsFromDB(options: {
         return [];
     }
 }
+
+export async function getProductBySku(sku: string): Promise<MobiMatterProduct | null> {
+    try {
+        const productsRef = collection(db, "products");
+        const q = query(productsRef, where("sku", "==", sku), limit(1));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            return null;
+        }
+
+        return snapshot.docs[0].data() as MobiMatterProduct;
+    } catch (error) {
+        console.error("[DB Read] Error getting product by SKU:", error);
+        return null;
+    }
+}
+

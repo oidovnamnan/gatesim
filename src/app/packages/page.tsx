@@ -12,9 +12,17 @@ function formatDataAmount(mb: number): string {
 // Cache for 1 hour
 export const revalidate = 3600;
 
+import { getProductsFromDB } from "@/lib/products-db";
+
 export default async function PackagesPage() {
-    // Pricing is now handled inside getMobiMatterProducts
-    const products = await getMobiMatterProducts();
+    // 1. Try DB first (Fast & Robust)
+    let products = await getProductsFromDB({});
+
+    // 2. Fallback to API if DB is empty
+    if (!products || products.length === 0) {
+        console.log("[PackagesPage] DB empty, falling back to API cache");
+        products = await getMobiMatterProducts();
+    }
 
     const packages = products.map((product) => {
         return {
@@ -31,6 +39,7 @@ export default async function PackagesPage() {
             isFeatured: false,
         };
     });
+
 
     return (
         <Suspense fallback={<div className="min-h-screen" />}>
