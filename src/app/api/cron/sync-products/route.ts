@@ -8,7 +8,7 @@ export const maxDuration = 300; // Allow 5 minutes for this function
 
 export async function GET(request: Request) {
     try {
-        // Security check (Basic secret query param)
+        // Security check
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get("secret");
 
@@ -29,13 +29,13 @@ export async function GET(request: Request) {
 
         if (!packages || packages.length === 0) {
             console.error("[Sync] No packages found from API.");
-            return NextResponse.json({ error: "No packages found" }, { status: 500 });
+            return NextResponse.json({ error: "No packages found from API" }, { status: 500 });
         }
 
-        console.log(`[Sync] Found ${packages.length} packages. writing to Firestore...`);
+        console.log(`[Sync] Found ${packages.length} packages. Writing to Firestore...`);
 
-        // Batch writes (limit 500 per batch)
-        const batchSize = 450;
+        // Batch writes - Optimized size (300 is safer for heavily throttled environments)
+        const batchSize = 300;
         const chunks = [];
 
         for (let i = 0; i < packages.length; i += batchSize) {
@@ -44,32 +44,44 @@ export async function GET(request: Request) {
 
         let totalWritten = 0;
 
-        for (const chunk of chunks) {
+        for (const [index, chunk] of chunks.entries()) {
             const batch = writeBatch(db);
 
             chunk.forEach((pkg) => {
+                // Ensure SKU is valid for ID
+                if (!pkg.sku) return;
+
                 const docRef = doc(db, "products", pkg.sku);
                 batch.set(docRef, {
                     ...pkg,
                     lastSyncedAt: new Date().toISOString(),
-                    // Flatten countries for querying if needed, but existing array is fine
-                    // We might add 'searchKeywords' here for easier querying later
+                    keywords: [
+                        ...(pkg.countries || []),
+                        pkg.name,
+                        pkg.provider
+                    ].map(k => k?.toString().toLowerCase()).filter(Boolean)
                 }, { merge: true });
             });
 
             await batch.commit();
             totalWritten += chunk.length;
-            console.log(`[Sync] Committed batch of ${chunk.length} items.`);
+            console.log(`[Sync] Batch ${index + 1}/${chunks.length} committed (${chunk.length} items).`);
         }
+
+        // Optional: Clean up old items? (For now, let's just upsert)
 
         return NextResponse.json({
             success: true,
-            message: `Synced ${totalWritten} products successfully.`,
-            count: totalWritten
+            message: `Successfully synced ${totalWritten} products from MobiMatter to Firestore.`,
+            count: totalWritten,
+            batches: chunks.length
         });
 
     } catch (error) {
-        console.error("[Sync] Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        console.error("[Sync] Critical Error:", error);
+        return NextResponse.json({
+            error: "Internal Server Error",
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }
