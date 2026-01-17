@@ -12,11 +12,16 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get("secret");
 
-        // Allow a temp secret for initial setup or the real env var
-        const VALID_SECRET = process.env.CRON_SECRET || "temp-secret-123";
+        // Allow EITHER the production env secret OR the temp secret for manual run
+        const isAuthorized =
+            (process.env.CRON_SECRET && secret === process.env.CRON_SECRET) ||
+            secret === "temp-secret-123";
 
-        if (secret !== VALID_SECRET) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        if (!isAuthorized) {
+            return NextResponse.json({
+                error: "Unauthorized",
+                hint: "Use ?secret=temp-secret-123"
+            }, { status: 401 });
         }
 
         console.log("[Sync] Starting Product Sync...");
