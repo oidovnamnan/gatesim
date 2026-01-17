@@ -62,10 +62,10 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(self), geolocation=(), browsing-topics=()'
           },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://*.firebaseapp.com https://gatesim.firebaseapp.com https://accounts.google.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com https://*.firebaseio.com https://flagcdn.com https://images.unsplash.com https://qpay.mn https://v1.qpay.mn https://s3.qpay.mn https://*.googleusercontent.com https://lh3.googleusercontent.com; worker-src 'self' blob:; manifest-src 'self'; child-src 'self' blob:;"
-          }
+          // {
+          //   key: 'Content-Security-Policy',
+          //   value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://*.firebaseapp.com https://gatesim.firebaseapp.com https://accounts.google.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com https://*.firebaseio.com https://flagcdn.com https://images.unsplash.com https://qpay.mn https://v1.qpay.mn https://s3.qpay.mn https://*.googleusercontent.com https://lh3.googleusercontent.com; worker-src 'self' blob:; manifest-src 'self'; child-src 'self' blob:;"
+          // }
         ]
       }
     ];
