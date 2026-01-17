@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -22,6 +23,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/providers/language-provider";
 import { AIChat } from "@/components/ai/ai-chat";
+import { AIRecommendations } from "@/components/ai/ai-recommendations";
 
 // Feature categories
 const travelModes = [
@@ -30,6 +32,7 @@ const travelModes = [
     { id: "business", icon: Briefcase, label: "Бизнес", labelEn: "Business", color: "from-amber-500 to-orange-500" },
     { id: "medical", icon: Stethoscope, label: "Эмчилгээ", labelEn: "Medical", color: "from-green-500 to-emerald-500" },
     { id: "student", icon: GraduationCap, label: "Сургалт", labelEn: "Student", color: "from-purple-500 to-violet-500" },
+    { id: "wholesale", icon: ShoppingBag, label: "Бөөний", labelEn: "Wholesale", color: "from-orange-500 to-red-500" },
 ];
 
 const aiFeatures = [
@@ -82,6 +85,7 @@ const aiFeatures = [
 export default function AIHubPage() {
     const { t, language } = useTranslation();
     const isMongolian = language === "mn";
+    const [selectedPurpose, setSelectedPurpose] = useState("tourist");
 
     return (
         <div className="min-h-screen pb-32 md:pb-8 overflow-x-hidden">
@@ -139,13 +143,18 @@ export default function AIHubPage() {
                 <div className="flex flex-wrap justify-center gap-3">
                     {travelModes.map((mode, index) => {
                         const Icon = mode.icon;
+                        const isSelected = selectedPurpose === mode.id;
                         return (
                             <motion.button
                                 key={mode.id}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r ${mode.color} text-white font-bold text-sm shadow-lg hover:scale-105 transition-transform active:scale-95`}
+                                onClick={() => setSelectedPurpose(mode.id)}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm shadow-lg transition-all active:scale-95 ${isSelected
+                                        ? `bg-gradient-to-r ${mode.color} text-white scale-105`
+                                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                    }`}
                             >
                                 <Icon className="w-4 h-4" />
                                 {isMongolian ? mode.label : mode.labelEn}
@@ -153,6 +162,15 @@ export default function AIHubPage() {
                         );
                     })}
                 </div>
+            </section>
+
+            {/* AI Recommendations */}
+            <section className="container mx-auto px-6 py-4">
+                <AIRecommendations
+                    purpose={selectedPurpose}
+                    duration={7}
+                    limit={6}
+                />
             </section>
 
             {/* AI Features Grid */}
