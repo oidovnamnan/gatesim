@@ -4,7 +4,7 @@ export function PackagesSkeleton() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-3xl border border-white/20 bg-white/5 p-4 space-y-4">
+                <div key={i} className="rounded-3xl border border-border bg-card shadow-sm p-4 space-y-4">
                     <div className="flex justify-between items-start">
                         <Skeleton className="h-12 w-16 px-2 rounded-xl" />
                         <Skeleton className="h-5 w-20 rounded-md" />
