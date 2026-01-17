@@ -41,7 +41,7 @@ export function BottomNav() {
         <>
             <div className="fixed bottom-0 left-0 right-0 z-40 px-6 pb-8 pt-4 pointer-events-none md:hidden text-center [body.ai-chat-open_&]:hidden [body.modal-open_&]:hidden">
                 {/* Ultra Glass Bottom Nav */}
-                <nav className="inline-block bg-white/85 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 rounded-[28px] shadow-xl shadow-slate-900/10 pointer-events-auto overflow-hidden">
+                <nav className="inline-block bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/80 dark:border-white/10 rounded-[28px] shadow-xl shadow-slate-900/10 pointer-events-auto overflow-hidden">
                     <div className="flex items-center justify-between px-2 py-2 relative gap-1">
                         {navItems.map((item) => (
                             <Link

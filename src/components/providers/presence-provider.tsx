@@ -36,10 +36,12 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
             updateHeartbeat(user);
         });
 
-        // Loop for heartbeat every 30s
+        // Loop for heartbeat every 2 minutes (120s)
         const intervalId = setInterval(() => {
-            updateHeartbeat(auth.currentUser);
-        }, 30000);
+            if (document.visibilityState === 'visible') {
+                updateHeartbeat(auth.currentUser);
+            }
+        }, 120000);
 
         // Cleanup on unmount (tab close)
         const cleanup = () => {

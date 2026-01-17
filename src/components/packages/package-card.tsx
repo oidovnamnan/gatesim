@@ -193,7 +193,7 @@ export function PackageCard({
                                 {(isPopular || isFeatured) && (
                                     <Badge
                                         className={cn(
-                                            "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
+                                            "text-[10px] font-bold px-2.5 py-1 shadow-sm border-none",
                                             bgImage
                                                 ? "bg-white/20 text-white border-white/20"
                                                 : "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50"
@@ -205,7 +205,7 @@ export function PackageCard({
                                 {isRegional && (
                                     <Badge
                                         className={cn(
-                                            "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none",
+                                            "text-[10px] font-bold px-2.5 py-1 shadow-sm border-none",
                                             bgImage
                                                 ? "bg-blue-500/30 text-blue-50 border-blue-500/20"
                                                 : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-900/50"
@@ -221,7 +221,7 @@ export function PackageCard({
                         {countries.includes("CN") && (
                             <Badge
                                 className={cn(
-                                    "text-[10px] font-bold px-2.5 py-1 backdrop-blur-md shadow-sm border-none flex items-center gap-1",
+                                    "text-[10px] font-bold px-2.5 py-1 shadow-sm border-none flex items-center gap-1",
                                     bgImage
                                         ? "bg-emerald-500/20 text-emerald-100 border-emerald-500/20"
                                         : "bg-emerald-50 text-emerald-600 border-emerald-100"
@@ -266,14 +266,14 @@ export function PackageCard({
                         {/* Specs */}
                         <div className="flex items-center gap-2 mb-4">
                             <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm",
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border",
                                 bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Wifi className="w-3.5 h-3.5 opacity-70" />
                                 <span className="text-sm font-bold">{data}</span>
                             </div>
                             <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border backdrop-blur-sm",
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border",
                                 bgImage ? "bg-white/10 border-white/20 text-white" : "package-badge"
                             )}>
                                 <Clock className="w-3.5 h-3.5 opacity-70" />
