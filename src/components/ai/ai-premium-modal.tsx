@@ -10,6 +10,10 @@ import {
     Globe,
     Zap,
     Shield,
+    Languages,
+    Map,
+    Image as ImageIcon,
+    Mic,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,8 +30,11 @@ export function AIPremiumModal({ isOpen, onClose, onPurchase }: AIPremiumModalPr
     if (!isOpen) return null;
 
     const features = [
-        { icon: MessageCircle, text: "Хязгааргүй асуулт" },
-        { icon: Sparkles, text: "AI-ийн ухаалаг хариулт" },
+        { icon: MessageCircle, text: "AI Чат (хязгааргүй)" },
+        { icon: Languages, text: "AI Орчуулагч" },
+        { icon: Map, text: "Аялал Төлөвлөгч" },
+        { icon: ImageIcon, text: "Постер Үүсгэгч" },
+        { icon: Mic, text: "Дуут оруулга" },
         { icon: Globe, text: "Бүх улсын мэдээлэл" },
         { icon: Zap, text: "Хурдан хариулт" },
         { icon: Shield, text: "24/7 дэмжлэг" },
