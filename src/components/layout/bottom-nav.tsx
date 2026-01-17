@@ -27,6 +27,7 @@ export function BottomNav() {
         { label: t("packages"), icon: Globe, href: "/packages", active: isActive("/packages") || pathname?.startsWith("/package/") },
         { label: "AI", icon: Sparkles, href: "/ai", active: isActive("/ai") || pathname?.startsWith("/ai/") },
         { label: t("myEsims"), icon: CreditCard, href: "/my-esims", active: isActive("/my-esims"), requiresAuth: true },
+        { label: t("profile"), icon: User, href: "/profile", active: isActive("/profile"), requiresAuth: true },
     ];
 
     const handleProtectedNav = (e: React.MouseEvent, href: string) => {
