@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
     MessageCircle,
@@ -32,7 +32,7 @@ const travelModes = [
     { id: "student", icon: GraduationCap, label: "Сургалт", labelEn: "Student", color: "from-purple-500 to-violet-500" },
 ];
 
-// Main AI features - simplified to 4 core features
+// Main AI features - grouped by relevance
 const aiFeatures = [
     {
         id: "planner",
@@ -41,6 +41,7 @@ const aiFeatures = [
         titleEn: "Trip Planner",
         color: "from-emerald-500 to-teal-600",
         href: "/ai/planner",
+        modes: ["all"],
     },
     {
         id: "translator",
@@ -49,6 +50,7 @@ const aiFeatures = [
         titleEn: "Translator",
         color: "from-purple-500 to-pink-600",
         href: "/ai/translator",
+        modes: ["all"],
     },
     {
         id: "business",
@@ -57,14 +59,70 @@ const aiFeatures = [
         titleEn: "Business Trip",
         color: "from-amber-500 to-orange-500",
         href: "/ai/business",
+        modes: ["business"],
+    },
+    {
+        id: "expense",
+        icon: ShoppingBag,
+        title: "Зардал Хөтлөгч",
+        titleEn: "Expense Tracker",
+        color: "from-blue-500 to-indigo-600",
+        href: "/ai/expenses",
+        modes: ["business"],
     },
     {
         id: "medical",
         icon: Stethoscope,
-        title: "Эмчилгээ",
-        titleEn: "Medical",
+        title: "Эмчилгээний Туслах",
+        titleEn: "Medical Assistant",
         color: "from-green-500 to-emerald-500",
         href: "/ai/medical",
+        modes: ["medical"],
+    },
+    {
+        id: "hospital",
+        icon: Map,
+        title: "Эмнэлэг Хайх",
+        titleEn: "Find Hospital",
+        color: "from-red-500 to-rose-600",
+        href: "/ai/hospitals",
+        modes: ["medical"],
+    },
+    {
+        id: "vat",
+        icon: ShoppingBag,
+        title: "VAT Буцаан Олголт",
+        titleEn: "VAT Refund",
+        color: "from-pink-500 to-rose-600",
+        href: "/ai/vat",
+        modes: ["shopping"],
+    },
+    {
+        id: "prices",
+        icon: Sparkles,
+        title: "Үнийн Зөвлөх",
+        titleEn: "Price Guide",
+        color: "from-yellow-500 to-amber-600",
+        href: "/ai/prices",
+        modes: ["shopping"],
+    },
+    {
+        id: "student",
+        icon: GraduationCap,
+        title: "Сургалтын Гарын Авлага",
+        titleEn: "Student Guide",
+        color: "from-purple-500 to-violet-600",
+        href: "/ai/student",
+        modes: ["student"],
+    },
+    {
+        id: "campus",
+        icon: Map,
+        title: "Кампус Газрын Зураг",
+        titleEn: "Campus Map",
+        color: "from-blue-500 to-cyan-600",
+        href: "/ai/campus",
+        modes: ["student"],
     },
 ];
 
@@ -72,6 +130,11 @@ export default function AIHubPage() {
     const { language } = useTranslation();
     const isMongolian = language === "mn";
     const [selectedMode, setSelectedMode] = useState("tourist");
+
+    // Filter features based on selected mode
+    const filteredFeatures = aiFeatures.filter(
+        (f) => f.modes.includes("all") || f.modes.includes(selectedMode)
+    );
 
     return (
         <div className="min-h-screen pb-24 md:pb-8">
@@ -91,6 +154,7 @@ export default function AIHubPage() {
             </section>
 
             {/* Travel Mode Selector - Horizontal scroll */}
+
             <section className="px-4 py-4 border-b">
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                     {travelModes.map((mode) => {
@@ -122,21 +186,35 @@ export default function AIHubPage() {
                     {isMongolian ? "AI Боломжууд" : "AI Features"}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                    {aiFeatures.map((feature) => {
-                        const Icon = feature.icon;
-                        return (
-                            <Link key={feature.id} href={feature.href}>
-                                <Card className="p-4 h-full hover:shadow-lg transition-shadow active:scale-[0.98]">
-                                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-2`}>
-                                        <Icon className="w-5 h-5 text-white" />
-                                    </div>
-                                    <h3 className="font-bold text-sm">
-                                        {isMongolian ? feature.title : feature.titleEn}
-                                    </h3>
-                                </Card>
-                            </Link>
-                        );
-                    })}
+                    <AnimatePresence mode="popLayout">
+                        {filteredFeatures.map((feature) => {
+                            const Icon = feature.icon;
+                            return (
+                                <motion.div
+                                    key={`${selectedMode}-${feature.id}`}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <Link href={feature.href}>
+                                        <Card className="p-4 h-full hover:shadow-lg transition-shadow active:scale-[0.98] border-white/10">
+                                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-2 shadow-sm`}>
+                                                <Icon className="w-5 h-5 text-white" />
+                                            </div>
+                                            <h3 className="font-bold text-[13px] leading-tight mb-1">
+                                                {isMongolian ? feature.title : feature.titleEn}
+                                            </h3>
+                                            <p className="text-[10px] text-muted-foreground opacity-70">
+                                                {feature.modes.includes("all") ? (isMongolian ? "Ерөнхий" : "General") : (isMongolian ? "Тусгай" : "Specialized")}
+                                            </p>
+                                        </Card>
+                                    </Link>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
                 </div>
             </section>
 
