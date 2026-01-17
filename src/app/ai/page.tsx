@@ -67,7 +67,7 @@ const aiFeatures = [
         descriptionEn: "Text, voice, camera",
         color: "from-purple-500 to-pink-600",
         href: "/ai/translator",
-        available: false,
+        available: true,
     },
     {
         id: "poster",
@@ -152,8 +152,8 @@ export default function AIHubPage() {
                                 transition={{ delay: index * 0.05 }}
                                 onClick={() => setSelectedPurpose(mode.id)}
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm shadow-lg transition-all active:scale-95 ${isSelected
-                                        ? `bg-gradient-to-r ${mode.color} text-white scale-105`
-                                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                    ? `bg-gradient-to-r ${mode.color} text-white scale-105`
+                                    : "bg-muted text-muted-foreground hover:bg-muted/80"
                                     }`}
                             >
                                 <Icon className="w-4 h-4" />
