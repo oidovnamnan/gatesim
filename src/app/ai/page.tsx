@@ -100,7 +100,7 @@ const aiFeatures = [
         descriptionEn: "Cosmetic, dental, vision",
         color: "from-green-500 to-emerald-500",
         href: "/ai/medical",
-        available: false,
+        available: true,
     },
 ];
 
