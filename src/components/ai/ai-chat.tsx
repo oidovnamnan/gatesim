@@ -28,6 +28,18 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<AIMessage[]>([]);
 
+    // Derive mode from pathname
+    const getModeFromPath = (path: string | null) => {
+        if (!path) return "tourist";
+        if (path.includes("/medical") || path.includes("/hospitals")) return "medical";
+        if (path.includes("/student") || path.includes("/campus")) return "student";
+        if (path.includes("/shopping") || path.includes("/vat") || path.includes("/prices")) return "shopping";
+        if (path.includes("/business") || path.includes("/expenses")) return "business";
+        return "tourist";
+    };
+
+    const currentMode = getModeFromPath(pathname);
+
     const greetingVariants = [
         t("aiGreeting1"),
         t("aiGreeting2"),
@@ -184,6 +196,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         onClose={() => setIsOpen(false)}
                         country={country}
                         isPremium={isPremium}
+                        mode={currentMode}
                     />
                 )}
             </AnimatePresence>
