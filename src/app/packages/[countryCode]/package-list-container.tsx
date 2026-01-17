@@ -1,5 +1,6 @@
 
 import { getProductsFromDB } from "@/lib/products-db";
+import { getMobiMatterProducts } from "@/lib/mobimatter";
 import { CountryPackagesList } from "./country-packages-list";
 
 interface Props {
@@ -8,8 +9,17 @@ interface Props {
 
 // Separate async component for data fetching to enable Streaming
 export async function PackageListContainer({ countryCode }: Props) {
-    // Fetch from Firestore DB (Fast & Reliable)
-    const products = await getProductsFromDB({ countryCode });
+    // 1. Try fetching from Firestore DB (Fast & Reliable)
+    let products = await getProductsFromDB({ countryCode });
+
+    // 2. Fallback: If DB is empty (sync failed or not run), fetch from API (Slow but Safe)
+    if (products.length === 0) {
+        console.warn(`[PackageList] DB returned 0 items for ${countryCode}. Falling back to API.`);
+        const allProducts = await getMobiMatterProducts();
+        products = allProducts
+            .filter(p => p.countries.includes(countryCode))
+            .sort((a, b) => a.price - b.price);
+    }
 
     const getCountryName = (c: string) => {
         const names: Record<string, string> = {
