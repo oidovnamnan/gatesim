@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { PackageCard } from "@/components/packages/package-card";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/providers/language-provider";
 import { MobileHeader } from "@/components/layout/mobile-header";
+import { useInView } from "react-intersection-observer";
+import { Loader2 } from "lucide-react";
 
 interface Package {
     id: string;
@@ -45,6 +47,46 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
             return true;
         });
     }, [packages, durationFilter, isUnlimitedFilter]);
+
+    // Pagination State
+    const PACKAGES_PER_PAGE = 20;
+    const [displayCount, setDisplayCount] = useState(PACKAGES_PER_PAGE);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    // Infinite scroll trigger
+    const { ref: loadMoreRef, inView } = useInView({
+        threshold: 0,
+        rootMargin: "100px",
+    });
+
+    // Reset display count when filters change
+    useEffect(() => {
+        setDisplayCount(PACKAGES_PER_PAGE);
+    }, [durationFilter, isUnlimitedFilter]);
+
+    // Load more function
+    const loadMore = useCallback(() => {
+        if (displayCount >= filteredPackages.length) return;
+
+        setIsLoadingMore(true);
+        setTimeout(() => {
+            setDisplayCount(prev => Math.min(prev + PACKAGES_PER_PAGE, filteredPackages.length));
+            setIsLoadingMore(false);
+        }, 300);
+    }, [displayCount, filteredPackages.length]);
+
+    // Trigger load more when in view
+    useEffect(() => {
+        if (inView && !isLoadingMore) {
+            loadMore();
+        }
+    }, [inView, isLoadingMore, loadMore]);
+
+    const displayedPackages = useMemo(() => {
+        return filteredPackages.slice(0, displayCount);
+    }, [filteredPackages, displayCount]);
+
+    const hasMore = displayCount < filteredPackages.length;
 
     return (
         <>
@@ -130,31 +172,58 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
                 {/* Results Info */}
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                        {t("packagesFound").replace("{count}", filteredPackages.length.toString())}
+                        {t("packagesFound").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
                     </p>
                 </div>
 
                 {/* Grid Layout */}
                 {filteredPackages.length > 0 ? (
-                    <motion.div
-                        layout
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-                    >
-                        <AnimatePresence>
-                            {filteredPackages.map(pkg => (
-                                <motion.div
-                                    key={pkg.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <PackageCard {...pkg} />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </motion.div>
+                    <>
+                        <motion.div
+                            layout
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                        >
+                            <AnimatePresence>
+                                {displayedPackages.map(pkg => (
+                                    <motion.div
+                                        key={pkg.id}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <PackageCard {...pkg} />
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
+
+                        {/* Load More Trigger */}
+                        {hasMore && (
+                            <div
+                                ref={loadMoreRef}
+                                className="flex items-center justify-center py-8"
+                            >
+                                {isLoadingMore ? (
+                                    <div className="flex items-center gap-2 text-slate-500">
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        <span className="text-sm">{t("loadingMore")}</span>
+                                    </div>
+                                ) : (
+                                    <div className="text-sm text-slate-400">
+                                        {t("scrollMore")}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {!hasMore && displayedPackages.length > 0 && (
+                            <div className="text-center py-4 text-sm text-slate-400">
+                                {t("allPackagesShown").replace("{count}", filteredPackages.length.toString())}
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
                         <div className="text-4xl">🔍</div>
