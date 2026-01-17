@@ -25,11 +25,11 @@ import { cn } from "@/lib/utils";
 
 // Travel modes for filtering
 const travelModes = [
-    { id: "tourist", icon: Plane, label: "Жуулчин", labelEn: "Tourist" },
-    { id: "shopping", icon: ShoppingBag, label: "Шоппинг", labelEn: "Shopping" },
-    { id: "business", icon: Briefcase, label: "Бизнес", labelEn: "Business" },
-    { id: "medical", icon: Stethoscope, label: "Эмчилгээ", labelEn: "Medical" },
-    { id: "student", icon: GraduationCap, label: "Сургалт", labelEn: "Student" },
+    { id: "tourist", icon: Plane, label: "Жуулчин", labelEn: "Tourist", color: "from-blue-500 to-cyan-500" },
+    { id: "shopping", icon: ShoppingBag, label: "Шоппинг", labelEn: "Shopping", color: "from-pink-500 to-rose-500" },
+    { id: "business", icon: Briefcase, label: "Бизнес", labelEn: "Business", color: "from-amber-500 to-orange-500" },
+    { id: "medical", icon: Stethoscope, label: "Эмчилгээ", labelEn: "Medical", color: "from-green-500 to-emerald-500" },
+    { id: "student", icon: GraduationCap, label: "Сургалт", labelEn: "Student", color: "from-purple-500 to-violet-500" },
 ];
 
 // Main AI features - simplified to 4 core features
@@ -101,10 +101,10 @@ export default function AIHubPage() {
                                 key={mode.id}
                                 onClick={() => setSelectedMode(mode.id)}
                                 className={cn(
-                                    "flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all",
+                                    "flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all",
                                     isSelected
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted text-muted-foreground"
+                                        ? `bg-gradient-to-r ${mode.color} text-white shadow-lg scale-105`
+                                        : "bg-muted text-muted-foreground hover:bg-muted/80"
                                 )}
                             >
                                 <Icon className="w-4 h-4" />
