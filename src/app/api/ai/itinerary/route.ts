@@ -32,7 +32,7 @@ const budgetEstimates: Record<string, Record<string, string>> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { destination, duration, purpose, budget, language } = await request.json();
+    const { destination, duration, purpose, budget, language, city, transportMode } = await request.json();
 
     if (!destination || !duration) {
       return NextResponse.json(
@@ -47,7 +47,8 @@ export async function POST(request: NextRequest) {
     const isMongolian = language === "mn";
 
     const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries.
-Create a ${duration}-day itinerary for ${countryName} focused on ${purposeDesc}.
+Create a ${duration}-day itinerary for ${countryName}${city ? ` (specifically city: ${city})` : ''} focused on ${purposeDesc}.
+Transport Mode to Destination: ${transportMode || 'Any'} (If specified, Day 1 should account for arrival/start via this mode).
 Budget level: ${budget} (${dailyBudget} per day)
 
 Response format MUST be valid JSON:

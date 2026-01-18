@@ -10,8 +10,11 @@ import {
     MapPin,
     Utensils,
     Camera,
-    ShoppingBag,
     Plane,
+    TrainFront,
+    Bus,
+    Car,
+    ShoppingBag,
     Hotel,
     Loader2,
     ChevronDown,
@@ -137,6 +140,8 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
 
     const [isCustomDestination, setIsCustomDestination] = useState(false);
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+    const [city, setCity] = useState("");
+    const [transportMode, setTransportMode] = useState<"flight" | "train" | "bus" | "car" | "">("");
 
     const generateItinerary = async () => {
         if (!destination) return;
@@ -153,6 +158,8 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                     purpose,
                     budget,
                     language: language,
+                    city,
+                    transportMode,
                 }),
             });
 
@@ -273,6 +280,21 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 </AnimatePresence>
             </div>
 
+            {/* City Selection */}
+            <div>
+                <h3 className="font-bold mb-3 text-sm flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400" />
+                    {isMongolian ? "Хот (Сонголттой)" : "City (Optional)"}
+                </h3>
+                <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder={isMongolian ? "Хот эсвэл бүс нутаг..." : "Enter city or region..."}
+                    className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                />
+            </div>
+
             {/* Start Date Selection */}
             <div>
                 <h3 className="font-bold mb-3">
@@ -300,6 +322,36 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                         />
                     </PopoverContent>
                 </Popover>
+            </div>
+
+            {/* Transport Mode Selection */}
+            <div>
+                <h3 className="font-bold mb-3 text-sm flex items-center gap-2">
+                    <Plane className="w-4 h-4 text-slate-400" />
+                    {isMongolian ? "Тээврийн хэрэгсэл" : "Transport Mode"}
+                </h3>
+                <div className="grid grid-cols-4 gap-2">
+                    {[
+                        { id: 'flight', icon: Plane, label: isMongolian ? 'Нисэх' : 'Flight' },
+                        { id: 'train', icon: TrainFront, label: isMongolian ? 'Галт тэрэг' : 'Train' },
+                        { id: 'bus', icon: Bus, label: isMongolian ? 'Автобус' : 'Bus' },
+                        { id: 'car', icon: Car, label: isMongolian ? 'Машин' : 'Car' },
+                    ].map((mode) => (
+                        <button
+                            key={mode.id}
+                            onClick={() => setTransportMode(mode.id as any)}
+                            className={cn(
+                                "flex flex-col items-center justify-center p-3 rounded-xl border transition-all gap-2",
+                                transportMode === mode.id
+                                    ? "bg-emerald-50 border-emerald-500 text-emerald-600 shadow-sm"
+                                    : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                            )}
+                        >
+                            <mode.icon className="w-5 h-5" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{mode.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Duration */}
@@ -677,7 +729,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }
 
