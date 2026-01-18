@@ -13,12 +13,30 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "Destination is required" }, { status: 400 });
         }
 
-        const systemPrompt = `You are a travel expert specializing in ${destination}. 
-        Suggest the top 3-4 most suitable cities in ${destination} for a trip with the following criteria:
+        const countryNames: Record<string, string> = {
+            "CN": "China",
+            "JP": "Japan",
+            "KR": "South Korea",
+            "TH": "Thailand",
+            "SG": "Singapore",
+            "VN": "Vietnam",
+            "US": "USA",
+            "MY": "Malaysia",
+            "ID": "Indonesia",
+            "PH": "Philippines",
+            "TR": "Turkey",
+            "AE": "UAE"
+        };
+
+        const countryName = countryNames[destination] || destination;
+
+        const systemPrompt = `You are a travel expert specializing in ${countryName}. 
+        Suggest the top 3-4 most suitable cities in ${countryName} for a trip with the following criteria:
         - Purposes: ${purposes}
         - Medical Details: ${medicalDetail || 'N/A'}
         - Business Details: ${businessDetail || 'N/A'}
 
+        CRITICAL: If the business detail is "furniture" (тавилга in Mongolian), suggest Foshan or Guangzhou in China.
         Return a JSON object with a list of cities. Each city should have a name (in English and Mongolian) and a short reason why it matches the criteria.
         
         Format:

@@ -579,6 +579,12 @@ export default function AITravelPlannerV2() {
                                                 onChange={(e) => setMedicalDetail(e.target.value)}
                                                 className="h-12 rounded-xl border-emerald-100 focus-visible:ring-emerald-500"
                                             />
+                                            {isSuggestingCities && (
+                                                <div className="flex items-center gap-2 text-[10px] text-emerald-600 animate-pulse font-bold ml-1">
+                                                    <div className="w-3 h-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                                                    {isMongolian ? "Тохиромжтой хотуудыг хайж байна..." : "Searching for best cities..."}
+                                                </div>
+                                            )}
                                         </motion.div>
                                     )}
 
@@ -594,6 +600,55 @@ export default function AITravelPlannerV2() {
                                                 onChange={(e) => setBusinessDetail(e.target.value)}
                                                 className="h-12 rounded-xl border-emerald-100 focus-visible:ring-emerald-500"
                                             />
+                                            {isSuggestingCities && (
+                                                <div className="flex items-center gap-2 text-[10px] text-emerald-600 animate-pulse font-bold ml-1">
+                                                    <div className="w-3 h-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                                                    {isMongolian ? "Тохиромжтой хотуудыг хайж байна..." : "Searching for best cities..."}
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+
+                                    {/* City Suggestions UI - Moved up for better visibility */}
+                                    {!city && suggestedCities.length > 0 && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 space-y-3 shadow-sm border-dashed"
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-xs font-black text-emerald-700 flex items-center gap-2">
+                                                    <Sparkles className="w-4 h-4" />
+                                                    {isMongolian ? "AI ЗӨВЛӨГӨӨ: ХОТ СОНГОХ" : "AI SUGGESTION: CHOOSE CITY"}
+                                                </p>
+                                                <button onClick={() => setSuggestedCities([])} className="text-slate-400 hover:text-slate-600">
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {suggestedCities.map((s, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => {
+                                                            setCity('custom');
+                                                            setCustomCity(isMongolian ? s.nameMn : s.name);
+                                                            setSuggestedCities([]);
+                                                        }}
+                                                        className="p-3 rounded-xl bg-white border border-emerald-100 hover:border-emerald-300 hover:shadow-md text-left transition-all group flex items-start gap-3"
+                                                    >
+                                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                                            <MapPin className="w-5 h-5" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-sm font-black text-slate-900">{isMongolian ? s.nameMn : s.name}</p>
+                                                                <ArrowRight className="w-3 h-3 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+                                                            </div>
+                                                            <p className="text-[10px] text-slate-500 leading-tight mt-0.5">{s.reason}</p>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </motion.div>
                                     )}
                                 </div>
