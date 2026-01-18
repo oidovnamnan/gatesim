@@ -30,6 +30,7 @@ interface AIChatWindowProps {
     tripContext?: string | null;
     className?: string;
     hideHeader?: boolean;
+    quickActions?: { label: string; value: string; icon?: React.ReactNode }[];
 }
 
 export function AIChatWindow({
@@ -42,7 +43,8 @@ export function AIChatWindow({
     mode = "tourist",
     tripContext = null,
     className,
-    hideHeader = false
+    hideHeader = false,
+    quickActions
 }: AIChatWindowProps) {
     const { data: session } = useSession();
     const { t, language } = useTranslation();
@@ -362,8 +364,26 @@ export function AIChatWindow({
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick options */}
-            {messages.length <= 1 && mode !== 'transit' && (
+            {/* Quick Actions (Custom) */}
+            {quickActions && quickActions.length > 0 && (
+                <div className="px-4 pb-2">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                        {quickActions.map((action, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => handleSend(action.value)}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 transition-all shadow-sm whitespace-nowrap"
+                            >
+                                {action.icon && <span className="text-blue-500">{action.icon}</span>}
+                                <span className="font-bold">{action.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Default Popular Packages (Tourist Mode) */}
+            {messages.length <= 1 && mode !== 'transit' && !quickActions && (
                 <div className="px-4 pb-3">
                     <p className="text-[10px] text-slate-400 mb-3 font-black uppercase tracking-widest ml-1">{t("aiPopularPackages")}</p>
                     <div className="grid grid-cols-2 gap-2">

@@ -73,7 +73,7 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
     }, [contextLoaded, isMongolian]);
 
     return (
-        <div className={cn("min-h-[80vh] flex flex-col", className)}>
+        <div className={cn("flex flex-col", className)}>
             {/* Header Area */}
             <div className="mb-6 flex items-center justify-between">
                 <div>
@@ -88,7 +88,7 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
             </div>
 
             {/* Chat Area - Reusing AIChatWindow but embedded */}
-            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm h-[600px] relative">
+            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm h-[500px] relative">
                 <AIChatWindow
                     isOpen={true}
                     onClose={() => { }} // No close action needed for embedded
@@ -100,26 +100,24 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
                     // Custom styling to fit embedded view
                     className="h-full w-full rounded-none shadow-none static !fixed-none !transform-none !inset-auto"
                     hideHeader={true}
+                    quickActions={[
+                        {
+                            label: isMongolian ? "Ойрхон буудал" : "Nearest Station",
+                            value: isMongolian ? "Хамгийн ойр автобусны буудал хаана байна?" : "Where is the nearest bus station?",
+                            icon: <MapPin className="w-3.5 h-3.5" />
+                        },
+                        {
+                            label: isMongolian ? "Эмнэлэг рүү" : "To Hospital",
+                            value: isMongolian ? "Хамгийн ойр эмнэлэг рүү яаж очих вэ?" : "How do I get to the nearest hospital?",
+                            icon: <Navigation className="w-3.5 h-3.5" />
+                        },
+                        {
+                            label: isMongolian ? "Метроны зураг" : "Subway Map",
+                            value: isMongolian ? "Метроны зураг харуулна уу" : "Show me the subway map",
+                            icon: <Train className="w-3.5 h-3.5" />
+                        }
+                    ]}
                 />
-            </div>
-
-            {/* Quick Actions (Optional) */}
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-                <Button variant="outline" className="h-auto py-3 flex flex-col items-center gap-1" onClick={() => {
-                    // We can programmatically send message if we expose that capability or logic
-                    // For now just UI placeholders
-                }}>
-                    <MapPin className="w-4 h-4 text-blue-500" />
-                    <span className="text-xs">{isMongolian ? "Ойрхон буудал" : "Nearest Station"}</span>
-                </Button>
-                <Button variant="outline" className="h-auto py-3 flex flex-col items-center gap-1">
-                    <Navigation className="w-4 h-4 text-green-500" />
-                    <span className="text-xs">{isMongolian ? "Эмнэлэг рүү" : "To Hospital"}</span>
-                </Button>
-                <Button variant="outline" className="h-auto py-3 flex flex-col items-center gap-1">
-                    <Train className="w-4 h-4 text-purple-500" />
-                    <span className="text-xs">{isMongolian ? "Метроны зураг" : "Subway Map"}</span>
-                </Button>
             </div>
         </div>
     );
