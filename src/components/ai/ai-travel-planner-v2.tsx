@@ -253,12 +253,50 @@ export default function AITravelPlannerV2() {
     // --- Purpose Details ---
     const [medicalDetail, setMedicalDetail] = useState("");
     const [businessDetail, setBusinessDetail] = useState("");
+    const [suggestedCities, setSuggestedCities] = useState<any[]>([]);
+    const [isSuggestingCities, setIsSuggestingCities] = useState(false);
 
     // --- Hotel Filters ---
     const [hotelStars, setHotelStars] = useState("all");
     const [hotelArea, setHotelArea] = useState("all");
 
     const isMongolian = language === "mn";
+
+    // --- Suggest Cities ---
+    const fetchCitySuggestions = async () => {
+        if (!destination || (purposes.length === 0)) return;
+        setIsSuggestingCities(true);
+        try {
+            const res = await fetch("/api/ai/suggest-cities", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    destination,
+                    purposes: purposes.join(", "),
+                    medicalDetail,
+                    businessDetail
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setSuggestedCities(data.suggestions);
+            }
+        } catch (error) {
+            console.error("City suggestion failed:", error);
+        } finally {
+            setIsSuggestingCities(false);
+        }
+    };
+
+    // Trigger suggestion when details change and city is empty
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (!city && destination && (medicalDetail.length > 3 || businessDetail.length > 3)) {
+                fetchCitySuggestions();
+            }
+        }, 800);
+        return () => clearTimeout(timer);
+    }, [medicalDetail, businessDetail, destination, purposes]);
 
     // --- Helpers ---
     const togglePurpose = (id: string) => {
