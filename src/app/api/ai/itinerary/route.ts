@@ -33,7 +33,17 @@ const budgetEstimates: Record<string, Record<string, string>> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { destination, duration, purpose, budget, language, city, transportMode } = await request.json();
+    const {
+      destination,
+      duration,
+      purpose,
+      budget,
+      language,
+      city,
+      transportMode,
+      selectedHotel,
+      selectedActivities
+    } = await request.json();
 
     if (!destination || !duration) {
       return NextResponse.json(
@@ -84,6 +94,10 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries for Mongolian travelers.
 
+**USER SELECTIONS (PRIORITY):**
+- **Selected Hotel:** ${selectedHotel || 'Any suitable 4-star hotel'} (MUST BE USED as the primary accommodation).
+- **Selected Activities/Places:** ${selectedActivities || 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
+
 **TRIP PREFERENCES:**
 - **Origin:** Ulaanbaatar, Mongolia (All trips start here)
 - **Destination:** ${countryName}${city ? ` (specifically city: ${city})` : ''}
@@ -111,6 +125,11 @@ ${groundingContext}
   "city": "${city || ''}",
   "duration": ${duration},
   "totalBudget": "ESTIMATED TOTAL (e.g. 250 USD / 890,000 MNT)",
+  "visaRequirement": {
+    "needed": true/false,
+    "type": "e.g. Visa-free, E-visa, or Sticker Visa",
+    "details": "Brief explanation for Mongolian citizens"
+  },
   "days": [
     {
       "day": 1,
