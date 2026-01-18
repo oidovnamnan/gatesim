@@ -248,6 +248,7 @@ export default function AITravelPlannerV2() {
     const [customCity, setCustomCity] = useState("");
     const [transportMode, setTransportMode] = useState("flight");
     const [language, setLanguage] = useState("mn");
+    const [calendarOpen, setCalendarOpen] = useState(false);
 
     const isMongolian = language === "mn";
 
@@ -547,10 +548,11 @@ export default function AITravelPlannerV2() {
                                             <label className="text-[10px] font-black uppercase text-slate-400 px-1">
                                                 {isMongolian ? "Эхлэх огноо" : "Start Date"}
                                             </label>
-                                            <Popover>
+                                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                                 <PopoverTrigger asChild>
                                                     <Button
                                                         variant={"outline"}
+                                                        onClick={() => setCalendarOpen(true)}
                                                         className={cn(
                                                             "w-full h-12 justify-start text-left font-normal rounded-xl border-slate-100 bg-slate-50",
                                                             !startDate && "text-muted-foreground"
@@ -560,13 +562,21 @@ export default function AITravelPlannerV2() {
                                                         {startDate ? format(startDate, "PPP") : (isMongolian ? "Огноо сонгох" : "Pick a date")}
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
+                                                <PopoverContent className="w-auto p-0 border-none shadow-2xl rounded-3xl overflow-hidden" align="start">
                                                     <Calendar
                                                         mode="single"
                                                         selected={startDate}
-                                                        onSelect={setStartDate}
+                                                        onSelect={(date) => {
+                                                            setStartDate(date);
+                                                            setTimeout(() => setCalendarOpen(false), 200);
+                                                        }}
                                                         initialFocus
                                                         disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                                        className="p-4"
+                                                        classNames={{
+                                                            day_selected: "bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white focus:bg-emerald-600 focus:text-white",
+                                                            day_today: "bg-emerald-50 text-emerald-600 font-bold",
+                                                        }}
                                                     />
                                                 </PopoverContent>
                                             </Popover>
