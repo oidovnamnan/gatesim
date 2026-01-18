@@ -265,8 +265,8 @@ export default function SettingsPage() {
                             <button
                                 onClick={() => setSettings(s => ({ ...s, preferredImageAI: 'openai' }))}
                                 className={`p-4 rounded-xl border-2 transition-all text-left ${settings.preferredImageAI === 'openai'
-                                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'
-                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10'
+                                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                                     }`}
                             >
                                 <div className="font-medium text-slate-900 dark:text-white">OpenAI DALL-E</div>
@@ -275,8 +275,8 @@ export default function SettingsPage() {
                             <button
                                 onClick={() => setSettings(s => ({ ...s, preferredImageAI: 'google' }))}
                                 className={`p-4 rounded-xl border-2 transition-all text-left ${settings.preferredImageAI === 'google'
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                                     }`}
                             >
                                 <div className="font-medium text-slate-900 dark:text-white">Google Imagen</div>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
                         <p className="text-xs text-slate-500 dark:text-white/50">Вэбсайтыг түр хааж, засварын хуудас харуулах</p>
                     </div>
                     <Button
-                        variant={settings.maintenanceMode ? "danger" : "outline"}
+                        variant={settings.maintenanceMode ? "destructive" : "outline"}
                         className={settings.maintenanceMode ? "bg-red-600 hover:bg-red-700 text-white" : "text-slate-700 dark:text-white border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10"}
                         onClick={toggleMaintenance}
                     >
