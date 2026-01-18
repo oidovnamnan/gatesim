@@ -63,7 +63,7 @@ Response format MUST be valid JSON:
         {
           "time": "09:00",
           "activity": "${isMongolian ? "Үйл ажиллагааны тайлбар" : "Activity description"}",
-          "location": "Specific place name",
+          "location": "Real/Specific hotel name or place",
           "coordinates": { "lat": 0.0, "lng": 0.0 },
           "type": "food|attraction|transport|hotel|shopping",
           "cost": "$XX"

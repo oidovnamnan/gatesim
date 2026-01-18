@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Map,
-    Calendar,
+    Calendar as CalendarIcon,
     DollarSign,
     Clock,
     MapPin,
@@ -28,6 +28,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { format, addDays } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import {
     Select,
     SelectContent,
@@ -129,6 +136,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     };
 
     const [isCustomDestination, setIsCustomDestination] = useState(false);
+    const [startDate, setStartDate] = useState<Date | undefined>(new Date());
 
     const generateItinerary = async () => {
         if (!destination) return;
@@ -263,6 +271,35 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                         </motion.div>
                     )}
                 </AnimatePresence>
+            </div>
+
+            {/* Start Date Selection */}
+            <div>
+                <h3 className="font-bold mb-3">
+                    {isMongolian ? "Эхлэх огноо" : "Start Date"}
+                </h3>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-full h-12 justify-start text-left font-normal rounded-xl border-slate-200 bg-white",
+                                !startDate && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? format(startDate, "PPP") : (isMongolian ? "Огноо сонгох" : "Pick a date")}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="single"
+                            selected={startDate}
+                            onSelect={setStartDate}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
             </div>
 
             {/* Duration */}
@@ -534,10 +571,26 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                                                         </div>
                                                                     ) : (
                                                                         <div className="flex items-center justify-between w-full">
-                                                                            <Badge variant="outline" className="text-xs">
-                                                                                <Clock className="w-3 h-3 mr-1" />
-                                                                                {activity.time}
-                                                                            </Badge>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Badge variant="outline" className="text-xs">
+                                                                                    <Clock className="w-3 h-3 mr-1" />
+                                                                                    {activity.time}
+                                                                                </Badge>
+                                                                                {activity.type === 'hotel' && (
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        variant="outline"
+                                                                                        className="h-6 text-[10px] px-2 ml-2 text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100"
+                                                                                        onClick={() => {
+                                                                                            const checkIn = startDate ? addDays(startDate, dayIndex) : new Date();
+                                                                                            const checkOut = addDays(checkIn, 1);
+                                                                                            window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(activity.location)}&checkin=${format(checkIn, 'yyyy-MM-dd')}&checkout=${format(checkOut, 'yyyy-MM-dd')}&group_adults=2`, '_blank');
+                                                                                        }}
+                                                                                    >
+                                                                                        {isMongolian ? "Үнэ шалгах" : "Check Rates"}
+                                                                                    </Button>
+                                                                                )}
+                                                                            </div>
                                                                             {activity.cost && (
                                                                                 <span className="text-xs text-muted-foreground">
                                                                                     {activity.cost}
