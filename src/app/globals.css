@@ -619,7 +619,46 @@ html[data-fb-browser="true"] .overflow-hidden {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .app-container {
+    padding: 0 !important;
+  }
+
+  /* Force expanded state for itineraries when printing */
+  .motion-div {
+    height: auto !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+
+  /* Hide navigation, chat buttons, etc */
+  nav,
+  .bottom-nav,
+  .floating-chat-button,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* Page breaks */
+  .itinerary-day {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }

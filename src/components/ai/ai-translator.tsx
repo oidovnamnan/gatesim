@@ -19,6 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/providers/language-provider";
+import { useToast } from "@/providers/toast-provider";
 import { cn } from "@/lib/utils";
 
 // Supported languages
@@ -45,6 +46,7 @@ interface AITranslatorProps {
 
 export function AITranslator({ className }: AITranslatorProps) {
     const { language: appLang } = useTranslation();
+    const { error: toastError, info: toastInfo } = useToast();
     const isMongolian = appLang === "mn";
 
     const [inputMode, setInputMode] = useState<"text" | "voice" | "camera">("text");
@@ -90,10 +92,12 @@ export function AITranslator({ className }: AITranslatorProps) {
                 setTranslatedText(data.translatedText);
             } else {
                 setTranslatedText("Translation failed");
+                toastError("Translation failed");
             }
         } catch (error) {
             console.error("Translation error:", error);
             setTranslatedText("Network error");
+            toastError("Network error. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -105,7 +109,7 @@ export function AITranslator({ className }: AITranslatorProps) {
 
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Voice input not supported");
+            toastError("Voice input not supported in this browser");
             return;
         }
 
@@ -143,7 +147,7 @@ export function AITranslator({ className }: AITranslatorProps) {
     // Camera OCR
     const openCamera = async () => {
         if (!navigator.mediaDevices?.getUserMedia) {
-            alert("Camera not supported");
+            toastError("Camera not supported");
             return;
         }
 
@@ -156,9 +160,13 @@ export function AITranslator({ className }: AITranslatorProps) {
                 videoRef.current.play();
             }
             setCameraOpen(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Camera error:", error);
-            alert("Cannot access camera");
+            if (error.name === 'NotAllowedError') {
+                toastError(isMongolian ? "Камерын эрх олгогдоогүй байна. Settings хэсгээс зөвшөөрнө үү." : "Camera permission denied. Please allow access in settings.");
+            } else {
+                toastError(isMongolian ? "Камер нээхзд алдаа гарлаа." : "Cannot access camera.");
+            }
         }
     };
 
@@ -195,9 +203,12 @@ export function AITranslator({ className }: AITranslatorProps) {
                 setInputText(data.text);
                 // Auto translate
                 setTimeout(() => handleTranslate(), 500);
+            } else {
+                toastError("Text not found in image");
             }
         } catch (error) {
             console.error("OCR error:", error);
+            toastError("Failed to process image");
         } finally {
             setIsLoading(false);
         }

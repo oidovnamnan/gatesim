@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getMobiMatterProducts } from "@/lib/mobimatter";
+import { getProductBySku } from "@/lib/products-db";
 import CheckoutClient from "./checkout-client";
-import { calculateSellPrice } from "@/lib/pricing-strategy";
 
 interface Props {
     searchParams: Promise<{ package?: string; country?: string }>;
@@ -31,8 +31,16 @@ function getCountryName(code: string): string {
         "IT": "Итали",
         "ES": "Испани",
         "AE": "Дубай",
+        "HK": "Хонг Конг",
+        "TW": "Тайвань",
+        "MO": "Макао",
+        "MY": "Малайз",
+        "ID": "Индонези",
+        "PH": "Филиппин",
+        "AU": "Австрали",
+        "CA": "Канад"
     };
-    return names[code] || code;
+    return names[code.toUpperCase()] || code;
 }
 
 export default async function CheckoutPage({ searchParams }: Props) {
@@ -42,8 +50,15 @@ export default async function CheckoutPage({ searchParams }: Props) {
         redirect("/packages");
     }
 
-    const products = await getMobiMatterProducts();
-    const p = products.find(prod => prod.sku === packageId);
+    // 1. Try DB first (fast)
+    let p = await getProductBySku(packageId);
+
+    // 2. Fallback to API if not in DB
+    if (!p) {
+        console.log("[Checkout] Package not in DB, falling back to API:", packageId);
+        const products = await getMobiMatterProducts();
+        p = products.find(prod => prod.sku === packageId) || null;
+    }
 
     if (!p) {
         redirect("/packages");

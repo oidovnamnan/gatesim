@@ -37,6 +37,7 @@ export function TopHeader() {
                     src="/logo.png"
                     alt="GateSIM Logo"
                     fill
+                    sizes="(max-width: 768px) 150px, 200px"
                     className="object-contain object-left"
                     priority
                 />

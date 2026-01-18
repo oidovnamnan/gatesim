@@ -46,52 +46,86 @@ export async function POST(request: NextRequest) {
     const dailyBudget = budgetEstimates[budget]?.[destination] || "$100-200";
     const isMongolian = language === "mn";
 
-    const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries.
-Create a ${duration}-day itinerary for ${countryName}${city ? ` (specifically city: ${city})` : ''} focused on ${purposeDesc}.
-Transport Mode to Destination: ${transportMode || 'Any'} (If specified, Day 1 should account for arrival/start via this mode).
-Budget level: ${budget} (${dailyBudget} per day)
+    // Special logic for Mongolia -> China travel
+    let transportLogic = "";
+    let budgetInstruction = "";
 
-Response format MUST be valid JSON:
+    // Check for Erlian/Ereen specifically
+    const isErlian = city?.toLowerCase().includes("erlian") || city?.toLowerCase().includes("эрээн");
+
+    if (destination === "CN" || countryName.toLowerCase().includes("china") || countryName.toLowerCase().includes("хятад")) {
+      if (isErlian) {
+        budgetInstruction = "NOTE: User is going to ERLIAN (Border city). Costs are very low. International transport (Train/Bus) is cheap (~$50-$100). Do NOT use standard international flight costs.";
+        if (transportMode === "flight") {
+          transportLogic = "User selected Flight, but Erlian is best reached by Train/Bus. Suggest flight to nearby airports (e.g. Hohhot) or mention that Train is better. Keep transport cost realistic for reaching Erlian (e.g. < $300).";
+        } else {
+          transportLogic = "User is traveling overland to Erlian. Transport cost is cheap (~$50).";
+        }
+      } else {
+        // Standard China logic
+        if (transportMode === "flight") {
+          transportLogic = "User is flying directly. Do NOT include Zamiin-Uud border crossing. Start Day 1 at the destination airport.";
+        } else if (["train", "bus", "car"].includes(transportMode)) {
+          transportLogic = "User is traveling overland from Mongolia. You MUST include the Zamiin-Uud border crossing (Erlian) in the itinerary (usually Day 1).";
+        }
+      }
+    }
+
+    const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries for Mongolian travelers.
+
+**TRIP PREFERENCES:**
+- **Origin:** Ulaanbaatar, Mongolia (All trips start here)
+- **Destination:** ${countryName}${city ? ` (specifically city: ${city})` : ''}
+- **Duration:** ${duration} days
+- **Purpose:** ${purposeDesc}
+- **Budget Level:** ${budget} (${dailyBudget} daily expenses + International Transport). ${budgetInstruction}
+- **Transport Mode:** ${transportMode || 'Flight'}
+
+${transportLogic}
+
+**CRITICAL INSTRUCTIONS:**
+1. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
+   - If Transport Mode is "Flight": "Flight from Ulaanbaatar (UBN) to ${countryName}". Calculate approximate cost (e.g., $800-$1500 depending on location).
+   - If Transport Mode is "Train/Overland": "Train/Bus from Ulaanbaatar".
+2. **Total Budget**: MUST be calculated in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
+   - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
+   - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket) + Accommodation + Daily expenses.
+3. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
+
+**RESPONSE FORMAT (JSON):**
 {
   "destination": "${destination}",
+  "city": "${city || ''}",
   "duration": ${duration},
-  "totalBudget": "estimated total in USD",
+  "totalBudget": "ESTIMATED TOTAL (e.g. 250 USD / 890,000 MNT)",
   "days": [
     {
       "day": 1,
-      "title": "${isMongolian ? "Өдрийн гарчиг" : "Day title in local context"}",
+      "title": "${isMongolian ? "Улаанбаатараас хөдлөх" : "Departure from Ulaanbaatar"}",
       "activities": [
         {
-          "time": "09:00",
-          "activity": "${isMongolian ? "Үйл ажиллагааны тайлбар" : "Activity description"}",
-          "location": "Real/Specific hotel name or place",
-          "coordinates": { "lat": 0.0, "lng": 0.0 },
-          "type": "food|attraction|transport|hotel|shopping",
-          "cost": "$XX"
+          "time": "07:00",
+          "activity": "${isMongolian ? "Улаанбаатараас нисэх/хөдлөх" : "Depart from Ulaanbaatar"}",
+          "location": "Chinggis Khaan Intl Airport / Railway Station",
+          "coordinates": { "lat": 47.9, "lng": 106.9 },
+          "type": "transport",
+          "cost": "International Ticket Cost (e.g. $800)"
         }
       ]
     }
   ],
-  "tips": ["${isMongolian ? "Зөвлөмж" : "Helpful tip"}"],
-  "esimRecommendation": "${isMongolian ? "eSIM санал болголт" : "eSIM recommendation for this trip"}",
+  "tips": ["Tip 1"],
+  "esimRecommendation": "Best eSIM for this trip",
   "packingList": [
-    {
-      "category": "${isMongolian ? "Ангилал (Хувцас, Техник, Эм...)" : "Category (Clothing, Tech, Meds...)"}",
-      "items": ["${isMongolian ? "Зүйл" : "Item"}"]
-    }
+    { "category": "Category", "items": ["Item"] }
   ],
   "budgetBreakdown": [
-    {
-      "category": "${isMongolian ? "Ангилал (Байр, Хоол, Унаа...)" : "Category (Accommodation, Food, Transport...)"}",
-      "amount": 0,
-      "currency": "USD",
-      "percentage": 0
-    }
+    { "category": "Intl Transport", "amount": 800, "currency": "USD", "percentage": 30 },
+    { "category": "Accommodation", "amount": 1000, "currency": "USD", "percentage": 40 }
   ]
 }
 
-${isMongolian ? "Бүх текстийг МОНГОЛ хэлээр бич." : "Write all text in English."}
-Include 4-6 activities per day. Be specific with locations and times.`;
+Include 4-6 activities per day. Be specific with locations and costs.`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",

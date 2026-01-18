@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Map,
@@ -22,16 +23,20 @@ import {
     Sparkles,
     Save,
     Check,
+    Share2,
+    Download,
+    Upload,
     Backpack,
     Edit,
     X,
+    Smartphone,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { format, addDays } from "date-fns";
+import { format, addDays, parseISO, differenceInDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
@@ -45,6 +50,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 import { useTranslation } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -93,6 +105,7 @@ interface ItineraryDay {
 
 interface Itinerary {
     destination: string;
+    city?: string;
     duration: number;
     totalBudget: string;
     days: ItineraryDay[];
@@ -128,7 +141,9 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     const [isSaved, setIsSaved] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+    const [recommendedPackage, setRecommendedPackage] = useState<any>(null);
     const [expandedDays, setExpandedDays] = useState<number[]>([1]);
+    const router = useRouter();
 
     const handleActivityChange = (dayIndex: number, activityIndex: number, field: string, value: string) => {
         if (!itinerary) return;
@@ -142,6 +157,10 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [city, setCity] = useState("");
     const [transportMode, setTransportMode] = useState<"flight" | "train" | "bus" | "car" | "">("");
+    const [savedTripId, setSavedTripId] = useState<string | null>(null);
+    const [isExtracting, setIsExtracting] = useState(false);
+    const [extractedBooking, setExtractedBooking] = useState<any>(null);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
     const generateItinerary = async () => {
         if (!destination) return;
@@ -190,6 +209,22 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
         );
     };
 
+    // Fetch recommended package when itinerary changes
+    useEffect(() => {
+        if (itinerary?.destination && itinerary?.duration) {
+            fetch(`/api/ai/recommend-package?country=${itinerary.destination}&duration=${itinerary.duration}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        setRecommendedPackage(data.package);
+                    }
+                })
+                .catch(err => console.error("Failed to fetch recommendation", err));
+        } else {
+            setRecommendedPackage(null);
+        }
+    }, [itinerary]);
+
     const getActivityIcon = (type: string) => {
         switch (type) {
             case "food": return Utensils;
@@ -205,7 +240,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
         if (!itinerary || !session?.user) return;
         setIsSaving(true);
         try {
-            await createTrip({
+            const res = await createTrip({
                 // @ts-ignore
                 userId: (session?.user as any).id || session?.user?.email,
                 destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
@@ -214,7 +249,10 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 budget,
                 itinerary
             });
-            setIsSaved(true);
+            if (res.id) {
+                setSavedTripId(res.id);
+                setIsSaved(true);
+            }
         } catch (e) {
             console.error("Save failed", e);
         } finally {
@@ -222,10 +260,92 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
         }
     };
 
+    const handleDownloadPDF = () => {
+        window.print();
+    };
+
+    const handleShare = () => {
+        if (!savedTripId) return;
+        const shareUrl = `${window.location.origin}/share/trip/${savedTripId}${isMongolian ? '?lang=mn' : ''}`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: isMongolian ? 'Миний аяллын төлөвлөгөө' : 'My Travel Plan',
+                url: shareUrl
+            }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(shareUrl);
+            alert(isMongolian ? 'Холбоос хуулагдлаа!' : 'Link copied to clipboard!');
+        }
+    };
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsExtracting(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("/api/ai/extract-booking", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                setExtractedBooking(result.data);
+                setIsBookingModalOpen(true);
+            } else {
+                alert(result.error || "Extraction failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Failed to upload file");
+        } finally {
+            setIsExtracting(false);
+        }
+    };
+
+    const handleConfirmBooking = () => {
+        if (!itinerary || !extractedBooking) return;
+
+        const bookingDate = parseISO(extractedBooking.dateTime);
+        const tripStart = startDate || new Date();
+        const dayDiff = differenceInDays(bookingDate, tripStart);
+
+        if (dayDiff < 0 || dayDiff >= itinerary.days.length) {
+            alert(isMongolian ? "Энэ өдөр аяллын төлөвлөгөөнд ороогүй байна." : "This date is outside of your trip duration.");
+            return;
+        }
+
+        const newItinerary = { ...itinerary };
+        const timeStr = format(bookingDate, "HH:mm");
+
+        const newActivity = {
+            time: timeStr,
+            activity: extractedBooking.name,
+            location: extractedBooking.location,
+            cost: "Included",
+            description: extractedBooking.description || "",
+            type: extractedBooking.type
+        };
+
+        newItinerary.days[dayDiff].activities.push(newActivity);
+        // Sort activities by time
+        newItinerary.days[dayDiff].activities.sort((a, b) => a.time.localeCompare(b.time));
+
+        setItinerary(newItinerary);
+        setIsSaved(false);
+        setIsBookingModalOpen(false);
+        setExtractedBooking(null);
+    };
+
     return (
         <div className={cn("space-y-6 pb-32", className)}>
             {/* Destination Selection */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Хаашаа явах вэ?" : "Where to?"}
                 </h3>
@@ -281,7 +401,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* City Selection */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3 text-sm flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-slate-400" />
                     {isMongolian ? "Хот (Сонголттой)" : "City (Optional)"}
@@ -296,7 +416,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* Start Date Selection */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Эхлэх огноо" : "Start Date"}
                 </h3>
@@ -325,7 +445,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* Transport Mode Selection */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3 text-sm flex items-center gap-2">
                     <Plane className="w-4 h-4 text-slate-400" />
                     {isMongolian ? "Тээврийн хэрэгсэл" : "Transport Mode"}
@@ -355,7 +475,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* Duration */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Хэдэн хоног?" : "How many days?"}
                 </h3>
@@ -375,7 +495,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* Purpose */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Аяллын зорилго" : "Trip purpose"}
                 </h3>
@@ -402,7 +522,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* Budget */}
-            <div>
+            <div className="print:hidden">
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Төсөв" : "Budget"}
                 </h3>
@@ -426,18 +546,20 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             </div>
 
             {/* Generate Button */}
-            <Button
-                onClick={generateItinerary}
-                disabled={!destination || isLoading}
-                className="w-full py-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-lg"
-            >
-                {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : (
-                    <Sparkles className="w-5 h-5 mr-2" />
-                )}
-                {isMongolian ? "Төлөвлөгөө үүсгэх" : "Generate Itinerary"}
-            </Button>
+            <div className="print:hidden pb-10 border-b border-slate-100">
+                <Button
+                    onClick={generateItinerary}
+                    disabled={!destination || isLoading}
+                    className="w-full py-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-lg"
+                >
+                    {isLoading ? (
+                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    ) : (
+                        <Sparkles className="w-5 h-5 mr-2" />
+                    )}
+                    {isMongolian ? "Төлөвлөгөө үүсгэх" : "Generate Itinerary"}
+                </Button>
+            </div>
 
             {/* Generated Itinerary */}
             <AnimatePresence>
@@ -449,287 +571,470 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                     >
                         {/* Summary Card */}
                         <Card className="p-4 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30">
-                            <div className="flex items-center justify-between mb-4">
+                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-4xl">
+                                    <span className="text-4xl shadow-sm rounded-full bg-white/50 p-1">
                                         {destinations.find(d => d.code === itinerary.destination)?.flag || "🌍"}
                                     </span>
                                     <div>
-                                        <h3 className="font-bold text-lg">
+                                        <h3 className="font-bold text-lg leading-tight">
                                             {destinations.find(d => d.code === itinerary.destination)?.[isMongolian ? "name" : "nameEn"] || itinerary.destination}
+                                            {itinerary.city && <span className="block text-sm font-normal text-slate-500">{itinerary.city}</span>}
                                         </h3>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-sm text-slate-600 font-medium">
                                             {itinerary.duration} {isMongolian ? "хоногийн аялал" : "day trip"}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-2">
-                                    <Badge className="bg-emerald-500 text-lg px-4 py-2">
+                                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                    <Badge className="bg-emerald-500 text-lg px-3 py-1.5 shadow-sm text-center h-auto">
                                         {itinerary.totalBudget}
                                     </Badge>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="gap-2 h-8 bg-white/50 hover:bg-white"
-                                            onClick={() => setIsEditing(!isEditing)}
-                                        >
-                                            {isEditing ? <X className="w-3.5 h-3.5" /> : <Edit className="w-3.5 h-3.5" />}
-                                            <span className="text-xs font-bold">
-                                                {isEditing ? (isMongolian ? "Болих" : "Stop") : (isMongolian ? "Засах" : "Edit")}
-                                            </span>
-                                        </Button>
 
-                                        {session?.user && (
+                                    <div className="flex flex-wrap gap-2 flex-1 md:flex-none justify-end">
+                                        {isSaved && savedTripId && (
                                             <Button
                                                 size="sm"
-                                                variant={isSaved ? "outline" : "default"}
-                                                className={cn(
-                                                    "gap-2 h-8",
-                                                    isSaved
-                                                        ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
-                                                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                                )}
-                                                onClick={handleSave}
-                                                disabled={isSaved || isSaving}
+                                                variant="outline"
+                                                className="gap-2 h-9 px-3 bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 print:hidden whitespace-nowrap"
+                                                onClick={handleShare}
                                             >
-                                                {isSaving ? (
-                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                ) : isSaved ? (
-                                                    <Check className="w-3.5 h-3.5" />
-                                                ) : (
-                                                    <Save className="w-3.5 h-3.5" />
-                                                )}
+                                                <Share2 className="w-4 h-4" />
                                                 <span className="text-xs font-bold">
-                                                    {isSaved
-                                                        ? (isMongolian ? "Хадгалагдсан" : "Saved")
-                                                        : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                                    {isMongolian ? "Хуваалцах" : "Share"}
                                                 </span>
                                             </Button>
+                                        )}
+
+                                        {itinerary && (
+                                            <>
+                                                <input
+                                                    type="file"
+                                                    id="booking-upload"
+                                                    className="hidden"
+                                                    accept=".pdf"
+                                                    onChange={handleFileUpload}
+                                                />
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="gap-2 h-9 px-3 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 print:hidden whitespace-nowrap"
+                                                    onClick={() => document.getElementById('booking-upload')?.click()}
+                                                    disabled={isExtracting}
+                                                >
+                                                    {isExtracting ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <Upload className="w-4 h-4" />
+                                                    )}
+                                                    <span className="text-xs font-bold">
+                                                        {isMongolian ? "Төвлөгөө нэмэх" : "Add Booking"}
+                                                    </span>
+                                                </Button>
+
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="gap-2 h-9 px-3 bg-white/50 hover:bg-white print:hidden whitespace-nowrap"
+                                                    onClick={handleDownloadPDF}
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                    <span className="text-xs font-bold">
+                                                        {isMongolian ? "Татах" : "PDF"}
+                                                    </span>
+                                                </Button>
+                                            </>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                            <p className="text-sm p-3 rounded-xl bg-background/50">
-                                📱 {itinerary.esimRecommendation}
-                            </p>
+
+                            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 border-t border-emerald-500/10">
+                                <div className="flex-1 w-full sm:w-auto">
+                                    {recommendedPackage ? (
+                                        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200/50 shadow-sm">
+                                            {/* Header Row */}
+                                            <div className="flex items-start gap-3 mb-3">
+                                                <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 shadow-sm">
+                                                    <Smartphone className="w-5 h-5 text-white" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <p className="text-base font-bold text-slate-800">
+                                                            {isMongolian ? "Санал болгох eSIM" : "Recommended eSIM"}
+                                                        </p>
+                                                        {recommendedPackage.countries.length > 1 && (
+                                                            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-blue-100 text-blue-700 shrink-0">
+                                                                Global
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm text-slate-600 mt-0.5 line-clamp-1">
+                                                        {recommendedPackage.name}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Details Row */}
+                                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/70 border border-white">
+                                                <div className="flex items-center gap-4 text-sm">
+                                                    <div className="text-center">
+                                                        <p className="font-bold text-emerald-600 text-lg">
+                                                            {recommendedPackage.dataAmount === -1 ? "∞" : `${recommendedPackage.dataAmount < 1024 ? recommendedPackage.dataAmount + 'MB' : (recommendedPackage.dataAmount / 1024).toFixed(0) + 'GB'}`}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">{isMongolian ? "Дата" : "Data"}</p>
+                                                    </div>
+                                                    <div className="w-px h-8 bg-slate-200"></div>
+                                                    <div className="text-center">
+                                                        <p className="font-bold text-slate-800 text-lg">{recommendedPackage.durationDays}</p>
+                                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">{isMongolian ? "Хоног" : "Days"}</p>
+                                                    </div>
+                                                    <div className="w-px h-8 bg-slate-200"></div>
+                                                    <div className="text-center">
+                                                        <p className="font-bold text-slate-900 text-lg">{(recommendedPackage.price / 1000).toFixed(0)}K</p>
+                                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">MNT</p>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shrink-0 h-10 px-5 rounded-xl font-bold"
+                                                    onClick={() => router.push(`/checkout?package=${recommendedPackage.sku}&country=${itinerary.destination}`)}
+                                                >
+                                                    {isMongolian ? "Авах" : "Buy"}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm p-3 rounded-xl bg-white/50 w-full text-center sm:text-left">
+                                            📱 {itinerary.esimRecommendation}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-2 h-9 px-3 bg-white/50 hover:bg-white print:hidden"
+                                        onClick={() => setIsEditing(!isEditing)}
+                                    >
+                                        {isEditing ? <X className="w-3.5 h-3.5" /> : <Edit className="w-3.5 h-3.5" />}
+                                        <span className="text-xs font-bold">
+                                            {isEditing ? (isMongolian ? "Болих" : "Stop") : (isMongolian ? "Засах" : "Edit")}
+                                        </span>
+                                    </Button>
+
+                                    {session?.user && (
+                                        <Button
+                                            size="sm"
+                                            variant={isSaved ? "outline" : "default"}
+                                            className={cn(
+                                                "gap-2 h-9 px-3",
+                                                isSaved
+                                                    ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                                                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                            )}
+                                            onClick={handleSave}
+                                            disabled={isSaved || isSaving}
+                                        >
+                                            {isSaving ? (
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            ) : isSaved ? (
+                                                <Check className="w-3.5 h-3.5" />
+                                            ) : (
+                                                <Save className="w-3.5 h-3.5" />
+                                            )}
+                                            <span className="text-xs font-bold">
+                                                {isSaved
+                                                    ? (isMongolian ? "Хадгалагдсан" : "Saved")
+                                                    : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                            </span>
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
                         </Card>
 
+
                         {/* Budget Dashboard */}
-                        {itinerary.budgetBreakdown && itinerary.budgetBreakdown.length > 0 && (
-                            <Card className="p-4 bg-white border-slate-200">
-                                <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
-                                    <DollarSign className="w-5 h-5 text-emerald-600" />
-                                    {isMongolian ? "Төсвийн задаргаа" : "Budget Breakdown"}
-                                </h4>
-                                <div className="space-y-4">
-                                    {itinerary.budgetBreakdown.map((item, idx) => (
-                                        <div key={idx} className="space-y-1">
-                                            <div className="flex justify-between text-sm font-medium">
-                                                <span className="text-slate-700">{item.category}</span>
-                                                <span className="text-emerald-700">{item.currency} {item.amount} ({item.percentage}%)</span>
+                        {
+                            itinerary.budgetBreakdown && itinerary.budgetBreakdown.length > 0 && (
+                                <Card className="p-4 bg-white border-slate-200">
+                                    <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
+                                        <DollarSign className="w-5 h-5 text-emerald-600" />
+                                        {isMongolian ? "Төсвийн задаргаа" : "Budget Breakdown"}
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {itinerary.budgetBreakdown.map((item, idx) => (
+                                            <div key={idx} className="space-y-1">
+                                                <div className="flex justify-between text-sm font-medium">
+                                                    <span className="text-slate-700">{item.category}</span>
+                                                    <span className="text-emerald-700">{item.currency} {item.amount} ({item.percentage}%)</span>
+                                                </div>
+                                                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                                                        style={{ width: `${item.percentage}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400"
-                                                    style={{ width: `${item.percentage}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </Card>
-                        )}
+                                        ))}
+                                    </div>
+                                </Card>
+                            )
+                        }
 
                         {/* Map */}
-                        {itinerary.days.some(d => d.activities.some(a => a.coordinates)) && (
-                            <div className="mb-4 space-y-2">
-                                <h4 className="font-bold flex items-center gap-2 text-slate-800 px-1">
-                                    <Map className="w-5 h-5 text-emerald-600" />
-                                    {isMongolian ? "Аяллын зураг" : "Interactive Map"}
-                                </h4>
-                                <ItineraryMap
-                                    activities={itinerary.days.flatMap(day =>
-                                        day.activities.map(act => ({
-                                            day: day.day,
-                                            title: act.activity,
-                                            location: act.location,
-                                            coordinates: act.coordinates
-                                        }))
-                                    )}
-                                />
-                            </div>
-                        )}
+                        {
+                            itinerary.days.some(d => d.activities.some(a => a.coordinates)) && (
+                                <div className="mb-4 space-y-2">
+                                    <h4 className="font-bold flex items-center gap-2 text-slate-800 px-1">
+                                        <Map className="w-5 h-5 text-emerald-600" />
+                                        {isMongolian ? "Аяллын зураг" : "Interactive Map"}
+                                    </h4>
+                                    <ItineraryMap
+                                        activities={itinerary.days.flatMap(day =>
+                                            day.activities.map(act => ({
+                                                day: day.day,
+                                                title: act.activity,
+                                                location: act.location,
+                                                coordinates: act.coordinates
+                                            }))
+                                        )}
+                                    />
+                                </div>
+                            )
+                        }
 
                         {/* Day-by-Day Itinerary */}
-                        {itinerary.days.map((day, dayIndex) => (
-                            <Card key={day.day} className="overflow-hidden">
-                                <button
-                                    onClick={() => toggleDay(day.day)}
-                                    className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
-                                            {day.day}
+                        {
+                            itinerary.days.map((day, dayIndex) => (
+                                <Card key={day.day} className="overflow-hidden">
+                                    <button
+                                        onClick={() => toggleDay(day.day)}
+                                        className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                                                {day.day}
+                                            </div>
+                                            <div className="text-left">
+                                                <h4 className="font-bold">{day.title}</h4>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {day.activities.length} {isMongolian ? "үйл ажиллагаа" : "activities"}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-left">
-                                            <h4 className="font-bold">{day.title}</h4>
-                                            <p className="text-xs text-muted-foreground">
-                                                {day.activities.length} {isMongolian ? "үйл ажиллагаа" : "activities"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {expandedDays.includes(day.day) ? (
-                                        <ChevronUp className="w-5 h-5" />
-                                    ) : (
-                                        <ChevronDown className="w-5 h-5" />
-                                    )}
-                                </button>
+                                        {expandedDays.includes(day.day) ? (
+                                            <ChevronUp className="w-5 h-5" />
+                                        ) : (
+                                            <ChevronDown className="w-5 h-5" />
+                                        )}
+                                    </button>
 
-                                <AnimatePresence>
-                                    {expandedDays.includes(day.day) && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            className="overflow-hidden"
-                                        >
-                                            <div className="p-4 pt-0 space-y-3">
-                                                {day.activities.map((activity, idx) => {
-                                                    const Icon = getActivityIcon(activity.type);
-                                                    return (
-                                                        <div
-                                                            key={idx}
-                                                            className="flex items-start gap-3 p-3 rounded-xl bg-muted/50"
-                                                        >
-                                                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                                                                <Icon className="w-4 h-4 text-emerald-600" />
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center justify-between">
-                                                                    {isEditing ? (
-                                                                        <div className="flex gap-2 w-full mb-2">
-                                                                            <Input
-                                                                                value={activity.time}
-                                                                                onChange={(e) => handleActivityChange(dayIndex, idx, 'time', e.target.value)}
-                                                                                className="w-20 h-7 text-xs bg-white"
-                                                                            />
-                                                                            <Input
-                                                                                value={activity.cost || ""}
-                                                                                onChange={(e) => handleActivityChange(dayIndex, idx, 'cost', e.target.value)}
-                                                                                className="w-20 h-7 text-xs bg-white"
-                                                                                placeholder="$Cost"
-                                                                            />
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="flex items-center justify-between w-full">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <Badge variant="outline" className="text-xs">
-                                                                                    <Clock className="w-3 h-3 mr-1" />
-                                                                                    {activity.time}
-                                                                                </Badge>
-                                                                                {activity.type === 'hotel' && (
-                                                                                    <Button
-                                                                                        size="sm"
-                                                                                        variant="outline"
-                                                                                        className="h-6 text-[10px] px-2 ml-2 text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100"
-                                                                                        onClick={() => {
-                                                                                            const checkIn = startDate ? addDays(startDate, dayIndex) : new Date();
-                                                                                            const checkOut = addDays(checkIn, 1);
-                                                                                            window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(activity.location)}&checkin=${format(checkIn, 'yyyy-MM-dd')}&checkout=${format(checkOut, 'yyyy-MM-dd')}&group_adults=2`, '_blank');
-                                                                                        }}
-                                                                                    >
-                                                                                        {isMongolian ? "Үнэ шалгах" : "Check Rates"}
-                                                                                    </Button>
+                                    <AnimatePresence>
+                                        {expandedDays.includes(day.day) && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="p-4 pt-0 space-y-3">
+                                                    {day.activities.map((activity, idx) => {
+                                                        const Icon = getActivityIcon(activity.type);
+                                                        return (
+                                                            <div
+                                                                key={idx}
+                                                                className="flex items-start gap-3 p-3 rounded-xl bg-muted/50"
+                                                            >
+                                                                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                                                                    <Icon className="w-4 h-4 text-emerald-600" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-center justify-between">
+                                                                        {isEditing ? (
+                                                                            <div className="flex gap-2 w-full mb-2">
+                                                                                <Input
+                                                                                    value={activity.time}
+                                                                                    onChange={(e) => handleActivityChange(dayIndex, idx, 'time', e.target.value)}
+                                                                                    className="w-20 h-7 text-xs bg-white"
+                                                                                />
+                                                                                <Input
+                                                                                    value={activity.cost || ""}
+                                                                                    onChange={(e) => handleActivityChange(dayIndex, idx, 'cost', e.target.value)}
+                                                                                    className="w-20 h-7 text-xs bg-white"
+                                                                                    placeholder="$Cost"
+                                                                                />
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex items-center justify-between w-full">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Badge variant="outline" className="text-xs">
+                                                                                        <Clock className="w-3 h-3 mr-1" />
+                                                                                        {activity.time}
+                                                                                    </Badge>
+                                                                                    {activity.type === 'hotel' && (
+                                                                                        <Button
+                                                                                            size="sm"
+                                                                                            variant="outline"
+                                                                                            className="h-6 text-[10px] px-2 ml-2 text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100"
+                                                                                            onClick={() => {
+                                                                                                const checkIn = startDate ? addDays(startDate, dayIndex) : new Date();
+                                                                                                const checkOut = addDays(checkIn, 1);
+                                                                                                window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(activity.location)}&checkin=${format(checkIn, 'yyyy-MM-dd')}&checkout=${format(checkOut, 'yyyy-MM-dd')}&group_adults=2`, '_blank');
+                                                                                            }}
+                                                                                        >
+                                                                                            {isMongolian ? "Үнэ шалгах" : "Check Rates"}
+                                                                                        </Button>
+                                                                                    )}
+                                                                                </div>
+                                                                                {activity.cost && (
+                                                                                    <span className="text-xs text-muted-foreground">
+                                                                                        {activity.cost}
+                                                                                    </span>
                                                                                 )}
                                                                             </div>
-                                                                            {activity.cost && (
-                                                                                <span className="text-xs text-muted-foreground">
-                                                                                    {activity.cost}
-                                                                                </span>
-                                                                            )}
-                                                                        </div>
+                                                                        )}
+                                                                    </div>
+
+                                                                    {isEditing ? (
+                                                                        <Textarea
+                                                                            value={activity.activity}
+                                                                            onChange={(e) => handleActivityChange(dayIndex, idx, 'activity', e.target.value)}
+                                                                            className="min-h-[60px] text-sm mt-1 bg-white"
+                                                                        />
+                                                                    ) : (
+                                                                        <p className="font-medium mt-1">{activity.activity}</p>
+                                                                    )}
+
+                                                                    {isEditing ? (
+                                                                        <Input
+                                                                            value={activity.location}
+                                                                            onChange={(e) => handleActivityChange(dayIndex, idx, 'location', e.target.value)}
+                                                                            className="h-7 text-xs mt-1 bg-white"
+                                                                        />
+                                                                    ) : (
+                                                                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                                                            <MapPin className="w-3 h-3" />
+                                                                            {activity.location}
+                                                                        </p>
                                                                     )}
                                                                 </div>
-
-                                                                {isEditing ? (
-                                                                    <Textarea
-                                                                        value={activity.activity}
-                                                                        onChange={(e) => handleActivityChange(dayIndex, idx, 'activity', e.target.value)}
-                                                                        className="min-h-[60px] text-sm mt-1 bg-white"
-                                                                    />
-                                                                ) : (
-                                                                    <p className="font-medium mt-1">{activity.activity}</p>
-                                                                )}
-
-                                                                {isEditing ? (
-                                                                    <Input
-                                                                        value={activity.location}
-                                                                        onChange={(e) => handleActivityChange(dayIndex, idx, 'location', e.target.value)}
-                                                                        className="h-7 text-xs mt-1 bg-white"
-                                                                    />
-                                                                ) : (
-                                                                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                                                        <MapPin className="w-3 h-3" />
-                                                                        {activity.location}
-                                                                    </p>
-                                                                )}
                                                             </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </Card>
-                        ))}
+                                                        );
+                                                    })}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </Card>
+                            ))
+                        }
 
                         {/* Tips */}
-                        {itinerary.tips.length > 0 && (
-                            <Card className="p-4">
-                                <h4 className="font-bold mb-3">
-                                    💡 {isMongolian ? "Зөвлөмжүүд" : "Tips"}
-                                </h4>
-                                <ul className="space-y-2">
-                                    {itinerary.tips.map((tip, idx) => (
-                                        <li key={idx} className="text-sm text-muted-foreground">
-                                            • {tip}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </Card>
-                        )}
+                        {
+                            itinerary.tips.length > 0 && (
+                                <Card className="p-4">
+                                    <h4 className="font-bold mb-3">
+                                        💡 {isMongolian ? "Зөвлөмжүүд" : "Tips"}
+                                    </h4>
+                                    <ul className="space-y-2">
+                                        {itinerary.tips.map((tip, idx) => (
+                                            <li key={idx} className="text-sm text-muted-foreground">
+                                                • {tip}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </Card>
+                            )
+                        }
 
                         {/* Packing List */}
-                        {itinerary.packingList && itinerary.packingList.length > 0 && (
-                            <Card className="p-4 bg-slate-50 border-slate-200">
-                                <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
-                                    <Backpack className="w-5 h-5 text-emerald-600" />
-                                    {isMongolian ? "Ачаа тээшний жагсаалт" : "Smart Packing List"}
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {itinerary.packingList.map((category, idx) => (
-                                        <div key={idx} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                            <h5 className="font-bold text-sm text-emerald-700 mb-2">{category.category}</h5>
-                                            <ul className="space-y-1.5">
-                                                {category.items.map((item, i) => (
-                                                    <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
-                                                        <div className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                                                        {item}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ))}
-                                </div>
-                            </Card>
-                        )}
+                        {
+                            itinerary.packingList && itinerary.packingList.length > 0 && (
+                                <Card className="p-4 bg-slate-50 border-slate-200">
+                                    <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
+                                        <Backpack className="w-5 h-5 text-emerald-600" />
+                                        {isMongolian ? "Ачаа тээшний жагсаалт" : "Smart Packing List"}
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {itinerary.packingList.map((category, idx) => (
+                                            <div key={idx} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                                <h5 className="font-bold text-sm text-emerald-700 mb-2">{category.category}</h5>
+                                                <ul className="space-y-1.5">
+                                                    {category.items.map((item, i) => (
+                                                        <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                                                            <div className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Card>
+                            )
+                        }
 
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </motion.div >
+                )
+                }
+            </AnimatePresence >
+
+            <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
+                <DialogContent className="sm:max-w-md bg-white">
+                    <DialogHeader>
+                        <DialogTitle>{isMongolian ? "Төлөвлөгөө нэмэх" : "Add Booking"}</DialogTitle>
+                    </DialogHeader>
+                    {extractedBooking && (
+                        <div className="space-y-4 py-4">
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                <div className="p-2 rounded-lg bg-emerald-100 text-emerald-600">
+                                    {extractedBooking.type === 'flight' ? <Plane className="w-5 h-5" /> :
+                                        extractedBooking.type === 'hotel' ? <Hotel className="w-5 h-5" /> :
+                                            <MapPin className="w-5 h-5" />}
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-slate-900">{extractedBooking.name}</h4>
+                                    <p className="text-xs text-slate-500">{extractedBooking.location}</p>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-xs font-bold text-slate-400 block uppercase">
+                                        {format(parseISO(extractedBooking.dateTime), "HH:mm")}
+                                    </span>
+                                    <span className="text-xs text-slate-500">
+                                        {format(parseISO(extractedBooking.dateTime), "MMM d")}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase">{isMongolian ? "Тайлбар" : "Description"}</label>
+                                <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 italic">
+                                    {extractedBooking.description}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsBookingModalOpen(false)}
+                            className="rounded-xl"
+                        >
+                            {isMongolian ? "Болих" : "Cancel"}
+                        </Button>
+                        <Button
+                            onClick={handleConfirmBooking}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
+                        >
+                            {isMongolian ? "Төлөвлөгөөнд нэмэх" : "Add to Itinerary"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div >
+
     );
 }
 
