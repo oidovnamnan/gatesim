@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import OpenAI from "openai";
-import pdf from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -24,9 +24,13 @@ export async function POST(req: NextRequest) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Extract text from PDF
-        const pdfData = await pdf(buffer);
-        const rawText = pdfData.text;
+        // Extract text from PDF using PDFParse v2.4.5
+        const parser = new PDFParse({ data: buffer });
+        const textResult = await parser.getText();
+        const rawText = textResult.text;
+
+        // Cleanup
+        await parser.destroy();
 
         if (!rawText || rawText.trim().length === 0) {
             return NextResponse.json({ error: "Could not extract text from PDF. It might be a scanned image." }, { status: 422 });

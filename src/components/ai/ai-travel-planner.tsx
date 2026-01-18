@@ -30,6 +30,7 @@ import {
     Edit,
     X,
     Smartphone,
+    ChevronRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -570,191 +571,170 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                         className="space-y-4"
                     >
                         {/* Summary Card */}
-                        <Card className="p-4 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30">
-                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-4xl shadow-sm rounded-full bg-white/50 p-1">
-                                        {destinations.find(d => d.code === itinerary.destination)?.flag || "🌍"}
-                                    </span>
-                                    <div>
-                                        <h3 className="font-bold text-lg leading-tight">
-                                            {destinations.find(d => d.code === itinerary.destination)?.[isMongolian ? "name" : "nameEn"] || itinerary.destination}
-                                            {itinerary.city && <span className="block text-sm font-normal text-slate-500">{itinerary.city}</span>}
-                                        </h3>
-                                        <p className="text-sm text-slate-600 font-medium">
-                                            {itinerary.duration} {isMongolian ? "хоногийн аялал" : "day trip"}
-                                        </p>
+                        <Card className="overflow-hidden border-emerald-500/20 shadow-lg shadow-emerald-500/5 bg-white">
+                            <div className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-b border-emerald-100/50">
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                                        <div className="h-14 w-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-4xl shrink-0">
+                                            {destinations.find(d => d.code === itinerary.destination)?.flag || "🌍"}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h3 className="font-bold text-xl text-slate-900 truncate">
+                                                {destinations.find(d => d.code === itinerary.destination)?.[isMongolian ? "name" : "nameEn"] || itinerary.destination}
+                                            </h3>
+                                            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                                                {itinerary.city && <span>{itinerary.city}</span>}
+                                                {itinerary.city && <span className="text-slate-300">•</span>}
+                                                <span className="text-emerald-600">
+                                                    {itinerary.duration} {isMongolian ? "хоногийн аялал" : "day trip"}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                        <div className="text-right hidden sm:block">
+                                            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">{isMongolian ? "Төсөв" : "Budget"}</p>
+                                            <p className="text-xl font-black text-emerald-600">{itinerary.totalBudget}</p>
+                                        </div>
+                                        <Badge className="sm:hidden bg-emerald-600 text-white font-bold px-4 py-2">
+                                            {itinerary.totalBudget}
+                                        </Badge>
                                     </div>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                                    <Badge className="bg-emerald-500 text-lg px-3 py-1.5 shadow-sm text-center h-auto">
-                                        {itinerary.totalBudget}
-                                    </Badge>
+                            </div>
 
-                                    <div className="flex flex-wrap gap-2 flex-1 md:flex-none justify-end">
+                            <div className="p-4 space-y-4">
+                                {/* Utility Action Bar */}
+                                <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 w-full mb-1 sm:w-auto sm:mb-0">
+                                        {isMongolian ? "Үйлдэл:" : "Actions:"}
+                                    </p>
+
+                                    <div className="flex items-center gap-2 flex-1">
                                         {isSaved && savedTripId && (
                                             <Button
                                                 size="sm"
-                                                variant="outline"
-                                                className="gap-2 h-9 px-3 bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 print:hidden whitespace-nowrap"
+                                                variant="secondary"
+                                                className="gap-2 h-8 px-3 bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm transition-all"
                                                 onClick={handleShare}
                                             >
-                                                <Share2 className="w-4 h-4" />
-                                                <span className="text-xs font-bold">
-                                                    {isMongolian ? "Хуваалцах" : "Share"}
-                                                </span>
+                                                <Share2 className="w-3.5 h-3.5" />
+                                                <span className="text-[11px] font-bold">{isMongolian ? "Хуваалцах" : "Share"}</span>
                                             </Button>
                                         )}
 
-                                        {itinerary && (
-                                            <>
-                                                <input
-                                                    type="file"
-                                                    id="booking-upload"
-                                                    className="hidden"
-                                                    accept=".pdf"
-                                                    onChange={handleFileUpload}
-                                                />
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="gap-2 h-9 px-3 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 print:hidden whitespace-nowrap"
-                                                    onClick={() => document.getElementById('booking-upload')?.click()}
-                                                    disabled={isExtracting}
-                                                >
-                                                    {isExtracting ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        <Upload className="w-4 h-4" />
-                                                    )}
-                                                    <span className="text-xs font-bold">
-                                                        {isMongolian ? "Төвлөгөө нэмэх" : "Add Booking"}
-                                                    </span>
-                                                </Button>
+                                        <input
+                                            type="file"
+                                            id="booking-upload"
+                                            className="hidden"
+                                            accept=".pdf"
+                                            onChange={handleFileUpload}
+                                        />
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            className="gap-2 h-8 px-3 bg-white hover:bg-blue-50 text-blue-600 border border-blue-100 shadow-sm transition-all"
+                                            onClick={() => document.getElementById('booking-upload')?.click()}
+                                            disabled={isExtracting}
+                                        >
+                                            {isExtracting ? (
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            ) : (
+                                                <Upload className="w-3.5 h-3.5" />
+                                            )}
+                                            <span className="text-[11px] font-bold">{isMongolian ? "Төвлөгөө нэмэх" : "Add Booking"}</span>
+                                        </Button>
 
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            className="gap-2 h-8 px-3 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 shadow-sm transition-all"
+                                            onClick={handleDownloadPDF}
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+                                    <div className="flex-1 min-w-0">
+                                        {recommendedPackage ? (
+                                            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 border border-emerald-500/10 flex items-center justify-between gap-3 group hover:border-emerald-500/30 transition-all">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                                                        <Smartphone className="w-4 h-4 text-emerald-600" />
+                                                    </div>
+                                                    <div className="min-w-0 leading-tight">
+                                                        <p className="text-xs font-bold text-slate-700 truncate">{recommendedPackage.name}</p>
+                                                        <p className="text-[10px] text-slate-500">
+                                                            {recommendedPackage.dataAmount === -1 ? "∞" : `${recommendedPackage.dataAmount / 1024}GB`} • {recommendedPackage.durationDays} {isMongolian ? "хоног" : "days"} • {(recommendedPackage.price / 1000).toFixed(0)}K MNT
+                                                        </p>
+                                                    </div>
+                                                </div>
                                                 <Button
                                                     size="sm"
-                                                    variant="outline"
-                                                    className="gap-2 h-9 px-3 bg-white/50 hover:bg-white print:hidden whitespace-nowrap"
-                                                    onClick={handleDownloadPDF}
+                                                    variant="ghost"
+                                                    className="h-7 px-2 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 shrink-0"
+                                                    onClick={() => router.push(`/checkout?package=${recommendedPackage.sku}&country=${itinerary.destination}`)}
                                                 >
-                                                    <Download className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">
-                                                        {isMongolian ? "Татах" : "PDF"}
-                                                    </span>
+                                                    {isMongolian ? "Авах" : "Buy"}
+                                                    <ChevronRight className="w-3 h-3 ml-0.5" />
                                                 </Button>
-                                            </>
+                                            </div>
+                                        ) : (
+                                            <div className="p-3 rounded-xl bg-slate-50 border border-dashed border-slate-200">
+                                                <p className="text-[11px] text-slate-500 italic">
+                                                    📱 {itinerary.esimRecommendation}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-2 shrink-0 justify-end">
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-9 px-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all gap-1.5"
+                                            onClick={() => setIsEditing(!isEditing)}
+                                        >
+                                            {isEditing ? <X className="w-3.5 h-3.5" /> : <Edit className="w-3.5 h-3.5" />}
+                                            <span className="text-xs font-bold">
+                                                {isEditing ? (isMongolian ? "Болих" : "Stop") : (isMongolian ? "Засах" : "Edit")}
+                                            </span>
+                                        </Button>
+
+                                        {session?.user && (
+                                            <Button
+                                                size="sm"
+                                                variant={isSaved ? "outline" : "default"}
+                                                className={cn(
+                                                    "h-9 px-4 font-bold text-xs gap-1.5 shadow-sm transition-all",
+                                                    isSaved
+                                                        ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                                                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                )}
+                                                onClick={handleSave}
+                                                disabled={isSaved || isSaving}
+                                            >
+                                                {isSaving ? (
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                ) : isSaved ? (
+                                                    <Check className="w-3.5 h-3.5" />
+                                                ) : (
+                                                    <Save className="w-3.5 h-3.5" />
+                                                )}
+                                                <span className="text-xs font-bold">
+                                                    {isSaved
+                                                        ? (isMongolian ? "Хадгалагдсан" : "Saved")
+                                                        : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                                </span>
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 border-t border-emerald-500/10">
-                                <div className="flex-1 w-full sm:w-auto">
-                                    {recommendedPackage ? (
-                                        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200/50 shadow-sm">
-                                            {/* Header Row */}
-                                            <div className="flex items-start gap-3 mb-3">
-                                                <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 shadow-sm">
-                                                    <Smartphone className="w-5 h-5 text-white" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <p className="text-base font-bold text-slate-800">
-                                                            {isMongolian ? "Санал болгох eSIM" : "Recommended eSIM"}
-                                                        </p>
-                                                        {recommendedPackage.countries.length > 1 && (
-                                                            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-blue-100 text-blue-700 shrink-0">
-                                                                Global
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-sm text-slate-600 mt-0.5 line-clamp-1">
-                                                        {recommendedPackage.name}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Details Row */}
-                                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/70 border border-white">
-                                                <div className="flex items-center gap-4 text-sm">
-                                                    <div className="text-center">
-                                                        <p className="font-bold text-emerald-600 text-lg">
-                                                            {recommendedPackage.dataAmount === -1 ? "∞" : `${recommendedPackage.dataAmount < 1024 ? recommendedPackage.dataAmount + 'MB' : (recommendedPackage.dataAmount / 1024).toFixed(0) + 'GB'}`}
-                                                        </p>
-                                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">{isMongolian ? "Дата" : "Data"}</p>
-                                                    </div>
-                                                    <div className="w-px h-8 bg-slate-200"></div>
-                                                    <div className="text-center">
-                                                        <p className="font-bold text-slate-800 text-lg">{recommendedPackage.durationDays}</p>
-                                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">{isMongolian ? "Хоног" : "Days"}</p>
-                                                    </div>
-                                                    <div className="w-px h-8 bg-slate-200"></div>
-                                                    <div className="text-center">
-                                                        <p className="font-bold text-slate-900 text-lg">{(recommendedPackage.price / 1000).toFixed(0)}K</p>
-                                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">MNT</p>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shrink-0 h-10 px-5 rounded-xl font-bold"
-                                                    onClick={() => router.push(`/checkout?package=${recommendedPackage.sku}&country=${itinerary.destination}`)}
-                                                >
-                                                    {isMongolian ? "Авах" : "Buy"}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm p-3 rounded-xl bg-white/50 w-full text-center sm:text-left">
-                                            📱 {itinerary.esimRecommendation}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="gap-2 h-9 px-3 bg-white/50 hover:bg-white print:hidden"
-                                        onClick={() => setIsEditing(!isEditing)}
-                                    >
-                                        {isEditing ? <X className="w-3.5 h-3.5" /> : <Edit className="w-3.5 h-3.5" />}
-                                        <span className="text-xs font-bold">
-                                            {isEditing ? (isMongolian ? "Болих" : "Stop") : (isMongolian ? "Засах" : "Edit")}
-                                        </span>
-                                    </Button>
-
-                                    {session?.user && (
-                                        <Button
-                                            size="sm"
-                                            variant={isSaved ? "outline" : "default"}
-                                            className={cn(
-                                                "gap-2 h-9 px-3",
-                                                isSaved
-                                                    ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
-                                                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                            )}
-                                            onClick={handleSave}
-                                            disabled={isSaved || isSaving}
-                                        >
-                                            {isSaving ? (
-                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                            ) : isSaved ? (
-                                                <Check className="w-3.5 h-3.5" />
-                                            ) : (
-                                                <Save className="w-3.5 h-3.5" />
-                                            )}
-                                            <span className="text-xs font-bold">
-                                                {isSaved
-                                                    ? (isMongolian ? "Хадгалагдсан" : "Saved")
-                                                    : (isMongolian ? "Хадгалах" : "Save Plan")}
-                                            </span>
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
                         </Card>
-
 
                         {/* Budget Dashboard */}
                         {
