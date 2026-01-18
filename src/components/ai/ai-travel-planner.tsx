@@ -39,6 +39,9 @@ import { useTranslation } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { createTrip } from "@/lib/db";
+import dynamic from "next/dynamic";
+
+const ItineraryMap = dynamic(() => import("./itinerary-map"), { ssr: false });
 
 // Popular destinations
 const destinations = [
@@ -72,6 +75,7 @@ interface ItineraryDay {
         time: string;
         activity: string;
         location: string;
+        coordinates?: { lat: number; lng: number };
         type: "food" | "attraction" | "transport" | "hotel" | "shopping";
         cost?: string;
     }[];
@@ -421,6 +425,52 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                 📱 {itinerary.esimRecommendation}
                             </p>
                         </Card>
+
+                        {/* Budget Dashboard */}
+                        {itinerary.budgetBreakdown && itinerary.budgetBreakdown.length > 0 && (
+                            <Card className="p-4 bg-white border-slate-200">
+                                <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
+                                    <DollarSign className="w-5 h-5 text-emerald-600" />
+                                    {isMongolian ? "Төсвийн задаргаа" : "Budget Breakdown"}
+                                </h4>
+                                <div className="space-y-4">
+                                    {itinerary.budgetBreakdown.map((item, idx) => (
+                                        <div key={idx} className="space-y-1">
+                                            <div className="flex justify-between text-sm font-medium">
+                                                <span className="text-slate-700">{item.category}</span>
+                                                <span className="text-emerald-700">{item.currency} {item.amount} ({item.percentage}%)</span>
+                                            </div>
+                                            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                                                    style={{ width: `${item.percentage}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        )}
+
+                        {/* Map */}
+                        {itinerary.days.some(d => d.activities.some(a => a.coordinates)) && (
+                            <div className="mb-4 space-y-2">
+                                <h4 className="font-bold flex items-center gap-2 text-slate-800 px-1">
+                                    <Map className="w-5 h-5 text-emerald-600" />
+                                    {isMongolian ? "Аяллын зураг" : "Interactive Map"}
+                                </h4>
+                                <ItineraryMap
+                                    activities={itinerary.days.flatMap(day =>
+                                        day.activities.map(act => ({
+                                            day: day.day,
+                                            title: act.activity,
+                                            location: act.location,
+                                            coordinates: act.coordinates
+                                        }))
+                                    )}
+                                />
+                            </div>
+                        )}
 
                         {/* Day-by-Day Itinerary */}
                         {itinerary.days.map((day, dayIndex) => (
