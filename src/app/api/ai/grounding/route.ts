@@ -64,10 +64,20 @@ export async function POST(request: NextRequest) {
         });
 
         const data = JSON.parse(response.choices[0].message.content || "{}");
+        const options = (data.options || []).map((opt: any, index: number) => {
+            const slug = opt.name.toLowerCase().replace(/[^a-z0-0]/g, '-');
+            return {
+                ...opt,
+                id: `${type}-${slug}`, // Deterministic ID based on name
+                imageUrl: opt.imageUrl?.includes('unsplash.com')
+                    ? opt.imageUrl
+                    : `https://source.unsplash.com/featured/800x600?${encodeURIComponent(opt.name + ' ' + (city || destination))}`
+            };
+        });
 
         return NextResponse.json({
             success: true,
-            options: data.options || [],
+            options,
         });
     } catch (error: any) {
         console.error("Grounding Error:", error);

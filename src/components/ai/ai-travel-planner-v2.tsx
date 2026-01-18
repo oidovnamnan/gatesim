@@ -741,13 +741,15 @@ export default function AITravelPlannerV2() {
                                         key={hotel.id}
                                         className={cn(
                                             "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative",
-                                            selectedHotel?.id === hotel.id ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-100 ring-2 ring-emerald-500/20" : "border-slate-100 hover:border-emerald-200"
+                                            selectedHotel?.id === hotel.id
+                                                ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-100 ring-2 ring-emerald-500/20"
+                                                : "border-slate-100 hover:border-emerald-200"
                                         )}
                                         onClick={() => setSelectedHotel(hotel)}
                                     >
                                         {selectedHotel?.id === hotel.id && (
-                                            <div className="absolute top-3 left-3 z-10 bg-emerald-600 text-white p-1 rounded-full shadow-lg border-2 border-white animate-in zoom-in-50 duration-200">
-                                                <Check className="w-4 h-4" />
+                                            <div className="absolute top-3 left-3 z-10 bg-emerald-600 text-white p-1.5 rounded-full shadow-lg border-2 border-white animate-in zoom-in-50 duration-300">
+                                                <Check className="w-5 h-5 font-black" />
                                             </div>
                                         )}
                                         <div className="aspect-video bg-slate-100 relative overflow-hidden">
@@ -886,14 +888,14 @@ export default function AITravelPlannerV2() {
                                         className={cn(
                                             "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative",
                                             selectedActivities.some(a => a.id === activity.id)
-                                                ? "border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100 ring-1 ring-emerald-500/10"
+                                                ? "border-emerald-500 bg-emerald-500/10 shadow-md shadow-emerald-100 ring-2 ring-emerald-500/20"
                                                 : "border-slate-100 hover:border-emerald-200"
                                         )}
                                         onClick={() => toggleActivity(activity)}
                                     >
                                         {selectedActivities.some(a => a.id === activity.id) && (
                                             <div className="absolute top-2 right-2 z-10 bg-emerald-600 text-white p-1 rounded-full shadow-sm border border-white">
-                                                <Check className="w-3 h-3" />
+                                                <Check className="w-4 h-4" />
                                             </div>
                                         )}
                                         <div className="p-4 flex gap-4">
@@ -904,7 +906,15 @@ export default function AITravelPlannerV2() {
                                                         alt={activity.name}
                                                         className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
                                                         onError={(e) => {
-                                                            (e.target as any).src = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=200';
+                                                            const fallbacks: Record<string, string> = {
+                                                                hotel: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=60&w=200',
+                                                                attraction: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=60&w=200',
+                                                                shopping: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=60&w=200',
+                                                                medical: 'https://images.unsplash.com/photo-1519494026892-80bbd2d670db?auto=format&fit=crop&q=60&w=200',
+                                                                dining: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=60&w=200',
+                                                                education: 'https://images.unsplash.com/photo-1523050335191-51ff18ffb9b9?auto=format&fit=crop&q=60&w=200'
+                                                            };
+                                                            (e.target as any).src = fallbacks[activeCategory] || fallbacks.attraction;
                                                         }}
                                                     />
                                                 ) : (
