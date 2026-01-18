@@ -359,7 +359,7 @@ export function AIChatWindow({
             </div>
 
             {/* Quick options */}
-            {messages.length <= 1 && (
+            {messages.length <= 1 && mode !== 'transit' && (
                 <div className="px-4 pb-3">
                     <p className="text-[10px] text-slate-400 mb-3 font-black uppercase tracking-widest ml-1">{t("aiPopularPackages")}</p>
                     <div className="grid grid-cols-2 gap-2">
@@ -436,7 +436,12 @@ export function AIChatWindow({
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                        placeholder={isRecording ? (t('listening') || 'Listening...') : t("aiPlaceholder")}
+                        placeholder={
+                            isRecording ? (t('listening') || 'Listening...')
+                                : mode === 'transit'
+                                    ? (language === 'mn' ? "Хаашаа явах вэ?" : "Where do you want to go?")
+                                    : t("aiPlaceholder")
+                        }
                         disabled={isLoading || isRecording}
                         className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-12 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-red-200 focus:bg-white transition-all font-bold disabled:opacity-50"
                     />
