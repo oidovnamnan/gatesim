@@ -58,6 +58,17 @@ export interface Order {
     esimActivationCode?: string;
 }
 
+export interface Trip {
+    id: string;
+    userId: string;
+    destination: string;
+    duration: number;
+    purpose: string;
+    budget: string;
+    itinerary: any; // Full JSON content
+    createdAt: number;
+}
+
 export interface ProductCache {
     sku: string;
     data: unknown; // Full JSON from MobiMatter

@@ -17,6 +17,8 @@ import {
     ChevronDown,
     ChevronUp,
     Sparkles,
+    Save,
+    Check,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { useTranslation } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { createTrip } from "@/lib/db";
 
 // Popular destinations
 const destinations = [
@@ -82,6 +86,7 @@ interface AITravelPlannerProps {
 }
 
 export function AITravelPlanner({ className }: AITravelPlannerProps) {
+    const { data: session } = useSession();
     const { language } = useTranslation();
     const isMongolian = language === "mn";
 
@@ -90,6 +95,8 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     const [purpose, setPurpose] = useState("tourist");
     const [budget, setBudget] = useState("mid");
     const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
     const [itinerary, setItinerary] = useState<Itinerary | null>(null);
     const [expandedDays, setExpandedDays] = useState<number[]>([1]);
 
@@ -99,6 +106,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
         if (!destination) return;
 
         setIsLoading(true);
+        setIsSaved(false); // Reset saved status
         try {
             const res = await fetch("/api/ai/itinerary", {
                 method: "POST",
@@ -306,20 +314,49 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <span className="text-4xl">
-                                        {destinations.find(d => d.code === itinerary.destination)?.flag}
+                                        {destinations.find(d => d.code === itinerary.destination)?.flag || "🌍"}
                                     </span>
                                     <div>
                                         <h3 className="font-bold text-lg">
-                                            {destinations.find(d => d.code === itinerary.destination)?.[isMongolian ? "name" : "nameEn"]}
+                                            {destinations.find(d => d.code === itinerary.destination)?.[isMongolian ? "name" : "nameEn"] || itinerary.destination}
                                         </h3>
                                         <p className="text-sm text-muted-foreground">
                                             {itinerary.duration} {isMongolian ? "хоногийн аялал" : "day trip"}
                                         </p>
                                     </div>
                                 </div>
-                                <Badge className="bg-emerald-500 text-lg px-4 py-2">
-                                    {itinerary.totalBudget}
-                                </Badge>
+                                <div className="flex flex-col items-end gap-2">
+                                    <Badge className="bg-emerald-500 text-lg px-4 py-2">
+                                        {itinerary.totalBudget}
+                                    </Badge>
+                                    {session?.user && (
+                                        <Button
+                                            size="sm"
+                                            variant={isSaved ? "outline" : "default"}
+                                            className={cn(
+                                                "gap-2 h-8",
+                                                isSaved
+                                                    ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                                                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                            )}
+                                            onClick={handleSave}
+                                            disabled={isSaved || isSaving}
+                                        >
+                                            {isSaving ? (
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            ) : isSaved ? (
+                                                <Check className="w-3.5 h-3.5" />
+                                            ) : (
+                                                <Save className="w-3.5 h-3.5" />
+                                            )}
+                                            <span className="text-xs font-bold">
+                                                {isSaved
+                                                    ? (isMongolian ? "Хадгалагдсан" : "Saved")
+                                                    : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                            </span>
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                             <p className="text-sm p-3 rounded-xl bg-background/50">
                                 📱 {itinerary.esimRecommendation}

@@ -13,7 +13,7 @@ import {
     Timestamp,
     onSnapshot
 } from "firebase/firestore";
-import { UserData, Order } from "@/types/db";
+import { UserData, Order, Trip } from "@/types/db";
 
 // --- User Operations ---
 
@@ -85,6 +85,26 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
 
     const data = await res.json();
     return data.orders as Order[];
+}
+
+// --- Trip Operations ---
+
+export async function createTrip(trip: Omit<Trip, "id" | "createdAt">) {
+    const res = await fetch("/api/trips/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trip),
+    });
+
+    if (!res.ok) throw new Error("Failed to save trip");
+    return await res.json();
+}
+
+export async function getUserTrips(userId: string): Promise<Trip[]> {
+    const res = await fetch(`/api/trips/list?userId=${encodeURIComponent(userId)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.trips as Trip[];
 }
 
 // --- Admin Operations ---
