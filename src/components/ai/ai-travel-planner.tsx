@@ -76,6 +76,51 @@ const destinations = [
     { code: "US", name: "Америк", nameEn: "USA", flag: "🇺🇸" },
 ];
 
+// City suggestions for popular destinations
+const CITY_SUGGESTIONS: Record<string, { name: string, nameEn: string }[]> = {
+    "JP": [
+        { name: "Токё", nameEn: "Tokyo" },
+        { name: "Осака", nameEn: "Osaka" },
+        { name: "Киото", nameEn: "Kyoto" },
+        { name: "Саппоро", nameEn: "Sapporo" },
+        { name: "Фүкүока", nameEn: "Fukuoka" },
+        { name: "Окинава", nameEn: "Okinawa" },
+    ],
+    "KR": [
+        { name: "Сөүл", nameEn: "Seoul" },
+        { name: "Пүсан", nameEn: "Busan" },
+        { name: "Чэжү", nameEn: "Jeju" },
+        { name: "Инчон", nameEn: "Incheon" },
+        { name: "Кёнжү", nameEn: "Gyeongju" },
+    ],
+    "TH": [
+        { name: "Бангкок", nameEn: "Bangkok" },
+        { name: "Пүкэт", nameEn: "Phuket" },
+        { name: "Чианг Май", nameEn: "Chiang Mai" },
+        { name: "Паттая", nameEn: "Pattaya" },
+        { name: "Ко Самуй", nameEn: "Koh Samui" },
+    ],
+    "CN": [
+        { name: "Бээжин", nameEn: "Beijing" },
+        { name: "Шанхай", nameEn: "Shanghai" },
+        { name: "Гуанжоу", nameEn: "Guangzhou" },
+        { name: "Шэньжэнь", nameEn: "Shenzhen" },
+        { name: "Сиань", nameEn: "Xi'an" },
+        { name: "Чэнду", nameEn: "Chengdu" },
+    ],
+    "SG": [
+        { name: "Сингапур хот", nameEn: "Singapore City" },
+    ],
+    "US": [
+        { name: "Нью-Йорк", nameEn: "New York" },
+        { name: "Лос-Анжелес", nameEn: "Los Angeles" },
+        { name: "Сан-Франциско", nameEn: "San Francisco" },
+        { name: "Лас-Вегас", nameEn: "Las Vegas" },
+        { name: "Чикаго", nameEn: "Chicago" },
+        { name: "Хавай", nameEn: "Hawaii" },
+    ],
+};
+
 // Trip purposes
 const tripPurposes = [
     { id: "tourist", label: "Жуулчлал", labelEn: "Tourism", icon: Camera },
@@ -157,6 +202,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     const [isCustomDestination, setIsCustomDestination] = useState(false);
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [city, setCity] = useState("");
+    const [isCustomCity, setIsCustomCity] = useState(false);
     const [transportMode, setTransportMode] = useState<"flight" | "train" | "bus" | "car" | "">("");
     const [savedTripId, setSavedTripId] = useState<string | null>(null);
     const [isExtracting, setIsExtracting] = useState(false);
@@ -178,7 +224,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                     purpose,
                     budget,
                     language: language,
-                    city,
+                    city: city === 'none' ? '' : city,
                     transportMode,
                 }),
             });
@@ -360,6 +406,9 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                             setDestination(val);
                             setIsCustomDestination(false);
                         }
+                        // Reset city selection when destination changes
+                        setCity("");
+                        setIsCustomCity(false);
                     }}
                 >
                     <SelectTrigger className="w-full h-12 rounded-xl text-base bg-white border-slate-200">
@@ -407,13 +456,68 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                     <MapPin className="w-4 h-4 text-slate-400" />
                     {isMongolian ? "Хот (Сонголттой)" : "City (Optional)"}
                 </h3>
-                <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder={isMongolian ? "Хот эсвэл бүс нутаг..." : "Enter city or region..."}
-                    className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
-                />
+
+                {!isCustomDestination && CITY_SUGGESTIONS[destination] ? (
+                    <div className="space-y-3">
+                        <Select
+                            value={isCustomCity ? "custom" : city}
+                            onValueChange={(val) => {
+                                if (val === "custom") {
+                                    setCity("");
+                                    setIsCustomCity(true);
+                                } else {
+                                    setCity(val);
+                                    setIsCustomCity(false);
+                                }
+                            }}
+                        >
+                            <SelectTrigger className="w-full h-12 rounded-xl text-base bg-white border-slate-200">
+                                <SelectValue placeholder={isMongolian ? "Хот сонгох" : "Select city"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">
+                                    {isMongolian ? "Сонгохгүй" : "Skip / Not specified"}
+                                </SelectItem>
+                                {CITY_SUGGESTIONS[destination].map((c) => (
+                                    <SelectItem key={c.nameEn} value={c.nameEn}>
+                                        {isMongolian ? c.name : c.nameEn}
+                                    </SelectItem>
+                                ))}
+                                <SelectItem value="custom">
+                                    {isMongolian ? "Бусад (Гараар бичих)" : "Other (Enter manually)"}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <AnimatePresence>
+                            {isCustomCity && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <input
+                                        type="text"
+                                        value={city}
+                                        onChange={(e) => setCity(e.target.value)}
+                                        placeholder={isMongolian ? "Хотын нэр бичнэ үү..." : "Enter city name..."}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                                        autoFocus
+                                    />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                ) : (
+                    <input
+                        type="text"
+                        value={city === "none" ? "" : city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder={isMongolian ? "Хот эсвэл бүс нутаг..." : "Enter city or region..."}
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                    />
+                )}
             </div>
 
             {/* Start Date Selection */}
