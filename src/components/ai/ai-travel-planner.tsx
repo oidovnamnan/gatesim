@@ -1168,33 +1168,39 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                             </span>
                                         </Button>
 
-                                        {session?.user && (
-                                            <Button
-                                                size="sm"
-                                                variant={isSaved ? "outline" : "default"}
-                                                className={cn(
-                                                    "h-9 px-4 font-bold text-xs gap-1.5 shadow-sm transition-all",
-                                                    isSaved
-                                                        ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
-                                                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                                )}
-                                                onClick={handleSave}
-                                                disabled={isSaved || isSaving}
-                                            >
-                                                {isSaving ? (
-                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                ) : isSaved ? (
-                                                    <Check className="w-3.5 h-3.5" />
-                                                ) : (
-                                                    <Save className="w-3.5 h-3.5" />
-                                                )}
-                                                <span className="text-xs font-bold">
-                                                    {isSaved
-                                                        ? (isMongolian ? "Хадгалагдсан" : "Saved")
-                                                        : (isMongolian ? "Хадгалах" : "Save Plan")}
-                                                </span>
-                                            </Button>
-                                        )}
+                                        <Button
+                                            size="sm"
+                                            variant={isSaved ? "outline" : "default"}
+                                            className={cn(
+                                                "h-9 px-4 font-bold text-xs gap-1.5 shadow-sm transition-all",
+                                                isSaved
+                                                    ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                                                    : session?.user
+                                                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                        : "bg-slate-400 hover:bg-slate-500 text-white cursor-not-allowed"
+                                            )}
+                                            onClick={() => {
+                                                if (!session?.user) {
+                                                    alert(isMongolian ? "Та нэвтэрч байж хадгалах боломжтой" : "Please log in to save your plan");
+                                                    return;
+                                                }
+                                                handleSave();
+                                            }}
+                                            disabled={isSaved || isSaving}
+                                        >
+                                            {isSaving ? (
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            ) : isSaved ? (
+                                                <Check className="w-3.5 h-3.5" />
+                                            ) : (
+                                                <Save className="w-3.5 h-3.5" />
+                                            )}
+                                            <span className="text-xs font-bold">
+                                                {isSaved
+                                                    ? (isMongolian ? "Хадгалагдсан" : "Saved")
+                                                    : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                            </span>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
