@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, city, purposes, budget, type } = await request.json();
+        const { destination, city, purposes, budget, type, filters } = await request.json();
 
         if (!destination || !type) {
             return NextResponse.json(
@@ -16,11 +16,19 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // This prompt asks the AI to act as a search engine and return REAL-WORLD places
-        // In a prod environment, this would call Google Places API directly.
+        // --- Filter Logic ---
+        let filterPrompt = '';
+        if (type === 'hotel' && filters) {
+            const { hotelStars, hotelArea } = filters;
+            if (hotelStars !== 'all') filterPrompt += ` Ensure the hotels have a rating of at least ${hotelStars} stars.`;
+            if (hotelArea === 'center') filterPrompt += ` Prioritize hotels located in the central/downtown area of the city.`;
+            if (hotelArea === 'transit') filterPrompt += ` Prioritize hotels near major airports, train stations, or transit hubs.`;
+            if (hotelArea === 'scenic') filterPrompt += ` Prioritize hotels in scenic, quiet, or residential areas away from the noise.`;
+        }
+
         const systemPrompt = `You are a travel database explorer. Return a JSON list of 5 REAL-WORLD ${type}s in ${city || destination}.
     
-    ${type === 'hotel' ? 'Ensure they match the budget level: ' + budget + '. Prioritize hotels in central, convenient locations or near major transport hubs like airports if it improves the travel experience.' : ''}
+    ${type === 'hotel' ? 'Ensure they match the budget level: ' + budget + '. ' + filterPrompt : ''}
     ${purposes ? 'Consider the trip purposes: ' + purposes : ''}
 
     CRITICAL: 

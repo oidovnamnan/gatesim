@@ -250,6 +250,10 @@ export default function AITravelPlannerV2() {
     const [language, setLanguage] = useState("mn");
     const [calendarOpen, setCalendarOpen] = useState(false);
 
+    // --- Hotel Filters ---
+    const [hotelStars, setHotelStars] = useState("all");
+    const [hotelArea, setHotelArea] = useState("all");
+
     const isMongolian = language === "mn";
 
     // --- Helpers ---
@@ -271,6 +275,7 @@ export default function AITravelPlannerV2() {
                     purposes: purposes.join(", "),
                     budget,
                     type,
+                    filters: type === 'hotel' ? { hotelStars, hotelArea } : undefined
                 }),
             });
             const data = await res.json();
@@ -675,6 +680,51 @@ export default function AITravelPlannerV2() {
                             <p className="text-slate-500">
                                 {isMongolian ? "Танд санал болгож буй шилдэг буудлууд" : "Our top recommended stays for you"}
                             </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 px-1">
+                                    {isMongolian ? "Зэрэглэл (Од)" : "Rating (Stars)"}
+                                </label>
+                                <Select value={hotelStars} onValueChange={setHotelStars}>
+                                    <SelectTrigger className="h-10 rounded-xl bg-white border-none shadow-sm text-xs font-bold">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">{isMongolian ? "Бүх зэрэглэл" : "All Ratings"}</SelectItem>
+                                        <SelectItem value="3">3+ {isMongolian ? "од" : "stars"}</SelectItem>
+                                        <SelectItem value="4">4+ {isMongolian ? "од" : "stars"}</SelectItem>
+                                        <SelectItem value="5">5 {isMongolian ? "од" : "stars"}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5 ">
+                                <label className="text-[10px] font-black uppercase text-slate-400 px-1">
+                                    {isMongolian ? "Байршил" : "Area"}
+                                </label>
+                                <Select value={hotelArea} onValueChange={setHotelArea}>
+                                    <SelectTrigger className="h-10 rounded-xl bg-white border-none shadow-sm text-xs font-bold">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">{isMongolian ? "Хамаагүй" : "Anywhere"}</SelectItem>
+                                        <SelectItem value="center">{isMongolian ? "Хотын төв" : "City Center"}</SelectItem>
+                                        <SelectItem value="transit">{isMongolian ? "Тээврийн зангилаа" : "Transport Hub"}</SelectItem>
+                                        <SelectItem value="scenic">{isMongolian ? "Үзэмжтэй" : "Scenic/Quiet"}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="md:col-span-2 flex items-end">
+                                <Button
+                                    onClick={() => fetchDiscoveryData('hotel')}
+                                    variant="outline"
+                                    className="w-full h-10 rounded-xl border-emerald-100 text-emerald-600 font-bold text-xs hover:bg-emerald-50 gap-2"
+                                >
+                                    <Search className="w-3.5 h-3.5" />
+                                    {isMongolian ? "Шүүж хайх" : "Apply & Search"}
+                                </Button>
+                            </div>
                         </div>
 
                         {isDiscoveryLoading ? (
