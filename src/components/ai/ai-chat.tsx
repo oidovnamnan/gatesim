@@ -108,59 +108,9 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         sessionStorage.setItem("ai_greeted", "true");
     }, []);
 
-    // Check for active plan context
-    useEffect(() => {
-        if (isOpen && currentMode === 'transit') {
-            const savedPlan = sessionStorage.getItem("gateSIM_activePlan");
-            if (savedPlan) {
-                try {
-                    const plan = JSON.parse(savedPlan);
-                    const isMedical = plan.type === "medical";
-                    const locations = isMedical
-                        ? [plan.data.hospitalInfo?.name].filter(Boolean)
-                        : plan.data.days?.[0]?.activities?.map((a: any) => a.location).slice(0, 3);
-
-                    // Use explicit strings to ensure feedback works (ignoring missing locale keys for now)
-                    const contextMsg = isMedical
-                        ? `Таны төлөвлөгөөнд байгаа "${locations[0]}" эмнэлэг рүү хүрэх замыг зааж өгөх үү?`
-                        : `Таны төлөвлөгөөнд байгаа "${plan.destination}" руу аялах замыг зааж өгөх үү?`;
-
-                    const contextId = `context-${plan.destination}-${Date.now()}`;
-
-                    // Reset messages to show fresh context for Transit Mode
-                    setMessages([
-                        {
-                            id: contextId,
-                            role: "assistant",
-                            content: contextMsg,
-                            timestamp: new Date()
-                        }
-                    ]);
-                } catch (e) {
-                    console.error("Failed to parse active plan", e);
-                }
-            } else {
-                // No plan, but switched to transit. Add a system notice
-                setMessages([
-                    {
-                        id: `transit-welcome-${Date.now()}`,
-                        role: "assistant",
-                        content: "Сайн байна уу? Би таны Нийтийн Тээврийн туслах байна. Та хаашаа явах вэ?",
-                        timestamp: new Date()
-                    }
-                ]);
-            }
-        }
-    }, [isOpen, currentMode]);
-
     // Handle URL parameters
     useEffect(() => {
         const action = searchParams.get("ai");
-        const modeParam = searchParams.get("mode");
-
-        if (modeParam) {
-            setIsOpen(true);
-        }
 
         if (action === "install") {
             const deviceType = detectDeviceType();
@@ -251,7 +201,6 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         country={country}
                         isPremium={isPremium}
                         mode={currentMode}
-                        tripContext={typeof window !== 'undefined' ? sessionStorage.getItem("gateSIM_activePlan") : null}
                     />
                 )}
             </AnimatePresence>

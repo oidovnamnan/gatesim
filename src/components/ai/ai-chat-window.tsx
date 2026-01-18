@@ -28,6 +28,7 @@ interface AIChatWindowProps {
     setMessages: React.Dispatch<React.SetStateAction<AIMessage[]>>;
     mode?: string;
     tripContext?: string | null;
+    className?: string;
 }
 
 export function AIChatWindow({
@@ -38,7 +39,8 @@ export function AIChatWindow({
     messages,
     setMessages,
     mode = "tourist",
-    tripContext = null
+    tripContext = null,
+    className
 }: AIChatWindowProps) {
     const { data: session } = useSession();
     const { t, language } = useTranslation();
@@ -193,7 +195,10 @@ export function AIChatWindow({
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
-            className="fixed inset-0 z-[100] flex flex-col bg-slate-50 text-slate-900 md:bottom-32 md:right-8 md:left-auto md:top-auto md:w-[400px] md:h-[600px] md:rounded-[32px] md:overflow-hidden md:shadow-2xl"
+            className={cn(
+                "fixed inset-0 z-[100] flex flex-col bg-slate-50 text-slate-900 md:bottom-32 md:right-8 md:left-auto md:top-auto md:w-[400px] md:h-[600px] md:rounded-[32px] md:overflow-hidden md:shadow-2xl",
+                className
+            )}
         >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
