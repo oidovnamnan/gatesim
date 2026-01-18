@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
     - Return ONLY valid JSON.
     - Include REAL names, approximate price, and a short justification.
     - Include a Booking.com search URL for each entry if applicable.
-    - Include a high-quality "imageUrl" for each entry. Use valid, high-resolution Unsplash source URLs (e.g. https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800).
+    - Include a high-quality "imageUrl" for each entry. Use valid, photographic Unsplash URLs (e.g. https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800).
+    - For hotels, include "distanceFromAirport" (e.g. "12 km from Pudong Airport").
 
     JSON Format:
     {
@@ -54,7 +55,8 @@ export async function POST(request: NextRequest) {
           "rating": 4.5,
           "address": "Street address",
           "bookingUrl": "Direct search URL",
-          "imageUrl": "https://images.unsplash.com/photo-..."
+          "imageUrl": "https://images.unsplash.com/photo-...",
+          "distanceFromAirport": "X km from [Airport Name]"
         }
       ]
     }
@@ -75,9 +77,9 @@ export async function POST(request: NextRequest) {
             return {
                 ...opt,
                 id: `${type}-${slug}`, // Deterministic ID based on name
-                imageUrl: opt.imageUrl?.includes('unsplash.com')
+                imageUrl: opt.imageUrl?.includes('images.unsplash.com')
                     ? opt.imageUrl
-                    : `https://source.unsplash.com/featured/800x600?${encodeURIComponent(opt.name + ' ' + (city || destination))}`
+                    : `https://loremflickr.com/800/600/${encodeURIComponent(type + ',' + opt.name.split(' ')[0] + ',' + (city || destination))}`
             };
         });
 

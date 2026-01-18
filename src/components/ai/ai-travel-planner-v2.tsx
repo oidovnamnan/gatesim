@@ -887,6 +887,9 @@ export default function AITravelPlannerV2() {
                                                     src={hotel.imageUrl}
                                                     alt={hotel.name}
                                                     className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                                                    onError={(e) => {
+                                                        (e.target as any).src = `https://loremflickr.com/800/600/hotel,${encodeURIComponent(hotel.name.split(' ')[0])}`;
+                                                    }}
                                                 />
                                             ) : (
                                                 <div className="absolute inset-0 flex items-center justify-center text-slate-300">
@@ -908,22 +911,30 @@ export default function AITravelPlannerV2() {
                                                 </div>
                                             </div>
                                             <p className="text-[11px] text-slate-500 line-clamp-2">{hotel.description}</p>
-                                            <div className="flex items-center justify-between pt-2">
-                                                <div className="flex items-center gap-1 text-[10px] text-slate-400">
-                                                    <MapPin className="w-3 h-3" />
-                                                    <span className="truncate max-w-[120px]">{hotel.address}</span>
+                                            <div className="flex flex-col gap-2 pt-2">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1 text-[10px] text-slate-400 max-w-[60%]">
+                                                        <MapPin className="w-3 h-3 shrink-0" />
+                                                        <span className="truncate">{hotel.address}</span>
+                                                    </div>
+                                                    {hotel.bookingUrl && (
+                                                        <a
+                                                            href={hotel.bookingUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="text-[10px] font-bold text-emerald-600 hover:underline flex items-center gap-1"
+                                                        >
+                                                            Booking.com
+                                                            <Search className="w-3 h-3" />
+                                                        </a>
+                                                    )}
                                                 </div>
-                                                {hotel.bookingUrl && (
-                                                    <a
-                                                        href={hotel.bookingUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        className="text-[10px] font-bold text-emerald-600 hover:underline flex items-center gap-1"
-                                                    >
-                                                        Booking.com
-                                                        <Search className="w-3 h-3" />
-                                                    </a>
+                                                {hotel.distanceFromAirport && (
+                                                    <div className="flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50/80 px-2 py-1 rounded-lg font-bold w-fit">
+                                                        <Plane className="w-3 h-3" />
+                                                        {hotel.distanceFromAirport}
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
