@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     - Return ONLY valid JSON.
     - Include REAL names, approximate price, and a short justification.
     - Include a Booking.com search URL for each entry if applicable.
-    - Include a high-quality "imageUrl" for each entry (use Unsplash source URLs like https://images.unsplash.com/photo-... or realistic architectural photos).
+    - Include a high-quality "imageUrl" for each entry. Use valid, high-resolution Unsplash source URLs (e.g. https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800).
 
     JSON Format:
     {

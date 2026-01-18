@@ -740,11 +740,16 @@ export default function AITravelPlannerV2() {
                                     <Card
                                         key={hotel.id}
                                         className={cn(
-                                            "overflow-hidden transition-all cursor-pointer group border-2",
-                                            selectedHotel?.id === hotel.id ? "border-emerald-500 bg-emerald-50/30" : "border-slate-100 hover:border-emerald-200"
+                                            "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative",
+                                            selectedHotel?.id === hotel.id ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-100 ring-2 ring-emerald-500/20" : "border-slate-100 hover:border-emerald-200"
                                         )}
                                         onClick={() => setSelectedHotel(hotel)}
                                     >
+                                        {selectedHotel?.id === hotel.id && (
+                                            <div className="absolute top-3 left-3 z-10 bg-emerald-600 text-white p-1 rounded-full shadow-lg border-2 border-white animate-in zoom-in-50 duration-200">
+                                                <Check className="w-4 h-4" />
+                                            </div>
+                                        )}
                                         <div className="aspect-video bg-slate-100 relative overflow-hidden">
                                             {hotel.imageUrl ? (
                                                 <img
@@ -879,23 +884,33 @@ export default function AITravelPlannerV2() {
                                     <Card
                                         key={activity.id}
                                         className={cn(
-                                            "overflow-hidden transition-all cursor-pointer group border-2",
-                                            selectedActivities.some(a => a.id === activity.id) ? "border-emerald-500 bg-emerald-50/30" : "border-slate-100 hover:border-emerald-200"
+                                            "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative",
+                                            selectedActivities.some(a => a.id === activity.id)
+                                                ? "border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100 ring-1 ring-emerald-500/10"
+                                                : "border-slate-100 hover:border-emerald-200"
                                         )}
                                         onClick={() => toggleActivity(activity)}
                                     >
+                                        {selectedActivities.some(a => a.id === activity.id) && (
+                                            <div className="absolute top-2 right-2 z-10 bg-emerald-600 text-white p-1 rounded-full shadow-sm border border-white">
+                                                <Check className="w-3 h-3" />
+                                            </div>
+                                        )}
                                         <div className="p-4 flex gap-4">
-                                            <div className="w-16 h-16 rounded-xl bg-slate-100 shrink-0 overflow-hidden relative flex items-center justify-center">
+                                            <div className="w-20 h-20 rounded-2xl bg-slate-100 shrink-0 overflow-hidden relative flex items-center justify-center border border-slate-200 shadow-inner">
                                                 {activity.imageUrl ? (
                                                     <img
                                                         src={activity.imageUrl}
                                                         alt={activity.name}
-                                                        className="w-full h-full object-cover"
+                                                        className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                                                        onError={(e) => {
+                                                            (e.target as any).src = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=200';
+                                                        }}
                                                     />
                                                 ) : (
-                                                    activity.type === 'medical' ? <Stethoscope className="w-6 h-6 text-emerald-600" /> :
-                                                        activity.type === 'shopping' ? <ShoppingBag className="w-6 h-6 text-emerald-600" /> :
-                                                            <Camera className="w-6 h-6 text-emerald-600" />
+                                                    activity.type === 'medical' ? <Stethoscope className="w-8 h-8 text-emerald-600 opacity-50" /> :
+                                                        activity.type === 'shopping' ? <ShoppingBag className="w-8 h-8 text-emerald-600 opacity-50" /> :
+                                                            <Camera className="w-8 h-8 text-emerald-600 opacity-50" />
                                                 )}
                                             </div>
                                             <div className="flex-1 space-y-1">
