@@ -643,21 +643,22 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                             ) : (
                                                 <Upload className="w-3.5 h-3.5" />
                                             )}
-                                            <span className="text-[11px] font-bold">{isMongolian ? "Төвлөгөө нэмэх" : "Add Booking"}</span>
-                                        </Button>
-
-                                        <Button
-                                            size="sm"
-                                            variant="secondary"
-                                            className="gap-2 h-8 px-3 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 shadow-sm transition-all"
-                                            onClick={handleDownloadPDF}
-                                        >
-                                            <Download className="w-3.5 h-3.5" />
+                                            <span className="text-[11px] font-bold">{isMongolian ? "Төлөвлөгөө нэмэх" : "Add Booking"}</span>
                                         </Button>
                                     </div>
+
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        className="gap-2 h-8 px-3 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 shadow-sm transition-all print:hidden"
+                                        onClick={handleDownloadPDF}
+                                    >
+                                        <Download className="w-3.5 h-3.5" />
+                                        <span className="text-[11px] font-bold">PDF</span>
+                                    </Button>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 print:hidden">
                                     <div className="flex-1 min-w-0">
                                         {recommendedPackage ? (
                                             <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 border border-emerald-500/10 flex items-center justify-between gap-3 group hover:border-emerald-500/30 transition-all">
@@ -752,7 +753,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                         {/* Budget Dashboard */}
                         {
                             itinerary.budgetBreakdown && itinerary.budgetBreakdown.length > 0 && (
-                                <Card className="p-4 bg-white border-slate-200">
+                                <Card className="p-4 bg-white border-slate-200 print:shadow-none print:border-slate-100">
                                     <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
                                         <DollarSign className="w-5 h-5 text-emerald-600" />
                                         {isMongolian ? "Төсвийн задаргаа" : "Budget Breakdown"}
