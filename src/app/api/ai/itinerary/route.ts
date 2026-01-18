@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { getGroundingContext } from "@/lib/ai/itinerary-grounding";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -46,6 +47,9 @@ export async function POST(request: NextRequest) {
     const dailyBudget = budgetEstimates[budget]?.[destination] || "$100-200";
     const isMongolian = language === "mn";
 
+    // Get live grounding context for more accurate pricing/timing
+    const groundingContext = getGroundingContext(destination, transportMode, city);
+
     // Special logic for Mongolia -> China travel
     let transportLogic = "";
     let budgetInstruction = "";
@@ -82,6 +86,8 @@ export async function POST(request: NextRequest) {
 - **Transport Mode:** ${transportMode || 'Flight'}
 
 ${transportLogic}
+
+${groundingContext}
 
 **CRITICAL INSTRUCTIONS:**
 1. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
