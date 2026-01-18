@@ -36,7 +36,9 @@ export async function POST(request: NextRequest) {
     const {
       destination,
       duration,
-      purpose,
+      purposes,
+      medicalDetail,
+      businessDetail,
       budget,
       language,
       city,
@@ -54,9 +56,14 @@ export async function POST(request: NextRequest) {
 
     const countryName = countryNames[destination]?.[language === "mn" ? "mn" : "en"] || destination;
 
-    // Handle multiple purposes (comma-separated)
-    const purposeList = purpose.split(",").map((p: string) => p.trim());
-    const purposeDescList = purposeList.map((p: string) => purposeDescriptions[p] || p);
+    // Handle multiple purposes
+    const purposeList = (purposes || "").split(",").map((p: string) => p.trim());
+    const purposeDescList = purposeList.map((p: string) => {
+      let desc = purposeDescriptions[p] || p;
+      if (p === 'medical' && medicalDetail) desc += ` (${medicalDetail})`;
+      if (p === 'business' && businessDetail) desc += ` (${businessDetail})`;
+      return desc;
+    });
     const purposeDesc = purposeDescList.length > 1
       ? `MULTIPLE PURPOSES - Include activities for ALL of the following: ${purposeDescList.join(", ")}`
       : purposeDescList[0] || purposeDescriptions.tourist;

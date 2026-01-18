@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, city, purposes, budget, type, filters } = await request.json();
+        const { destination, city, purposes, budget, type, filters, medicalDetail, businessDetail } = await request.json();
 
         if (!destination || !type) {
             return NextResponse.json(
@@ -26,10 +26,16 @@ export async function POST(request: NextRequest) {
             if (hotelArea === 'scenic') filterPrompt += ` Prioritize hotels in scenic, quiet, or residential areas away from the noise.`;
         }
 
+        // --- Detailed Purpose Context ---
+        let detailPrompt = '';
+        if (type === 'medical' && medicalDetail) detailPrompt = ` Focus on facilities relevant to: ${medicalDetail}.`;
+        if (type === 'business' && businessDetail) detailPrompt = ` Focus on spots relevant to: ${businessDetail}.`;
+
         const systemPrompt = `You are a travel database explorer. Return a JSON list of 5 REAL-WORLD ${type}s in ${city || destination}.
     
     ${type === 'hotel' ? 'Ensure they match the budget level: ' + budget + '. ' + filterPrompt : ''}
-    ${purposes ? 'Consider the trip purposes: ' + purposes : ''}
+    ${purposes ? 'Consider the trip purposes: ' + purposes + '.' : ''}
+    ${detailPrompt}
 
     CRITICAL: 
     - Return ONLY valid JSON.

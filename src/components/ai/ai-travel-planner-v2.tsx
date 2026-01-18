@@ -250,6 +250,10 @@ export default function AITravelPlannerV2() {
     const [language, setLanguage] = useState("mn");
     const [calendarOpen, setCalendarOpen] = useState(false);
 
+    // --- Purpose Details ---
+    const [medicalDetail, setMedicalDetail] = useState("");
+    const [businessDetail, setBusinessDetail] = useState("");
+
     // --- Hotel Filters ---
     const [hotelStars, setHotelStars] = useState("all");
     const [hotelArea, setHotelArea] = useState("all");
@@ -275,7 +279,9 @@ export default function AITravelPlannerV2() {
                     purposes: purposes.join(", "),
                     budget,
                     type,
-                    filters: type === 'hotel' ? { hotelStars, hotelArea } : undefined
+                    filters: type === 'hotel' ? { hotelStars, hotelArea } : undefined,
+                    medicalDetail: purposes.includes('medical') ? medicalDetail : undefined,
+                    businessDetail: purposes.includes('business') ? businessDetail : undefined
                 }),
             });
             const data = await res.json();
@@ -314,15 +320,16 @@ export default function AITravelPlannerV2() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     destination,
-                    duration,
-                    purpose: purposes.join(","),
-                    budget,
                     city: city === 'custom' ? customCity : city,
+                    purposes: purposes.join(", "),
+                    medicalDetail,
+                    businessDetail,
+                    budget,
+                    startDate,
+                    duration,
                     transportMode,
-                    language,
-                    // Additional V2 Context
-                    selectedHotel: selectedHotel?.name,
-                    selectedActivities: selectedActivities.map(a => a.name).join(", "),
+                    selectedHotel,
+                    selectedActivities
                 }),
             });
             const data = await res.json();
@@ -499,29 +506,58 @@ export default function AITravelPlannerV2() {
                                         <Backpack className="w-5 h-5 text-emerald-500" />
                                         {isMongolian ? "Аяллын зорилго" : "Trip Purposes"}
                                     </h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                                         {tripPurposes.map((p) => {
                                             const Icon = p.icon;
-                                            const isActive = purposes.includes(p.id);
+                                            const isSelected = purposes.includes(p.id);
                                             return (
                                                 <button
                                                     key={p.id}
                                                     onClick={() => togglePurpose(p.id)}
                                                     className={cn(
-                                                        "flex flex-col items-center justify-center p-3 rounded-xl border transition-all gap-2",
-                                                        isActive
-                                                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-200"
-                                                            : "bg-white border-slate-100 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/30"
+                                                        "p-4 rounded-2xl border-2 transition-all text-center flex flex-col items-center gap-2",
+                                                        isSelected
+                                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+                                                            : "border-slate-100 hover:border-emerald-200 text-slate-500"
                                                     )}
                                                 >
-                                                    <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-emerald-500")} />
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider">
-                                                        {isMongolian ? p.label.mn : p.label.en}
-                                                    </span>
+                                                    <Icon className={cn("w-6 h-6", isSelected ? "text-emerald-600" : "text-slate-400")} />
+                                                    <span className="text-xs font-bold leading-tight">{isMongolian ? p.label.mn : p.label.en}</span>
                                                 </button>
                                             );
                                         })}
                                     </div>
+
+                                    {/* Detailed Inputs for Medical/Business */}
+                                    {purposes.includes('medical') && (
+                                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+                                            <label className="text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-2">
+                                                <Stethoscope className="w-3.5 h-3.5" />
+                                                {isMongolian ? "Эмчилгээний дэлгэрэнгүй" : "Medical Treatment Details"}
+                                            </label>
+                                            <Input
+                                                placeholder={isMongolian ? "Ямар төрлийн оношилгоо, эмчилгээ хийлгэх вэ?" : "What kind of check-up or treatment?"}
+                                                value={medicalDetail}
+                                                onChange={(e) => setMedicalDetail(e.target.value)}
+                                                className="h-12 rounded-xl border-emerald-100 focus-visible:ring-emerald-500"
+                                            />
+                                        </motion.div>
+                                    )}
+
+                                    {purposes.includes('business') && (
+                                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+                                            <label className="text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-2">
+                                                <Map className="w-3.5 h-3.5" />
+                                                {isMongolian ? "Бизнесийн дэлгэрэнгүй" : "Business Trip Details"}
+                                            </label>
+                                            <Input
+                                                placeholder={isMongolian ? "Бизнесийн салбар, зорилго (жишээ нь: үзэсгэлэн, уулзалт)" : "Industry and purpose (e.g., expo, meeting)"}
+                                                value={businessDetail}
+                                                onChange={(e) => setBusinessDetail(e.target.value)}
+                                                className="h-12 rounded-xl border-emerald-100 focus-visible:ring-emerald-500"
+                                            />
+                                        </motion.div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-4">
@@ -841,36 +877,38 @@ export default function AITravelPlannerV2() {
                         </div>
 
                         {/* Category Tabs */}
-                        <div className="flex flex-wrap justify-center gap-2">
+                        <div className="flex flex-wrap gap-2 justify-center">
                             {[
-                                { id: 'attraction', icon: Camera, label: isMongolian ? 'Үзвэр' : 'Attractions' },
-                                { id: 'shopping', icon: ShoppingBag, label: isMongolian ? 'Шопинг' : 'Shopping' },
-                                { id: 'medical', icon: Stethoscope, label: isMongolian ? 'Эмчилгээ' : 'Medical' },
-                                { id: 'dining', icon: Utensils, label: isMongolian ? 'Хоол' : 'Dining' },
-                                { id: 'education', icon: GraduationCap, label: isMongolian ? 'Боловсрол' : 'Education' },
-                            ].map((cat) => {
-                                const Icon = cat.icon;
-                                const isActive = activeCategory === cat.id;
-                                return (
-                                    <Button
-                                        key={cat.id}
-                                        variant={isActive ? "default" : "outline"}
-                                        onClick={() => {
-                                            setActiveCategory(cat.id);
-                                            if (!activitiesByCategory[cat.id]) {
-                                                fetchDiscoveryData(cat.id as any);
-                                            }
-                                        }}
-                                        className={cn(
-                                            "rounded-full h-10 px-6 font-bold gap-2",
-                                            isActive ? "bg-emerald-600 hover:bg-emerald-700" : "border-slate-100 text-slate-600 hover:bg-slate-50"
-                                        )}
-                                    >
-                                        <Icon className="w-4 h-4" />
-                                        {cat.label}
-                                    </Button>
-                                );
-                            })}
+                                { id: 'attraction', icon: Camera, label: isMongolian ? 'Үзвэр' : 'Attractions', purpose: 'tourist' },
+                                { id: 'shopping', icon: ShoppingBag, label: isMongolian ? 'Шопинг' : 'Shopping', purpose: 'shopping' },
+                                { id: 'medical', icon: Stethoscope, label: isMongolian ? 'Эмчилгээ' : 'Medical', purpose: 'medical' },
+                                { id: 'dining', icon: Utensils, label: isMongolian ? 'Хоол' : 'Dining', purpose: 'all' },
+                                { id: 'education', icon: GraduationCap, label: isMongolian ? 'Боловсрол' : 'Education', purpose: 'education' },
+                            ]
+                                .filter(cat => cat.purpose === 'all' || purposes.length === 0 || purposes.includes(cat.purpose))
+                                .map((cat) => {
+                                    const Icon = cat.icon;
+                                    const isActive = activeCategory === cat.id;
+                                    return (
+                                        <Button
+                                            key={cat.id}
+                                            variant={isActive ? "default" : "outline"}
+                                            onClick={() => {
+                                                setActiveCategory(cat.id);
+                                                if (!activitiesByCategory[cat.id]) {
+                                                    fetchDiscoveryData(cat.id as any);
+                                                }
+                                            }}
+                                            className={cn(
+                                                "rounded-full h-10 px-6 font-bold gap-2",
+                                                isActive ? "bg-emerald-600 hover:bg-emerald-700" : "border-slate-100 text-slate-600 hover:bg-slate-50"
+                                            )}
+                                        >
+                                            <Icon className="w-4 h-4" />
+                                            {cat.label}
+                                        </Button>
+                                    );
+                                })}
                         </div>
 
                         {isDiscoveryLoading ? (
