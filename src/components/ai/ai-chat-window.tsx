@@ -386,7 +386,10 @@ export function AIChatWindow({
             )}
 
             {/* Input */}
-            <div className="px-4 pb-4 md:pb-6 pt-3 bg-white border-t border-slate-200">
+            <div className={cn(
+                "px-4 pt-3 bg-white border-t border-slate-200",
+                hideHeader ? "pb-3" : "pb-4 md:pb-6"
+            )}>
                 <div className="flex gap-2 relative">
                     {/* Voice Input Button */}
                     <button
