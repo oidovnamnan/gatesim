@@ -86,6 +86,8 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     const [itinerary, setItinerary] = useState<Itinerary | null>(null);
     const [expandedDays, setExpandedDays] = useState<number[]>([1]);
 
+    const [isCustomDestination, setIsCustomDestination] = useState(false);
+
     const generateItinerary = async () => {
         if (!destination) return;
 
@@ -95,7 +97,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    destination,
+                    destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
                     duration,
                     purpose,
                     budget,
@@ -111,7 +113,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 // Save to session storage for AI Chat context
                 sessionStorage.setItem("gateSIM_activePlan", JSON.stringify({
                     type: "tourist",
-                    destination: destinations.find(d => d.code === destination)?.nameEn || destination,
+                    destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
                     data: data.itinerary
                 }));
             }
@@ -152,10 +154,13 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                     {destinations.map((dest) => (
                         <button
                             key={dest.code}
-                            onClick={() => setDestination(dest.code)}
+                            onClick={() => {
+                                setDestination(dest.code);
+                                setIsCustomDestination(false);
+                            }}
                             className={cn(
                                 "flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all border",
-                                destination === dest.code
+                                destination === dest.code && !isCustomDestination
                                     ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md transform scale-[1.02]"
                                     : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-emerald-200"
                             )}
@@ -164,7 +169,43 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                             <span>{isMongolian ? dest.name : dest.nameEn}</span>
                         </button>
                     ))}
+                    <button
+                        onClick={() => {
+                            setDestination("");
+                            setIsCustomDestination(true);
+                        }}
+                        className={cn(
+                            "flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all border",
+                            isCustomDestination
+                                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md transform scale-[1.02]"
+                                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-emerald-200"
+                        )}
+                    >
+                        <span className="text-lg">🌍</span>
+                        <span>{isMongolian ? "Бусад" : "Other"}</span>
+                    </button>
                 </div>
+
+                {/* Custom Destination Input */}
+                <AnimatePresence>
+                    {isCustomDestination && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                        >
+                            <input
+                                type="text"
+                                value={destination}
+                                onChange={(e) => setDestination(e.target.value)}
+                                placeholder={isMongolian ? "Улс эсвэл хотын нэр бичнэ үү..." : "Enter country or city name..."}
+                                className="w-full mt-3 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                                autoFocus
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* Duration */}
