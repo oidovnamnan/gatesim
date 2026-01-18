@@ -675,7 +675,7 @@ export default function AITravelPlannerV2() {
                     >
                         <div className="space-y-2 text-center">
                             <h2 className="text-2xl font-black text-slate-900">
-                                {isMongolian ? "Хаана байрлах вэ?" : "Where to stay?"}
+                                {isMongolian ? "Хаана байрлах вэ? (Заавал биш)" : "Where to stay? (Optional)"}
                             </h2>
                             <p className="text-slate-500">
                                 {isMongolian ? "Танд санал болгож буй шилдэг буудлууд" : "Our top recommended stays for you"}
@@ -812,10 +812,10 @@ export default function AITravelPlannerV2() {
                             </Button>
                             <Button
                                 onClick={handleNext}
-                                disabled={!selectedHotel || isDiscoveryLoading}
+                                disabled={isDiscoveryLoading}
                                 className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-200 group"
                             >
-                                {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
+                                {!selectedHotel ? (isMongolian ? "Алгасах" : "Skip") : (isMongolian ? "Үргэлжлүүлэх" : "Continue")}
                                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </div>
