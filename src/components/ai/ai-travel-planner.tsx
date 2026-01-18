@@ -142,26 +142,26 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     };
 
     return (
-        <div className={cn("space-y-6", className)}>
+        <div className={cn("space-y-6 pb-32", className)}>
             {/* Destination Selection */}
             <div>
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Хаашаа явах вэ?" : "Where to?"}
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {destinations.map((dest) => (
                         <button
                             key={dest.code}
                             onClick={() => setDestination(dest.code)}
                             className={cn(
-                                "flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm transition-all",
+                                "flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all border",
                                 destination === dest.code
-                                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg scale-105"
-                                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md transform scale-[1.02]"
+                                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-emerald-200"
                             )}
                         >
-                            <span>{dest.flag}</span>
-                            {isMongolian ? dest.name : dest.nameEn}
+                            <span className="text-lg">{dest.flag}</span>
+                            <span>{isMongolian ? dest.name : dest.nameEn}</span>
                         </button>
                     ))}
                 </div>
