@@ -30,6 +30,9 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
     // Derive mode from pathname
     const getModeFromPath = (path: string | null) => {
+        const modeParam = searchParams.get("mode");
+        if (modeParam) return modeParam;
+
         if (!path) return "tourist";
         if (path.includes("/medical") || path.includes("/hospitals")) return "medical";
         if (path.includes("/student") || path.includes("/campus")) return "student";
@@ -108,6 +111,12 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     // Handle URL parameters
     useEffect(() => {
         const action = searchParams.get("ai");
+        const modeParam = searchParams.get("mode");
+
+        if (modeParam) {
+            setIsOpen(true);
+        }
+
         if (action === "install") {
             const deviceType = detectDeviceType();
             const guide = (installationGuides as any)[deviceType] || installationGuides.generic;

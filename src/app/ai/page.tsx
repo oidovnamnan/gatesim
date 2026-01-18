@@ -59,7 +59,7 @@ const aiFeatures = [
         title: "Нийтийн Тээвэр",
         titleEn: "Transit Guide",
         color: "from-blue-400 to-indigo-500",
-        href: "/ai/transit",
+        href: "/ai?mode=transit",
         modes: ["all"],
     },
     {

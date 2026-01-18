@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { TopHeader } from "@/components/layout/top-header";
 import { MaintenanceGuard } from "@/components/layout/maintenance-guard";
@@ -36,7 +37,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
             </div>
 
             {/* Global AI Chat */}
-            <AIChat />
+            <Suspense fallback={null}>
+                <AIChat />
+            </Suspense>
 
             {/* PWA Install Prompt */}
             <InstallPrompt />

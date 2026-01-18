@@ -26,6 +26,7 @@ const MODE_PROMPTS: Record<string, string> = {
     medical: "You are a medical travel assistant. PRIORITIZE health and safety. Help find hospitals, pharmacies, and translating symptoms. Be serious and concise.",
     student: "You are a student guide. Focus on budget tips, campus life, libraries, cheap eats, and student discounts.",
     shopping: "You are a shopping assistant. Focus on VAT refunds, malls, opening hours, and sales.",
+    transit: "You are a transit guide. You MUST help users get from A to B. ALWAYS use [TRANSIT_ROUTE: to=Dest, mode=transit] for directions.",
     default: "You are an elite Travel Assistant."
 };
 
