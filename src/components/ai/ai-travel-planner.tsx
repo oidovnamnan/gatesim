@@ -21,6 +21,13 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useTranslation } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
@@ -150,41 +157,34 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 <h3 className="font-bold mb-3">
                     {isMongolian ? "Хаашаа явах вэ?" : "Where to?"}
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {destinations.map((dest) => (
-                        <button
-                            key={dest.code}
-                            onClick={() => {
-                                setDestination(dest.code);
-                                setIsCustomDestination(false);
-                            }}
-                            className={cn(
-                                "flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all border",
-                                destination === dest.code && !isCustomDestination
-                                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md transform scale-[1.02]"
-                                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-emerald-200"
-                            )}
-                        >
-                            <span className="text-lg">{dest.flag}</span>
-                            <span>{isMongolian ? dest.name : dest.nameEn}</span>
-                        </button>
-                    ))}
-                    <button
-                        onClick={() => {
+                <Select
+                    value={isCustomDestination ? "custom" : (destinations.some(d => d.code === destination) ? destination : "")}
+                    onValueChange={(val) => {
+                        if (val === "custom") {
                             setDestination("");
                             setIsCustomDestination(true);
-                        }}
-                        className={cn(
-                            "flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all border",
-                            isCustomDestination
-                                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md transform scale-[1.02]"
-                                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-emerald-200"
-                        )}
-                    >
-                        <span className="text-lg">🌍</span>
-                        <span>{isMongolian ? "Бусад" : "Other"}</span>
-                    </button>
-                </div>
+                        } else {
+                            setDestination(val);
+                            setIsCustomDestination(false);
+                        }
+                    }}
+                >
+                    <SelectTrigger className="w-full h-12 rounded-xl text-base bg-white border-slate-200">
+                        <SelectValue placeholder={isMongolian ? "Улс сонгох" : "Select destination"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {destinations.map((dest) => (
+                            <SelectItem key={dest.code} value={dest.code}>
+                                <span className="mr-2">{dest.flag}</span>
+                                {isMongolian ? dest.name : dest.nameEn}
+                            </SelectItem>
+                        ))}
+                        <SelectItem value="custom">
+                            <span className="mr-2">🌍</span>
+                            {isMongolian ? "Бусад" : "Other"}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
 
                 {/* Custom Destination Input */}
                 <AnimatePresence>
