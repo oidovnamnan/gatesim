@@ -881,6 +881,13 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                             selected={startDate}
                             onSelect={setStartDate}
                             initialFocus
+                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                            modifiers={{
+                                today: new Date(),
+                            }}
+                            modifiersClassNames={{
+                                today: "bg-emerald-100 text-emerald-700 font-bold rounded-full",
+                            }}
                         />
                     </PopoverContent>
                 </Popover>
