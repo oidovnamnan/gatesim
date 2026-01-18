@@ -109,6 +109,13 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
             if (data.success) {
                 setItinerary(data.itinerary);
                 setExpandedDays([1]);
+
+                // Save to session storage for AI Chat context
+                sessionStorage.setItem("gateSIM_activePlan", JSON.stringify({
+                    type: "medical",
+                    destination: medicalDestinations.find(d => d.code === destination)?.nameEn || destination,
+                    data: data.itinerary
+                }));
             }
         } catch (error) {
             console.error("Medical trip generation error:", error);

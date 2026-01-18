@@ -108,6 +108,44 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         sessionStorage.setItem("ai_greeted", "true");
     }, []);
 
+    // Check for active plan context
+    useEffect(() => {
+        if (isOpen && currentMode === 'transit') {
+            const savedPlan = sessionStorage.getItem("gateSIM_activePlan");
+            if (savedPlan) {
+                try {
+                    const plan = JSON.parse(savedPlan);
+                    const isMedical = plan.type === "medical";
+                    const locations = isMedical
+                        ? [plan.data.hospitalInfo?.name].filter(Boolean)
+                        : plan.data.days?.[0]?.activities?.map((a: any) => a.location).slice(0, 3);
+
+                    const contextMsg = isMedical
+                        ? t("aiTransitMedicalContext").replace("{hospital}", locations[0])
+                        : t("aiTransitPlanContext").replace("{destination}", plan.destination);
+
+                    // Add a special system-like message to context (not visible to user immediately, or visible as a prompt)
+                    // unique ID to prevent duplicates
+                    const contextId = `context-${plan.destination}-${Date.now()}`;
+
+                    setMessages(prev => {
+                        const hasContext = prev.some(m => m.id.startsWith("context-"));
+                        if (hasContext) return prev;
+
+                        return [...prev, {
+                            id: contextId,
+                            role: "assistant",
+                            content: contextMsg || "I see you have a trip planned. Need directions?",
+                            timestamp: new Date()
+                        }];
+                    });
+                } catch (e) {
+                    console.error("Failed to parse active plan", e);
+                }
+            }
+        }
+    }, [isOpen, currentMode]);
+
     // Handle URL parameters
     useEffect(() => {
         const action = searchParams.get("ai");
@@ -206,6 +244,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         country={country}
                         isPremium={isPremium}
                         mode={currentMode}
+                        tripContext={typeof window !== 'undefined' ? sessionStorage.getItem("gateSIM_activePlan") : null}
                     />
                 )}
             </AnimatePresence>

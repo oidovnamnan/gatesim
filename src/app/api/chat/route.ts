@@ -32,7 +32,8 @@ const MODE_PROMPTS: Record<string, string> = {
 
 export async function POST(req: Request) {
     try {
-        const { messages, country, apiKey, language = "mn", mode = "tourist" } = await req.json();
+        const body = await req.json();
+        const { messages, country, apiKey, language = "mn", mode = "tourist", tripContext } = body;
         const session = await auth();
 
         if (!messages || messages.length === 0) {
@@ -92,6 +93,29 @@ export async function POST(req: Request) {
             scopeInstruction = `User does NOT have an active plan. Your primary goal is to help them buy an eSIM. If they ask generic questions, answer briefly but remind them they need internet to travel.`;
         }
 
+        // Check for tripContext (Local Plan)
+        let localPlanContext = "";
+
+        if (tripContext && mode === 'transit') {
+            try {
+                const plan = JSON.parse(tripContext);
+                const isMedical = plan.type === "medical";
+                const locations = isMedical
+                    ? [plan.data.hospitalInfo?.name].filter(Boolean)
+                    : plan.data.days?.[0]?.activities?.map((a: any) => a.location).slice(0, 3);
+
+                localPlanContext = `
+USER'S ITINERARY CONTEXT:
+- Destination: ${plan.destination}
+- Type: ${plan.type}
+- Key Locations: ${locations.join(", ")}
+- Goal: You MUST provide specific routes to these locations if asked. Assume "getting there" means getting to one of these spots from their hotel (generic).
+`;
+            } catch (e) {
+                console.error("Failed to parse tripContext in API", e);
+            }
+        }
+
         // Context Injection
         let contextBlock = "";
         if (travelContext.activePlan) {
@@ -109,6 +133,8 @@ USER CONTEXT:
 - Mode: ${mode.toUpperCase()}
 `;
         }
+
+        contextBlock += localPlanContext;
 
         const systemPrompt = `You are GateSIM AI.
 ${modeInstruction}

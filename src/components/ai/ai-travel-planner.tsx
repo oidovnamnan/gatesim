@@ -107,6 +107,13 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
             if (data.success) {
                 setItinerary(data.itinerary);
                 setExpandedDays([1]); // Expand first day by default
+
+                // Save to session storage for AI Chat context
+                sessionStorage.setItem("gateSIM_activePlan", JSON.stringify({
+                    type: "tourist",
+                    destination: destinations.find(d => d.code === destination)?.nameEn || destination,
+                    data: data.itinerary
+                }));
             }
         } catch (error) {
             console.error("Itinerary generation error:", error);

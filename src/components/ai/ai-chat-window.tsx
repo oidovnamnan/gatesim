@@ -27,6 +27,7 @@ interface AIChatWindowProps {
     messages: AIMessage[];
     setMessages: React.Dispatch<React.SetStateAction<AIMessage[]>>;
     mode?: string;
+    tripContext?: string | null;
 }
 
 export function AIChatWindow({
@@ -36,7 +37,8 @@ export function AIChatWindow({
     onClose,
     messages,
     setMessages,
-    mode = "tourist"
+    mode = "tourist",
+    tripContext = null
 }: AIChatWindowProps) {
     const { data: session } = useSession();
     const { t, language } = useTranslation();
@@ -81,6 +83,7 @@ export function AIChatWindow({
                     country: country,
                     language: language,
                     mode: mode,
+                    tripContext: tripContext
                 })
             });
 
