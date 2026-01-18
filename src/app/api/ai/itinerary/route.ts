@@ -43,7 +43,14 @@ export async function POST(request: NextRequest) {
     }
 
     const countryName = countryNames[destination]?.[language === "mn" ? "mn" : "en"] || destination;
-    const purposeDesc = purposeDescriptions[purpose] || purposeDescriptions.tourist;
+
+    // Handle multiple purposes (comma-separated)
+    const purposeList = purpose.split(",").map((p: string) => p.trim());
+    const purposeDescList = purposeList.map((p: string) => purposeDescriptions[p] || p);
+    const purposeDesc = purposeDescList.length > 1
+      ? `MULTIPLE PURPOSES - Include activities for ALL of the following: ${purposeDescList.join(", ")}`
+      : purposeDescList[0] || purposeDescriptions.tourist;
+
     const dailyBudget = budgetEstimates[budget]?.[destination] || "$100-200";
     const isMongolian = language === "mn";
 
