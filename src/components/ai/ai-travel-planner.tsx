@@ -20,10 +20,14 @@ import {
     Save,
     Check,
     Backpack,
+    Edit,
+    X,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -84,6 +88,12 @@ interface Itinerary {
         category: string;
         items: string[];
     }[];
+    budgetBreakdown?: {
+        category: string;
+        amount: number;
+        currency: string;
+        percentage: number;
+    }[];
 }
 
 interface AITravelPlannerProps {
@@ -102,8 +112,17 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const [itinerary, setItinerary] = useState<Itinerary | null>(null);
     const [expandedDays, setExpandedDays] = useState<number[]>([1]);
+
+    const handleActivityChange = (dayIndex: number, activityIndex: number, field: string, value: string) => {
+        if (!itinerary) return;
+        const newItinerary = { ...itinerary };
+        // @ts-ignore
+        newItinerary.days[dayIndex].activities[activityIndex][field] = value;
+        setItinerary(newItinerary);
+    };
 
     const [isCustomDestination, setIsCustomDestination] = useState(false);
 
@@ -355,33 +374,47 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                     <Badge className="bg-emerald-500 text-lg px-4 py-2">
                                         {itinerary.totalBudget}
                                     </Badge>
-                                    {session?.user && (
+                                    <div className="flex gap-2">
                                         <Button
                                             size="sm"
-                                            variant={isSaved ? "outline" : "default"}
-                                            className={cn(
-                                                "gap-2 h-8",
-                                                isSaved
-                                                    ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
-                                                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                            )}
-                                            onClick={handleSave}
-                                            disabled={isSaved || isSaving}
+                                            variant="outline"
+                                            className="gap-2 h-8 bg-white/50 hover:bg-white"
+                                            onClick={() => setIsEditing(!isEditing)}
                                         >
-                                            {isSaving ? (
-                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                            ) : isSaved ? (
-                                                <Check className="w-3.5 h-3.5" />
-                                            ) : (
-                                                <Save className="w-3.5 h-3.5" />
-                                            )}
+                                            {isEditing ? <X className="w-3.5 h-3.5" /> : <Edit className="w-3.5 h-3.5" />}
                                             <span className="text-xs font-bold">
-                                                {isSaved
-                                                    ? (isMongolian ? "Хадгалагдсан" : "Saved")
-                                                    : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                                {isEditing ? (isMongolian ? "Болих" : "Stop") : (isMongolian ? "Засах" : "Edit")}
                                             </span>
                                         </Button>
-                                    )}
+
+                                        {session?.user && (
+                                            <Button
+                                                size="sm"
+                                                variant={isSaved ? "outline" : "default"}
+                                                className={cn(
+                                                    "gap-2 h-8",
+                                                    isSaved
+                                                        ? "text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+                                                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                )}
+                                                onClick={handleSave}
+                                                disabled={isSaved || isSaving}
+                                            >
+                                                {isSaving ? (
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                ) : isSaved ? (
+                                                    <Check className="w-3.5 h-3.5" />
+                                                ) : (
+                                                    <Save className="w-3.5 h-3.5" />
+                                                )}
+                                                <span className="text-xs font-bold">
+                                                    {isSaved
+                                                        ? (isMongolian ? "Хадгалагдсан" : "Saved")
+                                                        : (isMongolian ? "Хадгалах" : "Save Plan")}
+                                                </span>
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <p className="text-sm p-3 rounded-xl bg-background/50">
@@ -390,7 +423,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                         </Card>
 
                         {/* Day-by-Day Itinerary */}
-                        {itinerary.days.map((day) => (
+                        {itinerary.days.map((day, dayIndex) => (
                             <Card key={day.day} className="overflow-hidden">
                                 <button
                                     onClick={() => toggleDay(day.day)}
@@ -435,21 +468,57 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <div className="flex items-center justify-between">
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        <Clock className="w-3 h-3 mr-1" />
-                                                                        {activity.time}
-                                                                    </Badge>
-                                                                    {activity.cost && (
-                                                                        <span className="text-xs text-muted-foreground">
-                                                                            {activity.cost}
-                                                                        </span>
+                                                                    {isEditing ? (
+                                                                        <div className="flex gap-2 w-full mb-2">
+                                                                            <Input
+                                                                                value={activity.time}
+                                                                                onChange={(e) => handleActivityChange(dayIndex, idx, 'time', e.target.value)}
+                                                                                className="w-20 h-7 text-xs bg-white"
+                                                                            />
+                                                                            <Input
+                                                                                value={activity.cost || ""}
+                                                                                onChange={(e) => handleActivityChange(dayIndex, idx, 'cost', e.target.value)}
+                                                                                className="w-20 h-7 text-xs bg-white"
+                                                                                placeholder="$Cost"
+                                                                            />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex items-center justify-between w-full">
+                                                                            <Badge variant="outline" className="text-xs">
+                                                                                <Clock className="w-3 h-3 mr-1" />
+                                                                                {activity.time}
+                                                                            </Badge>
+                                                                            {activity.cost && (
+                                                                                <span className="text-xs text-muted-foreground">
+                                                                                    {activity.cost}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
                                                                     )}
                                                                 </div>
-                                                                <p className="font-medium mt-1">{activity.activity}</p>
-                                                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                                                    <MapPin className="w-3 h-3" />
-                                                                    {activity.location}
-                                                                </p>
+
+                                                                {isEditing ? (
+                                                                    <Textarea
+                                                                        value={activity.activity}
+                                                                        onChange={(e) => handleActivityChange(dayIndex, idx, 'activity', e.target.value)}
+                                                                        className="min-h-[60px] text-sm mt-1 bg-white"
+                                                                    />
+                                                                ) : (
+                                                                    <p className="font-medium mt-1">{activity.activity}</p>
+                                                                )}
+
+                                                                {isEditing ? (
+                                                                    <Input
+                                                                        value={activity.location}
+                                                                        onChange={(e) => handleActivityChange(dayIndex, idx, 'location', e.target.value)}
+                                                                        className="h-7 text-xs mt-1 bg-white"
+                                                                    />
+                                                                ) : (
+                                                                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                                                        <MapPin className="w-3 h-3" />
+                                                                        {activity.location}
+                                                                    </p>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     );

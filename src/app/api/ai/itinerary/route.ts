@@ -77,6 +77,14 @@ Response format MUST be valid JSON:
       "category": "${isMongolian ? "Ангилал (Хувцас, Техник, Эм...)" : "Category (Clothing, Tech, Meds...)"}",
       "items": ["${isMongolian ? "Зүйл" : "Item"}"]
     }
+  ],
+  "budgetBreakdown": [
+    {
+      "category": "${isMongolian ? "Ангилал (Байр, Хоол, Унаа...)" : "Category (Accommodation, Food, Transport...)"}",
+      "amount": 0,
+      "currency": "USD",
+      "percentage": 0
+    }
   ]
 }
 
