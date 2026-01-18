@@ -100,6 +100,14 @@ export async function POST(request: NextRequest) {
     }
 
     const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries for Mongolian travelers.
+    
+    ${purposeDescriptions[purposes] || purposes.includes('medical') || purposes.includes('business') || purposes.includes('education') ? `
+    **SPECIAL PURPOSE RIGOR (ACCURACY MATTERS):**
+    - This is a ${purposeDesc} trip. LOGISTICAL ACCURACY IS CRITICAL.
+    - **Business:** Prioritize logistics, proximity to companies, work-friendly environments, and reliable transport.
+    - **Medical:** Focus on hospital directions, pharmacy proximity, recovery/rest time between appointments, and ease of transport for patients.
+    - **Education:** Include university/college visits, student life orientation, and campus-related logistics.
+    ` : ''}
 
 **USER SELECTIONS (PRIORITY):**
 - **Selected Hotel:** ${selectedHotel || 'Any suitable 4-star hotel'} (MUST BE USED as the primary accommodation).
@@ -107,7 +115,7 @@ export async function POST(request: NextRequest) {
 
 **TRIP PREFERENCES:**
 - **Origin:** Ulaanbaatar, Mongolia (All trips start here)
-- **Destination:** ${countryName}${city ? ` (specifically city: ${city})` : ''}
+- **Destination:** ${countryName}${city ? ` (specifically: ${city})` : ''}
 - **Duration:** ${duration} days
 - **Purpose:** ${purposeDesc}
 - **Budget Level:** ${budget} (${dailyBudget} daily expenses + International Transport). ${budgetInstruction}
@@ -118,13 +126,13 @@ ${transportLogic}
 ${groundingContext}
 
 **CRITICAL INSTRUCTIONS:**
-1. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
-   - If Transport Mode is "Flight": "Flight from Ulaanbaatar (UBN) to ${countryName}". Calculate approximate cost (e.g., $800-$1500 depending on location).
-   - If Transport Mode is "Train/Overland": "Train/Bus from Ulaanbaatar".
-2. **Total Budget**: MUST be calculated in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
+1. **Multi-City Logic**: If multiple cities are listed in the destination (${city}), you MUST plan movements between them (trains/flights) and allocate days reasonably to cover all of them.
+2. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
+3. **Total Budget**: MUST be calculated in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
    - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
    - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket) + Accommodation + Daily expenses.
-3. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
+4. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
+5. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
 
 **RESPONSE FORMAT (JSON):**
 {

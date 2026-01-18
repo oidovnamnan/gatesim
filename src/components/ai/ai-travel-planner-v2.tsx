@@ -626,28 +626,47 @@ export default function AITravelPlannerV2() {
                                                 </button>
                                             </div>
                                             <div className="grid grid-cols-1 gap-2">
-                                                {suggestedCities.map((s, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        onClick={() => {
-                                                            setCity('custom');
-                                                            setCustomCity(isMongolian ? s.nameMn : s.name);
-                                                            setSuggestedCities([]);
-                                                        }}
-                                                        className="p-3 rounded-xl bg-white border border-emerald-100 hover:border-emerald-300 hover:shadow-md text-left transition-all group flex items-start gap-3"
-                                                    >
-                                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                                                            <MapPin className="w-5 h-5" />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center justify-between">
-                                                                <p className="text-sm font-black text-slate-900">{isMongolian ? s.nameMn : s.name}</p>
-                                                                <ArrowRight className="w-3 h-3 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+                                                {suggestedCities.map((s, idx) => {
+                                                    const cityName = isMongolian ? s.nameMn : s.name;
+                                                    const isSelected = customCity.split(', ').includes(cityName);
+
+                                                    return (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setCity('custom');
+                                                                setCustomCity(prev => {
+                                                                    const cities = prev ? prev.split(', ').filter(c => c.trim() !== "") : [];
+                                                                    if (cities.includes(cityName)) {
+                                                                        return cities.filter(c => c !== cityName).join(', ');
+                                                                    } else {
+                                                                        return [...cities, cityName].join(', ');
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className={cn(
+                                                                "p-3 rounded-xl border text-left transition-all group flex items-start gap-3",
+                                                                isSelected
+                                                                    ? "bg-emerald-600 border-emerald-600 text-white shadow-md"
+                                                                    : "bg-white border-emerald-100 hover:border-emerald-300 hover:shadow-md"
+                                                            )}
+                                                        >
+                                                            <div className={cn(
+                                                                "w-10 h-10 rounded-xl flex items-center justify-center border transition-all shrink-0",
+                                                                isSelected ? "bg-white/20 border-white/20" : "bg-emerald-50 border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white"
+                                                            )}>
+                                                                <MapPin className="w-5 h-5" />
                                                             </div>
-                                                            <p className="text-[10px] text-slate-500 leading-tight mt-0.5">{s.reason}</p>
-                                                        </div>
-                                                    </button>
-                                                ))}
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center justify-between">
+                                                                    <p className={cn("text-sm font-black", isSelected ? "text-white" : "text-slate-900")}>{cityName}</p>
+                                                                    {isSelected ? <Check className="w-4 h-4 text-white" /> : <ArrowRight className="w-3 h-3 text-emerald-400 group-hover:translate-x-1 transition-transform" />}
+                                                                </div>
+                                                                <p className={cn("text-[10px] leading-tight mt-0.5", isSelected ? "text-emerald-50" : "text-slate-500")}>{s.reason}</p>
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </motion.div>
                                     )}
