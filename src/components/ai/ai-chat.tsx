@@ -120,28 +120,35 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         ? [plan.data.hospitalInfo?.name].filter(Boolean)
                         : plan.data.days?.[0]?.activities?.map((a: any) => a.location).slice(0, 3);
 
+                    // Use explicit strings to ensure feedback works (ignoring missing locale keys for now)
                     const contextMsg = isMedical
-                        ? t("aiTransitMedicalContext").replace("{hospital}", locations[0])
-                        : t("aiTransitPlanContext").replace("{destination}", plan.destination);
+                        ? `Таны төлөвлөгөөнд байгаа "${locations[0]}" эмнэлэг рүү хүрэх замыг зааж өгөх үү?`
+                        : `Таны төлөвлөгөөнд байгаа "${plan.destination}" руу аялах замыг зааж өгөх үү?`;
 
-                    // Add a special system-like message to context (not visible to user immediately, or visible as a prompt)
-                    // unique ID to prevent duplicates
                     const contextId = `context-${plan.destination}-${Date.now()}`;
 
-                    setMessages(prev => {
-                        const hasContext = prev.some(m => m.id.startsWith("context-"));
-                        if (hasContext) return prev;
-
-                        return [...prev, {
+                    // Reset messages to show fresh context for Transit Mode
+                    setMessages([
+                        {
                             id: contextId,
                             role: "assistant",
-                            content: contextMsg || "I see you have a trip planned. Need directions?",
+                            content: contextMsg,
                             timestamp: new Date()
-                        }];
-                    });
+                        }
+                    ]);
                 } catch (e) {
                     console.error("Failed to parse active plan", e);
                 }
+            } else {
+                // No plan, but switched to transit. Add a system notice
+                setMessages([
+                    {
+                        id: `transit-welcome-${Date.now()}`,
+                        role: "assistant",
+                        content: "Сайн байна уу? Би таны Нийтийн Тээврийн туслах байна. Та хаашаа явах вэ?",
+                        timestamp: new Date()
+                    }
+                ]);
             }
         }
     }, [isOpen, currentMode]);
