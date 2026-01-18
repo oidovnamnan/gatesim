@@ -158,6 +158,27 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
         }
     };
 
+    const handleSave = async () => {
+        if (!itinerary || !session?.user) return;
+        setIsSaving(true);
+        try {
+            await createTrip({
+                // @ts-ignore
+                userId: (session?.user as any).id || session?.user?.email,
+                destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
+                duration,
+                purpose,
+                budget,
+                itinerary
+            });
+            setIsSaved(true);
+        } catch (e) {
+            console.error("Save failed", e);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className={cn("space-y-6 pb-32", className)}>
             {/* Destination Selection */}
