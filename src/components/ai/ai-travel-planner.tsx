@@ -180,7 +180,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
 
     const [destination, setDestination] = useState("");
     const [duration, setDuration] = useState(7);
-    const [purpose, setPurpose] = useState("tourist");
+    const [purposes, setPurposes] = useState<string[]>(["tourist"]);
     const [budget, setBudget] = useState("mid");
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -221,7 +221,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 body: JSON.stringify({
                     destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
                     duration,
-                    purpose,
+                    purpose: purposes.join(", "),
                     budget,
                     language: language,
                     city: city === 'none' ? '' : city,
@@ -236,7 +236,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
 
                 // Save to session storage for AI Chat context
                 sessionStorage.setItem("gateSIM_activePlan", JSON.stringify({
-                    type: "tourist",
+                    type: purposes.join(", "),
                     destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
                     data: data.itinerary
                 }));
@@ -292,7 +292,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 userId: (session?.user as any).id || session?.user?.email,
                 destination: isCustomDestination ? destination : (destinations.find(d => d.code === destination)?.nameEn || destination),
                 duration,
-                purpose,
+                purpose: purposes.join(', '),
                 budget,
                 itinerary
             });
@@ -607,13 +607,22 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {tripPurposes.map((p) => {
                         const Icon = p.icon;
+                        const isSelected = purposes.includes(p.id);
                         return (
                             <button
                                 key={p.id}
-                                onClick={() => setPurpose(p.id)}
+                                onClick={() => {
+                                    if (isSelected) {
+                                        if (purposes.length > 1) {
+                                            setPurposes(purposes.filter(id => id !== p.id));
+                                        }
+                                    } else {
+                                        setPurposes([...purposes, p.id]);
+                                    }
+                                }}
                                 className={cn(
                                     "flex flex-col items-center gap-2 p-4 rounded-2xl font-bold text-sm transition-all",
-                                    purpose === p.id
+                                    isSelected
                                         ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
                                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                                 )}
