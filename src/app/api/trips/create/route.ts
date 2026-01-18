@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export async function POST(req: Request) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
 
         if (!session?.user?.email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,13 +14,11 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { destination, duration, purpose, budget, itinerary, userId } = body;
 
-        if (!userId || userId !== session.user.id) {
-            // Basic security check: ensure the userId in body matches session (or just use session id)
-            // Ideally we just use session.user.id and ignore body.userId
-        }
+        // Note: session.user.id check is good but strict validation depends on how session is populated
+        // The client sends userId but we should trust session.user.id primarily
 
         const newTrip = {
-            userId: session.user.id, // Enforce session user ID
+            userId: (session.user as any).id || session.user.email, // Fallback to email if ID missing, or trust client if safe (not safe)
             destination,
             duration,
             purpose,
