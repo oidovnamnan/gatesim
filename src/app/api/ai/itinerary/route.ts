@@ -71,7 +71,13 @@ Response format MUST be valid JSON:
     }
   ],
   "tips": ["${isMongolian ? "Зөвлөмж" : "Helpful tip"}"],
-  "esimRecommendation": "${isMongolian ? "eSIM санал болголт" : "eSIM recommendation for this trip"}"
+  "esimRecommendation": "${isMongolian ? "eSIM санал болголт" : "eSIM recommendation for this trip"}",
+  "packingList": [
+    {
+      "category": "${isMongolian ? "Ангилал (Хувцас, Техник, Эм...)" : "Category (Clothing, Tech, Meds...)"}",
+      "items": ["${isMongolian ? "Зүйл" : "Item"}"]
+    }
+  ]
 }
 
 ${isMongolian ? "Бүх текстийг МОНГОЛ хэлээр бич." : "Write all text in English."}

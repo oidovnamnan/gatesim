@@ -19,6 +19,7 @@ import {
     Sparkles,
     Save,
     Check,
+    Backpack,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,10 @@ interface Itinerary {
     days: ItineraryDay[];
     tips: string[];
     esimRecommendation: string;
+    packingList: {
+        category: string;
+        items: string[];
+    }[];
 }
 
 interface AITravelPlannerProps {
@@ -471,6 +476,32 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                 </ul>
                             </Card>
                         )}
+
+                        {/* Packing List */}
+                        {itinerary.packingList && itinerary.packingList.length > 0 && (
+                            <Card className="p-4 bg-slate-50 border-slate-200">
+                                <h4 className="font-bold mb-4 flex items-center gap-2 text-slate-800">
+                                    <Backpack className="w-5 h-5 text-emerald-600" />
+                                    {isMongolian ? "Ачаа тээшний жагсаалт" : "Smart Packing List"}
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {itinerary.packingList.map((category, idx) => (
+                                        <div key={idx} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                            <h5 className="font-bold text-sm text-emerald-700 mb-2">{category.category}</h5>
+                                            <ul className="space-y-1.5">
+                                                {category.items.map((item, i) => (
+                                                    <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                                                        <div className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                                                        {item}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        )}
+
                     </motion.div>
                 )}
             </AnimatePresence>
