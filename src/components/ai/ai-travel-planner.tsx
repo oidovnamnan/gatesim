@@ -1365,10 +1365,26 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                                                                             className="h-7 text-xs mt-1 bg-white"
                                                                         />
                                                                     ) : (
-                                                                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                                                            <MapPin className="w-3 h-3" />
-                                                                            {activity.location}
-                                                                        </p>
+                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                                                <MapPin className="w-3 h-3" />
+                                                                                {activity.location}
+                                                                            </p>
+                                                                            <Button
+                                                                                size="sm"
+                                                                                variant="ghost"
+                                                                                className="h-5 w-5 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                                                                                onClick={() => {
+                                                                                    const destination = activity.coordinates
+                                                                                        ? `${activity.coordinates.lat},${activity.coordinates.lng}`
+                                                                                        : encodeURIComponent(activity.location);
+                                                                                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=transit`, '_blank');
+                                                                                }}
+                                                                                title={isMongolian ? "Нийтийн тээврээр" : "Get Transit Directions"}
+                                                                            >
+                                                                                <Bus className="w-3 h-3" />
+                                                                            </Button>
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                             </div>
