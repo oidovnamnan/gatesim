@@ -29,6 +29,7 @@ interface AIChatWindowProps {
     mode?: string;
     tripContext?: string | null;
     className?: string;
+    hideHeader?: boolean;
 }
 
 export function AIChatWindow({
@@ -40,7 +41,8 @@ export function AIChatWindow({
     setMessages,
     mode = "tourist",
     tripContext = null,
-    className
+    className,
+    hideHeader = false
 }: AIChatWindowProps) {
     const { data: session } = useSession();
     const { t, language } = useTranslation();
@@ -201,27 +203,29 @@ export function AIChatWindow({
             )}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-md shadow-red-500/20">
-                        <Bot className="h-5 w-5 text-white" />
+            {!hideHeader && (
+                <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-md shadow-red-500/20">
+                            <Bot className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                                {t("aiTitle")}
+                            </h3>
+                            <p className="text-xs text-slate-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px]">
+                                {isGuest ? t("aiGuestMode") : t("aiDescription")}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                            {t("aiTitle")}
-                        </h3>
-                        <p className="text-xs text-slate-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px]">
-                            {isGuest ? t("aiGuestMode") : t("aiDescription")}
-                        </p>
-                    </div>
+                    <button
+                        onClick={onClose}
+                        className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
                 </div>
-                <button
-                    onClick={onClose}
-                    className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
-                >
-                    <X className="h-5 w-5" />
-                </button>
-            </div>
+            )}
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-slate-50/50">

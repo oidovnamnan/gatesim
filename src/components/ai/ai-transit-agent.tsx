@@ -99,6 +99,7 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
                     tripContext={typeof window !== 'undefined' ? sessionStorage.getItem("gateSIM_activePlan") : null}
                     // Custom styling to fit embedded view
                     className="h-full w-full rounded-none shadow-none static !fixed-none !transform-none !inset-auto"
+                    hideHeader={true}
                 />
             </div>
 
