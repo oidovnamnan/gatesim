@@ -696,9 +696,17 @@ export default function AITravelPlannerV2() {
                                         onClick={() => setSelectedHotel(hotel)}
                                     >
                                         <div className="aspect-video bg-slate-100 relative overflow-hidden">
-                                            <div className="absolute inset-0 flex items-center justify-center text-slate-300">
-                                                <Hotel className="w-12 h-12" />
-                                            </div>
+                                            {hotel.imageUrl ? (
+                                                <img
+                                                    src={hotel.imageUrl}
+                                                    alt={hotel.name}
+                                                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                                                    <Hotel className="w-12 h-12" />
+                                                </div>
+                                            )}
                                             <div className="absolute top-3 right-3">
                                                 <Badge className="bg-white/90 text-emerald-600 font-bold backdrop-blur-sm border-none shadow-sm capitalize">
                                                     {hotel.price}
@@ -827,10 +835,18 @@ export default function AITravelPlannerV2() {
                                         onClick={() => toggleActivity(activity)}
                                     >
                                         <div className="p-4 flex gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-slate-100 shrink-0 flex items-center justify-center">
-                                                {activeCategory === 'medical' ? <Stethoscope className="w-6 h-6 text-emerald-600" /> :
-                                                    activeCategory === 'shopping' ? <ShoppingBag className="w-6 h-6 text-emerald-600" /> :
-                                                        <Camera className="w-6 h-6 text-emerald-600" />}
+                                            <div className="w-16 h-16 rounded-xl bg-slate-100 shrink-0 overflow-hidden relative flex items-center justify-center">
+                                                {activity.imageUrl ? (
+                                                    <img
+                                                        src={activity.imageUrl}
+                                                        alt={activity.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    activity.type === 'medical' ? <Stethoscope className="w-6 h-6 text-emerald-600" /> :
+                                                        activity.type === 'shopping' ? <ShoppingBag className="w-6 h-6 text-emerald-600" /> :
+                                                            <Camera className="w-6 h-6 text-emerald-600" />
+                                                )}
                                             </div>
                                             <div className="flex-1 space-y-1">
                                                 <div className="flex justify-between items-start">

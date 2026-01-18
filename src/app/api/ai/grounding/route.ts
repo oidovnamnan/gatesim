@@ -20,13 +20,14 @@ export async function POST(request: NextRequest) {
         // In a prod environment, this would call Google Places API directly.
         const systemPrompt = `You are a travel database explorer. Return a JSON list of 5 REAL-WORLD ${type}s in ${city || destination}.
     
-    ${type === 'hotel' ? 'Ensure they match the budget level: ' + budget : ''}
+    ${type === 'hotel' ? 'Ensure they match the budget level: ' + budget + '. Prioritize hotels in central, convenient locations or near major transport hubs like airports if it improves the travel experience.' : ''}
     ${purposes ? 'Consider the trip purposes: ' + purposes : ''}
 
     CRITICAL: 
     - Return ONLY valid JSON.
     - Include REAL names, approximate price, and a short justification.
     - Include a Booking.com search URL for each entry if applicable.
+    - Include a high-quality "imageUrl" for each entry (use Unsplash source URLs like https://images.unsplash.com/photo-... or realistic architectural photos).
 
     JSON Format:
     {
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
           "rating": 4.5,
           "address": "Street address",
           "bookingUrl": "Direct search URL",
-          "imageSearch": "Keyword for image search"
+          "imageUrl": "https://images.unsplash.com/photo-..."
         }
       ]
     }
