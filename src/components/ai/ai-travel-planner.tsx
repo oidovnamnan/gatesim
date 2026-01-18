@@ -179,7 +179,7 @@ export function AITravelPlanner({ className }: AITravelPlannerProps) {
                         max={30}
                         value={duration}
                         onChange={(e) => setDuration(parseInt(e.target.value))}
-                        className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                        className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                     />
                     <Badge variant="outline" className="px-4 py-2 text-lg font-bold">
                         {duration} {isMongolian ? "хоног" : "days"}
