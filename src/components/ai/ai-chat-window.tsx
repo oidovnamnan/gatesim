@@ -11,6 +11,7 @@ import {
     Loader2,
     Mic,
     MicOff,
+    MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -306,20 +307,27 @@ export function AIChatWindow({
                                     })()}
                                 </div>
                             ) : msg.content.startsWith('__TRANSIT__:') ? (
-                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mt-2">
+                                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm mt-2 relative overflow-hidden group/card">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/card:opacity-20 transition-opacity">
+                                        <MapPin className="w-16 h-16 text-blue-500 transform rotate-12 translate-x-4 -translate-y-4" />
+                                    </div>
                                     {(() => {
                                         const route = JSON.parse(msg.content.replace('__TRANSIT__:', ''));
                                         return (
-                                            <div>
-                                                <div className="flex items-start gap-3 mb-4">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <div className="relative z-10">
+                                                <div className="flex items-start gap-4 mb-5">
+                                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0 text-blue-600 shadow-sm">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                                                         </svg>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs text-slate-500 font-bold uppercase mb-0.5">Route Guide</p>
-                                                        <h4 className="text-base font-black text-slate-900 leading-tight">To {route.to}</h4>
+                                                        <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mb-1">
+                                                            {language === 'mn' ? "ЗАМЫН ХӨТӨЧ" : "ROUTE GUIDE"}
+                                                        </p>
+                                                        <h4 className="text-lg font-black text-slate-900 leading-tight">
+                                                            {language === 'mn' ? `${route.to} руу` : `To ${route.to}`}
+                                                        </h4>
                                                     </div>
                                                 </div>
 
@@ -327,14 +335,16 @@ export function AIChatWindow({
                                                     href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(route.to)}&travelmode=${route.mode || 'transit'}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-500/30"
+                                                    className="flex items-center justify-center gap-2 w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-600/30 hover:-translate-y-0.5"
                                                 >
-                                                    <span>View Route on Maps</span>
+                                                    <span>{language === 'mn' ? "Газрын зураг нээх" : "View Route on Maps"}</span>
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                     </svg>
                                                 </a>
-                                                <p className="text-[10px] text-center text-slate-400 mt-2 font-medium">Opens Google Maps</p>
+                                                <p className="text-[10px] text-center text-slate-400 mt-3 font-medium">
+                                                    {language === 'mn' ? "Google Maps-р нээгдэнэ" : "Opens Google Maps"}
+                                                </p>
                                             </div>
                                         );
                                     })()}
