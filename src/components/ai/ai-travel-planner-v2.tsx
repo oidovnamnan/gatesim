@@ -483,6 +483,32 @@ export default function AITravelPlannerV2() {
         }
     };
 
+    const handleStep4Continue = () => {
+        const currentCityIndex = cityRoute.findIndex(c => c.name === activeCityTab);
+
+        // 1. Validation: Use selectedActivities to check if any activity for current city is selected
+        const hasActivities = selectedActivities.some(a => a.cityName === activeCityTab);
+        if (!hasActivities) {
+            alert(isMongolian
+                ? `${activeCityTab} хотын үзэх зүйлсээс сонгоно уу`
+                : `Please select some activities for ${activeCityTab}`);
+            return;
+        }
+
+        // 2. Navigation: If there's a next city, move to it within Step 4
+        if (currentCityIndex < cityRoute.length - 1) {
+            const nextCity = cityRoute[currentCityIndex + 1].name;
+            setActiveCityTab(nextCity);
+
+            // Fetch activities for the next city (keep current category for consistency)
+            fetchDiscoveryData(activeCategory, nextCity);
+            return; // stay in Step 4
+        }
+
+        // 3. Finalization: Last city reached
+        handleFinalize();
+    };
+
     const handleNext = () => {
         if (step === 1) {
             if (!destination) {
@@ -1312,7 +1338,7 @@ export default function AITravelPlannerV2() {
                                             key={c.name}
                                             onClick={() => {
                                                 setActiveCityTab(c.name);
-                                                fetchDiscoveryData('attraction', c.name);
+                                                fetchDiscoveryData(activeCategory, c.name);
                                             }}
                                             className={cn(
                                                 "px-4 py-2 rounded-2xl font-bold text-xs transition-all whitespace-nowrap border-2",
@@ -1359,12 +1385,55 @@ export default function AITravelPlannerV2() {
                             </div>
 
                             {isDiscoveryLoading ? (
-                                <div className="py-20 text-center space-y-4">
-                                    <Loader2 className="w-10 h-10 animate-spin mx-auto text-emerald-600" />
-                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">{isMongolian ? "Хайж байна..." : "Searching..."}</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <Card key={i} className="p-4 border-slate-100 animate-pulse">
+                                            <div className="flex gap-4">
+                                                <div className="w-20 h-20 rounded-2xl bg-slate-50 shrink-0" />
+                                                <div className="flex-1 space-y-3">
+                                                    <div className="h-4 w-3/4 bg-slate-50 rounded" />
+                                                    <div className="h-3 w-full bg-slate-50 rounded" />
+                                                    <div className="h-3 w-1/2 bg-slate-50 rounded" />
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    ))}
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* My Choice option for Activities */}
+                                    <Card
+                                        className={cn(
+                                            "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative flex flex-col justify-between min-h-[110px]",
+                                            selectedActivities.some(a => a.id === `custom-activity-${activeCityTab}`) ? "border-emerald-500 bg-emerald-50" : "border-slate-100 hover:border-emerald-200"
+                                        )}
+                                        onClick={() => toggleActivity({
+                                            id: `custom-activity-${activeCityTab}`,
+                                            name: isMongolian ? "Өөрийн сонголт / Чөлөөт цаг" : "My choice / Free time",
+                                            description: isMongolian ? "Төлөвлөгөөнд тусгай үзвэр оруулахгүй, өөрийнхөөрөө аялах" : "No specific activities, I will explore on my own",
+                                            cityName: activeCityTab,
+                                            price: "N/A",
+                                            imageUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=200",
+                                            address: isMongolian ? "Хотын төв" : "City Center"
+                                        })}
+                                    >
+                                        <div className="p-4 flex gap-4 flex-1">
+                                            <div className="w-20 h-20 rounded-2xl bg-emerald-100 shrink-0 flex items-center justify-center border border-emerald-200 shadow-inner">
+                                                <User className="w-8 h-8 text-emerald-600" />
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <h4 className="font-extrabold text-slate-900 text-sm leading-tight group-hover:text-emerald-600 transition-colors">
+                                                        {isMongolian ? "Өөрийн сонголт" : "My choice"}
+                                                    </h4>
+                                                </div>
+                                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium line-clamp-2">
+                                                    {isMongolian ? "Төлөвлөгөөнд тусгай үзвэр оруулахгүй, чөлөөтэй явах" : "I'll decide my activities later"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Card>
+
                                     {(activitiesByCategory[activeCategory] || []).map((activity: any) => (
                                         <Card
                                             key={activity.id}
@@ -1407,8 +1476,15 @@ export default function AITravelPlannerV2() {
                                     <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                                     {isMongolian ? "Буцах" : "Back"}
                                 </Button>
-                                <Button onClick={handleFinalize} disabled={isDiscoveryLoading} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
-                                    {isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan"}
+                                <Button
+                                    onClick={handleStep4Continue}
+                                    disabled={isDiscoveryLoading}
+                                    className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center"
+                                >
+                                    {activeCityTab === cityRoute[cityRoute.length - 1]?.name
+                                        ? (isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan")
+                                        : (isMongolian ? "Үргэлжлүүлэх" : "Continue")
+                                    }
                                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </div>
