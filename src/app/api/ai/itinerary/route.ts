@@ -22,6 +22,8 @@ const purposeDescriptions: Record<string, string> = {
   shopping: "shopping districts, malls, and local markets",
   business: "business meetings, networking events, and work-related activities",
   medical: "medical appointments, hospitals, and recovery time",
+  relaxation: "spa treatments, beach relaxation, quiet parks, and leisure time",
+  adventure: "hiking, nature trails, outdoor sports, and thrill-seeking activities",
 };
 
 // Budget estimates per day

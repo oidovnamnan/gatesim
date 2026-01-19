@@ -38,6 +38,8 @@ import {
     GraduationCap,
     Plus,
     Briefcase,
+    Palmtree,
+    Mountain,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -219,6 +221,8 @@ const tripPurposes = [
     { id: 'business', icon: Map, label: { mn: 'Бизнес', en: 'Business' } },
     { id: 'medical', icon: Stethoscope, label: { mn: 'Эмчилгээ', en: 'Medical' } },
     { id: 'education', icon: GraduationCap, label: { mn: 'Боловсрол', en: 'Education' } },
+    { id: 'relaxation', icon: Palmtree, label: { mn: 'Амралт', en: 'Relaxation' } },
+    { id: 'adventure', icon: Mountain, label: { mn: 'Адал явдал', en: 'Adventure' } },
 ];
 
 export default function AITravelPlannerV2() {
