@@ -804,37 +804,39 @@ export default function AITravelPlannerV2() {
                                                         )}
                                                     </div>
 
-                                                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-emerald-200 hover:bg-white hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-                                                        <div className="flex items-center gap-3">
-                                                            {/* Reordering Controls */}
-                                                            <div className="flex flex-col gap-1 -ml-1">
-                                                                <button
-                                                                    onClick={() => idx > 0 && reorderCities(idx, idx - 1)}
-                                                                    disabled={idx === 0}
-                                                                    className={cn("p-1.5 hover:bg-emerald-50 rounded-lg transition-all", idx === 0 ? "opacity-10 cursor-not-allowed" : "text-slate-300 hover:text-emerald-600 active:scale-90")}
-                                                                >
-                                                                    <ChevronUp className="w-4 h-4" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => idx < cityRoute.length - 1 && reorderCities(idx, idx + 1)}
-                                                                    disabled={idx === cityRoute.length - 1}
-                                                                    className={cn("p-1.5 hover:bg-emerald-50 rounded-lg transition-all", idx === cityRoute.length - 1 ? "opacity-10 cursor-not-allowed" : "text-slate-300 hover:text-emerald-600 active:scale-90")}
-                                                                >
-                                                                    <ChevronDown className="w-4 h-4" />
-                                                                </button>
-                                                            </div>
-                                                            <div>
-                                                                <h4 className="font-black text-slate-900 leading-none">{c.name}</h4>
-                                                                <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-100 font-bold mt-1.5 text-[10px] py-0 px-2 h-5">{c.days} {isMongolian ? "хоног" : "days"}</Badge>
-                                                            </div>
+                                                    <div className="flex items-center gap-2 p-3 sm:p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-emerald-200 hover:bg-white hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
+                                                        {/* Reordering Controls */}
+                                                        <div className="flex flex-col gap-0.5 -ml-1 shrink-0">
+                                                            <button
+                                                                onClick={() => idx > 0 && reorderCities(idx, idx - 1)}
+                                                                disabled={idx === 0}
+                                                                className={cn("p-1 hover:bg-emerald-50 rounded-lg transition-all", idx === 0 ? "opacity-5 cursor-not-allowed" : "text-slate-400 hover:text-emerald-600 active:scale-90")}
+                                                            >
+                                                                <ChevronUp className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => idx < cityRoute.length - 1 && reorderCities(idx, idx + 1)}
+                                                                disabled={idx === cityRoute.length - 1}
+                                                                className={cn("p-1 hover:bg-emerald-50 rounded-lg transition-all", idx === cityRoute.length - 1 ? "opacity-5 cursor-not-allowed" : "text-slate-400 hover:text-emerald-600 active:scale-90")}
+                                                            >
+                                                                <ChevronDown className="w-3.5 h-3.5" />
+                                                            </button>
                                                         </div>
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex bg-white rounded-xl border border-slate-100 p-1 shadow-sm">
-                                                                <button onClick={() => updateCityDays(c.name, Math.max(1, c.days - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black transition-colors">-</button>
-                                                                <div className="w-10 flex items-center justify-center font-black text-xs text-slate-700">{c.days}</div>
-                                                                <button onClick={() => updateCityDays(c.name, c.days + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black transition-colors">+</button>
+
+                                                        <div className="flex-1 min-w-0 pr-2">
+                                                            <h4 className="font-black text-slate-900 leading-tight truncate">{c.name}</h4>
+                                                            <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-100 font-bold mt-1 text-[9px] py-0 px-1.5 h-4.5 shrink-0">
+                                                                {c.days} {isMongolian ? "хоног" : "days"}
+                                                            </Badge>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            <div className="flex bg-white rounded-xl border border-slate-100 p-0.5 shadow-sm">
+                                                                <button onClick={() => updateCityDays(c.name, Math.max(1, c.days - 1))} className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black transition-colors">-</button>
+                                                                <div className="w-7 flex items-center justify-center font-black text-[10px] text-slate-700">{c.days}</div>
+                                                                <button onClick={() => updateCityDays(c.name, c.days + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black transition-colors">+</button>
                                                             </div>
-                                                            <button onClick={() => removeCity(c.name)} className="p-2.5 hover:bg-red-50 hover:text-red-600 text-slate-300 rounded-xl transition-all active:scale-90"><X className="w-5 h-5" /></button>
+                                                            <button onClick={() => removeCity(c.name)} className="p-2 hover:bg-red-50 hover:text-red-600 text-slate-200 rounded-xl transition-all active:scale-90"><X className="w-4.5 h-4.5" /></button>
                                                         </div>
                                                     </div>
                                                 </motion.div>
