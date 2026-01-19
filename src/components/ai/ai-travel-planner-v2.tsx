@@ -976,12 +976,24 @@ export default function AITravelPlannerV2() {
                                             <img src={hotel.imageUrl} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as any).src = `https://loremflickr.com/800/600/hotel,${encodeURIComponent(hotel.name.split(' ')[0])}`; }} />
                                             <Badge className="absolute top-3 right-3 bg-white/90 text-emerald-600 font-black border-none shadow-sm">{hotel.price}</Badge>
                                         </div>
-                                        <div className="p-4 space-y-1">
+                                        <div className="p-4 space-y-2">
                                             <div className="flex justify-between items-start">
-                                                <h4 className="font-bold text-slate-900 text-sm">{hotel.name}</h4>
-                                                <div className="flex items-center gap-1 text-amber-500"><Sparkles className="w-3 h-3 fill-current" /><span className="text-xs font-bold">{hotel.rating}</span></div>
+                                                <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{hotel.name}</h4>
+                                                <div className="flex items-center gap-1 text-amber-500 shrink-0"><Sparkles className="w-3 h-3 fill-current" /><span className="text-xs font-bold">{hotel.rating}</span></div>
                                             </div>
-                                            <p className="text-[10px] text-slate-500 line-clamp-2">{hotel.description}</p>
+                                            <p className="text-[10px] text-slate-500 line-clamp-2 leading-tight">{hotel.description}</p>
+
+                                            {/* Airport Distance Badge */}
+                                            {hotel.distanceFromAirport && (
+                                                <div className="flex items-center gap-1.5 pt-1 border-t border-slate-50 mt-2">
+                                                    <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                                        <Plane className="w-2.5 h-2.5 text-slate-500" />
+                                                    </div>
+                                                    <span className="text-[9px] font-bold text-slate-400 truncate">
+                                                        {hotel.distanceFromAirport}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </Card>
                                 ))}
