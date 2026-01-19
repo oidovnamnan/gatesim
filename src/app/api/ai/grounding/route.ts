@@ -59,7 +59,9 @@ export async function POST(request: NextRequest) {
     - Descriptions must be VERY DETAILED (at least 2-3 sentences) explaining why this is relevant to the user's purpose: "${purposes}".
     - Include REAL names, approximate price, and a compelling justification.
     - Include a Booking.com search URL for each entry if applicable.
-    - Include a high-quality "imageUrl" for each entry. Use valid, photographic Unsplash URLs (e.g. https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800).
+    - IMAGES: Include a high-quality "imageUrl". For hotels, use ONLY architectural exterior/lobby shots from Unsplash. 
+      E.g. https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800
+      CRITICAL: NEVER show people, beach scenes (unless seaside), or unrelated content.
     - For hotels, include "distanceFromAirport" (e.g. "12 km from Pudong Airport").
 
     JSON Format:

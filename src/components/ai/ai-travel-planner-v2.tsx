@@ -472,15 +472,38 @@ export default function AITravelPlannerV2() {
             fetchDiscoveryData('hotel', firstCity);
         }
         if (step === 3) {
-            // Check if every city in cityRoute has a selected hotel
-            const unselectedCities = cityRoute.filter(c => !selectedHotels[c.name]);
-            if (unselectedCities.length > 0) {
-                const cityList = unselectedCities.map(c => c.name).join(", ");
+            // Smart navigation for multi-city hotel selection
+            const currentCityIndex = cityRoute.findIndex(c => c.name === activeCityTab);
+
+            // 1. Ensure current city has a selection
+            if (!selectedHotels[activeCityTab]) {
                 alert(isMongolian
-                    ? `Дараах хотуудын буудлаа сонгоно уу: ${cityList}`
-                    : `Please select a hotel for the following cities: ${cityList}`);
+                    ? `${activeCityTab} хотын буудлаа сонгоно уу`
+                    : `Please select a hotel for ${activeCityTab}`);
                 return;
             }
+
+            // 2. If there's a next city, move to it within Step 3
+            if (currentCityIndex < cityRoute.length - 1) {
+                const nextCity = cityRoute[currentCityIndex + 1].name;
+                setActiveCityTab(nextCity);
+                fetchDiscoveryData('hotel', nextCity);
+                return; // Stay in Step 3
+            }
+
+            // 3. Last city reached, ensure all are selected (just in case they skipped via tabs)
+            const unselectedCities = cityRoute.filter(c => !selectedHotels[c.name]);
+            if (unselectedCities.length > 0) {
+                const firstUnselected = unselectedCities[0].name;
+                setActiveCityTab(firstUnselected);
+                fetchDiscoveryData('hotel', firstUnselected);
+                alert(isMongolian
+                    ? `Үргэлжлүүлэхийн өмнө бүх хотын буудлаа сонгоно уу`
+                    : `Please select a hotel for all cities before continuing`);
+                return;
+            }
+
+            // All good, proceed to Step 4
             const firstCity = cityRoute[0]?.name || "";
             setActiveCityTab(firstCity);
             fetchDiscoveryData('attraction', firstCity);
