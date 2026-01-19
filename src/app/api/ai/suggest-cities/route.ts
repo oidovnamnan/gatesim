@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, purposes, details, currentCity, chinaDistance, travelers } = await request.json();
+        const { destination, purposes, details, currentCity, chinaDistance, travelers, intlTransport } = await request.json();
 
         if (!destination) {
             return NextResponse.json({ success: false, error: "Destination is required" }, { status: 400 });
@@ -51,13 +51,15 @@ export async function POST(request: NextRequest) {
         - Main Purposes: ${purposes}
         - User's Specific Needs/Details: ${details || 'N/A'}
         ${currentCity ? `- Starting from/Relative to: ${currentCity}` : ''}
+        - Preferred International Transport: ${intlTransport || 'Flight'} (from Mongolia)
         ${distancePrompt}
 
         CRITICAL LOGIC:
         1. If the user mentions "furniture" (тавилга), "market", or "wholesale" in the details for China (CN), MUST suggest Foshan or Guangzhou (even if distance is 'near', suggest them but mention they are far).
         2. If children are traveling, prioritize family-friendly cities with safe infrastructure and parks.
-        3. Match the city to the details provided.
-        4. DISTANCE: Provide approximate distance in km from Ulaanbaatar.
+        3. LOGISTICS (CRITICAL): If transport is 'Train' or 'Bus', prioritize cities reachable by land, especially for China (e.g. northern hubs).
+        4. Match the city to the details provided.
+        5. DISTANCE: Provide approximate distance in km from Ulaanbaatar.
 
         Return a JSON object with a list of cities.
         

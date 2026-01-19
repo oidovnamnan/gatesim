@@ -51,7 +51,9 @@ export async function POST(request: NextRequest) {
       language,
       city,
       cityRoute,
-      transportMode,
+      intlTransport,
+      interCityTransport,
+      innerCityTransport,
       selectedHotels,
       selectedActivities,
       travelers
@@ -86,7 +88,7 @@ export async function POST(request: NextRequest) {
     const isMongolian = language === "mn";
 
     // Get live grounding context for more accurate pricing/timing
-    const groundingContext = getGroundingContext(destination, transportMode, city);
+    const groundingContext = getGroundingContext(destination, intlTransport, city);
 
     // Special logic for Mongolia -> China travel
     let transportLogic = "";
@@ -98,16 +100,16 @@ export async function POST(request: NextRequest) {
     if (destination === "CN" || countryName.toLowerCase().includes("china") || countryName.toLowerCase().includes("хятад")) {
       if (isErlian) {
         budgetInstruction = "NOTE: User is going to ERLIAN (Border city). Costs are very low. International transport (Train/Bus) is cheap (~$50-$100). Do NOT use standard international flight costs.";
-        if (transportMode === "flight") {
+        if (intlTransport === "flight") {
           transportLogic = "User selected Flight, but Erlian is best reached by Train/Bus. Suggest flight to nearby airports (e.g. Hohhot) or mention that Train is better. Keep transport cost realistic for reaching Erlian (e.g. < $300).";
         } else {
           transportLogic = "User is traveling overland to Erlian. Transport cost is cheap (~$50).";
         }
       } else {
         // Standard China logic
-        if (transportMode === "flight") {
+        if (intlTransport === "flight") {
           transportLogic = "User is flying directly. Do NOT include Zamiin-Uud border crossing. Start Day 1 at the destination airport.";
-        } else if (["train", "bus", "car"].includes(transportMode)) {
+        } else if (["train", "bus", "car"].includes(intlTransport || "")) {
           transportLogic = "User is traveling overland from Mongolia. You MUST include the Zamiin-Uud border crossing (Erlian) in the itinerary (usually Day 1).";
         }
       }
@@ -135,17 +137,24 @@ export async function POST(request: NextRequest) {
 - **Duration:** ${duration} days
 - **Purpose:** ${purposeDesc}
 - **Budget Level:** ${budget} (${dailyBudget} daily expenses + International Transport). ${budgetInstruction}
-- **Transport Mode:** ${transportMode || 'Flight'}
+- **Transport Modes (CRITICAL):**
+  - **International:** ${intlTransport || 'Flight'} (UB to ${countryName})
+  - **Inter-city:** ${interCityTransport || 'High-speed Train'} (Between cities)
+  - **Inner-city:** ${innerCityTransport || 'Public Transport'} (Within cities)
 
 ${transportLogic}
 
 ${groundingContext}
 
 **CRITICAL INSTRUCTIONS:**
-1. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements (trains/flights) between cities on the transition days.
-2. **Accommodation**: Use the specific hotels provided. If a hotel name is "Өөрийн сонголт" or "My own choice", explicitly state that the traveler will arrange their own accommodation in that city.
-3. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
-4. **Total Budget**: MUST be calculated for ALL ${travelersStr} in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
+1. **Multi-modal Logistics**: Plan the itinerary STRICTLY following the Transport Modes. 
+   - If International is 'Train' or 'Bus' to China, Day 1 MUST include the border crossing (Zamiin-Uud/Erlian).
+   - If Inter-city is 'High-speed Train', mention specific stations and durations between cities.
+   - If Inner-city is 'Public Transport', prioritize proximity to subway/bus stations in activity descriptions.
+2. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements between cities on the transition days.
+3. **Accommodation**: Use the specific hotels provided. If a hotel name is "Өөрийн сонголт" or "My own choice", explicitly state that the traveler will arrange their own accommodation in that city.
+4. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific details based on the selected International transport.
+5. **Total Budget**: MUST be calculated for ALL ${travelersStr} in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
    - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
    - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket for EVERY traveler) + Accommodation (appropriate for ${travelersStr}, or $0 if "My own choice" is selected) + Daily expenses for everyone.
 5. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
