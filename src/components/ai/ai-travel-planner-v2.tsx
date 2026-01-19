@@ -974,26 +974,48 @@ export default function AITravelPlannerV2() {
                                         )}
                                         <div className="aspect-video bg-slate-100 relative overflow-hidden">
                                             <img src={hotel.imageUrl} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as any).src = `https://loremflickr.com/800/600/hotel,${encodeURIComponent(hotel.name.split(' ')[0])}`; }} />
-                                            <Badge className="absolute top-3 right-3 bg-white/90 text-emerald-600 font-black border-none shadow-sm">{hotel.price}</Badge>
-                                        </div>
-                                        <div className="p-4 space-y-2">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{hotel.name}</h4>
-                                                <div className="flex items-center gap-1 text-amber-500 shrink-0"><Sparkles className="w-3 h-3 fill-current" /><span className="text-xs font-bold">{hotel.rating}</span></div>
-                                            </div>
-                                            <p className="text-[10px] text-slate-500 line-clamp-2 leading-tight">{hotel.description}</p>
-
-                                            {/* Airport Distance Badge */}
-                                            {hotel.distanceFromAirport && (
-                                                <div className="flex items-center gap-1.5 pt-1 border-t border-slate-50 mt-2">
-                                                    <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                                        <Plane className="w-2.5 h-2.5 text-slate-500" />
-                                                    </div>
-                                                    <span className="text-[9px] font-bold text-slate-400 truncate">
-                                                        {hotel.distanceFromAirport}
-                                                    </span>
+                                            <Badge className="absolute top-3 right-3 bg-white/95 text-emerald-600 font-black border-none shadow-sm text-sm py-1 px-3 rounded-full backdrop-blur-sm">{hotel.price}</Badge>
+                                            {hotel.rating >= 4.5 && (
+                                                <div className="absolute top-3 left-3 bg-amber-400 text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-sm uppercase tracking-wider">
+                                                    <Sparkles className="w-2.5 h-2.5 fill-current" />
+                                                    <span>Premium</span>
                                                 </div>
                                             )}
+                                        </div>
+                                        <div className="p-5 space-y-4">
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between items-start gap-4">
+                                                    <h4 className="font-black text-slate-900 text-base leading-tight group-hover:text-emerald-600 transition-colors">{hotel.name}</h4>
+                                                    <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg shrink-0 border border-amber-100/50">
+                                                        <span className="text-amber-600 text-xs font-black">{hotel.rating}</span>
+                                                        <Sparkles className="w-3 h-3 text-amber-500 fill-current" />
+                                                    </div>
+                                                </div>
+                                                <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed font-medium">{hotel.description}</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-3 items-center pt-2 border-t border-slate-50">
+                                                {/* Airport Distance Badge */}
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-7 h-7 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100">
+                                                        <Plane className="w-3.5 h-3.5 text-slate-400" />
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-slate-400 truncate">
+                                                        {hotel.distanceFromAirport?.split(' from ')[0] || "Ойрхон"}
+                                                    </span>
+                                                </div>
+
+                                                <a
+                                                    href={hotel.bookingUrl || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="flex items-center justify-center gap-2 h-9 bg-slate-900 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black transition-all active:scale-95 group/btn"
+                                                >
+                                                    {isMongolian ? "Захиалах" : "Book Now"}
+                                                    <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                                                </a>
+                                            </div>
                                         </div>
                                     </Card>
                                 ))}
