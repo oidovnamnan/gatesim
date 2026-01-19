@@ -402,7 +402,7 @@ export default function AITravelPlannerV2() {
                 } else {
                     setActivitiesByCategory(prev => ({
                         ...prev,
-                        [type]: data.options
+                        [type]: data.options.map((opt: any) => ({ ...opt, cityName: targetCity }))
                     }));
                 }
             }
@@ -472,6 +472,15 @@ export default function AITravelPlannerV2() {
             fetchDiscoveryData('hotel', firstCity);
         }
         if (step === 3) {
+            // Check if every city in cityRoute has a selected hotel
+            const unselectedCities = cityRoute.filter(c => !selectedHotels[c.name]);
+            if (unselectedCities.length > 0) {
+                const cityList = unselectedCities.map(c => c.name).join(", ");
+                alert(isMongolian
+                    ? `Дараах хотуудын буудлаа сонгоно уу: ${cityList}`
+                    : `Please select a hotel for the following cities: ${cityList}`);
+                return;
+            }
             const firstCity = cityRoute[0]?.name || "";
             setActiveCityTab(firstCity);
             fetchDiscoveryData('attraction', firstCity);
@@ -1006,7 +1015,7 @@ export default function AITravelPlannerV2() {
                                                 </div>
 
                                                 <a
-                                                    href={hotel.bookingUrl || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`}
+                                                    href={`https://www.awin1.com/cread.php?awinmid=18117&awinaffid=2735044&clickref=gatesim_ai&p=${encodeURIComponent(hotel.bookingUrl || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={(e) => e.stopPropagation()}
@@ -1108,22 +1117,32 @@ export default function AITravelPlannerV2() {
                                     <Card
                                         key={activity.id}
                                         className={cn(
-                                            "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative",
+                                            "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative flex flex-col justify-between",
                                             selectedActivities.some(a => a.id === activity.id) ? "border-emerald-500 bg-emerald-50" : "border-slate-100 hover:border-emerald-200"
                                         )}
                                         onClick={() => toggleActivity(activity)}
                                     >
-                                        <div className="p-4 flex gap-4">
-                                            <div className="w-16 h-16 rounded-xl bg-slate-100 shrink-0 overflow-hidden relative">
-                                                <img src={activity.imageUrl} alt={activity.name} className="w-full h-full object-cover" onError={(e) => { (e.target as any).src = `https://loremflickr.com/200/200/travel,${encodeURIComponent(activity.name.split(' ')[0])}`; }} />
+                                        <div className="p-4 flex gap-4 flex-1">
+                                            <div className="w-20 h-20 rounded-2xl bg-slate-100 shrink-0 overflow-hidden relative shadow-sm">
+                                                <img src={activity.imageUrl} alt={activity.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as any).src = `https://loremflickr.com/200/200/travel,${encodeURIComponent(activity.name.split(' ')[0])}`; }} />
+                                                {selectedActivities.some(a => a.id === activity.id) && (
+                                                    <div className="absolute inset-0 bg-emerald-600/20 flex items-center justify-center">
+                                                        <Check className="w-8 h-8 text-white drop-shadow-md" />
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="flex-1 space-y-1">
-                                                <div className="flex justify-between items-start">
-                                                    <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{activity.name}</h4>
-                                                    {selectedActivities.some(a => a.id === activity.id) && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
+                                            <div className="flex-1 space-y-2">
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <h4 className="font-extrabold text-slate-900 text-sm leading-tight group-hover:text-emerald-600 transition-colors">{activity.name}</h4>
+                                                    <Badge variant="outline" className="text-[9px] font-black border-slate-200 bg-white text-slate-500 shrink-0">{activity.price}</Badge>
                                                 </div>
-                                                <p className="text-[10px] text-slate-500 line-clamp-2">{activity.description}</p>
-                                                <div className="flex items-center gap-1 text-[9px] text-slate-400"><MapPin className="w-3 h-3" /><span className="truncate">{activity.address}</span></div>
+                                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium line-clamp-6">{activity.description}</p>
+                                                <div className="flex items-center gap-1.5 pt-1">
+                                                    <div className="w-5 h-5 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100">
+                                                        <MapPin className="w-3 h-3 text-slate-400" />
+                                                    </div>
+                                                    <span className="text-[9px] font-bold text-slate-400 truncate">{activity.address}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </Card>

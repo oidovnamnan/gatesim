@@ -40,15 +40,24 @@ export async function POST(request: NextRequest) {
             detailPrompt = ` Consider the general trip context: ${allDetails}.`;
         }
 
-        const systemPrompt = `You are a travel database explorer. Return a JSON list of 5 REAL-WORLD ${type}s in ${city || destination}.
+        const itemCount = type === 'hotel' ? 5 : 10;
+
+        const systemPrompt = `You are a professional travel database explorer. Return a JSON list of ${itemCount} REAL-WORLD ${type}s in ${city || destination}.
     
     ${type === 'hotel' ? 'Ensure they match the budget level: ' + budget + '. ' + filterPrompt : ''}
     ${purposes ? 'Consider the trip purposes: ' + purposes + '.' : ''}
     ${detailPrompt}
 
+    CATEGORY GUIDELINES:
+    - attraction: Find unique, must-visit spots including hidden gems.
+    - shopping: If purpose is procurement, find wholesale markets, industrial zones, or trade centers. If leisure, find luxury malls or local markets.
+    - medical: Find top-rated hospitals or clinics relevant to the user's needs.
+    - dining: Find highly-rated restaurants from local specialties to fine dining.
+
     CRITICAL: 
     - Return ONLY valid JSON.
-    - Include REAL names, approximate price, and a short justification.
+    - Descriptions must be VERY DETAILED (at least 2-3 sentences) explaining why this is relevant to the user's purpose: "${purposes}".
+    - Include REAL names, approximate price, and a compelling justification.
     - Include a Booking.com search URL for each entry if applicable.
     - Include a high-quality "imageUrl" for each entry. Use valid, photographic Unsplash URLs (e.g. https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800).
     - For hotels, include "distanceFromAirport" (e.g. "12 km from Pudong Airport").
@@ -59,8 +68,8 @@ export async function POST(request: NextRequest) {
         {
           "id": "1",
           "name": "Exact Name",
-          "description": "Short description",
-          "price": "approx price (e.g. $120)",
+          "description": "Very detailed description related to user purpose",
+          "price": "approx price or 'Varies'",
           "rating": 4.5,
           "address": "Street address",
           "bookingUrl": "Direct search URL",
@@ -75,7 +84,7 @@ export async function POST(request: NextRequest) {
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Find 5 ${type}s in ${city || destination}.` },
+                { role: "user", content: `Find ${itemCount} ${type}s in ${city || destination}. Focus heavily on the user's purpose: ${purposes}.` },
             ],
             response_format: { type: "json_object" },
         });
