@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, city, purposes, budget, type, filters, medicalDetail, businessDetail } = await request.json();
+        const { destination, city, purposes, budget, type, filters, purposeDetails } = await request.json();
 
         if (!destination || !type) {
             return NextResponse.json(
@@ -28,8 +28,17 @@ export async function POST(request: NextRequest) {
 
         // --- Detailed Purpose Context ---
         let detailPrompt = '';
-        if (type === 'medical' && medicalDetail) detailPrompt = ` Focus on facilities relevant to: ${medicalDetail}.`;
-        if (type === 'business' && businessDetail) detailPrompt = ` Focus on spots relevant to: ${businessDetail}.`;
+        // Use the specific detail for the current discovery type if available
+        const currentDetail = purposeDetails?.[type];
+        if (currentDetail) {
+            detailPrompt = ` CRITICAL: The user has specified a specific need for this ${type}: "${currentDetail}". Priority #1 is to find results matching this exact description (e.g., if it says furniture, find spots near furniture markets).`;
+        } else if (purposeDetails) {
+            // Otherwise, provide a general context of all details
+            const allDetails = Object.entries(purposeDetails)
+                .map(([id, val]) => `${id}: ${val}`)
+                .join(", ");
+            detailPrompt = ` Consider the general trip context: ${allDetails}.`;
+        }
 
         const systemPrompt = `You are a travel database explorer. Return a JSON list of 5 REAL-WORLD ${type}s in ${city || destination}.
     

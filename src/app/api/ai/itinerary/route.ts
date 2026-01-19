@@ -45,8 +45,7 @@ export async function POST(request: NextRequest) {
       destination,
       duration,
       purposes,
-      medicalDetail,
-      businessDetail,
+      purposeDetails,
       budget,
       language,
       city,
@@ -69,8 +68,8 @@ export async function POST(request: NextRequest) {
     const purposeList = (purposes || "").split(",").map((p: string) => p.trim());
     const purposeDescList = purposeList.map((p: string) => {
       let desc = purposeDescriptions[p] || p;
-      if (p === 'medical' && medicalDetail) desc += ` (${medicalDetail})`;
-      if (p === 'business' && businessDetail) desc += ` (${businessDetail})`;
+      const detail = purposeDetails?.[p];
+      if (detail) desc += ` (Specific User Need: ${detail})`;
       return desc;
     });
     const purposeDesc = purposeDescList.length > 1

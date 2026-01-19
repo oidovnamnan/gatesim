@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, purposes, medicalDetail, businessDetail } = await request.json();
+        const { destination, purposes, details } = await request.json();
 
         if (!destination) {
             return NextResponse.json({ success: false, error: "Destination is required" }, { status: 400 });
@@ -32,12 +32,15 @@ export async function POST(request: NextRequest) {
 
         const systemPrompt = `You are a travel expert specializing in ${countryName}. 
         Suggest the top 3-4 most suitable cities in ${countryName} for a trip with the following criteria:
-        - Purposes: ${purposes}
-        - Medical Details: ${medicalDetail || 'N/A'}
-        - Business Details: ${businessDetail || 'N/A'}
+        - Main Purposes: ${purposes}
+        - User's Specific Needs/Details: ${details || 'N/A'}
 
-        CRITICAL: If the business detail is "furniture" (тавилга in Mongolian), suggest Foshan or Guangzhou in China.
-        Return a JSON object with a list of cities. Each city should have a name (in English and Mongolian) and a short reason why it matches the criteria.
+        CRITICAL LOGIC:
+        1. If the user mentions "furniture" (тавилга), "market", or "wholesale" in the details for China (CN), MUST suggest Foshan or Guangzhou.
+        2. If the user mentions specific medical procedures, suggest cities with top-tier specialized hospitals (e.g., Seoul for Plastic Surgery/Health Screening, Bangkok for General Medical).
+        3. Match the city to the details provided. If details contradict the purpose (e.g., Medical purpose but detail is about shopping), prioritize the DETAIL over the high-level category name, but mention why in the reason.
+
+        Return a JSON object with a list of cities. Each city should have a name (in English and Mongolian) and a short reason why it matches the specific needs.
         
         Format:
         {
@@ -54,7 +57,7 @@ export async function POST(request: NextRequest) {
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Suggest cities in ${destination} for ${purposes}. Details: ${medicalDetail} ${businessDetail}` }
+                { role: "user", content: `Suggest cities in ${destination} for ${purposes}. Details: ${details}` }
             ],
             response_format: { type: "json_object" },
         });

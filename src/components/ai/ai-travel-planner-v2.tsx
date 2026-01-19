@@ -257,8 +257,7 @@ export default function AITravelPlannerV2() {
     const [calendarOpen, setCalendarOpen] = useState(false);
 
     // --- Purpose Details ---
-    const [medicalDetail, setMedicalDetail] = useState("");
-    const [businessDetail, setBusinessDetail] = useState("");
+    const [purposeDetails, setPurposeDetails] = useState<Record<string, string>>({});
     const [suggestedCities, setSuggestedCities] = useState<any[]>([]);
     const [isSuggestingCities, setIsSuggestingCities] = useState(false);
 
@@ -327,14 +326,19 @@ export default function AITravelPlannerV2() {
         if (!destination || (purposes.length === 0)) return;
         setIsSuggestingCities(true);
         try {
+            // Combine all purpose details into one string for the API
+            const combinedDetails = Object.entries(purposeDetails)
+                .filter(([id, val]) => purposes.includes(id) && val.length > 0)
+                .map(([id, val]) => `${id}: ${val}`)
+                .join(", ");
+
             const res = await fetch("/api/ai/suggest-cities", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     destination,
                     purposes: purposes.join(", "),
-                    medicalDetail,
-                    businessDetail
+                    details: combinedDetails
                 }),
             });
             const data = await res.json();
@@ -351,12 +355,13 @@ export default function AITravelPlannerV2() {
     // Trigger suggestion when details change and cities are few
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (selectedCities.length === 0 && destination && (medicalDetail.length > 3 || businessDetail.length > 3)) {
+            const hasEnoughDetail = Object.values(purposeDetails).some(v => v.length > 2);
+            if (selectedCities.length === 0 && destination && (purposes.length > 0 || hasEnoughDetail)) {
                 fetchCitySuggestions();
             }
         }, 800);
         return () => clearTimeout(timer);
-    }, [medicalDetail, businessDetail, destination, purposes, selectedCities.length]);
+    }, [purposeDetails, destination, purposes, selectedCities.length]);
 
     // --- Helpers ---
     const togglePurpose = (id: string) => {
@@ -378,8 +383,7 @@ export default function AITravelPlannerV2() {
                     budget,
                     type,
                     filters: type === 'hotel' ? { hotelStars, hotelArea } : undefined,
-                    medicalDetail: purposes.includes('medical') ? medicalDetail : undefined,
-                    businessDetail: purposes.includes('business') ? businessDetail : undefined
+                    purposeDetails
                 }),
             });
             const data = await res.json();
@@ -424,8 +428,7 @@ export default function AITravelPlannerV2() {
                     destination,
                     cityRoute,
                     purposes: purposes.join(", "),
-                    medicalDetail,
-                    businessDetail,
+                    purposeDetails,
                     budget,
                     startDate,
                     duration,
@@ -585,46 +588,70 @@ export default function AITravelPlannerV2() {
                                 </div>
                             </Card>
 
-                            <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
+                            <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Зорилго" : "Purposes"}</label>
-                                <div className="grid grid-cols-1 gap-3">
+                                <div className="grid grid-cols-1 gap-4">
                                     {tripPurposes.map((p) => {
                                         const Icon = p.icon;
                                         const isSelected = purposes.includes(p.id);
                                         return (
-                                            <button
-                                                key={p.id}
-                                                onClick={() => togglePurpose(p.id)}
-                                                className={cn(
-                                                    "p-4 rounded-2xl border-2 transition-all flex items-start gap-4 text-left",
-                                                    isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 hover:bg-slate-50"
-                                                )}
-                                            >
-                                                <div className={cn(
-                                                    "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                                                    isSelected ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-400"
-                                                )}>
-                                                    <Icon className="w-5 h-5" />
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className={cn("text-sm font-black", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
-                                                        {isMongolian ? p.label.mn : p.label.en}
-                                                    </p>
-                                                    <p className="text-[10px] font-medium leading-relaxed opacity-80 line-clamp-1">
-                                                        {isMongolian ? p.desc.mn : p.desc.en}
-                                                    </p>
-                                                </div>
-                                                {isSelected && <Check className="w-4 h-4 text-emerald-600 ml-auto shrink-0 mt-1" />}
-                                            </button>
+                                            <div key={p.id} className="space-y-3">
+                                                <button
+                                                    onClick={() => togglePurpose(p.id)}
+                                                    className={cn(
+                                                        "w-full p-4 rounded-2xl border-2 transition-all flex items-start gap-4 text-left group",
+                                                        isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md shadow-emerald-50/50" : "border-slate-50 text-slate-400 hover:border-slate-100 hover:bg-slate-50"
+                                                    )}
+                                                >
+                                                    <div className={cn(
+                                                        "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
+                                                        isSelected ? "bg-emerald-600 text-white scale-110 shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
+                                                    )}>
+                                                        <Icon className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="space-y-0.5 flex-1">
+                                                        <p className={cn("text-sm font-black transition-colors", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
+                                                            {isMongolian ? p.label.mn : p.label.en}
+                                                        </p>
+                                                        <p className="text-[10px] font-medium leading-relaxed opacity-80 line-clamp-1">
+                                                            {isMongolian ? p.desc.mn : p.desc.en}
+                                                        </p>
+                                                    </div>
+                                                    {isSelected && <Check className="w-4 h-4 text-emerald-600 ml-auto shrink-0 mt-1" />}
+                                                </button>
+
+                                                <AnimatePresence>
+                                                    {isSelected && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            className="overflow-hidden px-1"
+                                                        >
+                                                            <div className="space-y-2 p-4 bg-white border border-emerald-100 rounded-2xl shadow-inner">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <Sparkles className="w-3 h-3 text-emerald-500" />
+                                                                    <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">
+                                                                        {isMongolian ? `${p.label.mn} хэрэгцээ` : `${p.label.en} Needs`}
+                                                                    </label>
+                                                                </div>
+                                                                <Textarea
+                                                                    placeholder={isMongolian ? `Жишээ нь: ${p.id === 'medical' ? 'Гоо сайхны хагалгаа' : p.id === 'business' ? 'Тавилга сонирхох' : p.id === 'family' ? 'Хүүхдийн парк' : 'Таны тусгай хэрэгцээ...'}` : `e.g. Specific details for ${p.label.en.toLowerCase()}...`}
+                                                                    value={purposeDetails[p.id] || ""}
+                                                                    onChange={(e) => setPurposeDetails(prev => ({ ...prev, [p.id]: e.target.value }))}
+                                                                    className="min-h-[80px] bg-slate-50 border-none rounded-xl text-xs font-medium placeholder:text-slate-300 focus-visible:ring-emerald-500 resize-none"
+                                                                />
+                                                                <p className="text-[9px] text-slate-400 italic">
+                                                                    {isMongolian ? "* AI таны тайлбарт тохирсон хот, газруудыг санал болгоно." : "* AI will suggest cities and spots matching your description."}
+                                                                </p>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
                                         );
                                     })}
                                 </div>
-                                {purposes.includes('medical') && (
-                                    <Input placeholder={isMongolian ? "Эмчилгээний дэлгэрэнгүй" : "Medical Details"} value={medicalDetail} onChange={(e) => setMedicalDetail(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-50" />
-                                )}
-                                {purposes.includes('business') && (
-                                    <Input placeholder={isMongolian ? "Бизнесийн дэлгэрэнгүй" : "Business Details"} value={businessDetail} onChange={(e) => setBusinessDetail(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-50" />
-                                )}
                             </Card>
                         </div>
 
@@ -677,6 +704,55 @@ export default function AITravelPlannerV2() {
                                         <div className="flex gap-2 animate-in slide-in-from-top-4 duration-300">
                                             <Input autoFocus placeholder={isMongolian ? "Хотын нэр?" : "City Name?"} value={customCityInput} onChange={(e) => setCustomCityInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addCity(customCityInput)} className="h-14 rounded-2xl bg-slate-50 border-slate-100" />
                                             <Button onClick={() => addCity(customCityInput)} className="h-14 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black">Нэмэх</Button>
+                                        </div>
+                                    )}
+
+                                    {/* AI Suggested Cities */}
+                                    {(isSuggestingCities || suggestedCities.length > 0) && (
+                                        <div className="space-y-3 pt-2">
+                                            <div className="flex items-center gap-2 px-1">
+                                                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                                                </div>
+                                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                                                    {isMongolian ? "AI-ийн санал болгож буй хотууд" : "AI Suggested Cities"}
+                                                </h4>
+                                            </div>
+
+                                            {isSuggestingCities ? (
+                                                <div className="flex gap-2 overflow-x-auto pb-1">
+                                                    {[1, 2, 3].map(i => <div key={i} className="h-12 w-32 bg-slate-50 animate-pulse rounded-xl shrink-0" />)}
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {suggestedCities.map((c) => (
+                                                        <button
+                                                            key={c.name}
+                                                            onClick={() => addCity(c.name)}
+                                                            disabled={selectedCities.includes(c.name)}
+                                                            className={cn(
+                                                                "group text-left px-4 py-3 rounded-2xl border-2 transition-all max-w-[200px] relative",
+                                                                selectedCities.includes(c.name)
+                                                                    ? "border-emerald-100 bg-emerald-50 opacity-40 grayscale cursor-not-allowed"
+                                                                    : "border-slate-50 bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50"
+                                                            )}
+                                                        >
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="text-xs font-black text-slate-900 truncate pr-2">{isMongolian ? c.nameMn : c.name}</span>
+                                                                <Plus className="w-3 h-3 text-emerald-500 shrink-0" />
+                                                            </div>
+                                                            <p className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-2 italic">
+                                                                {c.reason}
+                                                            </p>
+                                                            {selectedCities.includes(c.name) && (
+                                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                                    <Check className="w-5 h-5 text-emerald-600" />
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
