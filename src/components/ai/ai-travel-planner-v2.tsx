@@ -760,31 +760,76 @@ export default function AITravelPlannerV2() {
                                         </div>
                                     )}
 
-                                    <div className="space-y-8 pt-4">
-                                        {cityRoute.map((c, idx) => (
-                                            <div key={idx} className="relative pl-12">
-                                                {idx < cityRoute.length - 1 && (
-                                                    <div className="absolute left-[19px] top-10 bottom-[-32px] w-0.5 bg-gradient-to-b from-emerald-500 to-emerald-100" />
-                                                )}
-                                                <div className="absolute left-0 top-0 w-10 h-10 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center z-10 shadow-sm">
-                                                    <span className="text-xs font-black text-emerald-600">{idx + 1}</span>
-                                                </div>
-                                                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-emerald-200 transition-all">
-                                                    <div>
-                                                        <h4 className="font-black text-slate-900">{c.name}</h4>
-                                                        <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-100 font-bold mt-1">{c.days} {isMongolian ? "хоног" : "days"}</Badge>
+                                    <div className="space-y-4 pt-4">
+                                        <div className="flex items-center gap-2 px-1 mb-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                                                {isMongolian ? "Аяллын дараалал" : "Trip Sequence"}
+                                            </span>
+                                        </div>
+                                        <div className="space-y-6">
+                                            {cityRoute.map((c, idx) => (
+                                                <motion.div
+                                                    key={c.name}
+                                                    layout
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="relative pl-12"
+                                                >
+                                                    {idx < cityRoute.length - 1 && (
+                                                        <div className="absolute left-[19px] top-10 bottom-[-32px] w-0.5 bg-gradient-to-b from-emerald-500 to-emerald-100" />
+                                                    )}
+                                                    <div className="absolute left-0 top-0 w-10 h-10 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center z-10 shadow-sm transition-transform group-hover:scale-110">
+                                                        <span className="text-xs font-black text-emerald-600">{idx + 1}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex bg-white rounded-xl border border-slate-100 p-1">
-                                                            <button onClick={() => updateCityDays(c.name, Math.max(1, c.days - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black">-</button>
-                                                            <div className="w-10 flex items-center justify-center font-black text-xs">{c.days}</div>
-                                                            <button onClick={() => updateCityDays(c.name, c.days + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black">+</button>
+
+                                                    {/* Route Step Label */}
+                                                    <div className="absolute -left-1 top-12 flex flex-col items-center gap-1 opacity-40">
+                                                        {idx === 0 ? (
+                                                            <span className="text-[7px] font-black text-emerald-600 uppercase tracking-tighter vertical-text">{isMongolian ? "Эхлэл" : "Start"}</span>
+                                                        ) : idx === cityRoute.length - 1 ? (
+                                                            <span className="text-[7px] font-black text-emerald-600 uppercase tracking-tighter vertical-text">{isMongolian ? "Очих" : "Dest"}</span>
+                                                        ) : (
+                                                            <div className="w-0.5 h-4 bg-emerald-200" />
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-emerald-200 hover:bg-white hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
+                                                        <div className="flex items-center gap-3">
+                                                            {/* Reordering Controls */}
+                                                            <div className="flex flex-col gap-1 -ml-1">
+                                                                <button
+                                                                    onClick={() => idx > 0 && reorderCities(idx, idx - 1)}
+                                                                    disabled={idx === 0}
+                                                                    className={cn("p-1.5 hover:bg-emerald-50 rounded-lg transition-all", idx === 0 ? "opacity-10 cursor-not-allowed" : "text-slate-300 hover:text-emerald-600 active:scale-90")}
+                                                                >
+                                                                    <ChevronUp className="w-4 h-4" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => idx < cityRoute.length - 1 && reorderCities(idx, idx + 1)}
+                                                                    disabled={idx === cityRoute.length - 1}
+                                                                    className={cn("p-1.5 hover:bg-emerald-50 rounded-lg transition-all", idx === cityRoute.length - 1 ? "opacity-10 cursor-not-allowed" : "text-slate-300 hover:text-emerald-600 active:scale-90")}
+                                                                >
+                                                                    <ChevronDown className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="font-black text-slate-900 leading-none">{c.name}</h4>
+                                                                <Badge variant="outline" className="bg-white text-emerald-600 border-emerald-100 font-bold mt-1.5 text-[10px] py-0 px-2 h-5">{c.days} {isMongolian ? "хоног" : "days"}</Badge>
+                                                            </div>
                                                         </div>
-                                                        <button onClick={() => removeCity(c.name)} className="p-2 hover:bg-red-50 hover:text-red-600 text-slate-300 rounded-xl transition-colors"><X className="w-5 h-5" /></button>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex bg-white rounded-xl border border-slate-100 p-1 shadow-sm">
+                                                                <button onClick={() => updateCityDays(c.name, Math.max(1, c.days - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black transition-colors">-</button>
+                                                                <div className="w-10 flex items-center justify-center font-black text-xs text-slate-700">{c.days}</div>
+                                                                <button onClick={() => updateCityDays(c.name, c.days + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-lg text-slate-400 font-black transition-colors">+</button>
+                                                            </div>
+                                                            <button onClick={() => removeCity(c.name)} className="p-2.5 hover:bg-red-50 hover:text-red-600 text-slate-300 rounded-xl transition-all active:scale-90"><X className="w-5 h-5" /></button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                                </motion.div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </Card>
                             </div>

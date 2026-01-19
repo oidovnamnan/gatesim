@@ -146,6 +146,11 @@ body {
   scrollbar-width: none;
 }
 
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
 /* Horizontal scroll snap */
 .scroll-snap-x {
   scroll-snap-type: x mandatory;
