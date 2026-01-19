@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { getGroundingContext } from "@/lib/ai/itinerary-grounding";
+import { countryInfoDatabase } from "@/data/country-info";
+import { airalo } from "@/services/airalo";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -115,6 +117,49 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // --- Factual Visa Data for Mongolian citizens ---
+    const countrySlugMap: Record<string, string> = {
+      JP: "japan",
+      KR: "south-korea",
+      TH: "thailand",
+      CN: "china",
+    };
+    const targetSlug = countrySlugMap[destination];
+    const factualInfo = targetSlug ? countryInfoDatabase[targetSlug] : null;
+    const visaData = factualInfo?.visaRequirement;
+
+    const visaInstruction = visaData
+      ? `You MUST state that for Mongolian citizens, the visa requirement is: ${visaData.type}. Details: ${visaData.details}. ${isMongolian ? `(In Mongolian: ${visaData.detailsMn})` : ""}`
+      : "Provide general visa information for Mongolian citizens based on common knowledge (e.g. China is 30 days visa-free, Thailand is 30 days visa-free).";
+
+    // --- Real eSIM Recommendations ---
+    let esimContext = "";
+    try {
+      const airaloSlugMap: Record<string, string> = {
+        JP: "japan",
+        KR: "south-korea",
+        TH: "thailand",
+        CN: "china",
+        SG: "singapore",
+        US: "united-states",
+      };
+      const airaloSlug = airaloSlugMap[destination] || destination.toLowerCase();
+      const resVal = await airalo.getCountryPackages(airaloSlug);
+      const packages = resVal.data.slice(0, 3).map(pkg => ({
+        id: pkg.package_id,
+        name: pkg.title,
+        data: pkg.data,
+        validity: pkg.day,
+        price: pkg.price
+      }));
+
+      if (packages.length > 0) {
+        esimContext = `Here are the REAL GateSIM eSIM packages available for this trip: ${JSON.stringify(packages)}. Pick the most suitable one and explain why in the 'esimRecommendation' field.`;
+      }
+    } catch (e) {
+      console.error("Airalo fetch failed for itinerary:", e);
+    }
+
     const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries for Mongolian travelers.
     
     ${purposeDescriptions[purposes] || purposes.includes('medical') || purposes.includes('business') || purposes.includes('education') ? `
@@ -124,11 +169,6 @@ export async function POST(request: NextRequest) {
     - **Medical:** Focus on hospital directions, pharmacy proximity, recovery/rest time between appointments, and ease of transport for patients.
     - **Education:** Include university/college visits, student life orientation, and campus-related logistics.
     ` : ''}
-
-**USER SELECTIONS (PRIORITY):**
-- **City Sequence & Duration:** ${cityRoute ? JSON.stringify(cityRoute) : city} (FOLLOW THIS EXACT SEQUENCE AND DAYS PER CITY).
-- **Selected Hotels per City:** ${selectedHotels ? JSON.stringify(selectedHotels) : 'Any suitable 4-star hotels'} (MUST USE these exact hotels for the respective cities).
-- **Selected Activities/Places:** ${selectedActivities ? JSON.stringify(selectedActivities) : 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
 
 **TRIP PREFERENCES:**
 - **Origin:** Ulaanbaatar, Mongolia (All trips start here)
@@ -141,6 +181,15 @@ export async function POST(request: NextRequest) {
   - **International:** ${intlTransport || 'Flight'} (UB to ${countryName})
   - **Inter-city:** ${interCityTransport || 'High-speed Train'} (Between cities)
   - **Inner-city:** ${innerCityTransport || 'Public Transport'} (Within cities)
+
+**VISA & CONNECTIVITY (FACTUAL):**
+- ${visaInstruction}
+- ${esimContext || 'Recommend a generic local eSIM if no specific packages found.'}
+
+**USER SELECTIONS (PRIORITY):**
+- **City Sequence & Duration:** ${cityRoute ? JSON.stringify(cityRoute) : city} (FOLLOW THIS EXACT SEQUENCE AND DAYS PER CITY).
+- **Selected Hotels per City:** ${selectedHotels ? JSON.stringify(selectedHotels) : 'Any suitable 4-star hotels'} (MUST USE these exact hotels for the respective cities).
+- **Selected Activities/Places:** ${selectedActivities ? JSON.stringify(selectedActivities) : 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
 
 ${transportLogic}
 

@@ -346,6 +346,11 @@ export default function AITravelPlannerV2() {
         setCityRoute(newRoute);
     }, [selectedCities, duration]);
 
+    // --- Premium UX: Scroll to Top on Step/City transitions ---
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [step, activeCityTab]);
+
     // --- Suggest Cities ---
     const fetchCitySuggestions = async () => {
         if (!destination || (purposes.length === 0)) return;

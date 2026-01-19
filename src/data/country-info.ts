@@ -46,6 +46,12 @@ export interface CountryInfo {
         coverage: string;
         speed: string;
     };
+    visaRequirement?: {
+        needed: boolean;
+        type: string;
+        details: string;
+        detailsMn: string;
+    };
 }
 
 export const countryInfoDatabase: Record<string, CountryInfo> = {
@@ -140,6 +146,12 @@ export const countryInfoDatabase: Record<string, CountryInfo> = {
             coverage: "99% хотод, 95% хөдөө",
             speed: "4G/LTE 50-150 Mbps, 5G бэлэн",
         },
+        visaRequirement: {
+            needed: false,
+            type: "Visa-free",
+            details: "Mongolian citizens can visit Japan visa-free for up to 30 days.",
+            detailsMn: "Монгол улсын иргэд Япон улс руу 30 хоног хүртэл визгүй зорчих боломжтой."
+        }
     },
 
     "south-korea": {
@@ -224,6 +236,12 @@ export const countryInfoDatabase: Record<string, CountryInfo> = {
             coverage: "99%+ бүх газар",
             speed: "4G 100+ Mbps, 5G 500+ Mbps",
         },
+        visaRequirement: {
+            needed: true,
+            type: "K-ETA / Visa",
+            details: "Mongolian citizens need a K-ETA (Electronic Travel Authorization) or a regular visa depending on the purpose of visit.",
+            detailsMn: "Монгол улсын иргэд K-ETA (Цахим зөвшөөрөл) эсвэл зорилгоосоо хамааран виз авах шаардлагатай."
+        }
     },
 
     thailand: {
@@ -314,6 +332,83 @@ export const countryInfoDatabase: Record<string, CountryInfo> = {
             coverage: "95% хотод, 80% арлуудад",
             speed: "4G 20-50 Mbps",
         },
+        visaRequirement: {
+            needed: false,
+            type: "Visa-free",
+            details: "Mongolian citizens can visit Thailand visa-free for up to 30 days.",
+            detailsMn: "Монгол улсын иргэд Тайланд улс руу 30 хоног хүртэл визгүй зорчих боломжтой."
+        }
+    },
+    china: {
+        slug: "china",
+        name: "China",
+        nameMn: "Хятад",
+        flag: "🇨🇳",
+        capital: "Beijing",
+        currency: "Chinese Yuan",
+        currencySymbol: "¥",
+        language: "Chinese",
+        timezone: "CST (UTC+8)",
+        emergencyNumbers: {
+            police: "110",
+            ambulance: "120",
+            fire: "119",
+            tourist: "12301",
+        },
+        transport: [
+            {
+                type: "train",
+                name: "High-speed Rail (CRH)",
+                description: "Дэлхийн хамгийн хурдан галт тэрэгний сүлжээ",
+                app: "Trip.com / 12306",
+                priceRange: "¥200-600 (Хот хооронд)",
+                tips: [
+                    "Тасалбараа урьдчилж захиалах шаардлагатай",
+                    "Паспортоо заавал авч яваарай",
+                ],
+            },
+            {
+                type: "app",
+                name: "DiDi",
+                description: "Такси дуудах үндсэн апп",
+                app: "DiDi Global",
+                priceRange: "¥10+ эхлэх үнэ",
+                tips: [
+                    "DiDi Global-ыг англи хэл дээр ашиглаж болно",
+                    "Alipay эсвэл WeChat-тай холбоорой",
+                ],
+            },
+        ],
+        tips: [
+            {
+                category: "money",
+                title: "Alipay / WeChat Pay",
+                description: "Хятадад бэлэн мөнгө бараг ашигладаггүй. Alipay-д Монгол картаа холбож болно.",
+                icon: "📲",
+            },
+            {
+                category: "connectivity",
+                title: "VPN шаардлагагүй",
+                description: "GateSIM ашиглавал Google, Facebook, YouTube хэвийн ажиллана. VPN хэрэггүй.",
+                icon: "🛡️",
+            },
+        ],
+        phrases: [
+            { phrase: "Ni hao", meaning: "Сайн байна уу", pronunciation: "Ни хао" },
+            { phrase: "Xie xie", meaning: "Баярлалаа", pronunciation: "Шиэ шиэ" },
+            { phrase: "Duo shao qian?", meaning: "Энэ хэд вэ?", pronunciation: "Дуо шао чиэн?" },
+        ],
+        simInfo: {
+            networks: ["China Mobile", "China Unicom", "China Telecom"],
+            coverage: "99% хотод",
+            speed: "4G/5G 100+ Mbps",
+        },
+        visaRequirement: {
+            needed: false,
+            type: "Visa-free",
+            details: "Mongolian citizens can visit China visa-free for up to 30 days.",
+            detailsMn: "Монгол улсын иргэд Хятад улс руу 30 хоног хүртэл визгүй зорчих боломжтой."
+        }
     },
 };
 
