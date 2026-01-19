@@ -7,11 +7,15 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, purposes, details, currentCity, chinaDistance } = await request.json();
+        const { destination, purposes, details, currentCity, chinaDistance, travelers } = await request.json();
 
         if (!destination) {
             return NextResponse.json({ success: false, error: "Destination is required" }, { status: 400 });
         }
+
+        const travelersStr = travelers
+            ? `${travelers.adults} adults${travelers.children > 0 ? `, ${travelers.children} children` : ''}`
+            : 'single traveler';
 
         const countryNames: Record<string, string> = {
             "CN": "China",
@@ -43,6 +47,7 @@ export async function POST(request: NextRequest) {
 
         const systemPrompt = `You are a travel expert specializing in ${countryName}. 
         Suggest the top 3-4 most suitable cities in ${countryName} for a trip with the following criteria:
+        - Travelers: ${travelersStr}
         - Main Purposes: ${purposes}
         - User's Specific Needs/Details: ${details || 'N/A'}
         ${currentCity ? `- Starting from/Relative to: ${currentCity}` : ''}
@@ -50,7 +55,7 @@ export async function POST(request: NextRequest) {
 
         CRITICAL LOGIC:
         1. If the user mentions "furniture" (тавилга), "market", or "wholesale" in the details for China (CN), MUST suggest Foshan or Guangzhou (even if distance is 'near', suggest them but mention they are far).
-        2. If the user mentions specific medical procedures, suggest cities with top-tier specialized hospitals.
+        2. If children are traveling, prioritize family-friendly cities with safe infrastructure and parks.
         3. Match the city to the details provided.
         4. DISTANCE: Provide approximate distance in km from Ulaanbaatar.
 
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Suggest cities in ${destination} for ${purposes}. Details: ${details}. Distance Preference: ${chinaDistance || 'any'}` }
+                { role: "user", content: `Suggest cities in ${destination} for ${purposes}. Details: ${details}. Travelers: ${travelersStr}. Distance Preference: ${chinaDistance || 'any'}` }
             ],
             response_format: { type: "json_object" },
         });

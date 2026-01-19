@@ -37,6 +37,7 @@ import {
     Stethoscope,
     GraduationCap,
     Plus,
+    Minus,
     Briefcase,
     Palmtree,
     Mountain,
@@ -264,6 +265,8 @@ export default function AITravelPlannerV2() {
     const [duration, setDuration] = useState(5);
     const [purposes, setPurposes] = useState<string[]>([]);
     const [budget, setBudget] = useState("mid");
+    const [adults, setAdults] = useState(1);
+    const [children, setChildren] = useState(0);
     const [chinaDistance, setChinaDistance] = useState("far"); // Default for China: Far (Guangzhou/Shanghai)
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [city, setCity] = useState(""); // Current selection in dropdown
@@ -361,7 +364,8 @@ export default function AITravelPlannerV2() {
                     purposes: purposes.join(", "),
                     details: combinedDetails,
                     currentCity: lastCity,
-                    chinaDistance: destination === 'CN' ? chinaDistance : undefined
+                    chinaDistance: destination === 'CN' ? chinaDistance : undefined,
+                    travelers: { adults, children }
                 }),
             });
             const data = await res.json();
@@ -406,7 +410,8 @@ export default function AITravelPlannerV2() {
                     budget,
                     type,
                     filters: type === 'hotel' ? { hotelStars, hotelArea } : undefined,
-                    purposeDetails
+                    purposeDetails,
+                    travelers: { adults, children }
                 }),
             });
             const data = await res.json();
@@ -457,7 +462,8 @@ export default function AITravelPlannerV2() {
                     duration,
                     transportMode,
                     selectedHotels,
-                    selectedActivities
+                    selectedActivities,
+                    travelers: { adults, children }
                 }),
             });
             const data = await res.json();
@@ -681,6 +687,35 @@ export default function AITravelPlannerV2() {
                                         </div>
                                     </div>
                                 )}
+
+                                <div className="space-y-3 pt-4 border-t border-slate-100">
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Аялагчид" : "Travelers"}</label>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-slate-400">{isMongolian ? "Том хүн" : "Adults"}</span>
+                                                <span className="text-lg font-black text-slate-900">{adults}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-white shadow-sm border border-slate-100 text-slate-600" onClick={() => setAdults(Math.max(1, adults - 1))}><Minus className="w-3 h-3" /></Button>
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-white shadow-sm border border-slate-100 text-slate-600" onClick={() => setAdults(Math.min(10, adults + 1))}><Plus className="w-3 h-3" /></Button>
+                                            </div>
+                                        </div>
+                                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-slate-400">{isMongolian ? "Хүүхэд" : "Children"}</span>
+                                                <span className="text-lg font-black text-slate-900">{children}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-white shadow-sm border border-slate-100 text-slate-600" onClick={() => setChildren(Math.max(0, children - 1))}><Minus className="w-3 h-3" /></Button>
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-white shadow-sm border border-slate-100 text-slate-600" onClick={() => setChildren(Math.min(10, children + 1))}><Plus className="w-3 h-3" /></Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 font-medium px-1">
+                                        {isMongolian ? "* Зардлын тооцоололд аялагчдын тоо шууд нөлөөлнө" : "* Budget will be calculated based on the number of travelers"}
+                                    </p>
+                                </div>
                             </Card>
 
                             <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">

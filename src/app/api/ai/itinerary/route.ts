@@ -53,7 +53,8 @@ export async function POST(request: NextRequest) {
       cityRoute,
       transportMode,
       selectedHotels,
-      selectedActivities
+      selectedActivities,
+      travelers
     } = await request.json();
 
     if (!destination || !duration) {
@@ -62,6 +63,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const travelersStr = travelers
+      ? `${travelers.adults} adults${travelers.children > 0 ? `, ${travelers.children} children` : ''}`
+      : 'single traveler';
 
     const countryName = countryNames[destination]?.[language === "mn" ? "mn" : "en"] || destination;
 
@@ -126,6 +131,7 @@ export async function POST(request: NextRequest) {
 **TRIP PREFERENCES:**
 - **Origin:** Ulaanbaatar, Mongolia (All trips start here)
 - **Destination:** ${countryName}
+- **Travelers:** ${travelersStr}
 - **Duration:** ${duration} days
 - **Purpose:** ${purposeDesc}
 - **Budget Level:** ${budget} (${dailyBudget} daily expenses + International Transport). ${budgetInstruction}
@@ -139,9 +145,9 @@ ${groundingContext}
 1. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements (trains/flights) between cities on the transition days.
 2. **Accommodation**: Use the specific hotels provided in "Selected Hotels per City" for the days the traveler is in that city.
 3. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
-4. **Total Budget**: MUST be calculated in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
+4. **Total Budget**: MUST be calculated for ALL ${travelersStr} in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
    - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
-   - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket) + Accommodation + Daily expenses.
+   - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket for EVERY traveler) + Accommodation (appropriate for ${travelersStr}) + Daily expenses for everyone.
 5. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
 6. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
 
