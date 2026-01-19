@@ -143,11 +143,11 @@ ${groundingContext}
 
 **CRITICAL INSTRUCTIONS:**
 1. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements (trains/flights) between cities on the transition days.
-2. **Accommodation**: Use the specific hotels provided in "Selected Hotels per City" for the days the traveler is in that city.
+2. **Accommodation**: Use the specific hotels provided. If a hotel name is "Өөрийн сонголт" or "My own choice", explicitly state that the traveler will arrange their own accommodation in that city.
 3. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
 4. **Total Budget**: MUST be calculated for ALL ${travelersStr} in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
    - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
-   - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket for EVERY traveler) + Accommodation (appropriate for ${travelersStr}) + Daily expenses for everyone.
+   - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket for EVERY traveler) + Accommodation (appropriate for ${travelersStr}, or $0 if "My own choice" is selected) + Daily expenses for everyone.
 5. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
 6. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
 

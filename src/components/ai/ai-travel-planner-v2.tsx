@@ -46,6 +46,7 @@ import {
     Landmark,
     Ticket,
     Package,
+    User,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1083,6 +1084,39 @@ export default function AITravelPlannerV2() {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Custom Choice Card */}
+                                <Card
+                                    className={cn(
+                                        "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative flex flex-col items-center justify-center p-6 text-center h-full min-h-[200px]",
+                                        selectedHotels[activeCityTab]?.id === 'custom' ? "border-emerald-500 bg-emerald-50" : "border-slate-100 bg-slate-50/50 hover:border-emerald-200"
+                                    )}
+                                    onClick={() => setSelectedHotels(prev => ({
+                                        ...prev,
+                                        [activeCityTab]: {
+                                            id: 'custom',
+                                            name: isMongolian ? 'Өөрийн сонголт' : 'My own choice',
+                                            description: isMongolian ? 'Би энэ хотод өөрийн буудалд байрлана.' : 'I will arrange my own accommodation in this city.',
+                                            price: 'N/A',
+                                            rating: 5,
+                                            imageUrl: 'https://images.unsplash.com/photo-1455587734955-081b22074882?auto=format&fit=crop&q=80&w=800'
+                                        }
+                                    }))}
+                                >
+                                    {selectedHotels[activeCityTab]?.id === 'custom' && (
+                                        <div className="absolute top-3 left-3 z-10 bg-emerald-600 text-white p-1 rounded-full shadow-lg border-2 border-white"><Check className="w-4 h-4" /></div>
+                                    )}
+                                    <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4 text-emerald-600 transition-transform group-hover:scale-110">
+                                        <User className="w-8 h-8" />
+                                    </div>
+                                    <h4 className="font-black text-slate-900 text-lg mb-2">{isMongolian ? 'Өөрийн сонголт' : 'My own choice'}</h4>
+                                    <p className="text-xs text-slate-500 font-medium">
+                                        {isMongolian ? 'Санал болгосон буудлыг сонгох шаардлагагүй. Би өөрөө буудлаа шийднэ.' : 'No need to pick from suggestions. I will handle my own stay.'}
+                                    </p>
+                                    <Badge variant="outline" className="mt-4 border-emerald-200 text-emerald-600 bg-white font-black uppercase text-[10px]">
+                                        {isMongolian ? 'Уян хатан' : 'Flexible'}
+                                    </Badge>
+                                </Card>
+
                                 {hotels.map((hotel: any) => (
                                     <Card
                                         key={hotel.id}
