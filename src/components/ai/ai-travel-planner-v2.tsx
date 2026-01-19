@@ -468,7 +468,9 @@ export default function AITravelPlannerV2() {
                 }),
             });
             const data = await res.json();
-            setItinerary(data);
+            if (data.itinerary) {
+                setItinerary(data.itinerary);
+            }
         } catch (error) {
             console.error("Finalization failed:", error);
         } finally {

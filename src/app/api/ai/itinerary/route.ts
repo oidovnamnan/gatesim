@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 **USER SELECTIONS (PRIORITY):**
 - **City Sequence & Duration:** ${cityRoute ? JSON.stringify(cityRoute) : city} (FOLLOW THIS EXACT SEQUENCE AND DAYS PER CITY).
 - **Selected Hotels per City:** ${selectedHotels ? JSON.stringify(selectedHotels) : 'Any suitable 4-star hotels'} (MUST USE these exact hotels for the respective cities).
-- **Selected Activities/Places:** ${selectedActivities || 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
+- **Selected Activities/Places:** ${selectedActivities ? JSON.stringify(selectedActivities) : 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
 
 **TRIP PREFERENCES:**
 - **Origin:** Ulaanbaatar, Mongolia (All trips start here)
@@ -192,7 +192,7 @@ ${groundingContext}
 Include 4-6 activities per day. Be specific with locations and costs.`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Create the itinerary now.` },
