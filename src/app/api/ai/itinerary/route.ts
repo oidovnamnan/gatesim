@@ -42,8 +42,9 @@ export async function POST(request: NextRequest) {
       budget,
       language,
       city,
+      cityRoute,
       transportMode,
-      selectedHotel,
+      selectedHotels,
       selectedActivities
     } = await request.json();
 
@@ -110,12 +111,13 @@ export async function POST(request: NextRequest) {
     ` : ''}
 
 **USER SELECTIONS (PRIORITY):**
-- **Selected Hotel:** ${selectedHotel || 'Any suitable 4-star hotel'} (MUST BE USED as the primary accommodation).
+- **City Sequence & Duration:** ${cityRoute ? JSON.stringify(cityRoute) : city} (FOLLOW THIS EXACT SEQUENCE AND DAYS PER CITY).
+- **Selected Hotels per City:** ${selectedHotels ? JSON.stringify(selectedHotels) : 'Any suitable 4-star hotels'} (MUST USE these exact hotels for the respective cities).
 - **Selected Activities/Places:** ${selectedActivities || 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
 
 **TRIP PREFERENCES:**
 - **Origin:** Ulaanbaatar, Mongolia (All trips start here)
-- **Destination:** ${countryName}${city ? ` (specifically: ${city})` : ''}
+- **Destination:** ${countryName}
 - **Duration:** ${duration} days
 - **Purpose:** ${purposeDesc}
 - **Budget Level:** ${budget} (${dailyBudget} daily expenses + International Transport). ${budgetInstruction}
@@ -126,13 +128,14 @@ ${transportLogic}
 ${groundingContext}
 
 **CRITICAL INSTRUCTIONS:**
-1. **Multi-City Logic**: If multiple cities are listed in the destination (${city}), you MUST plan movements between them (trains/flights) and allocate days reasonably to cover all of them.
-2. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
-3. **Total Budget**: MUST be calculated in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
+1. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements (trains/flights) between cities on the transition days.
+2. **Accommodation**: Use the specific hotels provided in "Selected Hotels per City" for the days the traveler is in that city.
+3. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific flight/train details to the destination.
+4. **Total Budget**: MUST be calculated in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
    - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
    - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket) + Accommodation + Daily expenses.
-4. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
-5. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
+5. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
+6. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
 
 **RESPONSE FORMAT (JSON):**
 {
