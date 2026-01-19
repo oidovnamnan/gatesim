@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Map,
@@ -1486,7 +1487,7 @@ export default function AITravelPlannerV2() {
                                     disabled={isDiscoveryLoading}
                                     className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center"
                                 >
-                                    {activeCityTab === cityRoute[cityRoute.length - 1]?.name
+                                    {cityRoute.length === 0 || activeCityTab === cityRoute[cityRoute.length - 1]?.name
                                         ? (isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan")
                                         : (isMongolian ? "Үргэлжлүүлэх" : "Continue")
                                     }
@@ -1573,8 +1574,12 @@ export default function AITravelPlannerV2() {
                                         <Card className="p-6 rounded-3xl bg-slate-900 text-white space-y-4">
                                             <h3 className="font-black text-lg flex items-center gap-2"><Smartphone className="w-5 h-5 text-emerald-400" />GateSIM eSIM</h3>
                                             <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
-                                                <p className="text-xs font-bold text-emerald-400 uppercase mb-1">{itinerary.esimRecommendation || "Travel Package"}</p>
-                                                <Button className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 font-black">Buy Now</Button>
+                                                <p className="text-xs font-bold text-emerald-400 uppercase mb-1">{itinerary.esimRecommendation || (isMongolian ? "Танд санал болгож буй багц" : "Recommended Package")}</p>
+                                                <Link href={`/packages?country=${destination}`}>
+                                                    <Button className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 font-black">
+                                                        {isMongolian ? "Багц сонгох" : "Choose Package"}
+                                                    </Button>
+                                                </Link>
                                             </div>
                                         </Card>
                                     </div>

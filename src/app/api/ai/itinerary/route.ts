@@ -261,15 +261,29 @@ Include 4-6 activities per day. Be specific with locations and costs.`;
 
     const content = completion.choices[0]?.message?.content || "";
 
-    // Parse JSON from response
+    // Parse JSON from response with higher resilience
     let itinerary;
     try {
-      // Extract JSON from potential markdown code blocks
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
+      // 1. Try to find JSON in markdown code blocks first
+      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
+      let jsonStr = jsonMatch ? jsonMatch[1].trim() : "";
+
+      // 2. Fallback: Find anything that looks like a JSON object if no code block
+      if (!jsonStr) {
+        const startBracket = content.indexOf('{');
+        const endBracket = content.lastIndexOf('}');
+        if (startBracket !== -1 && endBracket !== -1) {
+          jsonStr = content.substring(startBracket, endBracket + 1).trim();
+        }
+      }
+
+      // 3. Last fallback: use raw content
+      if (!jsonStr) jsonStr = content.trim();
+
       itinerary = JSON.parse(jsonStr);
     } catch (parseError) {
-      console.error("Failed to parse itinerary JSON:", parseError);
+      console.error("Failed to parse itinerary JSON. Raw content:", content);
+      console.error("Parse Error:", parseError);
       // Return a simple fallback itinerary
       itinerary = {
         destination,
