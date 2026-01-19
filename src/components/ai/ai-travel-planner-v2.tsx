@@ -519,9 +519,11 @@ export default function AITravelPlannerV2() {
                     <ArrowLeft className="w-6 h-6 text-slate-700" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                        <Sparkles className="w-6 h-6 text-emerald-500" />
-                        {isMongolian ? "Gate Аялал Төлөвлөгч" : "Gate Travel Planner"}
+                    <h1 className="text-2xl font-black flex items-center gap-2 whitespace-nowrap">
+                        <Sparkles className="w-6 h-6 text-emerald-500 shrink-0" />
+                        <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-600 bg-clip-text text-transparent">
+                            {isMongolian ? "Gate Аялал Төлөвлөгч" : "Gate Travel Planner"}
+                        </span>
                     </h1>
                     <p className="text-slate-500 text-sm">
                         {isMongolian ? "Дээд зэрэглэлийн нарийвчлалтай төлөвлөлт" : "Professional-grade precision planning"}
@@ -679,36 +681,6 @@ export default function AITravelPlannerV2() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-2 space-y-6">
                                 <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
-                                    <div className="flex gap-2">
-                                        <div className="flex-1">
-                                            {destination && CITY_SUGGESTIONS[destination] ? (
-                                                <Select value={city} onValueChange={(val) => { if (val === 'custom') setCity('custom'); else addCity(val); }}>
-                                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-bold">
-                                                        <SelectValue placeholder={isMongolian ? "Хот нэмэх" : "Add City"} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {CITY_SUGGESTIONS[destination].map((c) => (
-                                                            <SelectItem key={c.nameEn} value={c.nameEn}>{isMongolian ? c.name : c.nameEn}</SelectItem>
-                                                        ))}
-                                                        <SelectItem value="custom">{isMongolian ? "Өөр хот..." : "Other city..."}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            ) : (
-                                                <div className="flex gap-2">
-                                                    <Input placeholder={isMongolian ? "Хот оруулах" : "Enter City"} value={customCityInput} onChange={(e) => setCustomCityInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addCity(customCityInput)} className="h-14 rounded-2xl bg-slate-50 border-slate-100" />
-                                                    <Button onClick={() => addCity(customCityInput)} variant="outline" className="h-14 w-14 rounded-2xl border-slate-100"><Plus className="w-6 h-6" /></Button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {city === 'custom' && (
-                                        <div className="flex gap-2 animate-in slide-in-from-top-4 duration-300">
-                                            <Input autoFocus placeholder={isMongolian ? "Хотын нэр?" : "City Name?"} value={customCityInput} onChange={(e) => setCustomCityInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addCity(customCityInput)} className="h-14 rounded-2xl bg-slate-50 border-slate-100" />
-                                            <Button onClick={() => addCity(customCityInput)} className="h-14 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black">Нэмэх</Button>
-                                        </div>
-                                    )}
-
                                     {/* AI Suggested Cities */}
                                     {(isSuggestingCities || suggestedCities.length > 0) && (
                                         <div className="space-y-3 pt-2">
@@ -755,6 +727,36 @@ export default function AITravelPlannerV2() {
                                                     ))}
                                                 </div>
                                             )}
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-2">
+                                        <div className="flex-1">
+                                            {destination && CITY_SUGGESTIONS[destination] ? (
+                                                <Select value={city} onValueChange={(val) => { if (val === 'custom') setCity('custom'); else addCity(val); }}>
+                                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-bold">
+                                                        <SelectValue placeholder={isMongolian ? "Хот нэмэх" : "Add City"} />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {CITY_SUGGESTIONS[destination].map((c) => (
+                                                            <SelectItem key={c.nameEn} value={c.nameEn}>{isMongolian ? c.name : c.nameEn}</SelectItem>
+                                                        ))}
+                                                        <SelectItem value="custom">{isMongolian ? "Өөр хот..." : "Other city..."}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <Input placeholder={isMongolian ? "Хот оруулах" : "Enter City"} value={customCityInput} onChange={(e) => setCustomCityInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addCity(customCityInput)} className="h-14 rounded-2xl bg-slate-50 border-slate-100" />
+                                                    <Button onClick={() => addCity(customCityInput)} variant="outline" className="h-14 w-14 rounded-2xl border-slate-100"><Plus className="w-6 h-6" /></Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {city === 'custom' && (
+                                        <div className="flex gap-2 animate-in slide-in-from-top-4 duration-300">
+                                            <Input autoFocus placeholder={isMongolian ? "Хотын нэр?" : "City Name?"} value={customCityInput} onChange={(e) => setCustomCityInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addCity(customCityInput)} className="h-14 rounded-2xl bg-slate-50 border-slate-100" />
+                                            <Button onClick={() => addCity(customCityInput)} className="h-14 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black">Нэмэх</Button>
                                         </div>
                                     )}
 
