@@ -44,6 +44,7 @@ import {
     Heart,
     Landmark,
     Ticket,
+    Package,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -228,6 +229,7 @@ const tripPurposes = [
     { id: 'culture', icon: Landmark, label: { mn: 'Соёл', en: 'Culture' }, desc: { mn: 'Музей, түүхэн дурсгалт газрууд', en: 'History, museums and local heritage' } },
     { id: 'shopping', icon: ShoppingBag, label: { mn: 'Шопинг', en: 'Shopping' }, desc: { mn: 'Худалдааны төвүүд, захууд', en: 'Malls, markets and boutiques' } },
     { id: 'foodie', icon: Utensils, label: { mn: 'Хоол аялал', en: 'Foodie' }, desc: { mn: 'Ресторан, хоолны туршлагууд', en: 'Fine dining and local specialties' } },
+    { id: 'procurement', icon: Package, label: { mn: 'Бараа таталт', en: 'Procurement' }, desc: { mn: 'Бөөний төвүүд, бараа бэлтгэл, үйлдвэр', en: 'Wholesale markets, sourcing, and factories' } },
     { id: 'business', icon: Briefcase, label: { mn: 'Бизнес', en: 'Business' }, desc: { mn: 'Уулзалт, ажил хэргийн хэрэгцээ', en: 'Work-related and professional events' } },
     { id: 'medical', icon: Stethoscope, label: { mn: 'Эмчилгээ', en: 'Medical' }, desc: { mn: 'Эрүүл мэнд, оношилгоо, сувилгаа', en: 'Check-ups, treatments and recovery' } },
     { id: 'education', icon: GraduationCap, label: { mn: 'Боловсрол', en: 'Education' }, desc: { mn: 'Сургууль, сургалт, сургалтын аялал', en: 'Schools, courses and study tours' } },
@@ -512,14 +514,14 @@ export default function AITravelPlannerV2() {
                     variant="ghost"
                     size="icon"
                     onClick={() => step > 1 ? handleBack() : router.back()}
-                    className="rounded-full bg-white shadow-sm border border-slate-100"
+                    className="rounded-full bg-white shadow-md border border-slate-100 hover:bg-slate-50 transition-all"
                 >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ArrowLeft className="w-6 h-6 text-slate-700" />
                 </Button>
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
                         <Sparkles className="w-6 h-6 text-emerald-500" />
-                        {isMongolian ? "AI Аялал Төлөвлөгч V2" : "AI Travel Planner V2"}
+                        {isMongolian ? "Gate Аялал Төлөвлөгч" : "Gate Travel Planner"}
                     </h1>
                     <p className="text-slate-500 text-sm">
                         {isMongolian ? "Дээд зэрэглэлийн нарийвчлалтай төлөвлөлт" : "Professional-grade precision planning"}
@@ -636,7 +638,7 @@ export default function AITravelPlannerV2() {
                                                                     </label>
                                                                 </div>
                                                                 <Textarea
-                                                                    placeholder={isMongolian ? `Жишээ нь: ${p.id === 'medical' ? 'Гоо сайхны хагалгаа' : p.id === 'business' ? 'Тавилга сонирхох' : p.id === 'family' ? 'Хүүхдийн парк' : 'Таны тусгай хэрэгцээ...'}` : `e.g. Specific details for ${p.label.en.toLowerCase()}...`}
+                                                                    placeholder={isMongolian ? `Жишээ нь: ${p.id === 'medical' ? 'Гоо сайхны хагалгаа' : p.id === 'business' ? 'Хурлаар явах' : p.id === 'procurement' ? 'Тавилга, бэлэн хувцас татах' : p.id === 'family' ? 'Хүүхдийн парк' : 'Таны тусгай хэрэгцээ...'}` : `e.g. Specific details for ${p.label.en.toLowerCase()}...`}
                                                                     value={purposeDetails[p.id] || ""}
                                                                     onChange={(e) => setPurposeDetails(prev => ({ ...prev, [p.id]: e.target.value }))}
                                                                     className="min-h-[80px] bg-slate-50 border-none rounded-xl text-xs font-medium placeholder:text-slate-300 focus-visible:ring-emerald-500 resize-none"

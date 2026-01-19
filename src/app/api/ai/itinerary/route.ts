@@ -30,6 +30,7 @@ const purposeDescriptions: Record<string, string> = {
   foodie: "local food tours, highly-rated restaurants, and culinary experiences",
   education: "educational institutions, workshops, and learning-focused activities",
   event: "festivals, concerts, exhibitions, and seasonal events",
+  procurement: "wholesale markets, trade centers, factories, and logistics hubs for sourcing goods",
 };
 
 // Budget estimates per day
