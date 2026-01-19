@@ -24,6 +24,12 @@ const purposeDescriptions: Record<string, string> = {
   medical: "medical appointments, hospitals, and recovery time",
   relaxation: "spa treatments, beach relaxation, quiet parks, and leisure time",
   adventure: "hiking, nature trails, outdoor sports, and thrill-seeking activities",
+  family: "family-oriented activities, theme parks, and safe environments for children",
+  romantic: "romantic dinners, scenic viewpoints, and intimate experiences for couples",
+  culture: "museums, historical landmarks, art galleries, and cultural heritage sites",
+  foodie: "local food tours, highly-rated restaurants, and culinary experiences",
+  education: "educational institutions, workshops, and learning-focused activities",
+  event: "festivals, concerts, exhibitions, and seasonal events",
 };
 
 // Budget estimates per day

@@ -40,6 +40,10 @@ import {
     Briefcase,
     Palmtree,
     Mountain,
+    Users,
+    Heart,
+    Landmark,
+    Ticket,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -216,13 +220,18 @@ const CITY_SUGGESTIONS: Record<string, { name: string, nameEn: string }[]> = {
 };
 
 const tripPurposes = [
-    { id: 'tourist', icon: Camera, label: { mn: 'Жуулчлал', en: 'Tourism' } },
-    { id: 'shopping', icon: ShoppingBag, label: { mn: 'Шопинг', en: 'Shopping' } },
-    { id: 'business', icon: Map, label: { mn: 'Бизнес', en: 'Business' } },
-    { id: 'medical', icon: Stethoscope, label: { mn: 'Эмчилгээ', en: 'Medical' } },
-    { id: 'education', icon: GraduationCap, label: { mn: 'Боловсрол', en: 'Education' } },
-    { id: 'relaxation', icon: Palmtree, label: { mn: 'Амралт', en: 'Relaxation' } },
-    { id: 'adventure', icon: Mountain, label: { mn: 'Адал явдал', en: 'Adventure' } },
+    { id: 'tourist', icon: Camera, label: { mn: 'Жуулчлал', en: 'Tourism' }, desc: { mn: 'Ерөнхий үзвэрүүд, алдартай газрууд', en: 'General sightseeing and popular attractions' } },
+    { id: 'relaxation', icon: Palmtree, label: { mn: 'Амралт', en: 'Relaxation' }, desc: { mn: 'Алжаал тайлах, спа, сувилал', en: 'Leisure, spa, and wellness' } },
+    { id: 'adventure', icon: Mountain, label: { mn: 'Адал явдал', en: 'Adventure' }, desc: { mn: 'Экстрим спорт, идэвхтэй хөдөлгөөн', en: 'Active sports and thrilling activities' } },
+    { id: 'family', icon: Users, label: { mn: 'Гэр бүл', en: 'Family' }, desc: { mn: 'Хүүхдэд ээлтэй, аюулгүй газрууд', en: 'Safe and fun spots for kids and adults' } },
+    { id: 'romantic', icon: Heart, label: { mn: 'Романтик', en: 'Romantic' }, desc: { mn: 'Хосуудад зориулсан тусгай газрууд', en: 'Special spots for couples and honeymoons' } },
+    { id: 'culture', icon: Landmark, label: { mn: 'Соёл', en: 'Culture' }, desc: { mn: 'Музей, түүхэн дурсгалт газрууд', en: 'History, museums and local heritage' } },
+    { id: 'shopping', icon: ShoppingBag, label: { mn: 'Шопинг', en: 'Shopping' }, desc: { mn: 'Худалдааны төвүүд, захууд', en: 'Malls, markets and boutiques' } },
+    { id: 'foodie', icon: Utensils, label: { mn: 'Хоол аялал', en: 'Foodie' }, desc: { mn: 'Ресторан, хоолны туршлагууд', en: 'Fine dining and local specialties' } },
+    { id: 'business', icon: Briefcase, label: { mn: 'Бизнес', en: 'Business' }, desc: { mn: 'Уулзалт, ажил хэргийн хэрэгцээ', en: 'Work-related and professional events' } },
+    { id: 'medical', icon: Stethoscope, label: { mn: 'Эмчилгээ', en: 'Medical' }, desc: { mn: 'Эрүүл мэнд, оношилгоо, сувилгаа', en: 'Check-ups, treatments and recovery' } },
+    { id: 'education', icon: GraduationCap, label: { mn: 'Боловсрол', en: 'Education' }, desc: { mn: 'Сургууль, сургалт, сургалтын аялал', en: 'Schools, courses and study tours' } },
+    { id: 'event', icon: Ticket, label: { mn: 'Арга хэмжээ', en: 'Event' }, desc: { mn: 'Концерт, наадам, фестиваль', en: 'Festivals, concerts and exhibitions' } },
 ];
 
 export default function AITravelPlannerV2() {
@@ -578,7 +587,7 @@ export default function AITravelPlannerV2() {
 
                             <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Зорилго" : "Purposes"}</label>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 gap-3">
                                     {tripPurposes.map((p) => {
                                         const Icon = p.icon;
                                         const isSelected = purposes.includes(p.id);
@@ -587,12 +596,25 @@ export default function AITravelPlannerV2() {
                                                 key={p.id}
                                                 onClick={() => togglePurpose(p.id)}
                                                 className={cn(
-                                                    "p-3 rounded-2xl border-2 transition-all flex items-center gap-3",
-                                                    isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-50 text-slate-400 opacity-60"
+                                                    "p-4 rounded-2xl border-2 transition-all flex items-start gap-4 text-left",
+                                                    isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 hover:bg-slate-50"
                                                 )}
                                             >
-                                                <Icon className="w-5 h-5 shrink-0" />
-                                                <span className="text-xs font-extrabold">{isMongolian ? p.label.mn : p.label.en}</span>
+                                                <div className={cn(
+                                                    "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                                                    isSelected ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-400"
+                                                )}>
+                                                    <Icon className="w-5 h-5" />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className={cn("text-sm font-black", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
+                                                        {isMongolian ? p.label.mn : p.label.en}
+                                                    </p>
+                                                    <p className="text-[10px] font-medium leading-relaxed opacity-80 line-clamp-1">
+                                                        {isMongolian ? p.desc.mn : p.desc.en}
+                                                    </p>
+                                                </div>
+                                                {isSelected && <Check className="w-4 h-4 text-emerald-600 ml-auto shrink-0 mt-1" />}
                                             </button>
                                         );
                                     })}
