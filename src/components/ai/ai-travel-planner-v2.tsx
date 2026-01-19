@@ -334,13 +334,16 @@ export default function AITravelPlannerV2() {
                 .map(([id, val]) => `${id}: ${val}`)
                 .join(", ");
 
+            const lastCity = cityRoute.length > 0 ? cityRoute[cityRoute.length - 1].name : "Ulaanbaatar";
+
             const res = await fetch("/api/ai/suggest-cities", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     destination,
                     purposes: purposes.join(", "),
-                    details: combinedDetails
+                    details: combinedDetails,
+                    currentCity: lastCity
                 }),
             });
             const data = await res.json();
@@ -712,7 +715,14 @@ export default function AITravelPlannerV2() {
                                                             )}
                                                         >
                                                             <div className="flex items-center justify-between mb-1">
-                                                                <span className="text-xs font-black text-slate-900 truncate pr-2">{isMongolian ? c.nameMn : c.name}</span>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-xs font-black text-slate-900 truncate pr-2">{isMongolian ? c.nameMn : c.name}</span>
+                                                                    {c.distance && (
+                                                                        <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full w-fit mt-0.5">
+                                                                            {c.distance}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                                 <Plus className="w-3 h-3 text-emerald-500 shrink-0" />
                                                             </div>
                                                             <p className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-2 italic">
