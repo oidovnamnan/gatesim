@@ -662,9 +662,9 @@ export default function AITravelPlannerV2() {
                             </Card>
                         </div>
 
-                        <Button onClick={handleNext} className="w-full h-16 rounded-3xl bg-slate-900 hover:bg-black text-white text-lg font-black shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3">
+                        <Button onClick={handleNext} className="w-full h-16 rounded-3xl bg-slate-900 hover:bg-black text-white text-base sm:text-lg font-black shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3">
                             {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
-                            <ArrowRight className="w-6 h-6" />
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
                         </Button>
                     </motion.div>
                 )}
@@ -889,14 +889,14 @@ export default function AITravelPlannerV2() {
                             </div>
                         </div>
 
-                        <div className="flex justify-between pt-4">
-                            <Button variant="ghost" onClick={handleBack} className="h-14 px-8 rounded-2xl font-bold">
-                                <ArrowLeft className="w-5 h-5 mr-2" />
+                        <div className="flex justify-between items-center pt-4 gap-2">
+                            <Button variant="ghost" onClick={handleBack} className="h-14 px-4 sm:px-8 rounded-2xl font-bold shrink-0">
+                                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                                 {isMongolian ? "Буцах" : "Back"}
                             </Button>
-                            <Button onClick={handleNext} disabled={selectedCities.length === 0} className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-200 group">
+                            <Button onClick={handleNext} disabled={selectedCities.length === 0} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
                                 {isMongolian ? "Дараах" : "Next"}
-                                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </div>
                     </motion.div>
@@ -1000,14 +1000,14 @@ export default function AITravelPlannerV2() {
                             </div>
                         )}
 
-                        <div className="flex justify-between pt-4">
-                            <Button variant="ghost" onClick={handleBack} className="h-14 px-8 rounded-2xl font-bold">
-                                <ArrowLeft className="w-5 h-5 mr-2" />
+                        <div className="flex justify-between items-center pt-4 gap-2">
+                            <Button variant="ghost" onClick={handleBack} className="h-14 px-4 sm:px-8 rounded-2xl font-bold shrink-0">
+                                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                                 {isMongolian ? "Буцах" : "Back"}
                             </Button>
-                            <Button onClick={handleNext} disabled={isDiscoveryLoading} className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-200 group">
+                            <Button onClick={handleNext} disabled={isDiscoveryLoading} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
                                 {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
-                                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </div>
                     </motion.div>
@@ -1109,14 +1109,14 @@ export default function AITravelPlannerV2() {
                             </div>
                         )}
 
-                        <div className="flex justify-between pt-4">
-                            <Button variant="ghost" onClick={handleBack} className="h-14 px-8 rounded-2xl font-bold">
-                                <ArrowLeft className="w-5 h-5 mr-2" />
+                        <div className="flex justify-between items-center pt-4 gap-2">
+                            <Button variant="ghost" onClick={handleBack} className="h-14 px-4 sm:px-8 rounded-2xl font-bold shrink-0">
+                                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                                 {isMongolian ? "Буцах" : "Back"}
                             </Button>
-                            <Button onClick={handleFinalize} disabled={isDiscoveryLoading} className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-200 group">
+                            <Button onClick={handleFinalize} disabled={isDiscoveryLoading} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
                                 {isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan"}
-                                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </div>
                     </motion.div>
