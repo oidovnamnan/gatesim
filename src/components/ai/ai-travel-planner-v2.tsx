@@ -221,20 +221,36 @@ const CITY_SUGGESTIONS: Record<string, { name: string, nameEn: string }[]> = {
 };
 
 const tripPurposes = [
-    { id: 'tourist', icon: Camera, label: { mn: 'Жуулчлал', en: 'Tourism' }, desc: { mn: 'Ерөнхий үзвэрүүд, алдартай газрууд', en: 'General sightseeing and popular attractions' } },
+    { id: 'tourist', icon: Backpack, label: { mn: 'Жуулчлал', en: 'Tourism' }, desc: { mn: 'Ерөнхий үзвэрүүд, алдартай газрууд', en: 'General sightseeing and popular attractions' } },
     { id: 'relaxation', icon: Palmtree, label: { mn: 'Амралт', en: 'Relaxation' }, desc: { mn: 'Алжаал тайлах, спа, сувилал', en: 'Leisure, spa, and wellness' } },
     { id: 'adventure', icon: Mountain, label: { mn: 'Адал явдал', en: 'Adventure' }, desc: { mn: 'Экстрим спорт, идэвхтэй хөдөлгөөн', en: 'Active sports and thrilling activities' } },
     { id: 'family', icon: Users, label: { mn: 'Гэр бүл', en: 'Family' }, desc: { mn: 'Хүүхдэд ээлтэй, аюулгүй газрууд', en: 'Safe and fun spots for kids and adults' } },
     { id: 'romantic', icon: Heart, label: { mn: 'Романтик', en: 'Romantic' }, desc: { mn: 'Хосуудад зориулсан тусгай газрууд', en: 'Special spots for couples and honeymoons' } },
     { id: 'culture', icon: Landmark, label: { mn: 'Соёл', en: 'Culture' }, desc: { mn: 'Музей, түүхэн дурсгалт газрууд', en: 'History, museums and local heritage' } },
-    { id: 'shopping', icon: ShoppingBag, label: { mn: 'Шопинг', en: 'Shopping' }, desc: { mn: 'Худалдааны төвүүд, захууд', en: 'Malls, markets and boutiques' } },
-    { id: 'foodie', icon: Utensils, label: { mn: 'Хоол аялал', en: 'Foodie' }, desc: { mn: 'Ресторан, хоолны туршлагууд', en: 'Fine dining and local specialties' } },
+    { id: 'shopping', icon: Package, label: { mn: 'Шопинг', en: 'Shopping' }, desc: { mn: 'Худалдааны төвүүд, захууд', en: 'Malls, markets and boutiques' } },
+    { id: 'foodie', icon: Sparkles, label: { mn: 'Хоол аялал', en: 'Foodie' }, desc: { mn: 'Ресторан, хоолны туршлагууд', en: 'Fine dining and local specialties' } },
     { id: 'procurement', icon: Package, label: { mn: 'Бараа таталт', en: 'Procurement' }, desc: { mn: 'Бөөний төвүүд, бараа бэлтгэл, үйлдвэр', en: 'Wholesale markets, sourcing, and factories' } },
     { id: 'business', icon: Briefcase, label: { mn: 'Бизнес', en: 'Business' }, desc: { mn: 'Уулзалт, ажил хэргийн хэрэгцээ', en: 'Work-related and professional events' } },
     { id: 'medical', icon: Stethoscope, label: { mn: 'Эмчилгээ', en: 'Medical' }, desc: { mn: 'Эрүүл мэнд, оношилгоо, сувилгаа', en: 'Check-ups, treatments and recovery' } },
     { id: 'education', icon: GraduationCap, label: { mn: 'Боловсрол', en: 'Education' }, desc: { mn: 'Сургууль, сургалт, сургалтын аялал', en: 'Schools, courses and study tours' } },
     { id: 'event', icon: Ticket, label: { mn: 'Арга хэмжээ', en: 'Event' }, desc: { mn: 'Концерт, наадам, фестиваль', en: 'Festivals, concerts and exhibitions' } },
 ];
+
+const PURPOSE_TO_CATEGORY: Record<string, string> = {
+    tourist: 'attraction',
+    relaxation: 'attraction',
+    adventure: 'attraction',
+    family: 'attraction',
+    romantic: 'attraction',
+    culture: 'attraction',
+    shopping: 'shopping',
+    foodie: 'dining',
+    procurement: 'shopping',
+    business: 'shopping',
+    medical: 'medical',
+    education: 'education',
+    event: 'attraction',
+};
 
 export default function AITravelPlannerV2() {
     const router = useRouter();
@@ -248,6 +264,7 @@ export default function AITravelPlannerV2() {
     const [duration, setDuration] = useState(5);
     const [purposes, setPurposes] = useState<string[]>([]);
     const [budget, setBudget] = useState("mid");
+    const [chinaDistance, setChinaDistance] = useState("far"); // Default for China: Far (Guangzhou/Shanghai)
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [city, setCity] = useState(""); // Current selection in dropdown
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -343,7 +360,8 @@ export default function AITravelPlannerV2() {
                     destination,
                     purposes: purposes.join(", "),
                     details: combinedDetails,
-                    currentCity: lastCity
+                    currentCity: lastCity,
+                    chinaDistance: destination === 'CN' ? chinaDistance : undefined
                 }),
             });
             const data = await res.json();
@@ -506,7 +524,15 @@ export default function AITravelPlannerV2() {
             // All good, proceed to Step 4
             const firstCity = cityRoute[0]?.name || "";
             setActiveCityTab(firstCity);
-            fetchDiscoveryData('attraction', firstCity);
+
+            // Smart category selection based on purposes
+            const relevantCategories = purposes
+                .map(p => PURPOSE_TO_CATEGORY[p])
+                .filter(Boolean);
+            const bestCategory = (relevantCategories[0] || 'attraction') as any;
+            setActiveCategory(bestCategory);
+
+            fetchDiscoveryData(bestCategory, firstCity);
         }
         setStep(prev => prev + 1);
     };
@@ -625,6 +651,36 @@ export default function AITravelPlannerV2() {
                                     </div>
                                     <input type="range" min="1" max="30" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full accent-emerald-600" />
                                 </div>
+
+                                {destination === 'CN' && (
+                                    <div className="space-y-3 pt-2 border-t border-slate-100">
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Аяллын зай" : "Distance Preference"}</label>
+                                            <Badge variant="outline" className="text-[9px] font-black border-emerald-100 text-emerald-600 bg-emerald-50 px-2 py-0.5">NEW</Badge>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {[
+                                                { id: 'near', label: isMongolian ? 'Ойр' : 'Near', desc: 'Border/North' },
+                                                { id: 'mid', label: isMongolian ? 'Дунд' : 'Mid', desc: 'Central/Beijing' },
+                                                { id: 'far', label: isMongolian ? 'Хол' : 'Far', desc: 'South/Coast' }
+                                            ].map((dist) => (
+                                                <button
+                                                    key={dist.id}
+                                                    onClick={() => setChinaDistance(dist.id)}
+                                                    className={cn(
+                                                        "flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all gap-1",
+                                                        chinaDistance === dist.id
+                                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+                                                            : "border-slate-50 text-slate-400 hover:border-slate-100"
+                                                    )}
+                                                >
+                                                    <span className="text-[11px] font-black">{dist.label}</span>
+                                                    <span className="text-[8px] opacity-70 font-medium whitespace-nowrap">{dist.desc}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </Card>
 
                             <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
@@ -1075,8 +1131,14 @@ export default function AITravelPlannerV2() {
                         exit={{ opacity: 0, x: -20 }}
                         className="space-y-8"
                     >
-                        <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Юу хийх вэ?" : "What to do?"}</h2>
+                        <div className="space-y-4 text-center">
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Юу хийх вэ?" : "What to do?"}</h2>
+                                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-center gap-1">
+                                    <Sparkles className="w-3 h-3" />
+                                    {isMongolian ? "Танд зориулсан тусгай санал" : "Tailored for your purposes"}
+                                </p>
+                            </div>
                             <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                 {cityRoute.map((c) => (
                                     <button
