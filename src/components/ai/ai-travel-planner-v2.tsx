@@ -47,6 +47,8 @@ import {
     Landmark,
     Ticket,
     Package,
+    Wallet,
+    Bed,
     User,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -1647,113 +1649,250 @@ export default function AITravelPlannerV2() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="space-y-8"
+                            className="space-y-8 pb-20"
                         >
                             {isGenerating ? (
                                 <div className="py-20 text-center space-y-6">
-                                    <div className="relative w-24 h-24 mx-auto">
-                                        <div className="absolute inset-0 rounded-full border-4 border-emerald-100 border-t-emerald-600 animate-spin" />
+                                    <div className="relative w-28 h-28 mx-auto">
+                                        <div className="absolute inset-0 rounded-full border-[6px] border-emerald-100 border-t-emerald-600 animate-spin" />
                                         <div className="absolute inset-0 flex items-center justify-center">
-                                            <Sparkles className="w-10 h-10 text-emerald-600 animate-pulse" />
+                                            <Sparkles className="w-12 h-12 text-emerald-600 animate-pulse" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Төлөвлөгөө боловсруулж байна..." : "Generating..."}</h2>
-                                        <p className="text-slate-500 animate-pulse">{isMongolian ? "Таны аяллыг боловсруулж байна..." : "Crafting your journey..."}</p>
+                                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900">{isMongolian ? "Төлөвлөгөө боловсруулж байна..." : "Generating..."}</h2>
+                                        <p className="text-slate-500 font-medium animate-pulse">{isMongolian ? "Таны аяллыг боловсруулж байна..." : "Crafting your journey..."}</p>
                                     </div>
                                 </div>
                             ) : itinerary ? (
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    <div className="lg:col-span-2 space-y-6">
-                                        <Card className="p-6 rounded-3xl border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-4">
-                                            <div>
-                                                <Badge className="bg-emerald-100 text-emerald-700 border-none mb-2">{itinerary.city || destination} • {itinerary.duration} {isMongolian ? "хоног" : "days"}</Badge>
-                                                <h1 className="text-2xl sm:text-3xl font-black text-slate-900">{isMongolian ? "Аяллын Маршрут" : "Travel Itinerary"}</h1>
-                                            </div>
-                                            <div className="text-left sm:text-right w-full sm:w-auto">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Нийт төсөв" : "Total Budget"}</p>
-                                                <div className="flex flex-col items-start sm:items-end">
-                                                    {itinerary.totalBudget?.includes(' / ') ? (
-                                                        itinerary.totalBudget.split(' / ').map((val: string, idx: number) => (
-                                                            <p key={idx} className={`${idx === 0 ? 'text-xl font-black text-emerald-600' : 'text-sm font-bold text-slate-500'} whitespace-nowrap`}>
-                                                                {val}
-                                                            </p>
-                                                        ))
-                                                    ) : (
-                                                        <p className="text-xl font-black text-emerald-600 whitespace-nowrap">{itinerary.totalBudget}</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </Card>
+                                <div className="space-y-8">
+                                    {/* Immersive Hero Header */}
+                                    <div className="relative h-[300px] sm:h-[400px] rounded-[40px] overflow-hidden shadow-2xl group">
+                                        <img
+                                            src={`https://source.unsplash.com/featured/?${encodeURIComponent(itinerary.city || destination)},travel,landscape`}
+                                            alt={itinerary.city || destination}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[20s] ease-linear"
+                                            onError={(e) => { (e.target as any).src = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=1200"; }}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
 
-                                        {itinerary.days?.map((day: any) => (
-                                            <Card key={day.day} className="overflow-hidden border-slate-100 shadow-sm rounded-3xl">
-                                                <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black">{day.day}</div>
-                                                    <h3 className="font-bold text-slate-900">{day.title}</h3>
-                                                </div>
-                                                <div className="p-6 space-y-6">
-                                                    {day.activities.map((act: any, idx: number) => (
-                                                        <div key={idx} className="relative pl-8 group last:pb-0 pb-6 border-l-2 border-slate-100 ml-3">
-                                                            <div className="absolute left-[-9px] top-1 w-4 h-4 rounded-full bg-white border-2 border-emerald-500" />
-                                                            <div className="space-y-1">
-                                                                <div className="flex items-center justify-between gap-2">
-                                                                    <span className="text-xs font-black text-emerald-600 shrink-0">{act.time}</span>
-                                                                    <Badge variant="outline" className="text-[10px] border-slate-100 bg-white font-black text-slate-500 py-0 h-auto leading-tight min-h-4 flex-1 sm:flex-initial text-center break-words">
-                                                                        {act.cost}
-                                                                    </Badge>
-                                                                </div>
-                                                                <h4 className="font-bold text-slate-900">{act.activity}</h4>
-                                                                <div className="flex items-center gap-1.5 text-xs text-slate-400"><MapPin className="w-3 h-3" /><span>{act.location}</span></div>
-                                                            </div>
+                                        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 space-y-6">
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="space-y-4"
+                                            >
+                                                <Badge className="bg-emerald-500 text-white border-none px-4 py-1.5 rounded-full text-xs font-black shadow-lg shadow-emerald-500/20 uppercase tracking-widest">
+                                                    {isMongolian ? "Төлөвлөгөө бэлэн" : "Itinerary Ready"}
+                                                </Badge>
+                                                <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight drop-shadow-md">
+                                                    {itinerary.city || (destinations.find(d => d.code === destination)?.name || destination)}
+                                                </h1>
+                                            </motion.div>
+
+                                            {/* Quick Stats Overlay (Glassmorphism) */}
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                {[
+                                                    { label: isMongolian ? "Хугацаа" : "Duration", value: `${itinerary.duration} ${isMongolian ? "өдөр" : "days"}`, icon: CalendarIcon },
+                                                    { label: isMongolian ? "Нислэг" : "Flight", value: intlTransport === 'flight' ? (isMongolian ? "Тийм" : "Yes") : (isMongolian ? "Үгүй" : "No"), icon: Plane },
+                                                    { label: isMongolian ? "Төсөв" : "Budget", value: itinerary.totalBudget?.split(' / ')[0] || "---", icon: Wallet },
+                                                    { label: isMongolian ? "Travelers" : "Travelers", value: `${adults + children}`, icon: Users },
+                                                ].map((stat, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                        transition={{ delay: 0.2 + i * 0.1 }}
+                                                        className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 sm:p-4 text-white shadow-xl"
+                                                    >
+                                                        <div className="flex items-center gap-2 mb-1 opacity-60">
+                                                            <stat.icon className="w-3 h-3" />
+                                                            <span className="text-[9px] font-black uppercase tracking-widest">{stat.label}</span>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                    <div className="space-y-6">
-                                        <Card className="p-4 rounded-3xl border-slate-100 shadow-sm h-64 overflow-hidden relative">
-                                            <ItineraryMap activities={itinerary.days?.flatMap((d: any) => d.activities.map((a: any) => ({ ...a, day: d.day, title: a.activity }))) || []} />
-                                        </Card>
-
-                                        {itinerary.visaRequirement && (
-                                            <Card className="p-6 rounded-3xl bg-blue-50 border-blue-100 space-y-2">
-                                                <h3 className="font-black text-lg flex items-center gap-2 text-blue-900"><Search className="w-5 h-5" />{isMongolian ? "Визний мэдээлэл" : "Visa Info"}</h3>
-                                                <Badge className={cn("font-black border-none", itinerary.visaRequirement.needed ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700")}>{itinerary.visaRequirement.needed ? (isMongolian ? "Визтэй" : "Visa Required") : (isMongolian ? "Визгүй" : "Visa-Free")}</Badge>
-                                                <p className="text-xs text-blue-700 font-medium">{itinerary.visaRequirement.details}</p>
-                                            </Card>
-                                        )}
-
-                                        <Card className="p-6 rounded-3xl bg-slate-900 text-white space-y-4">
-                                            <h3 className="font-black text-lg flex items-center gap-2"><Smartphone className="w-5 h-5 text-emerald-400" />GateSIM eSIM</h3>
-                                            <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
-                                                <p className="text-xs font-bold text-emerald-400 uppercase mb-1">{itinerary.esimRecommendation || (isMongolian ? "Танд санал болгож буй багц" : "Recommended Package")}</p>
-                                                <Link href={`/packages?country=${destination}`}>
-                                                    <Button className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 font-black">
-                                                        {isMongolian ? "Багц сонгох" : "Choose Package"}
-                                                    </Button>
-                                                </Link>
+                                                        <div className="text-xs sm:text-sm font-black truncate">{stat.value}</div>
+                                                    </motion.div>
+                                                ))}
                                             </div>
-                                        </Card>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                                        {/* Main Content: Timeline */}
+                                        <div className="lg:col-span-8 space-y-12">
+                                            {itinerary.days?.map((day: any, dayIdx: number) => (
+                                                <motion.div
+                                                    key={day.day}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    whileInView={{ opacity: 1, x: 0 }}
+                                                    viewport={{ once: true }}
+                                                    transition={{ delay: dayIdx * 0.1 }}
+                                                    className="relative"
+                                                >
+                                                    {/* Day Header */}
+                                                    <div className="flex items-center gap-6 mb-8 sticky top-4 z-20 bg-white/80 backdrop-blur-md py-2 -mx-4 px-4 rounded-2xl border border-slate-50/50 shadow-sm">
+                                                        <div className="w-16 h-16 bg-slate-900 text-white rounded-[20px] flex flex-col items-center justify-center shrink-0 shadow-xl shadow-slate-900/20">
+                                                            <span className="text-[10px] font-black uppercase tracking-widest opacity-60 leading-none mb-1">{isMongolian ? "Өдөр" : "Day"}</span>
+                                                            <span className="text-2xl font-black leading-none">{day.day}</span>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{day.title}</h3>
+                                                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+                                                                {day.activities.length} {isMongolian ? "үйл ажиллагаа" : "activities"}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Activities Vertical Line */}
+                                                    <div className="ml-8 border-l-2 border-slate-100 pl-10 space-y-6">
+                                                        {day.activities.map((act: any, idx: number) => {
+                                                            // Determine icon based on activity keywords
+                                                            const text = act.activity.toLowerCase();
+                                                            let Icon = Camera;
+                                                            if (text.includes('food') || text.includes('lunch') || text.includes('dinner') || text.includes('restaurant')) Icon = Utensils;
+                                                            if (text.includes('shopping') || text.includes('market')) Icon = ShoppingBag;
+                                                            if (text.includes('flight') || text.includes('airport')) Icon = Plane;
+                                                            if (text.includes('hotel') || text.includes('check-in')) Icon = Bed;
+                                                            if (text.includes('train') || text.includes('subway')) Icon = TrainFront;
+                                                            if (text.includes('bus')) Icon = Bus;
+
+                                                            return (
+                                                                <div key={idx} className="relative group">
+                                                                    {/* Timeline Dot */}
+                                                                    <div className="absolute -left-[51px] top-4 w-5 h-5 rounded-full bg-white border-2 border-emerald-500 shadow-sm z-10 group-hover:scale-125 transition-transform" />
+
+                                                                    <Card className="p-5 rounded-[24px] border-slate-100 group-hover:border-emerald-200 transition-all group-hover:shadow-lg group-hover:shadow-emerald-50/50 border-2">
+                                                                        <div className="flex flex-col sm:flex-row gap-5">
+                                                                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
+                                                                                <Icon className="w-6 h-6 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                                                                            </div>
+                                                                            <div className="flex-1 space-y-2">
+                                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <span className="text-xs font-black bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">{act.time}</span>
+                                                                                        {act.cost !== "0" && act.cost !== "Free" && (
+                                                                                            <Badge variant="outline" className="border-slate-200 text-slate-500 font-extrabold text-[10px]">{act.cost}</Badge>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <h4 className="font-black text-slate-900 text-lg leading-tight">{act.activity}</h4>
+                                                                                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                                                                                    <MapPin className="w-3.5 h-3.5 text-slate-300" />
+                                                                                    <span>{act.location}</span>
+                                                                                </div>
+                                                                                {act.notes && (
+                                                                                    <div className="mt-3 p-3 bg-amber-50/30 border border-amber-100/50 rounded-xl text-[11px] text-amber-900/70 font-medium italic">
+                                                                                        {act.notes}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    </Card>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+
+                                        {/* Sidebar / Sticky Actions */}
+                                        <div className="lg:col-span-4 space-y-6">
+                                            <div className="sticky top-10 space-y-6">
+                                                {/* Map Preview */}
+                                                <Card className="p-2 rounded-[32px] border-slate-100 shadow-xl overflow-hidden h-[240px] relative border-2 border-white">
+                                                    <ItineraryMap activities={itinerary.days?.flatMap((d: any) => d.activities.map((a: any) => ({ ...a, day: d.day, title: a.activity }))) || []} />
+                                                    <div className="absolute bottom-4 left-4 right-4">
+                                                        <Button size="sm" className="w-full bg-white/95 text-slate-900 hover:bg-white rounded-xl font-black text-[10px] shadow-lg border-none backdrop-blur-sm">
+                                                            {isMongolian ? "Газрын зургийг нээх" : "Expand Map View"}
+                                                        </Button>
+                                                    </div>
+                                                </Card>
+
+                                                {/* Visa Info */}
+                                                {itinerary.visaRequirement && (
+                                                    <Card className="p-6 rounded-[32px] bg-indigo-50 border-indigo-100 space-y-4 shadow-sm">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center border border-indigo-200">
+                                                                <Search className="w-5 h-5 text-indigo-600" />
+                                                            </div>
+                                                            <h3 className="font-black text-indigo-900 tracking-tight">{isMongolian ? "Визний мэдээлэл" : "Visa Info"}</h3>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <Badge className={cn(
+                                                                    "font-black border-none px-4 py-1 rounded-full text-[10px] shadow-sm",
+                                                                    itinerary.visaRequirement.needed ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
+                                                                )}>
+                                                                    {itinerary.visaRequirement.needed ? (isMongolian ? "Визтэй" : "Visa Required") : (isMongolian ? "Визгүй" : "Visa-Free")}
+                                                                </Badge>
+                                                            </div>
+                                                            <p className="text-[11px] text-indigo-700 font-medium leading-relaxed italic">{itinerary.visaRequirement.details}</p>
+                                                        </div>
+                                                    </Card>
+                                                )}
+
+                                                {/* eSIM Recommendation */}
+                                                <Card className="overflow-hidden rounded-[32px] bg-slate-900 text-white shadow-2xl relative">
+                                                    <div className="absolute top-0 right-0 p-6 opacity-10">
+                                                        <Smartphone className="w-24 h-24 rotate-12" />
+                                                    </div>
+                                                    <div className="p-8 space-y-6 relative z-10">
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-2 text-emerald-400">
+                                                                <div className="w-6 h-6 rounded-lg bg-emerald-400/20 flex items-center justify-center font-black">AI</div>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest leading-none">GateSIM Recommendation</span>
+                                                            </div>
+                                                            <h3 className="text-2xl font-black">{isMongolian ? "eSIM Багц" : "eSIM Package"}</h3>
+                                                        </div>
+                                                        <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+                                                            <p className="text-xs font-medium text-slate-300 leading-relaxed italic">
+                                                                "{itinerary.esimRecommendation || (isMongolian ? "Танд аялалд тань тохирох дата багцыг санал болгож байна." : "We recommend a data plan tailored for your journey.")}"
+                                                            </p>
+                                                        </div>
+                                                        <Link href={`/packages?country=${destination}`}>
+                                                            <Button className="w-full h-12 bg-white text-slate-900 hover:bg-emerald-400 hover:text-white font-black rounded-2xl shadow-xl transition-all">
+                                                                {isMongolian ? "Багц үзэх" : "View Packages"}
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
+                                                </Card>
+
+                                                {/* Final Actions */}
+                                                <div className="flex flex-col gap-3">
+                                                    <Button className="h-16 rounded-[24px] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-xl shadow-emerald-200">
+                                                        <Download className="w-5 h-5 mr-3" />
+                                                        {isMongolian ? "PDF Татах" : "Download PDF"}
+                                                    </Button>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <Button variant="outline" className="h-14 rounded-[20px] border-slate-200 font-bold hover:bg-slate-50">
+                                                            <Share2 className="w-4 h-4 mr-2" />
+                                                            {isMongolian ? "Хуваалцах" : "Share"}
+                                                        </Button>
+                                                        <Button variant="outline" onClick={handleBack} className="h-14 rounded-[20px] border-slate-200 font-bold hover:bg-slate-50">
+                                                            <ArrowLeft className="w-4 h-4 mr-2" />
+                                                            {isMongolian ? "Буцах" : "Back"}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="py-20 text-center space-y-4">
-                                    <p className="text-slate-500">{isMongolian ? "Алдаа гарлаа." : "Error occurred."}</p>
-                                    <Button onClick={handleFinalize}>Retry</Button>
+                                <div className="py-20 text-center space-y-6">
+                                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto border-2 border-red-100">
+                                        <ArrowLeft className="w-10 h-10 text-red-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-slate-900 font-black text-xl">{isMongolian ? "Алдаа гарлаа" : "Itinerary Error"}</p>
+                                        <p className="text-slate-400 text-sm">{isMongolian ? "Төлөвлөгөөг дахин ачаална уу" : "Please try generating the plan again."}</p>
+                                    </div>
+                                    <Button onClick={handleFinalize} className="rounded-2xl h-12 px-8 bg-slate-900 font-black">Retry</Button>
                                 </div>
                             )}
-
-                            <div className="flex justify-between pt-8 border-t border-slate-100">
-                                <Button variant="ghost" onClick={handleBack} className="h-14 px-8 rounded-2xl font-bold"><ArrowLeft className="w-5 h-5 mr-2" />{isMongolian ? "Буцах" : "Back"}</Button>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" className="h-14 w-14 rounded-2xl"><Share2 className="w-5 h-5 text-slate-400" /></Button>
-                                    <Button className="h-14 px-8 rounded-2xl bg-slate-900 text-white font-black"><Download className="w-5 h-5 mr-2" />{isMongolian ? "Хадгалах" : "Save"}</Button>
-                                </div>
-                            </div>
                         </motion.div>
                     )
+
                 }
             </AnimatePresence >
         </div >
