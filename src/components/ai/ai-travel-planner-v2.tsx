@@ -662,26 +662,41 @@ export default function AITravelPlannerV2() {
     };
 
     const handleDownloadPDF = () => {
+        console.log("Download PDF clicked");
         // Simple and robust: browser print
-        window.print();
+        try {
+            window.print();
+        } catch (e) {
+            console.error("Print failed:", e);
+            alert(isMongolian ? "Хэвлэх боломжгүй байна. Та дэлгэцийн зураг авна уу." : "Printing is not supported on this device. Please take a screenshot.");
+        }
     };
 
     const handleShare = async () => {
+        console.log("Share clicked");
         const shareData = {
-            title: isMongolian ? `${itinerary.city} Аяллын Төлөвлөгөө` : `${itinerary.city} Travel Itinerary`,
-            text: isMongolian ? `Миний ${itinerary.city} руу хийх аяллын төлөвлөгөөг үзээрэй!` : `Check out my travel plan for ${itinerary.city}!`,
+            title: isMongolian ? "Аяллын Төлөвлөгөө" : "Travel Itinerary",
+            text: isMongolian ? `Миний ${destination} руу хийх аяллын төлөвлөгөөг үзээрэй!` : `Check out my travel plan for ${destination}!`,
             url: window.location.href,
         };
 
         try {
-            if (navigator.share) {
+            // First try native share
+            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
                 await navigator.share(shareData);
             } else {
-                await navigator.clipboard.writeText(window.location.href);
-                alert(isMongolian ? "Линк хуулагдлаа!" : "Link copied to clipboard!");
+                // Fallback to clipboard
+                throw new Error("Native share not available");
             }
         } catch (err) {
-            console.error('Error sharing:', err);
+            console.log("Native share failed/unavailable, falling back to clipboard:", err);
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                alert(isMongolian ? "Холбоос хуулагдлаа!" : "Link copied to clipboard!");
+            } catch (clipboardErr) {
+                console.error("Clipboard failed:", clipboardErr);
+                alert(isMongolian ? "Хуваалцах боломжгүй байна. Дэлгэцийн зураг авна уу." : "Unable to share. Please take a screenshot.");
+            }
         }
     };
 
@@ -1820,11 +1835,28 @@ export default function AITravelPlannerV2() {
                                 <div className="space-y-8">
                                     <style jsx global>{`
                                         @media print {
-                                            body * { visibility: hidden; }
-                                            #itinerary-content, #itinerary-content * { visibility: visible; }
-                                            #itinerary-content { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; background: white !important; }
-                                            .no-print { display: none !important; }
-                                            .sticky { position: static !important; }
+                                            /* Hide everything by default */
+                                            body > * { display: none !important; }
+                                            
+                                            /* Show only the itinerary content */
+                                            body > #itinerary-root { display: block !important; }
+                                            #itinerary-content { 
+                                                display: block !important;
+                                                position: absolute; 
+                                                left: 0; 
+                                                top: 0; 
+                                                width: 100%; 
+                                                margin: 0; 
+                                                padding: 20px;
+                                                background: white !important; 
+                                                z-index: 9999;
+                                            }
+                                            
+                                            /* Ensure content visibility */
+                                            #itinerary-content * { visibility: visible; }
+                                            
+                                            /* Hide non-print elements explicitly */
+                                            .no-print, header, footer, nav, .fixed { display: none !important; }
                                         }
                                     `}</style>
 
