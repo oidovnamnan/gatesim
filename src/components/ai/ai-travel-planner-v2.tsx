@@ -269,7 +269,7 @@ export default function AITravelPlannerV2() {
     const [budget, setBudget] = useState("mid");
     const [adults, setAdults] = useState(1);
     const [children, setChildren] = useState(0);
-    const [chinaDistance, setChinaDistance] = useState("far"); // Default for China: Far (Guangzhou/Shanghai)
+    const [chinaDistance, setChinaDistance] = useState<string[]>(["far"]); // Default for China: Far (Guangzhou/Shanghai)
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [city, setCity] = useState(""); // Current selection in dropdown
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -709,21 +709,30 @@ export default function AITravelPlannerV2() {
                                                 { id: 'near', label: isMongolian ? 'Ойр' : 'Near', desc: 'Border/North' },
                                                 { id: 'mid', label: isMongolian ? 'Дунд' : 'Mid', desc: 'Central/Beijing' },
                                                 { id: 'far', label: isMongolian ? 'Хол' : 'Far', desc: 'South/Coast' }
-                                            ].map((dist) => (
-                                                <button
-                                                    key={dist.id}
-                                                    onClick={() => setChinaDistance(dist.id)}
-                                                    className={cn(
-                                                        "flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all gap-1",
-                                                        chinaDistance === dist.id
-                                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
-                                                            : "border-slate-50 text-slate-400 hover:border-slate-100"
-                                                    )}
-                                                >
-                                                    <span className="text-[11px] font-black">{dist.label}</span>
-                                                    <span className="text-[8px] opacity-70 font-medium whitespace-nowrap">{dist.desc}</span>
-                                                </button>
-                                            ))}
+                                            ].map((dist) => {
+                                                const isSelected = chinaDistance.includes(dist.id);
+                                                return (
+                                                    <button
+                                                        key={dist.id}
+                                                        onClick={() => {
+                                                            setChinaDistance(prev =>
+                                                                prev.includes(dist.id)
+                                                                    ? (prev.length > 1 ? prev.filter(d => d !== dist.id) : prev)
+                                                                    : [...prev, dist.id]
+                                                            );
+                                                        }}
+                                                        className={cn(
+                                                            "flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all gap-1",
+                                                            isSelected
+                                                                ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+                                                                : "border-slate-50 text-slate-400 hover:border-slate-100"
+                                                        )}
+                                                    >
+                                                        <span className="text-[11px] font-black">{dist.label}</span>
+                                                        <span className="text-[8px] opacity-70 font-medium whitespace-nowrap">{dist.desc}</span>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}

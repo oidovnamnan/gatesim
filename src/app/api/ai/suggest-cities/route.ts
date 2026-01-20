@@ -36,12 +36,21 @@ export async function POST(request: NextRequest) {
 
         let distancePrompt = '';
         if (destination === 'CN' && chinaDistance) {
-            if (chinaDistance === 'near') {
-                distancePrompt = `CRITICAL: The user wants cities CLOSE (Ойр) to the Mongolian border. MUST prioritize cities like Erlian (Эрлянь), Hohhot (Хөххот), or Baotou (Бугат). Avoid far-south cities.`;
-            } else if (chinaDistance === 'mid') {
-                distancePrompt = `CRITICAL: The user wants MID-DISTANCE (Дунд) cities. MUST prioritize cities like Beijing (Бээжин), Tianjin (Тяньжинь), Harbin (Харбин), or Xi'an (Сиань).`;
-            } else if (chinaDistance === 'far') {
-                distancePrompt = `CRITICAL: The user wants FAR-DISTANCE/SOUTH (Хол) cities. MUST prioritize cities like Guangzhou (Гуанжоу), Shanghai (Шанхай), Shenzhen (Шэньжэнь), Chengdu (Чэнду), or Sanya (Санья).`;
+            const distances = Array.isArray(chinaDistance) ? chinaDistance : [chinaDistance];
+            const prompts: string[] = [];
+
+            if (distances.includes('near')) {
+                prompts.push("CLOSE (Ойр) to the Mongolian border (e.g. Erlian, Hohhot, Baotou)");
+            }
+            if (distances.includes('mid')) {
+                prompts.push("MID-DISTANCE (Дунд) cities (e.g. Beijing, Tianjin, Harbin, Xi'an)");
+            }
+            if (distances.includes('far')) {
+                prompts.push("FAR-DISTANCE/SOUTH (Хол) cities (e.g. Guangzhou, Shanghai, Shenzhen, Chengdu, Sanya)");
+            }
+
+            if (prompts.length > 0) {
+                distancePrompt = `CRITICAL: The user is interested in cities in the following distance ranges from the Mongolian border: ${prompts.join(", ")}. Please provide a balanced mix of suggestions if multiple ranges are selected.`;
             }
         }
 
