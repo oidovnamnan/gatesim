@@ -269,7 +269,7 @@ export default function AITravelPlannerV2() {
     const [budget, setBudget] = useState("mid");
     const [adults, setAdults] = useState(1);
     const [children, setChildren] = useState(0);
-    const [chinaDistance, setChinaDistance] = useState<string[]>(["far"]); // Default for China: Far (Guangzhou/Shanghai)
+    const [chinaDistance, setChinaDistance] = useState<string[]>(["mid"]); // Default for China: Mid (Beijing/Tianjin)
     const [startDate, setStartDate] = useState<Date | undefined>(new Date());
     const [city, setCity] = useState(""); // Current selection in dropdown
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -829,11 +829,6 @@ export default function AITravelPlannerV2() {
                                                     )}>
                                                         {isMongolian ? d.desc.mn : d.desc.en}
                                                     </span>
-                                                    {isSelected && (
-                                                        <div className="absolute top-1 right-1">
-                                                            <Check className="w-3 h-3 text-white" />
-                                                        </div>
-                                                    )}
                                                 </button>
                                             );
                                         })}
