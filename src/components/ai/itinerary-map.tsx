@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { Card } from "@/components/ui/card";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Card } from "@/components/ui/card";
+
+// Dynamically import Google Maps to avoid SSR issues
+const GoogleMapsView = dynamic(() => import("./google-maps-view"), { ssr: false });
 
 // Fix Leaflet default icon issue
 const iconUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
@@ -44,6 +48,8 @@ function MapUpdater({ bounds }: { bounds: L.LatLngBoundsExpression }) {
 
 export default function ItineraryMap({ activities }: ItineraryMapProps) {
     const [isMounted, setIsMounted] = useState(false);
+    // Determine if we should use Google Maps (if Key exists)
+    const useGoogleMaps = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     useEffect(() => {
         setIsMounted(true);
@@ -57,6 +63,15 @@ export default function ItineraryMap({ activities }: ItineraryMapProps) {
         return null;
     }
 
+    if (useGoogleMaps) {
+        return (
+            <Card className="h-[400px] w-full overflow-hidden border-slate-200 z-0">
+                <GoogleMapsView activities={activities} />
+            </Card>
+        );
+    }
+
+    // Fallback: Leaflet with CartoDB Voyager style
     const points = validActivities.map(a => [a.coordinates!.lat, a.coordinates!.lng] as [number, number]);
     const bounds = L.latLngBounds(points);
 
@@ -68,9 +83,10 @@ export default function ItineraryMap({ activities }: ItineraryMapProps) {
                 scrollWheelZoom={false}
                 style={{ height: "100%", width: "100%" }}
             >
+                {/* CartoDB Voyager - Premium Free Style */}
                 <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 />
 
                 {validActivities.map((act, idx) => (
