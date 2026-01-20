@@ -906,61 +906,68 @@ export default function AITravelPlannerV2() {
                                     const Icon = p.icon;
                                     const isSelected = purposes.includes(p.id);
                                     return (
-                                        <div key={p.id} className="space-y-2">
-                                            <button
-                                                onClick={() => {
-                                                    setPurposes(prev =>
-                                                        prev.includes(p.id)
-                                                            ? (prev.length > 1 ? prev.filter(id => id !== p.id) : prev)
-                                                            : [...prev, p.id]
-                                                    );
-                                                }}
-                                                className={cn(
-                                                    "w-full p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center group h-full",
-                                                    isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md shadow-emerald-50/50" : "border-slate-50 text-slate-400 hover:border-slate-100 hover:bg-slate-50"
-                                                )}
-                                            >
-                                                <div className={cn(
-                                                    "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
-                                                    isSelected ? "bg-emerald-600 text-white scale-110 shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
-                                                )}>
-                                                    <Icon className="w-4 h-4" />
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className={cn("text-[10px] sm:text-xs font-black transition-colors leading-tight", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
-                                                        {isMongolian ? p.label.mn : p.label.en}
-                                                    </p>
-                                                </div>
-                                            </button>
-
-                                            <AnimatePresence>
-                                                {isSelected && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, scale: 0.95 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        exit={{ opacity: 0, scale: 0.95 }}
-                                                        className="col-span-2"
-                                                    >
-                                                        <div className="space-y-2 p-3 bg-white border border-emerald-100 rounded-2xl shadow-inner mt-1">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <Sparkles className="w-3 h-3 text-emerald-500" />
-                                                                <label className="text-[9px] font-black text-emerald-600 uppercase tracking-widest leading-none">
-                                                                    {isMongolian ? `${p.label.mn} хэрэгцээ` : `${p.label.en} Needs`}
-                                                                </label>
-                                                            </div>
-                                                            <Textarea
-                                                                placeholder={isMongolian ? `Жишээ нь: ${p.id === 'medical' ? 'Гоо сайхны хагалгаа' : p.id === 'business' ? 'Хурлаар явах' : p.id === 'procurement' ? 'Тавилга, бэлэн хувцас татах' : p.id === 'family' ? 'Хүүхдийн парк' : 'Таны тусгай хэрэгцээ...'}` : `e.g. Specific details for ${p.label.en.toLowerCase()}...`}
-                                                                value={purposeDetails[p.id] || ""}
-                                                                onChange={(e) => setPurposeDetails(prev => ({ ...prev, [p.id]: e.target.value }))}
-                                                                className="min-h-[60px] bg-slate-50 border-none rounded-xl text-[10px] font-medium placeholder:text-slate-300 focus-visible:ring-emerald-500 resize-none"
-                                                            />
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
+                                        <button
+                                            key={p.id}
+                                            onClick={() => {
+                                                setPurposes(prev =>
+                                                    prev.includes(p.id)
+                                                        ? (prev.length > 1 ? prev.filter(id => id !== p.id) : prev)
+                                                        : [...prev, p.id]
+                                                );
+                                            }}
+                                            className={cn(
+                                                "w-full p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center group h-full",
+                                                isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md shadow-emerald-50/50" : "border-slate-50 text-slate-400 hover:border-slate-100 hover:bg-slate-50"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
+                                                isSelected ? "bg-emerald-600 text-white scale-110 shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
+                                            )}>
+                                                <Icon className="w-4 h-4" />
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <p className={cn("text-[10px] sm:text-xs font-black transition-colors leading-tight", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
+                                                    {isMongolian ? p.label.mn : p.label.en}
+                                                </p>
+                                            </div>
+                                        </button>
                                     );
                                 })}
+                            </div>
+
+                            {/* Detatched Detail Textareas */}
+                            <div className="space-y-3">
+                                <AnimatePresence mode="popLayout">
+                                    {purposes.map((id) => {
+                                        const p = tripPurposes.find(x => x.id === id);
+                                        if (!p) return null;
+                                        return (
+                                            <motion.div
+                                                key={id}
+                                                initial={{ opacity: 0, y: 10, height: 0 }}
+                                                animate={{ opacity: 1, y: 0, height: "auto" }}
+                                                exit={{ opacity: 0, y: 10, height: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="space-y-2 p-4 bg-emerald-50/30 border border-emerald-100 rounded-2xl">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <Sparkles className="w-3 h-3 text-emerald-500" />
+                                                        <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">
+                                                            {isMongolian ? `${p.label.mn} хэрэгцээ` : `${p.label.en} Needs`}
+                                                        </label>
+                                                    </div>
+                                                    <Textarea
+                                                        placeholder={isMongolian ? `Жишээ нь: ${p.id === 'medical' ? 'Гоо сайхны хагалгаа' : p.id === 'business' ? 'Хурлаар явах' : p.id === 'procurement' ? 'Тавилга, бэлэн хувцас татах' : p.id === 'family' ? 'Хүүхдийн парк' : 'Таны тусгай хэрэгцээ...'}` : `e.g. Specific details for ${p.label.en.toLowerCase()}...`}
+                                                        value={purposeDetails[p.id] || ""}
+                                                        onChange={(e) => setPurposeDetails(prev => ({ ...prev, [p.id]: e.target.value }))}
+                                                        className="min-h-[70px] bg-white/80 border-none rounded-xl text-[11px] font-medium placeholder:text-slate-300 focus-visible:ring-emerald-500 resize-none shadow-sm"
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
                             </div>
                         </Card>
 
