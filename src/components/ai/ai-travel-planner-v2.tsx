@@ -610,12 +610,12 @@ export default function AITravelPlannerV2() {
     // --- Components for Steps ---
 
     const StepIndicator = () => (
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="flex items-center justify-start md:justify-center gap-2 mb-8 overflow-x-auto scrollbar-hide pb-2">
             {[1, 2, 3, 4, 5, 6].map((num) => (
                 <div key={num} className="flex items-center">
                     <div
                         className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
+                            "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0",
                             step === num ? "bg-emerald-600 text-white scale-110 shadow-md" :
                                 step > num ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-400"
                         )}
@@ -624,7 +624,7 @@ export default function AITravelPlannerV2() {
                     </div>
                     {num < 6 && (
                         <div className={cn(
-                            "w-8 h-1 mx-1 rounded-full",
+                            "w-8 h-1 mx-1 rounded-full shrink-0",
                             step > num ? "bg-emerald-200" : "bg-slate-100"
                         )} />
                     )}
@@ -724,13 +724,13 @@ export default function AITravelPlannerV2() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Хонох өдөр" : "Duration"}</label>
-                                <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+                                <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100 overflow-x-auto scrollbar-hide">
                                     {[3, 5, 7, 10, 14, 21].map((d) => (
                                         <button
                                             key={d}
                                             onClick={() => setDuration(d)}
                                             className={cn(
-                                                "flex-1 py-3 rounded-xl text-xs sm:text-sm font-black transition-all",
+                                                "flex-1 min-w-[60px] py-3 rounded-xl text-xs sm:text-sm font-black transition-all",
                                                 duration === d ? "bg-white text-emerald-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
                                             )}
                                         >
