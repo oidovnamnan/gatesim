@@ -1555,19 +1555,19 @@ export default function AITravelPlannerV2() {
                             )}
 
                             <div className="flex justify-between items-center pt-4 gap-2">
-                                <Button variant="ghost" onClick={handleBack} className="h-14 px-4 sm:px-8 rounded-2xl font-bold shrink-0">
+                                <Button variant="ghost" onClick={handleBack} className="h-12 sm:h-14 px-2 sm:px-8 rounded-2xl font-bold shrink-0">
                                     <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
-                                    {isMongolian ? "Буцах" : "Back"}
+                                    <span className="hidden sm:inline">{isMongolian ? "Буцах" : "Back"}</span>
                                 </Button>
                                 <div className="flex gap-2 flex-1 sm:flex-initial">
                                     <Button
                                         variant="outline"
                                         onClick={handleSkipStep4}
-                                        className="h-14 px-4 sm:px-8 rounded-2xl font-bold border-slate-200 text-slate-500 hover:bg-slate-50"
+                                        className="h-12 sm:h-14 px-3 sm:px-8 rounded-2xl font-bold border-slate-200 text-slate-500 hover:bg-slate-50 text-xs sm:text-base"
                                     >
                                         {isMongolian ? "Алгасах" : "Skip"}
                                     </Button>
-                                    <Button onClick={handleNext} disabled={isDiscoveryLoading} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
+                                    <Button onClick={handleNext} disabled={isDiscoveryLoading} className="h-12 sm:h-14 px-4 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
                                         {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
                                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                                     </Button>
@@ -1734,22 +1734,22 @@ export default function AITravelPlannerV2() {
                             )}
 
                             <div className="flex justify-between items-center pt-4 gap-2">
-                                <Button variant="ghost" onClick={handleBack} className="h-14 px-4 sm:px-8 rounded-2xl font-bold shrink-0">
+                                <Button variant="ghost" onClick={handleBack} className="h-12 sm:h-14 px-2 sm:px-8 rounded-2xl font-bold shrink-0">
                                     <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
-                                    {isMongolian ? "Буцах" : "Back"}
+                                    <span className="hidden sm:inline">{isMongolian ? "Буцах" : "Back"}</span>
                                 </Button>
                                 <div className="flex gap-2 flex-1 sm:flex-initial">
                                     <Button
                                         variant="outline"
                                         onClick={handleSkipStep5}
-                                        className="h-14 px-4 sm:px-8 rounded-2xl font-bold border-slate-200 text-slate-500 hover:bg-slate-50"
+                                        className="h-12 sm:h-14 px-3 sm:px-8 rounded-2xl font-bold border-slate-200 text-slate-500 hover:bg-slate-50 text-xs sm:text-base"
                                     >
                                         {isMongolian ? "Алгасах" : "Skip"}
                                     </Button>
                                     <Button
                                         onClick={handleActivitiesContinue}
                                         disabled={isDiscoveryLoading}
-                                        className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center"
+                                        className="h-12 sm:h-14 px-4 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center"
                                     >
                                         {cityRoute.length === 0 || activeCityTab === cityRoute[cityRoute.length - 1]?.name
                                             ? (isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan")
