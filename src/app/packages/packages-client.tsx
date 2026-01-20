@@ -195,7 +195,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
     const hasMore = displayCount < filteredPackages.length;
 
     return (
-        <div className="min-h-screen pb-20 md:pb-8 bg-background">
+        <div className="min-h-screen pb-32 md:pb-8 bg-background">
             <div className="md:hidden bg-white/30 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 shadow-sm">
                 <div className="h-14 flex items-center justify-center relative px-4">
                     <h1 className="text-lg font-bold text-slate-900 drop-shadow-sm">{t("packages")}</h1>
@@ -221,7 +221,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     </div>
                 )}
 
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
                     <button
                         onClick={() => setSelectedDuration(null)}
                         className={cn(
@@ -268,7 +268,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     </button>
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
                     <button
                         onClick={() => setSelectedCountry(null)}
                         className={cn(

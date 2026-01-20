@@ -359,16 +359,16 @@ export function PackageCardCompact({
                             </h4>
                             <p className="font-black text-slate-900 text-sm whitespace-nowrap">₮{price.toLocaleString()}</p>
                         </div>
-                        <div className="flex items-center justify-between mt-1">
-                            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">{data}</span>
-                                <span className="text-slate-300">•</span>
-                                <span>{validityDays} {t("day")}</span>
+                        <div className="flex items-start justify-between mt-1 gap-1">
+                            <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-slate-600 font-medium">
+                                <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold shrink-0">{data}</span>
+                                <span className="text-slate-300 hidden sm:inline">•</span>
+                                <span className="shrink-0">{validityDays} {t("day")}</span>
 
                                 {isRegional && (
                                     <>
-                                        <span className="text-slate-300">•</span>
-                                        <span className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                        <span className="text-slate-300 hidden sm:inline">•</span>
+                                        <span className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 shrink-0">
                                             {t("regional")}
                                         </span>
                                     </>
@@ -377,9 +377,9 @@ export function PackageCardCompact({
                                 {/* VPN Badge for Compact View */}
                                 {countries.includes("CN") && (
                                     <>
-                                        <span className="text-slate-300">•</span>
-                                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 font-bold">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-slate-300 hidden sm:inline">•</span>
+                                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 font-bold shrink-0">
+                                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                                             {t("vpnIncluded")}
                                         </span>
                                     </>
@@ -388,14 +388,14 @@ export function PackageCardCompact({
 
                             {/* Mini Flags for list view regional packages */}
                             {isRegional && (
-                                <div className="flex -space-x-1 ml-2">
+                                <div className="flex -space-x-1 ml-auto shrink-0 self-end pb-0.5">
                                     {countries.filter(c => c !== primaryCountry).slice(0, 3).map(c => (
-                                        <div key={c} className="w-4 h-4 rounded-full bg-slate-100 border border-white flex items-center justify-center text-[8px] leading-none shadow-sm" title={c}>
+                                        <div key={c} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-slate-100 border border-white flex items-center justify-center text-[7px] sm:text-[8px] leading-none shadow-sm" title={c}>
                                             {getCountryFlag(c)}
                                         </div>
                                     ))}
                                     {countries.length > 4 && (
-                                        <div className="w-4 h-4 rounded-full bg-slate-900 text-[white] text-[6px] font-bold flex items-center justify-center border border-white shadow-sm">
+                                        <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-slate-900 text-[white] text-[5px] sm:text-[6px] font-bold flex items-center justify-center border border-white shadow-sm">
                                             +{countries.length - 4}
                                         </div>
                                     )}

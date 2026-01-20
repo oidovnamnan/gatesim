@@ -614,7 +614,7 @@ export default function AITravelPlannerV2() {
     );
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8 pb-20">
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
                 <Button
@@ -626,13 +626,13 @@ export default function AITravelPlannerV2() {
                     <ArrowLeft className="w-6 h-6 text-slate-700" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-black flex items-center gap-2 whitespace-nowrap">
-                        <Sparkles className="w-6 h-6 text-emerald-500 shrink-0" />
+                    <h1 className="text-xl sm:text-2xl font-black flex items-center gap-2 whitespace-nowrap">
+                        <Sparkles className="w-5 h-5 sm:w-6 h-6 text-emerald-500 shrink-0" />
                         <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-600 bg-clip-text text-transparent">
                             {isMongolian ? "Gate Аялал Төлөвлөгч" : "Gate Travel Planner"}
                         </span>
                     </h1>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-slate-500 text-[10px] sm:text-sm">
                         {isMongolian ? "Дээд зэрэглэлийн нарийвчлалтай төлөвлөлт" : "Professional-grade precision planning"}
                     </p>
                 </div>
@@ -980,39 +980,43 @@ export default function AITravelPlannerV2() {
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {suggestedCities.map((c) => (
-                                                        <button
-                                                            key={c.name}
-                                                            onClick={() => addCity(c.name)}
-                                                            disabled={selectedCities.includes(c.name)}
-                                                            className={cn(
-                                                                "group text-left px-4 py-3 rounded-2xl border-2 transition-all max-w-[200px] relative",
-                                                                selectedCities.includes(c.name)
-                                                                    ? "border-emerald-100 bg-emerald-50 opacity-40 grayscale cursor-not-allowed"
-                                                                    : "border-slate-50 bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50"
-                                                            )}
-                                                        >
-                                                            <div className="flex items-center justify-between mb-1">
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-xs font-black text-slate-900 truncate pr-2">{isMongolian ? c.nameMn : c.name}</span>
-                                                                    {c.distance && (
-                                                                        <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full w-fit mt-0.5">
-                                                                            {c.distance}
-                                                                        </span>
-                                                                    )}
+                                                    {suggestedCities.map((c) => {
+                                                        const isSelected = selectedCities.includes(c.name);
+                                                        return (
+                                                            <button
+                                                                key={c.name}
+                                                                onClick={() => isSelected ? removeCity(c.name) : addCity(c.name)}
+                                                                className={cn(
+                                                                    "group text-left px-4 py-3 rounded-2xl border-2 transition-all max-w-[200px] relative",
+                                                                    isSelected
+                                                                        ? "border-emerald-200 bg-emerald-50"
+                                                                        : "border-slate-50 bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50"
+                                                                )}
+                                                            >
+                                                                <div className={cn("transition-all", isSelected ? "opacity-20 grayscale" : "opacity-100")}>
+                                                                    <div className="flex items-center justify-between mb-1">
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-xs font-black text-slate-900 truncate pr-2">{isMongolian ? c.nameMn : c.name}</span>
+                                                                            {c.distance && (
+                                                                                <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full w-fit mt-0.5">
+                                                                                    {c.distance}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        {!isSelected && <Plus className="w-3 h-3 text-emerald-500 shrink-0" />}
+                                                                    </div>
+                                                                    <p className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-2 italic">
+                                                                        {c.reason}
+                                                                    </p>
                                                                 </div>
-                                                                <Plus className="w-3 h-3 text-emerald-500 shrink-0" />
-                                                            </div>
-                                                            <p className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-2 italic">
-                                                                {c.reason}
-                                                            </p>
-                                                            {selectedCities.includes(c.name) && (
-                                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                                    <Check className="w-5 h-5 text-emerald-600" />
-                                                                </div>
-                                                            )}
-                                                        </button>
-                                                    ))}
+                                                                {isSelected && (
+                                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                                        <Check className="w-6 h-6 text-emerald-600" />
+                                                                    </div>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
@@ -1532,22 +1536,22 @@ export default function AITravelPlannerV2() {
                             ) : itinerary ? (
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                     <div className="lg:col-span-2 space-y-6">
-                                        <Card className="p-6 rounded-3xl border-slate-100 shadow-sm flex justify-between items-end">
+                                        <Card className="p-6 rounded-3xl border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-4">
                                             <div>
                                                 <Badge className="bg-emerald-100 text-emerald-700 border-none mb-2">{itinerary.city || destination} • {itinerary.duration} {isMongolian ? "хоног" : "days"}</Badge>
-                                                <h1 className="text-3xl font-black text-slate-900">{isMongolian ? "Аяллын Маршрут" : "Travel Itinerary"}</h1>
+                                                <h1 className="text-2xl sm:text-3xl font-black text-slate-900">{isMongolian ? "Аяллын Маршрут" : "Travel Itinerary"}</h1>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="text-left sm:text-right w-full sm:w-auto">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Нийт төсөв" : "Total Budget"}</p>
-                                                <div className="flex flex-col items-end">
+                                                <div className="flex flex-col items-start sm:items-end">
                                                     {itinerary.totalBudget?.includes(' / ') ? (
                                                         itinerary.totalBudget.split(' / ').map((val: string, idx: number) => (
-                                                            <p key={idx} className={`${idx === 0 ? 'text-xl font-black text-emerald-600' : 'text-sm font-bold text-slate-500'}`}>
+                                                            <p key={idx} className={`${idx === 0 ? 'text-xl font-black text-emerald-600' : 'text-sm font-bold text-slate-500'} whitespace-nowrap`}>
                                                                 {val}
                                                             </p>
                                                         ))
                                                     ) : (
-                                                        <p className="text-xl font-black text-emerald-600">{itinerary.totalBudget}</p>
+                                                        <p className="text-xl font-black text-emerald-600 whitespace-nowrap">{itinerary.totalBudget}</p>
                                                     )}
                                                 </div>
                                             </div>
@@ -1564,9 +1568,11 @@ export default function AITravelPlannerV2() {
                                                         <div key={idx} className="relative pl-8 group last:pb-0 pb-6 border-l-2 border-slate-100 ml-3">
                                                             <div className="absolute left-[-9px] top-1 w-4 h-4 rounded-full bg-white border-2 border-emerald-500" />
                                                             <div className="space-y-1">
-                                                                <div className="flex items-center justify-between">
-                                                                    <span className="text-xs font-black text-emerald-600">{act.time}</span>
-                                                                    <Badge variant="outline" className="text-[10px] border-slate-100 bg-white font-black text-slate-500">{act.cost}</Badge>
+                                                                <div className="flex items-center justify-between gap-2">
+                                                                    <span className="text-xs font-black text-emerald-600 shrink-0">{act.time}</span>
+                                                                    <Badge variant="outline" className="text-[10px] border-slate-100 bg-white font-black text-slate-500 py-0 h-auto leading-tight min-h-4 flex-1 sm:flex-initial text-center break-words">
+                                                                        {act.cost}
+                                                                    </Badge>
                                                                 </div>
                                                                 <h4 className="font-bold text-slate-900">{act.activity}</h4>
                                                                 <div className="flex items-center gap-1.5 text-xs text-slate-400"><MapPin className="w-3 h-3" /><span>{act.location}</span></div>
