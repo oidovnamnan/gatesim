@@ -724,49 +724,69 @@ export default function AITravelPlannerV2() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Хонох өдөр" : "Duration"}</label>
-                                <div className="space-y-6 py-2">
-                                    <div className="relative h-2 flex items-center group">
-                                        <div className="absolute inset-x-0 h-1.5 bg-slate-100 rounded-full" />
+                                <div className="space-y-8 py-4 px-2">
+                                    <div className="relative flex items-center group touch-none">
+                                        {/* Progressive Background Track */}
+                                        <div className="absolute inset-x-0 h-2 bg-slate-100 rounded-full" />
                                         <div
-                                            className="absolute h-1.5 bg-emerald-500 rounded-full transition-all duration-300"
+                                            className="absolute h-2 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-150"
                                             style={{
-                                                width: `${([3, 5, 7, 10, 14, 21].indexOf(duration) / 5) * 100}%`
+                                                width: `${((duration - 1) / 29) * 100}%`
                                             }}
                                         />
+
+                                        {/* The Actual Range Input */}
                                         <input
                                             type="range"
-                                            min="0"
-                                            max="5"
+                                            min="1"
+                                            max="30"
                                             step="1"
-                                            value={[3, 5, 7, 10, 14, 21].indexOf(duration)}
-                                            onChange={(e) => setDuration([3, 5, 7, 10, 14, 21][parseInt(e.target.value)])}
-                                            className="absolute inset-x-0 w-full h-2 opacity-0 cursor-pointer z-10"
+                                            value={duration}
+                                            onChange={(e) => setDuration(parseInt(e.target.value))}
+                                            className="absolute inset-x-0 w-full h-6 opacity-0 cursor-pointer z-20"
                                         />
+
+                                        {/* Visual Thumb */}
                                         <div
-                                            className="absolute w-5 h-5 bg-white border-2 border-emerald-500 rounded-full shadow-md pointer-events-none transition-all duration-300 transform -translate-y-1/2 top-1/2"
+                                            className="absolute w-8 h-8 bg-white border-2 border-emerald-500 rounded-full shadow-xl pointer-events-none transition-all duration-150 transform -translate-y-1/2 top-1/2 flex items-center justify-center z-10"
                                             style={{
-                                                left: `calc(${([3, 5, 7, 10, 14, 21].indexOf(duration) / 5) * 100}% - 10px)`
+                                                left: `calc(${((duration - 1) / 29) * 100}% - 16px)`
                                             }}
-                                        />
+                                        >
+                                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between px-1">
-                                        {[3, 5, 7, 10, 14, 21].map((d) => (
-                                            <button
-                                                key={d}
-                                                onClick={() => setDuration(d)}
-                                                className={cn(
-                                                    "text-[10px] font-black transition-all",
-                                                    duration === d ? "text-emerald-600 scale-110" : "text-slate-300 hover:text-slate-400"
-                                                )}
+
+                                    {/* Labels & Numeric Display */}
+                                    <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{isMongolian ? "Нийт хоног" : "Duration"}</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-3xl font-black text-slate-900 tracking-tighter">{duration}</span>
+                                                <span className="text-sm font-bold text-slate-400">{isMongolian ? "хоног" : "days"}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Quick Toggles */}
+                                        <div className="flex gap-1 bg-white p-1 rounded-xl border border-slate-100 shadow-sm">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-10 w-10 text-slate-400 hover:text-emerald-600"
+                                                onClick={() => setDuration(Math.max(1, duration - 1))}
                                             >
-                                                {d}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div className="text-center">
-                                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 font-black text-xs py-1 px-4 rounded-full">
-                                            {duration} {isMongolian ? "хоногийн аялал" : "days trip"}
-                                        </Badge>
+                                                <Minus className="w-4 h-4" />
+                                            </Button>
+                                            <div className="w-px h-6 bg-slate-100 self-center" />
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-10 w-10 text-slate-400 hover:text-emerald-600"
+                                                onClick={() => setDuration(Math.min(30, duration + 1))}
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
