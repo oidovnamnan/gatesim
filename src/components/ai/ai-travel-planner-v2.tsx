@@ -587,6 +587,24 @@ export default function AITravelPlannerV2() {
         setStep(prev => prev + 1);
     };
 
+    const handleSkipStep4 = () => {
+        // Skip hotel selection and go to activities
+        const firstCity = cityRoute[0]?.name || "";
+        setActiveCityTab(firstCity);
+        const relevantCategories = purposes
+            .map(p => PURPOSE_TO_CATEGORY[p])
+            .filter(Boolean);
+        const bestCategory = (relevantCategories[0] || 'attraction') as any;
+        setActiveCategory(bestCategory);
+        fetchDiscoveryData(bestCategory, firstCity);
+        setStep(5);
+    };
+
+    const handleSkipStep5 = () => {
+        // Skip activity selection and generate plan
+        handleFinalize();
+    };
+
     const handleBack = () => {
         if (step === 4) {
             const currentCityIndex = cityRoute.findIndex(c => c.name === activeCityTab);
@@ -1456,10 +1474,19 @@ export default function AITravelPlannerV2() {
                                     <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                                     {isMongolian ? "Буцах" : "Back"}
                                 </Button>
-                                <Button onClick={handleNext} disabled={isDiscoveryLoading} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
-                                    {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
-                                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
-                                </Button>
+                                <div className="flex gap-2 flex-1 sm:flex-initial">
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleSkipStep4}
+                                        className="h-14 px-4 sm:px-8 rounded-2xl font-bold border-slate-200 text-slate-500 hover:bg-slate-50"
+                                    >
+                                        {isMongolian ? "Алгасах" : "Skip"}
+                                    </Button>
+                                    <Button onClick={handleNext} disabled={isDiscoveryLoading} className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center">
+                                        {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
+                                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </div>
                             </div>
                         </motion.div>
                     )
@@ -1626,17 +1653,26 @@ export default function AITravelPlannerV2() {
                                     <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                                     {isMongolian ? "Буцах" : "Back"}
                                 </Button>
-                                <Button
-                                    onClick={handleActivitiesContinue}
-                                    disabled={isDiscoveryLoading}
-                                    className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center"
-                                >
-                                    {cityRoute.length === 0 || activeCityTab === cityRoute[cityRoute.length - 1]?.name
-                                        ? (isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan")
-                                        : (isMongolian ? "Үргэлжлүүлэх" : "Continue")
-                                    }
-                                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
-                                </Button>
+                                <div className="flex gap-2 flex-1 sm:flex-initial">
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleSkipStep5}
+                                        className="h-14 px-4 sm:px-8 rounded-2xl font-bold border-slate-200 text-slate-500 hover:bg-slate-50"
+                                    >
+                                        {isMongolian ? "Алгасах" : "Skip"}
+                                    </Button>
+                                    <Button
+                                        onClick={handleActivitiesContinue}
+                                        disabled={isDiscoveryLoading}
+                                        className="h-14 px-5 sm:px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-lg shadow-emerald-200 group flex-1 sm:flex-initial justify-center"
+                                    >
+                                        {cityRoute.length === 0 || activeCityTab === cityRoute[cityRoute.length - 1]?.name
+                                            ? (isMongolian ? "Төлөвлөгөө гаргах" : "Generate Plan")
+                                            : (isMongolian ? "Үргэлжлүүлэх" : "Continue")
+                                        }
+                                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </div>
                             </div>
                         </motion.div>
                     )
