@@ -978,7 +978,7 @@ export default function AITravelPlannerV2() {
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Улс хооронд" : "International"}</span>
                                     </div>
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                                    <div className="grid grid-cols-3 gap-2 pb-1">
                                         {[
                                             { id: 'flight', icon: Plane, label: { mn: 'Онгоц', en: 'Flight' } },
                                             { id: 'train', icon: TrainFront, label: { mn: 'Галт тэрэг', en: 'Train' } },
@@ -991,12 +991,12 @@ export default function AITravelPlannerV2() {
                                                     key={t.id}
                                                     onClick={() => setIntlTransport(t.id)}
                                                     className={cn(
-                                                        "px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 shrink-0 min-w-[100px] justify-center",
+                                                        "px-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 justify-center",
                                                         isActive ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 bg-white"
                                                     )}
                                                 >
                                                     <Icon className="w-3.5 h-3.5" />
-                                                    <span className="text-[11px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
+                                                    <span className="text-[10px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
                                                 </button>
                                             );
                                         })}
@@ -1009,7 +1009,7 @@ export default function AITravelPlannerV2() {
                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Хот хооронд" : "Inter-city"}</span>
                                     </div>
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                                    <div className="grid grid-cols-3 gap-2 pb-1">
                                         {[
                                             { id: 'highspeed_train', icon: TrainFront, label: { mn: 'Хурдны галт тэрэг', en: 'High-speed' } },
                                             { id: 'car', icon: Car, label: { mn: 'Машин', en: 'Private Car' } },
@@ -1022,12 +1022,12 @@ export default function AITravelPlannerV2() {
                                                     key={t.id}
                                                     onClick={() => setInterCityTransport(t.id)}
                                                     className={cn(
-                                                        "px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 shrink-0 min-w-[100px] justify-center",
+                                                        "px-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 justify-center",
                                                         isActive ? "border-blue-500 bg-blue-50 text-blue-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 bg-white"
                                                     )}
                                                 >
                                                     <Icon className="w-3.5 h-3.5" />
-                                                    <span className="text-[11px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
+                                                    <span className="text-[10px] font-black tracking-tight text-center leading-tight">{isMongolian ? t.label.mn : t.label.en}</span>
                                                 </button>
                                             );
                                         })}
@@ -1040,7 +1040,7 @@ export default function AITravelPlannerV2() {
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Хот дотор" : "Inner-city"}</span>
                                     </div>
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                                    <div className="grid grid-cols-3 gap-2 pb-1">
                                         {[
                                             { id: 'public', icon: Bus, label: { mn: 'Нийтийн тээвэр', en: 'Public' } },
                                             { id: 'taxi', icon: Car, label: { mn: 'Такси', en: 'Taxi' } },
@@ -1053,12 +1053,12 @@ export default function AITravelPlannerV2() {
                                                     key={t.id}
                                                     onClick={() => setInnerCityTransport(t.id)}
                                                     className={cn(
-                                                        "px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 shrink-0 min-w-[100px] justify-center",
+                                                        "px-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 justify-center",
                                                         isActive ? "border-amber-500 bg-amber-50 text-amber-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 bg-white"
                                                     )}
                                                 >
                                                     <Icon className="w-3.5 h-3.5" />
-                                                    <span className="text-[11px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
+                                                    <span className="text-[10px] font-black tracking-tight text-center leading-tight">{isMongolian ? t.label.mn : t.label.en}</span>
                                                 </button>
                                             );
                                         })}
