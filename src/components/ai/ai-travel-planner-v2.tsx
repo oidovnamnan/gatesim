@@ -816,12 +816,24 @@ export default function AITravelPlannerV2() {
                                                         );
                                                     }}
                                                     className={cn(
-                                                        "p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-1",
-                                                        isSelected ? "border-emerald-500 bg-white text-emerald-900 shadow-sm" : "border-white bg-white/50 text-slate-400 hover:border-emerald-100"
+                                                        "p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 relative overflow-hidden",
+                                                        isSelected
+                                                            ? "border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-100 scale-105"
+                                                            : "border-slate-50 bg-white text-slate-400 hover:border-emerald-200"
                                                     )}
                                                 >
                                                     <span className="text-xs font-black">{isMongolian ? d.label.mn : d.label.en}</span>
-                                                    <span className="text-[8px] font-medium opacity-60 text-center leading-tight">{isMongolian ? d.desc.mn : d.desc.en}</span>
+                                                    <span className={cn(
+                                                        "text-[8px] font-medium text-center leading-tight",
+                                                        isSelected ? "text-emerald-50" : "opacity-60"
+                                                    )}>
+                                                        {isMongolian ? d.desc.mn : d.desc.en}
+                                                    </span>
+                                                    {isSelected && (
+                                                        <div className="absolute top-1 right-1">
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        </div>
+                                                    )}
                                                 </button>
                                             );
                                         })}
