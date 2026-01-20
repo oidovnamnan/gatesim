@@ -889,48 +889,50 @@ export default function AITravelPlannerV2() {
 
                         <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Аяллын зорилго" : "Trip Purposes"}</label>
-                            <div className="grid grid-cols-1 gap-4">
+                            <div className="grid grid-cols-2 gap-3 pb-2 transition-all">
                                 {tripPurposes.map((p) => {
                                     const Icon = p.icon;
                                     const isSelected = purposes.includes(p.id);
                                     return (
-                                        <div key={p.id} className="space-y-3">
+                                        <div key={p.id} className="space-y-2">
                                             <button
-                                                onClick={() => togglePurpose(p.id)}
+                                                onClick={() => {
+                                                    setPurposes(prev =>
+                                                        prev.includes(p.id)
+                                                            ? (prev.length > 1 ? prev.filter(id => id !== p.id) : prev)
+                                                            : [...prev, p.id]
+                                                    );
+                                                }}
                                                 className={cn(
-                                                    "w-full p-4 rounded-2xl border-2 transition-all flex items-start gap-4 text-left group",
+                                                    "w-full p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center group h-full",
                                                     isSelected ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md shadow-emerald-50/50" : "border-slate-50 text-slate-400 hover:border-slate-100 hover:bg-slate-50"
                                                 )}
                                             >
                                                 <div className={cn(
-                                                    "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
+                                                    "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
                                                     isSelected ? "bg-emerald-600 text-white scale-110 shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
                                                 )}>
-                                                    <Icon className="w-5 h-5" />
+                                                    <Icon className="w-4 h-4" />
                                                 </div>
-                                                <div className="space-y-0.5 flex-1">
-                                                    <p className={cn("text-sm font-black transition-colors", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
+                                                <div className="space-y-0.5">
+                                                    <p className={cn("text-[10px] sm:text-xs font-black transition-colors leading-tight", isSelected ? "text-emerald-700" : "text-slate-600 uppercase tracking-wide")}>
                                                         {isMongolian ? p.label.mn : p.label.en}
                                                     </p>
-                                                    <p className="text-[10px] font-medium leading-relaxed opacity-80 line-clamp-1">
-                                                        {isMongolian ? p.desc.mn : p.desc.en}
-                                                    </p>
                                                 </div>
-                                                {isSelected && <Check className="w-4 h-4 text-emerald-600 ml-auto shrink-0 mt-1" />}
                                             </button>
 
                                             <AnimatePresence>
                                                 {isSelected && (
                                                     <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        className="overflow-hidden px-1"
+                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.95 }}
+                                                        className="col-span-2"
                                                     >
-                                                        <div className="space-y-2 p-4 bg-white border border-emerald-100 rounded-2xl shadow-inner">
+                                                        <div className="space-y-2 p-3 bg-white border border-emerald-100 rounded-2xl shadow-inner mt-1">
                                                             <div className="flex items-center gap-2 mb-1">
                                                                 <Sparkles className="w-3 h-3 text-emerald-500" />
-                                                                <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">
+                                                                <label className="text-[9px] font-black text-emerald-600 uppercase tracking-widest leading-none">
                                                                     {isMongolian ? `${p.label.mn} хэрэгцээ` : `${p.label.en} Needs`}
                                                                 </label>
                                                             </div>
@@ -938,11 +940,8 @@ export default function AITravelPlannerV2() {
                                                                 placeholder={isMongolian ? `Жишээ нь: ${p.id === 'medical' ? 'Гоо сайхны хагалгаа' : p.id === 'business' ? 'Хурлаар явах' : p.id === 'procurement' ? 'Тавилга, бэлэн хувцас татах' : p.id === 'family' ? 'Хүүхдийн парк' : 'Таны тусгай хэрэгцээ...'}` : `e.g. Specific details for ${p.label.en.toLowerCase()}...`}
                                                                 value={purposeDetails[p.id] || ""}
                                                                 onChange={(e) => setPurposeDetails(prev => ({ ...prev, [p.id]: e.target.value }))}
-                                                                className="min-h-[80px] bg-slate-50 border-none rounded-xl text-xs font-medium placeholder:text-slate-300 focus-visible:ring-emerald-500 resize-none"
+                                                                className="min-h-[60px] bg-slate-50 border-none rounded-xl text-[10px] font-medium placeholder:text-slate-300 focus-visible:ring-emerald-500 resize-none"
                                                             />
-                                                            <p className="text-[9px] text-slate-400 italic">
-                                                                {isMongolian ? "* AI таны тайлбарт тохирсон хот, газруудыг санал болгоно." : "* AI will suggest cities and spots matching your description."}
-                                                            </p>
                                                         </div>
                                                     </motion.div>
                                                 )}
@@ -960,14 +959,14 @@ export default function AITravelPlannerV2() {
                                 <p className="text-[10px] text-slate-400 font-medium">{isMongolian ? "* Таны аяллын төлөвлөгөө эдгээр сонголтуудад тулгуурлан боловсрогдоно" : "* Your itinerary will be tailored based on these choices"}</p>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 gap-6">
                                 {/* International */}
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     <div className="flex items-center gap-2 px-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                        <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Улс хооронд" : "International"}</span>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Улс хооронд" : "International"}</span>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                                         {[
                                             { id: 'flight', icon: Plane, label: { mn: 'Онгоц', en: 'Flight' } },
                                             { id: 'train', icon: TrainFront, label: { mn: 'Галт тэрэг', en: 'Train' } },
@@ -980,13 +979,12 @@ export default function AITravelPlannerV2() {
                                                     key={t.id}
                                                     onClick={() => setIntlTransport(t.id)}
                                                     className={cn(
-                                                        "w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3",
+                                                        "px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 shrink-0 min-w-[100px] justify-center",
                                                         isActive ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 bg-white"
                                                     )}
                                                 >
-                                                    <Icon className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">{isMongolian ? t.label.mn : t.label.en}</span>
-                                                    {isActive && <Check className="w-3.5 h-3.5 text-emerald-600 ml-auto" />}
+                                                    <Icon className="w-3.5 h-3.5" />
+                                                    <span className="text-[11px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
                                                 </button>
                                             );
                                         })}
@@ -994,16 +992,16 @@ export default function AITravelPlannerV2() {
                                 </div>
 
                                 {/* Inter-city */}
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     <div className="flex items-center gap-2 px-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                        <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Хот хооронд" : "Inter-city"}</span>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Хот хооронд" : "Inter-city"}</span>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                                         {[
-                                            { id: 'highspeed_train', icon: TrainFront, label: { mn: 'Хурдны галт тэрэг', en: 'High-speed Train' } },
+                                            { id: 'highspeed_train', icon: TrainFront, label: { mn: 'Хурдны галт тэрэг', en: 'High-speed' } },
                                             { id: 'car', icon: Car, label: { mn: 'Машин', en: 'Private Car' } },
-                                            { id: 'flight', icon: Plane, label: { mn: 'Нислэг', en: 'Internal Flight' } },
+                                            { id: 'flight', icon: Plane, label: { mn: 'Нислэг', en: 'Flight' } },
                                         ].map((t) => {
                                             const Icon = t.icon;
                                             const isActive = interCityTransport === t.id;
@@ -1012,13 +1010,12 @@ export default function AITravelPlannerV2() {
                                                     key={t.id}
                                                     onClick={() => setInterCityTransport(t.id)}
                                                     className={cn(
-                                                        "w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3",
+                                                        "px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 shrink-0 min-w-[100px] justify-center",
                                                         isActive ? "border-blue-500 bg-blue-50 text-blue-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 bg-white"
                                                     )}
                                                 >
-                                                    <Icon className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">{isMongolian ? t.label.mn : t.label.en}</span>
-                                                    {isActive && <Check className="w-3.5 h-3.5 text-blue-600 ml-auto" />}
+                                                    <Icon className="w-3.5 h-3.5" />
+                                                    <span className="text-[11px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
                                                 </button>
                                             );
                                         })}
@@ -1026,16 +1023,16 @@ export default function AITravelPlannerV2() {
                                 </div>
 
                                 {/* Inner-city */}
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     <div className="flex items-center gap-2 px-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                        <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Хот дотор" : "Inner-city"}</span>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">{isMongolian ? "Хот дотор" : "Inner-city"}</span>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                                         {[
-                                            { id: 'public', icon: Bus, label: { mn: 'Нийтийн тээвэр', en: 'Public Transport' } },
-                                            { id: 'taxi', icon: Car, label: { mn: 'Такси', en: 'Taxi / Uber' } },
-                                            { id: 'private_car', icon: Car, label: { mn: 'Хувийн машин', en: 'Private Driver' } },
+                                            { id: 'public', icon: Bus, label: { mn: 'Нийтийн тээвэр', en: 'Public' } },
+                                            { id: 'taxi', icon: Car, label: { mn: 'Такси', en: 'Taxi' } },
+                                            { id: 'private_car', icon: Car, label: { mn: 'Хувийн машин', en: 'Private' } },
                                         ].map((t) => {
                                             const Icon = t.icon;
                                             const isActive = innerCityTransport === t.id;
@@ -1044,13 +1041,12 @@ export default function AITravelPlannerV2() {
                                                     key={t.id}
                                                     onClick={() => setInnerCityTransport(t.id)}
                                                     className={cn(
-                                                        "w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3",
+                                                        "px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 shrink-0 min-w-[100px] justify-center",
                                                         isActive ? "border-amber-500 bg-amber-50 text-amber-900 shadow-sm" : "border-slate-50 text-slate-400 hover:border-slate-100 bg-white"
                                                     )}
                                                 >
-                                                    <Icon className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">{isMongolian ? t.label.mn : t.label.en}</span>
-                                                    {isActive && <Check className="w-3.5 h-3.5 text-amber-600 ml-auto" />}
+                                                    <Icon className="w-3.5 h-3.5" />
+                                                    <span className="text-[11px] font-black tracking-tight">{isMongolian ? t.label.mn : t.label.en}</span>
                                                 </button>
                                             );
                                         })}
