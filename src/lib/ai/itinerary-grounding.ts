@@ -14,16 +14,16 @@ const LOCAL_ROUTE_REGISTRY: Record<string, RouteGrounding[]> = {
         {
             destination: 'Beijing',
             transportMode: 'train',
-            typicalCost: '$100 - $150 (350,000 - 520,000 MNT) round trip',
-            duration: '~30 hours (including border)',
+            typicalCost: '$150 - $180 (520,000 - 620,000 MNT) per way',
+            duration: '~31 hours',
             scheduleHighlights: [
-                'International train departs UB on Thursday/Sunday (seasonal)',
-                'Local train to Zamiin-Uud departs daily',
-                'Bus from Erlian to Beijing departs daily'
+                'International train K24 departs UB on Thursdays at 07:18 (Resumes June 2025)',
+                'Daily local train 275/276 to Zamiin-Uud (Budget alternative)',
+                'Daily buses from Erlian to Beijing (Price ~240 CNY)'
             ],
             tips: [
                 'Zamiin-Uud border is open 08:00 - 18:00',
-                'Border crossing can take 2-5 hours by bus/car'
+                'Train K24 is very popular; book 2 months in advance via UBTZ app'
             ]
         },
         {
@@ -33,23 +33,23 @@ const LOCAL_ROUTE_REGISTRY: Record<string, RouteGrounding[]> = {
             duration: '~12-15 hours',
             scheduleHighlights: [
                 'Daily buses from Dragon Center to Zamiin-Uud',
-                '649 train to Zamiin-Uud departs daily at 20:50'
+                'Local train 649 departures daily at 20:50'
             ],
             tips: [
-                'Erlian is a border shopping city',
-                'Hotels in Erlian are roughly $20-40 per night'
+                'Erlian is a border shopping city - perfect for procurement',
+                'Hotels in Erlian range from $20-40 (150-300 CNY)'
             ]
         },
         {
             destination: 'China',
             transportMode: 'flight',
-            typicalCost: '$400 - $700 (1,400,000 - 2,400,000 MNT) round trip',
+            typicalCost: '$400 - $700 (1,380,000 - 2,400,000 MNT) round trip',
             duration: '~2.5 hours (Beijing)',
             scheduleHighlights: [
-                'Air China and MIAT operate daily flights'
+                'Air China and MIAT operate daily direct flights to Beijing (PEK/PKX)'
             ],
             tips: [
-                'Arrive at UBN airport 3 hours early'
+                'Direct flights are faster but usually 3-4x the cost of the train'
             ]
         }
     ],
@@ -57,14 +57,15 @@ const LOCAL_ROUTE_REGISTRY: Record<string, RouteGrounding[]> = {
         {
             destination: 'Seoul',
             transportMode: 'flight',
-            typicalCost: '$350 - $600 (1,200,000 - 2,100,000 MNT) round trip',
+            typicalCost: '$390 - $710 (1,350,000 - 2,450,000 MNT) round trip',
             duration: '~3.5 hours',
             scheduleHighlights: [
-                'Multiple daily flights by MIAT, Korean Air, Asiana, Jeju Air'
+                'Daily flights by MIAT, Korean Air, Asiana, and Jeju Air',
+                'MIAT has the most frequent service'
             ],
             tips: [
-                'Incheon airport (ICN) is roughly 1 hour from central Seoul',
-                'AREX train is the fastest way to Seoul Station'
+                'April is often the cheapest month to fly to Seoul',
+                'August is peak season with highest prices'
             ]
         }
     ],
@@ -72,14 +73,13 @@ const LOCAL_ROUTE_REGISTRY: Record<string, RouteGrounding[]> = {
         {
             destination: 'Tokyo',
             transportMode: 'flight',
-            typicalCost: '$500 - $900 (1,700,000 - 3,100,000 MNT) round trip',
+            typicalCost: '$450 - $800 (1,550,000 - 2,750,000 MNT) round trip',
             duration: '~5.5 hours',
             scheduleHighlights: [
-                'Direct flights by MIAT (Narita), Aero Mongolia (Narita)'
+                'Direct flights to Narita (NRT) by MIAT and Aero Mongolia'
             ],
             tips: [
-                'Direct flights are limited to specific days',
-                'Connecting via Seoul/Beijing can be cheaper'
+                'Connecting via Seoul or Beijing can save $100-200 if direct flights are full'
             ]
         }
     ],
@@ -87,13 +87,14 @@ const LOCAL_ROUTE_REGISTRY: Record<string, RouteGrounding[]> = {
         {
             destination: 'Bangkok',
             transportMode: 'flight',
-            typicalCost: '$600 - $1000 (2,100,000 - 3,500,000 MNT) round trip',
+            typicalCost: '$550 - $900 (1,900,000 - 3,100,000 MNT) round trip',
             duration: '~6.5 hours (Direct)',
             scheduleHighlights: [
-                'Direct flights by MIAT (seasonal) or connecting via Seoul/Hong Kong'
+                'MIAT operates seasonal direct flights (mostly Winter)',
+                'Connecting via Hong Kong or Seoul is available year-round'
             ],
             tips: [
-                'Direct flights are mostly in winter season'
+                'March and May are generally the cheapest months for Bangkok'
             ]
         }
     ]

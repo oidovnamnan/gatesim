@@ -1530,7 +1530,17 @@ export default function AITravelPlannerV2() {
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Нийт төсөв" : "Total Budget"}</p>
-                                                <p className="text-xl font-black text-emerald-600">{itinerary.totalBudget}</p>
+                                                <div className="flex flex-col items-end">
+                                                    {itinerary.totalBudget?.includes(' / ') ? (
+                                                        itinerary.totalBudget.split(' / ').map((val: string, idx: number) => (
+                                                            <p key={idx} className={`${idx === 0 ? 'text-xl font-black text-emerald-600' : 'text-sm font-bold text-slate-500'}`}>
+                                                                {val}
+                                                            </p>
+                                                        ))
+                                                    ) : (
+                                                        <p className="text-xl font-black text-emerald-600">{itinerary.totalBudget}</p>
+                                                    )}
+                                                </div>
                                             </div>
                                         </Card>
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { getVerifiedDiscovery } from "@/lib/ai/discovery-grounding";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -70,10 +71,23 @@ export async function POST(request: NextRequest) {
         });
 
         const data = JSON.parse(response.choices[0].message.content || "{}");
+        const aiOptions = data.options || [];
+
+        // --- Verified Grounding Overlay ---
+        // If we have verified data for this city and type, inject it at the top
+        const verifiedOptions = getVerifiedDiscovery(destination, city || "", type);
+
+        // Combine: Verified first, then AI suggestions (removing duplicates by name)
+        const combinedOptions = [...verifiedOptions];
+        aiOptions.forEach((aiOpt: any) => {
+            if (!combinedOptions.some(v => v.name.toLowerCase() === aiOpt.name.toLowerCase())) {
+                combinedOptions.push(aiOpt);
+            }
+        });
 
         return NextResponse.json({
             success: true,
-            options: data.options || [],
+            options: combinedOptions.slice(0, itemCount),
         });
     } catch (error: any) {
         console.error("Grounding Error:", error);

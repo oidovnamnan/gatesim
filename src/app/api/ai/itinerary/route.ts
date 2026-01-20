@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { getGroundingContext } from "@/lib/ai/itinerary-grounding";
 import { countryInfoDatabase } from "@/data/country-info";
 import { airalo } from "@/services/airalo";
+import { getExchangeRates } from "@/lib/currency";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -160,6 +161,14 @@ export async function POST(request: NextRequest) {
       console.error("Airalo fetch failed for itinerary:", e);
     }
 
+    // --- Dynamic Exchange Rates (Khan Bank Approx) ---
+    const rates = await getExchangeRates();
+    const localCurrencyMap: Record<string, string> = {
+      JP: "JPY", KR: "KRW", TH: "THB", CN: "CNY", SG: "SGD", US: "USD"
+    };
+    const localCurrencyCode = localCurrencyMap[destination] || "USD";
+    const localCurrencySymbol = factualInfo?.currencySymbol || "$";
+
     const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries for Mongolian travelers.
     
     ${purposeDescriptions[purposes] || purposes.includes('medical') || purposes.includes('business') || purposes.includes('education') ? `
@@ -182,7 +191,13 @@ export async function POST(request: NextRequest) {
   - **Inter-city:** ${interCityTransport || 'High-speed Train'} (Between cities)
   - **Inner-city:** ${innerCityTransport || 'Public Transport'} (Within cities)
 
-**VISA & CONNECTIVITY (FACTUAL):**
+**ACCURACY & FINANCIALS (FACTUAL):**
+- Exchange Rates (Mongol Bank Official): 1 USD = ${rates.MNT} MNT, 1 USD = ${rates[localCurrencyCode as keyof typeof rates]} ${localCurrencyCode}
+- **Budget Display (TRIPLE):** You MUST show all budget estimates (Total and per-day) in THREE currencies in this exact order: 
+  1. Mongolian Tugrik (₮)
+  2. ${countryName} Local Currency (${localCurrencySymbol})
+  3. US Dollar ($)
+  - Example "totalBudget": "10,350,000 ₮ / 4,140,000 ₩ / 3,000 $"
 - ${visaInstruction}
 - ${esimContext || 'Recommend a generic local eSIM if no specific packages found.'}
 
@@ -203,18 +218,18 @@ ${groundingContext}
 2. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements between cities on the transition days.
 3. **Accommodation**: Use the specific hotels provided. If a hotel name is "Өөрийн сонголт" or "My own choice", explicitly state that the traveler will arrange their own accommodation in that city.
 4. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific details based on the selected International transport.
-5. **Total Budget**: MUST be calculated for ALL ${travelersStr} in BOTH destination currency (e.g., USD/KRW/JPY) AND Mongolian Tugrik (MNT).
-   - Format: "3000 USD / 10,500,000 MNT" (Use accurate current exchange rates).
-   - This Total Budget MUST INCLUDE the international transport cost (Round trip ticket for EVERY traveler) + Accommodation (appropriate for ${travelersStr}, or $0 if "My own choice" is selected) + Daily expenses for everyone.
-5. **Accuracy for Professionals**: For Business/Medical/Education, include REAL-WORLD names of facilities mentioned in the ${purposeDesc} description.
-6. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
+5. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
+    
+**ACCURACY & GROUND TRUTH (CRITICAL):**
+- YOU MUST prioritize the factual data provided in the "LIVE TRANSPORT DATA" and "VISA" sections above. 
+- If the transport is "Train" to Beijing, mention it is the K24 train (if Thurs) or local 275/276.
 
 **RESPONSE FORMAT (JSON):**
 {
   "destination": "${destination}",
   "city": "${city || ''}",
   "duration": ${duration},
-  "totalBudget": "ESTIMATED TOTAL (e.g. 250 USD / 890,000 MNT)",
+  "totalBudget": "MNT / LOCAL / USD (e.g. 890,000 ₮ / 250 $ ...)",
   "visaRequirement": {
     "needed": true/false,
     "type": "e.g. Visa-free, E-visa, or Sticker Visa",
