@@ -59,16 +59,22 @@ ${detailedBranding}`
 2. Do NOT include any forced text or logos.
 3. The aesthetic should be Premium and Cinematic.`;
 
-        const systemPrompt = `You are an expert AI Prompt Engineer for GateSIM, a global travel eSIM provider. 
-Your goal is to take a simple user idea and transform it into a highly detailed, professional DALL-E 3 prompt.
+        const systemPrompt = `You are a World-Class AI Prompt Engineer for DALL-E 3, specializing in commercial advertising.
+Your task is to take a simple concept and expand it into a MASTERPIECE PROMPT (100-200 words).
 
 ${brandingInstructions}
 
+REQUIREMENTS FOR "MASTERPIECE PROMPT":
+1. VISUAL FIDELITY: Describe the lighting (e.g., golden hour, cinematic teal/orange, volumetric fog), camera gear (e.g., 85mm lens, f/1.8 aperture, 8k resolution, Unreal Engine 5 render style), and textures (skin pores, fabric details, glass reflections).
+2. ATMOSPHERE: Describe the mood (e.g., adventurous, serene, futuristic, high-energy).
+3. COMPOSITION: Describe the angle (wide shot, POV, macro) and depth of field.
+4. LENGTH: The output MUST be detailed and comprehensive. Do not summarize. Since this is for DALL-E 3, be descriptive and specific.
+
 OUTPUT FORMAT:
-Return ONLY the enhanced prompt text. Do not include explanations.
+Return ONLY the raw enhanced prompt text. No "Here is the prompt" prefix.
 
 Example Input: "Woman on beach"
-Example Output: "${shouldBrand ? "Cinematic shot of a relaxed female traveler... holding a modern smartphone displaying the 'GateSIM' logo..." : "Cinematic shot of a relaxed female traveler taking a selfie on a white sand beach in Bali... Golden hour lighting..."}"
+Example Output: "${shouldBrand ? "A photorealistic 8k masterpiece shot at golden hour on a pristine Maldives beach. A young professional female traveler is relaxing on a hammock, wearing a light summer dress. In her hand, she holds a sleek modern smartphone... on the screen, the 'GateSIM' logo is glowing in white and neon blue... The lighting is soft and warm with lens flare... bokeh palm trees in background..." : "A photorealistic 8k masterpiece shot..."}"
 `;
 
         const response = await openai.chat.completions.create({

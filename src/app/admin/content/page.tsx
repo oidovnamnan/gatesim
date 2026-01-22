@@ -21,8 +21,17 @@ import {
     ArrowDownRight,
     ArrowUpLeft,
     ArrowUpRight,
-    ArrowDownLeft
+    ArrowDownLeft,
+    Shuffle
 } from "lucide-react";
+
+const RANDOM_IDEAS = [
+    "Digital Nomad working at a beach cafe in Bali with laptop and phone",
+    "Cyberpunk city street at night with neon lights and 5G connection",
+    "Hiker at the top of a mountain taking a selfie with high signal",
+    "Business traveler in a modern airport lounge making a video call",
+    "Friends sharing photos at a music festival"
+];
 
 type PosterSize = "square" | "portrait" | "landscape";
 
@@ -265,11 +274,21 @@ export default function ContentManagerPage() {
                         <div className="space-y-2">
                             <Label>Your Idea</Label>
                             <div className="flex flex-col gap-2">
-                                <Input
-                                    placeholder="e.g. Woman drinking coffee in Paris street"
-                                    value={idea}
-                                    onChange={(e) => setIdea(e.target.value)}
-                                />
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="e.g. Woman drinking coffee in Paris street"
+                                        value={idea}
+                                        onChange={(e) => setIdea(e.target.value)}
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => setIdea(RANDOM_IDEAS[Math.floor(Math.random() * RANDOM_IDEAS.length)])}
+                                        title="Surprise me"
+                                    >
+                                        <Shuffle className="w-4 h-4" />
+                                    </Button>
+                                </div>
                                 <div className="flex items-center space-x-2 py-1">
                                     <input
                                         type="checkbox"
@@ -292,7 +311,7 @@ export default function ContentManagerPage() {
                                     ) : (
                                         <>
                                             <Wand2 className="w-4 h-4 mr-2" />
-                                            Enhance
+                                            Write Pro Prompt
                                         </>
                                     )}
                                 </Button>
