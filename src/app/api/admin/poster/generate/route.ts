@@ -142,8 +142,11 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: "Google API Key missing" }, { status: 500 });
             }
 
-            const modelId = process.env.GOOGLE_MODEL_ID || config.googleModelId || "imagen-3.0-generate-001";
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelId}:predict?key=${googleKey}`, {
+            const configModelId = config.googleModelId || "imagen-3.0-generate-001";
+            const modelIdRaw = (process.env.GOOGLE_MODEL_ID || configModelId).trim();
+            const fullModelName = modelIdRaw.startsWith("models/") ? modelIdRaw : `models/${modelIdRaw}`;
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fullModelName}:predict?key=${googleKey}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
