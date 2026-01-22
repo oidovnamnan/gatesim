@@ -40,14 +40,16 @@ export default async function TeamPage() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <div className="flex-1 w-full text-center md:text-left">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
                         <UserCog className="w-8 h-8 text-primary" />
                         Team Management
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Manage administrators and staff members</p>
                 </div>
-                <AddMemberDialog />
+                <div className="w-full md:w-auto">
+                    <AddMemberDialog />
+                </div>
             </div>
 
             <TeamTable members={teamMembers} currentUserRole={role || ''} />

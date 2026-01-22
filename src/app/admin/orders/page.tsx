@@ -71,9 +71,9 @@ export default function AdminOrdersPage() {
             </div>
 
             {/* Controls Bar */}
-            <div className="flex flex-col md:flex-row gap-4 p-4 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-none">
+            <div className="flex flex-col gap-4 p-4 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-none">
                 {/* Search */}
-                <div className="relative flex-1">
+                <div className="relative w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-white/40" />
                     <Input
                         placeholder="Search by ID, email or package..."
@@ -84,28 +84,32 @@ export default function AdminOrdersPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 items-center">
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-[140px] h-10 rounded-lg bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white">
-                            <Filter className="w-4 h-4 mr-2 text-slate-500 dark:text-white/50" />
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
-                            <SelectItem value="all">All Orders</SelectItem>
-                            <SelectItem value="COMPLETED">Completed</SelectItem>
-                            <SelectItem value="PAID">Paid</SelectItem>
-                            <SelectItem value="PROVISIONING">Provisioning</SelectItem>
-                            <SelectItem value="PROVISIONING_FAILED">Failed</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="grid grid-cols-2 sm:flex gap-2 flex-1">
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="h-10 rounded-lg bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white sm:min-w-[140px]">
+                                <div className="flex items-center gap-2">
+                                    <Filter className="w-4 h-4 text-slate-500 dark:text-white/50" />
+                                    <SelectValue placeholder="Status" />
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                <SelectItem value="all">All Orders</SelectItem>
+                                <SelectItem value="COMPLETED">Completed</SelectItem>
+                                <SelectItem value="PAID">Paid</SelectItem>
+                                <SelectItem value="PROVISIONING">Provisioning</SelectItem>
+                                <SelectItem value="PROVISIONING_FAILED">Failed</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                            </SelectContent>
+                        </Select>
 
-                    <Button variant="outline" onClick={handleRefresh} disabled={loading} className="h-10 rounded-lg bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
-                        <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                        Refresh
-                    </Button>
+                        <Button variant="outline" onClick={handleRefresh} disabled={loading} className="h-10 rounded-lg bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 flex-1 sm:flex-none">
+                            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                            Refresh
+                        </Button>
+                    </div>
 
-                    <Button className="h-10 rounded-lg bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-white/90 text-white dark:text-black font-medium">
+                    <Button className="h-10 rounded-lg bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-white/90 text-white dark:text-black font-medium w-full sm:w-auto">
                         <Download className="w-4 h-4 mr-2" />
                         Export
                     </Button>
