@@ -16,15 +16,16 @@ import {
     Check,
     RefreshCw,
     Wand2,
-    Save
+    Save,
+    Square
 } from "lucide-react";
 
-type PosterSize = "instagram" | "facebook" | "story";
+type PosterSize = "square" | "portrait" | "landscape";
 
-const sizeOptions: { id: PosterSize; label: string; dimensions: string }[] = [
-    { id: "instagram", label: "Instagram Post", dimensions: "1080x1080" },
-    { id: "facebook", label: "Facebook Post", dimensions: "1200x630" },
-    { id: "story", label: "Story/Reels", dimensions: "1080x1920" },
+const sizeOptions: { id: PosterSize; label: string; dimensions: string; ratio: string }[] = [
+    { id: "square", label: "Square", dimensions: "1024x1024", ratio: "1:1" },
+    { id: "portrait", label: "Portrait", dimensions: "1024x1792", ratio: "9:16" },
+    { id: "landscape", label: "Landscape", dimensions: "1792x1024", ratio: "1.91:1" },
 ];
 
 interface GeneratedPoster {
@@ -35,12 +36,13 @@ interface GeneratedPoster {
 }
 
 export default function ContentManagerPage() {
-    const [selectedSize, setSelectedSize] = useState<PosterSize>("instagram");
+    const [selectedSize, setSelectedSize] = useState<PosterSize>("square");
 
     // Prompt Studio State
     const [idea, setIdea] = useState("");
     const [enhancedPrompt, setEnhancedPrompt] = useState("");
     const [enhancing, setEnhancing] = useState(false);
+    const [includeBranding, setIncludeBranding] = useState(true);
 
     // Caption Settings
     const [captionTone, setCaptionTone] = useState("promotional");
@@ -57,7 +59,10 @@ export default function ContentManagerPage() {
             const res = await fetch('/api/ai/enhance-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idea })
+                body: JSON.stringify({
+                    idea,
+                    includeBranding
+                })
             });
             const data = await res.json();
             if (data.prompt) {
@@ -77,13 +82,18 @@ export default function ContentManagerPage() {
         // Use enhanced prompt if available, otherwise just use the idea
         const finalPrompt = enhancedPrompt || idea;
 
+        // Map generic sizes back to what the API expects
+        let apiSize = "1024x1024";
+        if (selectedSize === "portrait") apiSize = "1024x1792";
+        if (selectedSize === "landscape") apiSize = "1792x1024";
+
         try {
             const response = await fetch('/api/admin/poster/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     customPrompt: finalPrompt,
-                    size: selectedSize,
+                    size: apiSize,
                     captionTone,
                     captionLength
                 })
@@ -150,16 +160,28 @@ export default function ContentManagerPage() {
                         {/* Step 1: Idea Input */}
                         <div className="space-y-2">
                             <Label>Your Idea</Label>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2">
                                 <Input
                                     placeholder="e.g. Woman drinking coffee in Paris street"
                                     value={idea}
                                     onChange={(e) => setIdea(e.target.value)}
                                 />
+                                <div className="flex items-center space-x-2 py-1">
+                                    <input
+                                        type="checkbox"
+                                        id="branding"
+                                        className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                                        checked={includeBranding}
+                                        onChange={(e) => setIncludeBranding(e.target.checked)}
+                                    />
+                                    <Label htmlFor="branding" className="text-sm font-normal cursor-pointer text-slate-600 dark:text-slate-400">
+                                        Include GateSIM Logo & Branding
+                                    </Label>
+                                </div>
                                 <Button
+                                    className="w-full bg-purple-600 hover:bg-purple-700 text-white min-w-[120px]"
                                     onClick={handleEnhance}
                                     disabled={!idea || enhancing}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white min-w-[120px]"
                                 >
                                     {enhancing ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />

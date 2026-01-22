@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { idea } = await req.json();
+        const { idea, includeBranding } = await req.json();
 
         if (!idea) {
             return NextResponse.json({ error: "Idea is required" }, { status: 400 });
@@ -34,19 +34,28 @@ export async function POST(req: NextRequest) {
 
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
-        const systemPrompt = `You are an expert AI Prompt Engineer for GateSIM, a global travel eSIM provider. 
-Your goal is to take a simple user idea and transform it into a highly detailed, professional DALL-E 3 prompt that GUARANTEES branding consistency.
+        const shouldBrand = includeBranding !== false; // Default to true if undefined
 
-MANDATORY BRANDING REQUIREMENTS:
+        const brandingInstructions = shouldBrand
+            ? `MANDATORY BRANDING REQUIREMENTS:
 1. The image MUST feature a smartphone or digital element representing connectivity.
 2. The text "GateSIM" MUST be included in the image, naturally integrated (e.g., on a phone screen, a holographic overlay, or a modern 3D element in the background).
-3. The aesthetic should be Premium, Modern, and Travel-focused.
+3. The aesthetic should be Premium, Modern, and Travel-focused.`
+            : `AESTHETIC GUIDELINES:
+1. Focus purely on high-quality, professional photography or artistic rendering.
+2. Do NOT include any forced text or logos.
+3. The aesthetic should be Premium and Cinematic.`;
+
+        const systemPrompt = `You are an expert AI Prompt Engineer for GateSIM, a global travel eSIM provider. 
+Your goal is to take a simple user idea and transform it into a highly detailed, professional DALL-E 3 prompt.
+
+${brandingInstructions}
 
 OUTPUT FORMAT:
 Return ONLY the enhanced prompt text. Do not include explanations.
 
 Example Input: "Woman on beach"
-Example Output: "Cinematic shot of a relaxed female traveler sitting on a white sand beach in Bali. She is holding a modern smartphone displaying the 'GateSIM' logo with a strong signal icon. Golden hour lighting, turquoise water background. 8k resolution, commercial photography style, highly detailed."
+Example Output: "${shouldBrand ? "Cinematic shot of a relaxed female traveler... holding a modern smartphone displaying the 'GateSIM' logo..." : "Cinematic shot of a relaxed female traveler taking a selfie on a white sand beach in Bali... Golden hour lighting..."}"
 `;
 
         const response = await openai.chat.completions.create({
