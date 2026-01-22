@@ -14,12 +14,14 @@ import {
     Loader2,
     Sparkles,
     Check,
-    RefreshCw,
     Wand2,
-    Square,
-    Eye,
+    Stamp,
     Upload,
-    Lightbulb
+    Lightbulb,
+    ArrowDownRight,
+    ArrowUpLeft,
+    ArrowUpRight,
+    ArrowDownLeft
 } from "lucide-react";
 
 type PosterSize = "square" | "portrait" | "landscape";
@@ -77,10 +79,10 @@ export default function ContentManagerPage() {
     const [enhancing, setEnhancing] = useState(false);
     const [includeBranding, setIncludeBranding] = useState(true);
 
-    // Brand Analysis State
+    // Watermark State
     const [logoImage, setLogoImage] = useState<string | null>(null);
-    const [brandDescription, setBrandDescription] = useState("");
-    const [analyzingBrand, setAnalyzingBrand] = useState(false);
+    const [watermarking, setWatermarking] = useState(false);
+    const [watermarkPosition, setWatermarkPosition] = useState("bottom-right");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Caption Settings
@@ -102,23 +104,27 @@ export default function ContentManagerPage() {
         }
     };
 
-    const handleAnalyzeBrand = async () => {
-        if (!logoImage) return;
-        setAnalyzingBrand(true);
+    const handleApplyWatermark = async () => {
+        if (!poster?.imageUrl || !logoImage) return;
+        setWatermarking(true);
         try {
-            const res = await fetch('/api/ai/analyze-brand', {
+            const res = await fetch('/api/admin/poster/overlay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: logoImage })
+                body: JSON.stringify({
+                    mainImage: poster.imageUrl,
+                    logoImage,
+                    position: watermarkPosition
+                })
             });
             const data = await res.json();
-            if (data.description) {
-                setBrandDescription(data.description);
+            if (data.imageUrl) {
+                setPoster(prev => prev ? ({ ...prev, imageUrl: data.imageUrl }) : null);
             }
         } catch (e) {
             console.error(e);
         } finally {
-            setAnalyzingBrand(false);
+            setWatermarking(false);
         }
     };
 
@@ -131,8 +137,7 @@ export default function ContentManagerPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     idea,
-                    includeBranding,
-                    brandDescription
+                    includeBranding
                 })
             });
             const data = await res.json();
@@ -222,59 +227,6 @@ export default function ContentManagerPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Panel: Controls */}
                 <div className="space-y-6">
-                    {/* Brand Identity Section */}
-                    {includeBranding && (
-                        <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4 border-l-4 border-l-blue-500">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Eye className="w-5 h-5 text-blue-500" />
-                                <h2 className="font-bold text-lg">Teach AI Your Logo</h2>
-                            </div>
-
-                            <p className="text-xs text-slate-500">
-                                Upload your logo so the AI can learn its geometry and colors.
-                            </p>
-
-                            <div className="flex gap-4 items-start">
-                                <div
-                                    className="w-20 h-20 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center cursor-pointer overflow-hidden bg-slate-50"
-                                    onClick={() => fileInputRef.current?.click()}
-                                >
-                                    {logoImage ? (
-                                        <img src={logoImage} className="w-full h-full object-contain" alt="Logo" />
-                                    ) : (
-                                        <Upload className="w-6 h-6 text-slate-400" />
-                                    )}
-                                </div>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleLogoUpload}
-                                />
-
-                                <div className="flex-1 space-y-2">
-                                    <Button
-                                        size="sm"
-                                        onClick={handleAnalyzeBrand}
-                                        disabled={!logoImage || analyzingBrand}
-                                        variant="outline"
-                                    >
-                                        {analyzingBrand ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Eye className="w-3 h-3 mr-2" />}
-                                        Analyze Logo
-                                    </Button>
-
-                                    <Textarea
-                                        value={brandDescription}
-                                        onChange={(e) => setBrandDescription(e.target.value)}
-                                        placeholder="AI analysis will appear here..."
-                                        className="text-xs h-20 font-mono"
-                                    />
-                                </div>
-                            </div>
-                        </Card>
-                    )}
-
                     <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Sparkles className="w-5 h-5 text-amber-500" />
@@ -282,7 +234,7 @@ export default function ContentManagerPage() {
                         </div>
 
                         {/* Templates */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 mb-4">
                             <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                 <Lightbulb className="w-3 h-3" />
                                 Quick Start Templates
@@ -325,7 +277,7 @@ export default function ContentManagerPage() {
                                         onChange={(e) => setIncludeBranding(e.target.checked)}
                                     />
                                     <Label htmlFor="branding" className="text-sm font-normal cursor-pointer text-slate-600 dark:text-slate-400">
-                                        Include GateSIM Logo & Branding
+                                        Include "GateSIM" Text (AI Generated)
                                     </Label>
                                 </div>
                                 <Button
@@ -449,15 +401,75 @@ export default function ContentManagerPage() {
                                 />
                             </div>
 
+                            {/* Watermark Tool */}
+                            <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Stamp className="w-4 h-4 text-blue-500" />
+                                    <h3 className="text-sm font-bold">Logo & Watermark Tool</h3>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <div
+                                        className="w-16 h-16 border-2 border-dashed border-slate-300 rounded overflow-hidden flex items-center justify-center cursor-pointer hover:bg-slate-100 bg-white"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        {logoImage ? (
+                                            <img src={logoImage} className="w-full h-full object-contain" />
+                                        ) : (
+                                            <Upload className="w-4 h-4 text-slate-400" />
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={handleLogoUpload}
+                                    />
+
+                                    <div className="flex-1 flex flex-col justify-between">
+                                        <div className="flex gap-1 justify-between">
+                                            {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((pos) => (
+                                                <button
+                                                    key={pos}
+                                                    onClick={() => setWatermarkPosition(pos)}
+                                                    className={`p-1.5 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary ring-1 ring-primary' : 'border-slate-200'} hover:bg-slate-50`}
+                                                    title={pos}
+                                                >
+                                                    {pos === 'top-left' && <ArrowUpLeft className="w-3 h-3" />}
+                                                    {pos === 'top-right' && <ArrowUpRight className="w-3 h-3" />}
+                                                    {pos === 'bottom-left' && <ArrowDownLeft className="w-3 h-3" />}
+                                                    {pos === 'bottom-right' && <ArrowDownRight className="w-3 h-3" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            className="w-full h-7 text-xs"
+                                            onClick={handleApplyWatermark}
+                                            disabled={!logoImage || watermarking}
+                                        >
+                                            {watermarking ? (
+                                                <>
+                                                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                                                    Applying...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Stamp className="w-3 h-3 mr-2" />
+                                                    Overlay Logo
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="flex gap-2">
                                 <Button onClick={downloadPoster} variant="outline" className="flex-1">
                                     <Download className="w-4 h-4 mr-2" />
                                     Download
                                 </Button>
-                                {/* <Button variant="outline" className="flex-1">
-                                    <Save className="w-4 h-4 mr-2" />
-                                    Save to Library
-                                </Button> */}
                             </div>
 
                             <div className="grid grid-cols-1 gap-4 mt-4">
@@ -491,9 +503,9 @@ export default function ContentManagerPage() {
                             <Sparkles className="w-12 h-12 text-slate-300 mb-4" />
                             <h3 className="font-semibold text-slate-600 dark:text-slate-400">Ready to create?</h3>
                             <p className="text-sm text-slate-500 mt-2">
-                                1. Enter your idea (e.g. "Hiking in Alps")<br />
-                                2. Click "Enhance" to add branding magic<br />
-                                3. Generate your poster
+                                1. Enter your idea (or use a template)<br />
+                                2. "Enhance" to add details<br />
+                                3. Generate & Add Logo Overlay
                             </p>
                         </div>
                     )}
