@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { theme, customPrompt, captionTone, captionLength } = await req.json();
+        const { theme, customPrompt, captionTone, captionLength, size } = await req.json();
 
         // Determine final prompt
         let finalPrompt = "";
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
             model: "dall-e-3",
             prompt: finalPrompt,
             n: 1,
-            size: "1024x1024",
+            size: size || "1024x1024",
             quality: "standard",
         });
 
