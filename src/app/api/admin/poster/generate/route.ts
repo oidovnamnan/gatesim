@@ -83,66 +83,94 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { theme, size } = await req.json();
+        const { theme, customPrompt, captionTone, captionLength } = await req.json();
 
-        // Check against the new themes object
-        if (!theme || !themes[theme as keyof typeof themes]) {
-            return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
+        // Determine final prompt
+        let finalPrompt = "";
+
+        if (customPrompt) {
+            finalPrompt = customPrompt;
+        } else if (theme && themes[theme as keyof typeof themes]) {
+            finalPrompt = buildPrompt(theme);
+        } else {
+            return NextResponse.json({ error: "Invalid theme or missing prompt" }, { status: 400 });
         }
 
-        // Get API key - check env first, then Firebase config
+        // Get API key
         let openaiApiKey = process.env.OPENAI_API_KEY;
-
         if (!openaiApiKey) {
-            // Fallback to Firebase config if env not set
             const configRef = doc(db, "system", "config");
             const configSnap = await getDoc(configRef);
-            const config = configSnap.data() || {};
-            openaiApiKey = config.openaiApiKey;
+            openaiApiKey = configSnap.data()?.openaiApiKey;
         }
 
-        // For now, only OpenAI is implemented
         if (!openaiApiKey) {
-            // Return static poster if no API key
-            return NextResponse.json({
-                success: true,
-                imageUrl: `/ posters / ${theme}.png`,
-                captionMN: captionTemplates[theme]?.mn || "",
-                captionEN: captionTemplates[theme]?.en || "",
-                hashtags: "#GateSIM #eSIM #Аялал #Travel #Mongolia #TravelTech #DigitalNomad",
-                generated: false,
-                message: "API key тохируулаагүй тул бэлэн зураг ашиглав"
-            });
+            // Fallback for demo if no key
+            if (theme) {
+                return NextResponse.json({
+                    success: true,
+                    imageUrl: `/posters/${theme}.png`,
+                    captionMN: captionTemplates[theme]?.mn || "",
+                    captionEN: captionTemplates[theme]?.en || "",
+                    hashtags: "#GateSIM #eSIM #Аялал",
+                    generated: false,
+                    message: "API key дутуу тул бэлэн зураг ашиглав"
+                });
+            }
+            return NextResponse.json({ error: "OpenAI API Key missing" }, { status: 500 });
         }
 
-        // Use the new advanced prompt builder
-        const prompt = buildPrompt(theme);
-
-        // Generate with OpenAI DALL-E
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
-        const response = await openai.images.generate({
+        // 1. Generate Image
+        const imageResponse = await openai.images.generate({
             model: "dall-e-3",
-            prompt: prompt,
+            prompt: finalPrompt,
             n: 1,
             size: "1024x1024",
             quality: "standard",
         });
 
-        const imageUrl = response.data?.[0]?.url;
+        const imageUrl = imageResponse.data?.[0]?.url;
 
         if (!imageUrl) {
             throw new Error("Failed to generate image");
         }
 
+        // 2. Generate Caption (Dynamic)
+        const toneInstruction = captionTone || "Promotional";
+        const lengthInstruction = captionLength === "short" ? "very short (1-2 sentences)" : captionLength === "long" ? "long and storytelling (2 paragraphs)" : "medium length";
+
+        const captionSystemPrompt = `You are a social media manager for GateSIM. Write a captivating Facebook/Instagram caption based on the image description.
+        
+Brand Voice: Professional, Adventurous, Helpful.
+Key Info: 200+ countries, Instant eSIM delivery, Affordable rates.
+
+Instructions:
+- Tone: ${toneInstruction}
+- Length: ${lengthInstruction}
+- Return JSON: { "mn": "Mongolian text...", "en": "English text...", "hashtags": "#tags..." }`;
+
+        const captionResponse = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+                { role: "system", content: captionSystemPrompt },
+                { role: "user", content: `Image Description: ${finalPrompt}` }
+            ],
+            response_format: { type: "json_object" }
+        });
+
+        const captionData = JSON.parse(captionResponse.choices[0]?.message?.content || "{}");
+
         return NextResponse.json({
             success: true,
             imageUrl,
-            captionMN: captionTemplates[theme]?.mn || "",
-            captionEN: captionTemplates[theme]?.en || "",
-            hashtags: "#GateSIM #eSIM #Аялал #Travel #Mongolia #TravelTech #DigitalNomad",
+            captionMN: captionData.mn || captionTemplates[theme as keyof typeof themes]?.mn || "Caption generation failed",
+            captionEN: captionData.en || captionTemplates[theme as keyof typeof themes]?.en || "",
+            hashtags: captionData.hashtags || "#GateSIM #Travel",
             generated: true,
-            message: "AI зураг амжилттай үүслээ"
+            message: "AI контент амжилттай үүслээ",
+            debugPrompt: finalPrompt.substring(0, 100) + "..."
         });
 
     } catch (error: any) {
