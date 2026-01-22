@@ -1,4 +1,5 @@
 
+
 export interface DiscoveryItem {
     id: string;
     name: string;
@@ -8,6 +9,8 @@ export interface DiscoveryItem {
     image: string;
     address: string;
     focus: string[];
+    bookingUrl?: string;     // NEW: For affiliate links
+    affiliateSource?: string; // NEW: e.g. 'Awin', 'Klook'
 }
 
 /**
@@ -24,7 +27,9 @@ export const VERIFIED_DISCOVERY_DATA: Record<string, Record<string, DiscoveryIte
                 price: 'Wholesale / Negotiable',
                 image: 'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?auto=format&fit=crop&q=80&w=800',
                 address: 'No. 9 Tiantan Road, Dongcheng District',
-                focus: ['procurement', 'shopping', 'tourist']
+                focus: ['procurement', 'shopping', 'tourist'],
+                bookingUrl: 'https://www.trip.com/travel-guide/beijing/hongqiao-pearl-market-105244/?Allianceid=3839282&SID=22212211', // Placeholder Affiliate
+                affiliateSource: 'Trip.com'
             },
             {
                 id: 'silk-market',
@@ -34,7 +39,9 @@ export const VERIFIED_DISCOVERY_DATA: Record<string, Record<string, DiscoveryIte
                 price: 'Negotiable',
                 image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800',
                 address: 'No. 8 Xiushui East Street, Chaoyang District',
-                focus: ['procurement', 'shopping']
+                focus: ['procurement', 'shopping'],
+                bookingUrl: 'https://www.trip.com/travel-guide/beijing/silk-market-105234',
+                affiliateSource: 'Trip.com'
             },
             {
                 id: 'yabao-lu',
@@ -58,7 +65,9 @@ export const VERIFIED_DISCOVERY_DATA: Record<string, Record<string, DiscoveryIte
                 price: 'Wholesale / Retail',
                 image: 'https://images.unsplash.com/photo-1544085311-11a028465b03?auto=format&fit=crop&q=80&w=800',
                 address: 'Eulji-ro, Jung-gu, Seoul',
-                focus: ['procurement', 'shopping']
+                focus: ['procurement', 'shopping'],
+                bookingUrl: 'https://www.klook.com/en-US/activity/123-dongdaemun-shopping/',
+                affiliateSource: 'Klook'
             },
             {
                 id: 'myeongdong',
@@ -82,7 +91,9 @@ export const VERIFIED_DISCOVERY_DATA: Record<string, Record<string, DiscoveryIte
                 price: 'Varies',
                 image: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&q=80&w=800',
                 address: 'Sotokanda, Chiyoda City, Tokyo',
-                focus: ['shopping', 'tourist', 'procurement']
+                focus: ['shopping', 'tourist', 'procurement'],
+                bookingUrl: 'https://www.klook.com/en-US/activity/456-akihabara-tour/',
+                affiliateSource: 'Klook'
             },
             {
                 id: 'ginza',
@@ -107,3 +118,4 @@ export function getVerifiedDiscovery(country: string, city: string, type: string
 
     return cityData.filter(item => item.focus.includes(type));
 }
+

@@ -33,6 +33,23 @@ export async function POST(request: NextRequest) {
             description: description || `GateSIM захиалга #${orderId}`,
         });
 
+        // CRITICAL FIX: Save invoiceId to order immediately so we can check status later
+        // even if client disconnects or webhook fails
+        if (orderId && invoice.invoice_id) {
+            try {
+                const orderRef = doc(db, "orders", orderId);
+                await updateDoc(orderRef, {
+                    invoiceId: invoice.invoice_id,
+                    paymentId: invoice.invoice_id, // Save as both for compatibility
+                    updatedAt: Date.now()
+                });
+                console.log(`[Checkout] Linked Invoice ${invoice.invoice_id} to Order ${orderId}`);
+            } catch (dbError) {
+                console.error("[Checkout] Failed to link invoice to order:", dbError);
+                // Continue anyway - client will get invoiceId
+            }
+        }
+
         return NextResponse.json({
             success: true,
             invoiceId: invoice.invoice_id,

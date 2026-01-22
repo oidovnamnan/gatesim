@@ -169,6 +169,17 @@ export async function POST(request: NextRequest) {
     const localCurrencyCode = localCurrencyMap[destination] || "USD";
     const localCurrencySymbol = factualInfo?.currencySymbol || "$";
 
+    // --- Transport Cost Estimation (New) ---
+    const { estimateTransportCost, estimateInterCityCost } = await import("@/services/transport/price-estimator");
+    const intlCost = estimateTransportCost(intlTransport || 'flight', destination);
+    const interCityCostDesc = estimateInterCityCost(destination);
+
+    const pricingLogic = `
+    **TRANSPORT PRICING (HARD CONSTRAINT):**
+    - **International (${intlTransport}):** The estimated cost is **${intlCost.min} - ${intlCost.max} ${intlCost.currency}**. You MUST use a value within this range for the 'Departure from Ulaanbaatar' activity.
+    - **Inter-City:** For travel between cities, use approximately **${interCityCostDesc}** per leg.
+    `;
+
     const systemPrompt = `You are a professional travel planner creating detailed day-by-day itineraries for Mongolian travelers.
     
     ${purposeDescriptions[purposes] || purposes.includes('medical') || purposes.includes('business') || purposes.includes('education') ? `
@@ -207,8 +218,9 @@ export async function POST(request: NextRequest) {
 - **Selected Activities/Places:** ${selectedActivities ? JSON.stringify(selectedActivities) : 'AI suggestions'} (MUST incorporate these specific places into the itinerary).
 
 ${transportLogic}
+${pricingLogic}
 
-${groundingContext}
+    ${groundingContext}
 
 **CRITICAL INSTRUCTIONS:**
 1. **Multi-modal Logistics**: Plan the itinerary STRICTLY following the Transport Modes. 
