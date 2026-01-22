@@ -1,11 +1,17 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function syncPackages() {
     try {
+        // Revalidate the unstable_cache tags used by getMobiMatterProducts
+        // @ts-ignore - Next.js type definition conflict
+        revalidateTag('products-processed');
+        // @ts-ignore - Next.js type definition conflict
+        revalidateTag('products-raw');
+
+        // Also revalidate the pages
         revalidatePath("/admin/packages");
-        // Also revalidate the main packages page if it uses the same cache tag or path
         revalidatePath("/packages");
 
         console.log("Packages synced successfully");
