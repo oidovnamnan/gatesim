@@ -69,7 +69,7 @@ export function TeamTable({ members, currentUserRole }: { members: any[], curren
     return (
         <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden bg-white dark:bg-white/5 shadow-sm dark:shadow-none">
             <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-slate-600 dark:text-white/80">
+                <table className="w-full min-w-[600px] text-sm text-left text-slate-600 dark:text-white/80">
                     <thead className="bg-slate-50 dark:bg-[#11141d] text-slate-700 dark:text-white font-medium border-b border-slate-200 dark:border-white/10">
                         <tr>
                             <th className="px-6 py-4">Member</th>

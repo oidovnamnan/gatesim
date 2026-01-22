@@ -118,16 +118,18 @@ export default function UsersPage() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    Users Management
-                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
-                        {users.length}
-                    </span>
-                </h1>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">
-                    Manage registered users and view their activity
-                </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        Users Management
+                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+                            {users.length}
+                        </span>
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">
+                        Manage registered users and view their activity
+                    </p>
+                </div>
             </div>
 
             {/* Stats Cards */}

@@ -83,8 +83,8 @@ export function UsersTable({ users, loading, onUserClick }: UsersTableProps) {
             </div>
 
             {/* Table */}
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/5 shadow-sm">
-                <Table>
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/5 shadow-sm overflow-x-auto">
+                <Table className="min-w-[800px]">
                     <TableHeader className="bg-slate-50 dark:bg-[#11141d]">
                         <TableRow>
                             <TableHead>User</TableHead>
