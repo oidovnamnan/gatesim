@@ -93,8 +93,16 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
 
     const handleRetryProvisioning = async () => {
         setActionLoading("retry");
+        if (order.status?.toUpperCase() === 'PENDING') {
+            if (!window.confirm("АНХААР: Энэ захиалга PENDING төлөвтэй байна. Төлбөр орсон эсэхийг та шалгасан уу?\n\n'OK' дарвал төлбөр шалгахгүйгээр ШУУД Provision хийгдэнэ.")) {
+                setActionLoading(null);
+                return;
+            }
+        }
+
         try {
             const res = await fetch("/api/orders/actions/retry", {
+
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderId: order.id })
@@ -239,7 +247,8 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                                 <span className="text-xs">Resend Email</span>
                             </Button>
 
-                            {(order.status?.toUpperCase() === 'PROVISIONING_FAILED' || order.status?.toUpperCase() === 'PAID') && (
+                            {(order.status?.toUpperCase() === 'PROVISIONING_FAILED' || order.status?.toUpperCase() === 'PAID' || order.status?.toUpperCase() === 'PENDING') && (
+
                                 <Button
                                     variant="outline"
                                     className="h-auto py-3 px-4 flex flex-col items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white"
