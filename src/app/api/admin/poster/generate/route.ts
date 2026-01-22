@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
                         const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${googleKey}`);
                         const listData = await listRes.json();
                         const availableModels = listData.models?.map((m: any) => m.name).join(", ");
-                        throw new Error(`Model '${modelId}' not found. Available models for this key: ${availableModels}`);
+                        throw new Error(`Model '${fullModelName}' not found. Available models for this key: ${availableModels}`);
                     } catch (listErr: any) {
                         throw new Error(`Google AI Error (404): ${errMessage}. Error listing models: ${listErr.message}`);
                     }
