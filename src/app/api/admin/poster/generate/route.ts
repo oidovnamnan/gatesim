@@ -8,13 +8,52 @@ import OpenAI from "openai";
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow up to 60 seconds for image generation
 
-// Poster prompts for different themes
-const posterPrompts: Record<string, string> = {
-    morning: "Modern promotional poster for GateSIM eSIM travel service. Morning theme with golden sunrise gradient (orange to pink). A smartphone with glowing eSIM chip floating over a world map. Travel landmarks like torii gate, Eiffel Tower subtly integrated. Silver infinity loop logo at top with 'GateSIM' text. Premium glassmorphism design. Clean minimalist style. Square format 1024x1024.",
-    evening: "Elegant night promotional poster for GateSIM eSIM service. Deep purple to midnight blue gradient with stars and aurora. Smartphone with eSIM chip glowing. City skylines (Tokyo, Seoul, Shanghai) silhouettes. Silver infinity loop logo with 'GateSIM' text. Modern dark mode aesthetic. Square format 1024x1024.",
-    travel: "Vibrant travel poster for GateSIM eSIM service. Bright blue sky with airplane flying over world map. Famous landmarks (Eiffel Tower, Mount Fuji, Great Wall) on clouds. Smartphone with eSIM chip. Silver infinity loop logo with 'GateSIM' text. Adventure wanderlust feeling. Square format 1024x1024.",
-    promo: "Bold sale poster for GateSIM eSIM service. Red to orange fire gradient with sparks. Smartphone with glowing eSIM. Discount star burst elements. Silver infinity loop logo with 'GateSIM' text. Flash sale urgent feel. Square format 1024x1024."
+// --- Advanced Prompt Engineering System ---
+
+const basePrompt = "Professional high-end advertising poster for 'GateSIM' travel internet service. 8k resolution, highly detailed, photorealistic, cinematic lighting, commercial photography.";
+
+const themes = {
+    morning: {
+        lighting: "Golden hour sunrise lighting, warm soft shadows, orange and teal color grading, hopeful atmosphere",
+        scene: "A modern smartphone with a glowing holographic eSIM chip floating above a map of Asia representing connectivity. In the background, a subtle blend of Mount Fuji and a modern airport terminal.",
+        style: "Clean, minimalist, premium tech aesthetic, glassmorphism elements, Apple-style advertising"
+    },
+    evening: {
+        lighting: "Cyberpunk influenced night lighting, neon blue and purple accents, deep contrast, dramatic shadows",
+        scene: "A traveler's hand holding a smartphone showing high speed connection. Background is a bokeh-blurred night cityscape of Tokyo or Seoul with vibrant street lights.",
+        style: "Modern, sleek, futuristic, high-tech, night mode aesthetic"
+    },
+    travel: {
+        lighting: "Bright daylight, high exposure, vivid colors, polarized blue sky",
+        scene: "First-person POV of a traveler holding a passport and phone at a breathtaking scenic overlook (Swiss Alps or tropical beach). The phone screen displays 'Connected' with the GateSIM logo.",
+        style: "Wanderlust, adventurous, energetic, travel blog aesthetic, vibrant and airy"
+    },
+    promo: {
+        lighting: "Dynamic studio lighting, rim lighting, energetic red and orange hues",
+        scene: "3D abstract composition showing a burst of speed and data. A smartphone cutting through the air with speed lines. Floating discount percentage tags nicely integrated.",
+        style: "Bold, urgent, high-energy sales graphic, 3D render style, commercial sale aesthetic"
+    }
 };
+
+const technicalQualityKeywords = "Unreal Engine 5 render, Octane Render, Ray Tracing, 8k, ultra-sharp focus, commercial quality, masterpiece.";
+
+// Text generation instruction for DALL-E 3
+const textInstruction = "The text 'GateSIM' must be clearly visible, spelled correctly, and integrated professionally into the design (e.g., as a 3D logo or confident headline). No other gibberish text.";
+
+function buildPrompt(theme: string): string {
+    const selectedTheme = themes[theme as keyof typeof themes] || themes.morning;
+
+    return `${basePrompt}
+    
+Theme: ${theme.toUpperCase()}
+Lighting: ${selectedTheme.lighting}
+Scene Description: ${selectedTheme.scene}
+Style: ${selectedTheme.style}
+
+Technical Specs: ${technicalQualityKeywords}
+
+IMPORTANT: ${textInstruction}`;
+}
 
 // Caption templates
 const captionTemplates: Record<string, { mn: string; en: string }> = {
@@ -46,7 +85,8 @@ export async function POST(req: NextRequest) {
 
         const { theme, size } = await req.json();
 
-        if (!theme || !posterPrompts[theme]) {
+        // Check against the new themes object
+        if (!theme || !themes[theme as keyof typeof themes]) {
             return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
         }
 
@@ -66,7 +106,7 @@ export async function POST(req: NextRequest) {
             // Return static poster if no API key
             return NextResponse.json({
                 success: true,
-                imageUrl: `/posters/${theme}.png`,
+                imageUrl: `/ posters / ${theme}.png`,
                 captionMN: captionTemplates[theme]?.mn || "",
                 captionEN: captionTemplates[theme]?.en || "",
                 hashtags: "#GateSIM #eSIM #Аялал #Travel #Mongolia #TravelTech #DigitalNomad",
@@ -75,12 +115,15 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // Use the new advanced prompt builder
+        const prompt = buildPrompt(theme);
+
         // Generate with OpenAI DALL-E
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
         const response = await openai.images.generate({
             model: "dall-e-3",
-            prompt: posterPrompts[theme],
+            prompt: prompt,
             n: 1,
             size: "1024x1024",
             quality: "standard",
