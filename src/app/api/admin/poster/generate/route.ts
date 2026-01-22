@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
                     instances: [{ prompt: finalPrompt }],
                     parameters: {
                         sampleCount: 1,
-                        aspectRatio: size === "square" ? "1:1" : size === "landscape" ? "16:9" : "9:16",
+                        aspectRatio: size,
                         outputMimeType: "image/png"
                     }
                 })
@@ -208,11 +208,16 @@ export async function POST(req: NextRequest) {
 
             const openai = new OpenAI({ apiKey: openaiApiKey });
 
+            // OpenAI mapping (Portrait, Landscape, Square)
+            let dalleSize: "1024x1024" | "1024x1792" | "1792x1024" = "1024x1024";
+            if (size === "9:16" || size === "4:5") dalleSize = "1024x1792";
+            if (size === "16:9" || size === "3:2" || size === "4:3") dalleSize = "1792x1024";
+
             const imageResponse = await openai.images.generate({
                 model: "dall-e-3",
                 prompt: finalPrompt,
                 n: 1,
-                size: size === "landscape" ? "1792x1024" : size === "portrait" ? "1024x1792" : "1024x1024",
+                size: dalleSize,
                 quality: "hd",
                 style: selectedStyle.dalleParam,
             });

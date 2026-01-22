@@ -33,12 +33,13 @@ const RANDOM_IDEAS = [
     "Friends sharing photos at a music festival"
 ];
 
-type PosterSize = "square" | "portrait" | "landscape";
-
-const sizeOptions: { id: PosterSize; label: string; dimensions: string; ratio: string }[] = [
+const sizeOptions: { id: string; label: string; dimensions: string; ratio: string }[] = [
     { id: "square", label: "Square", dimensions: "1024x1024", ratio: "1:1" },
     { id: "portrait", label: "Portrait", dimensions: "1024x1792", ratio: "9:16" },
-    { id: "landscape", label: "Landscape", dimensions: "1792x1024", ratio: "1.91:1" },
+    { id: "landscape", label: "Landscape", dimensions: "1792x1024", ratio: "16:9" },
+    { id: "social", label: "Social", dimensions: "1024x1280", ratio: "4:5" },
+    { id: "photo", label: "Photo", dimensions: "1536x1024", ratio: "3:2" },
+    { id: "standard", label: "Standard", dimensions: "1024x768", ratio: "4:3" },
 ];
 
 const PRESET_PROMPTS = [
@@ -94,7 +95,7 @@ interface GeneratedPoster {
 }
 
 export default function ContentManagerPage() {
-    const [selectedSize, setSelectedSize] = useState<PosterSize>("square");
+    const [selectedSize, setSelectedSize] = useState<string>("square");
 
     // Prompt Studio State
     const [idea, setIdea] = useState("");
@@ -183,10 +184,9 @@ export default function ContentManagerPage() {
         // Use enhanced prompt if available, otherwise just use the idea
         const finalPrompt = enhancedPrompt || idea;
 
-        // Map generic sizes back to what the API expects
-        let apiSize = "1024x1024";
-        if (selectedSize === "portrait") apiSize = "1024x1792";
-        if (selectedSize === "landscape") apiSize = "1792x1024";
+        // Match selected size to its ratio for the API
+        const sizeObj = sizeOptions.find(s => s.id === selectedSize) || sizeOptions[0];
+        const apiSize = sizeObj.ratio;
 
         try {
             const response = await fetch('/api/admin/poster/generate', {
@@ -387,7 +387,7 @@ export default function ContentManagerPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Size</Label>
-                                    <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v as PosterSize)}>
+                                    <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v)}>
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
