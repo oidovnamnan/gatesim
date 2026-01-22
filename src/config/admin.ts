@@ -18,8 +18,18 @@ export type AdminRole = 'super_admin' | 'staff' | null;
 
 export function getAdminRole(email: string | null | undefined): AdminRole {
     if (!email) return null;
-    if (SUPER_ADMINS.includes(email)) return 'super_admin';
-    if (STAFF_EMAILS.includes(email)) return 'staff';
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check Super Admins
+    if (SUPER_ADMINS.some(admin => admin.toLowerCase() === normalizedEmail)) {
+        return 'super_admin';
+    }
+
+    // Check Staff
+    if (STAFF_EMAILS.some(staff => staff.toLowerCase() === normalizedEmail)) {
+        return 'staff';
+    }
+
     return null;
 }
 
