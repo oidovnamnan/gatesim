@@ -16,10 +16,10 @@ import {
     Check,
     RefreshCw,
     Wand2,
-    Save,
     Square,
     Eye,
-    Upload
+    Upload,
+    Lightbulb
 } from "lucide-react";
 
 type PosterSize = "square" | "portrait" | "landscape";
@@ -28,6 +28,37 @@ const sizeOptions: { id: PosterSize; label: string; dimensions: string; ratio: s
     { id: "square", label: "Square", dimensions: "1024x1024", ratio: "1:1" },
     { id: "portrait", label: "Portrait", dimensions: "1024x1792", ratio: "9:16" },
     { id: "landscape", label: "Landscape", dimensions: "1792x1024", ratio: "1.91:1" },
+];
+
+const PRESET_PROMPTS = [
+    {
+        id: "cyberpunk",
+        label: "Neon City",
+        icon: "🌃",
+        idea: "Futuristic Tokyo street at night, glowing neon signs, holding phone with high signal",
+        prompt: "Cyberpunk aesthetic shot of a busy Tokyo street at night. Neon signs reflect on wet pavement. In the foreground, a hand holds a modern bezel-less smartphone displaying the 'GateSIM' logo with full 5G bars. Blue and purple color grading, cinematic depth of field, 8k resolution, Unreal Engine 5 style rendering."
+    },
+    {
+        id: "minimalist",
+        label: "Tech Minimalist",
+        icon: "⚪",
+        idea: "Clean white desk setup, coffee, passport and phone with GateSIM",
+        prompt: "Ultra-minimalist product photography. A pristine white marble desk surface. Organized layout featuring a passport, a cup of artisan coffee, and a premium smartphone displaying the 'GateSIM' app interface. Soft diffuse lighting, high-key photography, Apple-style advertising aesthetic, sharp focus."
+    },
+    {
+        id: "travel_pov",
+        label: "Travel POV",
+        icon: "✈️",
+        idea: "First person view looking at Eiffel tower holding phone",
+        prompt: "First-person POV shot of a traveler's hand holding a smartphone against the backdrop of the Eiffel Tower during golden hour. The phone screen clearly shows 'GateSIM Connected'. Warm sunlight, dreamy atmosphere, travel blog aesthetic, bokeh background, highly detailed lifestyle photography."
+    },
+    {
+        id: "nature",
+        label: "Wild Nature",
+        icon: "🏔️",
+        idea: "Hiking in Swiss Alps, phone showing connection on mountain peak",
+        prompt: "Epic wide shot of a hiker on a snowy mountain peak in the Swiss Alps. Blue sky, bright sunlight. The hiker holds a phone up, screen displaying 'GateSIM' logo. Sense of adventure and freedom. National Geographic style photography, sharp details, vibrant natural colors."
+    }
 ];
 
 interface GeneratedPoster {
@@ -248,6 +279,32 @@ export default function ContentManagerPage() {
                         <div className="flex items-center gap-2 mb-2">
                             <Sparkles className="w-5 h-5 text-amber-500" />
                             <h2 className="font-bold text-lg">Idea & Prompt</h2>
+                        </div>
+
+                        {/* Templates */}
+                        <div className="space-y-2">
+                            <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                <Lightbulb className="w-3 h-3" />
+                                Quick Start Templates
+                            </Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {PRESET_PROMPTS.map(t => (
+                                    <button
+                                        key={t.id}
+                                        onClick={() => {
+                                            setIdea(t.idea);
+                                            setEnhancedPrompt(t.prompt);
+                                        }}
+                                        className="text-left p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 group"
+                                    >
+                                        <span className="text-lg group-hover:scale-110 transition-transform">{t.icon}</span>
+                                        <div className="overflow-hidden">
+                                            <div className="text-xs font-medium truncate">{t.label}</div>
+                                            <div className="text-[10px] text-slate-500 truncate opacity-70">Click to load</div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Step 1: Idea Input */}
