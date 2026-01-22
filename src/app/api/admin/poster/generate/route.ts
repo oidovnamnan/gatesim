@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { theme, customPrompt, captionTone, captionLength, size } = await req.json();
+        const { theme, customPrompt, captionTone, captionLength, size, style } = await req.json();
 
         // Determine final prompt
         let finalPrompt = "";
@@ -128,7 +128,8 @@ export async function POST(req: NextRequest) {
             prompt: finalPrompt,
             n: 1,
             size: size || "1024x1024",
-            quality: "standard",
+            quality: "hd",
+            style: style || "vivid",
         });
 
         const imageUrl = imageResponse.data?.[0]?.url;

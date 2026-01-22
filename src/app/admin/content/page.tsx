@@ -88,6 +88,7 @@ export default function ContentManagerPage() {
     // Caption Settings
     const [captionTone, setCaptionTone] = useState("promotional");
     const [captionLength, setCaptionLength] = useState("medium");
+    const [imageStyle, setImageStyle] = useState("vivid");
 
     const [generating, setGenerating] = useState(false);
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
@@ -171,7 +172,8 @@ export default function ContentManagerPage() {
                     customPrompt: finalPrompt,
                     size: apiSize,
                     captionTone,
-                    captionLength
+                    captionLength,
+                    style: imageStyle
                 })
             });
 
@@ -326,6 +328,19 @@ export default function ContentManagerPage() {
                                         {sizeOptions.map(s => (
                                             <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
                                         ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Image Style</Label>
+                                <Select value={imageStyle} onValueChange={setImageStyle}>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="vivid">🎨 Vivid (Dramatic)</SelectItem>
+                                        <SelectItem value="natural">📷 Natural (Realistic)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
