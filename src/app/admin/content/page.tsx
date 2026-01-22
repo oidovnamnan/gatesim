@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,7 +17,9 @@ import {
     RefreshCw,
     Wand2,
     Save,
-    Square
+    Square,
+    Eye,
+    Upload
 } from "lucide-react";
 
 type PosterSize = "square" | "portrait" | "landscape";
@@ -44,6 +46,12 @@ export default function ContentManagerPage() {
     const [enhancing, setEnhancing] = useState(false);
     const [includeBranding, setIncludeBranding] = useState(true);
 
+    // Brand Analysis State
+    const [logoImage, setLogoImage] = useState<string | null>(null);
+    const [brandDescription, setBrandDescription] = useState("");
+    const [analyzingBrand, setAnalyzingBrand] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     // Caption Settings
     const [captionTone, setCaptionTone] = useState("promotional");
     const [captionLength, setCaptionLength] = useState("medium");
@@ -51,6 +59,37 @@ export default function ContentManagerPage() {
     const [generating, setGenerating] = useState(false);
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
+
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAnalyzeBrand = async () => {
+        if (!logoImage) return;
+        setAnalyzingBrand(true);
+        try {
+            const res = await fetch('/api/ai/analyze-brand', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: logoImage })
+            });
+            const data = await res.json();
+            if (data.description) {
+                setBrandDescription(data.description);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setAnalyzingBrand(false);
+        }
+    };
 
     const handleEnhance = async () => {
         if (!idea.trim()) return;
@@ -61,7 +100,8 @@ export default function ContentManagerPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     idea,
-                    includeBranding
+                    includeBranding,
+                    brandDescription
                 })
             });
             const data = await res.json();
@@ -151,6 +191,59 @@ export default function ContentManagerPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Panel: Controls */}
                 <div className="space-y-6">
+                    {/* Brand Identity Section */}
+                    {includeBranding && (
+                        <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4 border-l-4 border-l-blue-500">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Eye className="w-5 h-5 text-blue-500" />
+                                <h2 className="font-bold text-lg">Teach AI Your Logo</h2>
+                            </div>
+
+                            <p className="text-xs text-slate-500">
+                                Upload your logo so the AI can learn its geometry and colors.
+                            </p>
+
+                            <div className="flex gap-4 items-start">
+                                <div
+                                    className="w-20 h-20 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center cursor-pointer overflow-hidden bg-slate-50"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    {logoImage ? (
+                                        <img src={logoImage} className="w-full h-full object-contain" alt="Logo" />
+                                    ) : (
+                                        <Upload className="w-6 h-6 text-slate-400" />
+                                    )}
+                                </div>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleLogoUpload}
+                                />
+
+                                <div className="flex-1 space-y-2">
+                                    <Button
+                                        size="sm"
+                                        onClick={handleAnalyzeBrand}
+                                        disabled={!logoImage || analyzingBrand}
+                                        variant="outline"
+                                    >
+                                        {analyzingBrand ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Eye className="w-3 h-3 mr-2" />}
+                                        Analyze Logo
+                                    </Button>
+
+                                    <Textarea
+                                        value={brandDescription}
+                                        onChange={(e) => setBrandDescription(e.target.value)}
+                                        placeholder="AI analysis will appear here..."
+                                        className="text-xs h-20 font-mono"
+                                    />
+                                </div>
+                            </div>
+                        </Card>
+                    )}
+
                     <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Sparkles className="w-5 h-5 text-amber-500" />

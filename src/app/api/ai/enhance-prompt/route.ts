@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { idea, includeBranding } = await req.json();
+        const { idea, includeBranding, brandDescription } = await req.json();
 
         if (!idea) {
             return NextResponse.json({ error: "Idea is required" }, { status: 400 });
@@ -36,11 +36,24 @@ export async function POST(req: NextRequest) {
 
         const shouldBrand = includeBranding !== false; // Default to true if undefined
 
-        const brandingInstructions = shouldBrand
-            ? `MANDATORY BRANDING REQUIREMENTS:
+        let detailedBranding = `
 1. The image MUST feature a smartphone or digital element representing connectivity.
 2. The text "GateSIM" MUST be included in the image, naturally integrated (e.g., on a phone screen, a holographic overlay, or a modern 3D element in the background).
-3. The aesthetic should be Premium, Modern, and Travel-focused.`
+3. The aesthetic should be Premium, Modern, and Travel-focused.`;
+
+        if (shouldBrand && brandDescription) {
+            detailedBranding = `
+1. The image MUST feature a smartphone or digital element representing connectivity.
+2. BRAND IDENTITY & LOGO EXECUTION (Critical): 
+   ${brandDescription}
+   ENSURE the logo is rendered exactly as described above.
+3. The text "GateSIM" MUST be included.
+4. The aesthetic should be Premium, Modern, and Travel-focused.`;
+        }
+
+        const brandingInstructions = shouldBrand
+            ? `MANDATORY BRANDING REQUIREMENTS:
+${detailedBranding}`
             : `AESTHETIC GUIDELINES:
 1. Focus purely on high-quality, professional photography or artistic rendering.
 2. Do NOT include any forced text or logos.
