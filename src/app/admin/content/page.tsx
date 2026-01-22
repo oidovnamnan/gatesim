@@ -217,7 +217,9 @@ export default function ContentManagerPage() {
 
         } catch (error: any) {
             console.error('Poster generation error:', error);
-            // Error handling UI could be added here
+            // Show error to user
+            const errorMessage = error.message || "Something went wrong";
+            alert(`Error: ${errorMessage}`); // Using alert directly for visibility, or use toast if available
         } finally {
             setGenerating(false);
         }
