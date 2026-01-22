@@ -22,7 +22,10 @@ import {
     ArrowUpLeft,
     ArrowUpRight,
     ArrowDownLeft,
-    Shuffle
+    Shuffle,
+    ArrowUp,
+    ArrowDown,
+    Move
 } from "lucide-react";
 
 const RANDOM_IDEAS = [
@@ -516,18 +519,21 @@ export default function ContentManagerPage() {
                                     />
 
                                     <div className="flex-1 flex flex-col justify-between">
-                                        <div className="flex gap-1 justify-between">
-                                            {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((pos) => (
+                                        <div className="grid grid-cols-4 gap-1">
+                                            {['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'center'].map((pos) => (
                                                 <button
                                                     key={pos}
                                                     onClick={() => setWatermarkPosition(pos)}
-                                                    className={`p-1.5 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary ring-1 ring-primary' : 'border-slate-200'} hover:bg-slate-50`}
+                                                    className={`p-1.5 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary ring-1 ring-primary' : 'border-slate-200'} hover:bg-slate-50 flex items-center justify-center`}
                                                     title={pos}
                                                 >
                                                     {pos === 'top-left' && <ArrowUpLeft className="w-3 h-3" />}
+                                                    {pos === 'top-center' && <ArrowUp className="w-3 h-3" />}
                                                     {pos === 'top-right' && <ArrowUpRight className="w-3 h-3" />}
                                                     {pos === 'bottom-left' && <ArrowDownLeft className="w-3 h-3" />}
+                                                    {pos === 'bottom-center' && <ArrowDown className="w-3 h-3" />}
                                                     {pos === 'bottom-right' && <ArrowDownRight className="w-3 h-3" />}
+                                                    {pos === 'center' && <Move className="w-3 h-3" />}
                                                 </button>
                                             ))}
                                         </div>

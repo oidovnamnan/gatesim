@@ -59,6 +59,10 @@ export async function POST(req: NextRequest) {
                 top = padding;
                 left = padding;
                 break;
+            case 'top-center':
+                top = padding;
+                left = (mainWidth - logoW) / 2;
+                break;
             case 'top-right':
                 top = padding;
                 left = mainWidth - logoW - padding;
@@ -66,6 +70,10 @@ export async function POST(req: NextRequest) {
             case 'bottom-left':
                 top = mainHeight - logoH - padding;
                 left = padding;
+                break;
+            case 'bottom-center':
+                top = mainHeight - logoH - padding;
+                left = (mainWidth - logoW) / 2;
                 break;
             case 'bottom-right':
                 top = mainHeight - logoH - padding;
