@@ -50,13 +50,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
         }
 
-        // Get API keys from Firebase config
-        const configRef = doc(db, "system", "config");
-        const configSnap = await getDoc(configRef);
-        const config = configSnap.data() || {};
+        // Get API key - check env first, then Firebase config
+        let openaiApiKey = process.env.OPENAI_API_KEY;
 
-        const openaiApiKey = config.openaiApiKey;
-        const preferredAI = config.preferredImageAI || 'openai';
+        if (!openaiApiKey) {
+            // Fallback to Firebase config if env not set
+            const configRef = doc(db, "system", "config");
+            const configSnap = await getDoc(configRef);
+            const config = configSnap.data() || {};
+            openaiApiKey = config.openaiApiKey;
+        }
 
         // For now, only OpenAI is implemented
         if (!openaiApiKey) {
