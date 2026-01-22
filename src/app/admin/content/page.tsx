@@ -112,6 +112,7 @@ export default function ContentManagerPage() {
     const [captionTone, setCaptionTone] = useState("promotional");
     const [captionLength, setCaptionLength] = useState("medium");
     const [imageStyle, setImageStyle] = useState("vivid");
+    const [provider, setProvider] = useState<"openai" | "google">("openai");
 
     const [generating, setGenerating] = useState(false);
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
@@ -196,7 +197,8 @@ export default function ContentManagerPage() {
                     size: apiSize,
                     captionTone,
                     captionLength,
-                    style: imageStyle
+                    style: imageStyle,
+                    provider
                 })
             });
 
@@ -351,6 +353,19 @@ export default function ContentManagerPage() {
                         <h2 className="font-bold text-lg">Settings</h2>
 
                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>AI Model Provider</Label>
+                                <Select value={provider} onValueChange={(v) => setProvider(v as any)}>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="openai">OpenAI DALL-E 3</SelectItem>
+                                        <SelectItem value="google">Google Imagen 3</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
                             <div className="space-y-2">
                                 <Label>Size</Label>
                                 <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v as PosterSize)}>

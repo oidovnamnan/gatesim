@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { theme, customPrompt, captionTone, captionLength, size, style } = await req.json();
+        const { theme, customPrompt, captionTone, captionLength, size, style, provider } = await req.json();
 
         // Style Modifiers System
         const STYLE_MODIFIERS: Record<string, { prompt: string; dalleParam: "vivid" | "natural" }> = {
@@ -124,72 +124,120 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid theme or missing prompt" }, { status: 400 });
         }
 
-        // Get API key
-        let openaiApiKey = process.env.OPENAI_API_KEY;
-        if (!openaiApiKey) {
-            const configRef = doc(db, "system", "config");
-            const configSnap = await getDoc(configRef);
-            openaiApiKey = configSnap.data()?.openaiApiKey;
-        }
+        // Fetch System Config for Keys
+        const configRef = doc(db, "system", "config");
+        const configSnap = await getDoc(configRef);
+        const config = configSnap.data() || {};
 
-        if (!openaiApiKey) {
-            // Fallback for demo if no key
-            if (theme) {
-                return NextResponse.json({
-                    success: true,
-                    imageUrl: `/posters/${theme}.png`,
-                    captionMN: captionTemplates[theme]?.mn || "",
-                    captionEN: captionTemplates[theme]?.en || "",
-                    hashtags: "#GateSIM #eSIM #Аялал",
-                    generated: false,
-                    message: "API key дутуу тул бэлэн зураг ашиглав"
-                });
+        let imageUrl = "";
+
+        // Determine Provider: explicit > default > fallback
+        const useGoogle = provider === "google" || (!provider && config.preferredImageAI === "google");
+
+        if (useGoogle) {
+            // GOOGLE IMAGEN 3 GENERATION
+            const googleKey = process.env.GOOGLE_API_KEY || config.googleApiKey;
+
+            if (!googleKey) {
+                return NextResponse.json({ error: "Google API Key missing" }, { status: 500 });
             }
-            return NextResponse.json({ error: "OpenAI API Key missing" }, { status: 500 });
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${googleKey}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    instances: [{ prompt: finalPrompt }],
+                    parameters: {
+                        sampleCount: 1,
+                        aspectRatio: size === "square" ? "1:1" : size === "landscape" ? "16:9" : "9:16",
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Google Generation Failed: ${errText}`);
+            }
+
+            const data = await response.json();
+            const b64 = data.predictions?.[0]?.bytesBase64Encoded;
+
+            if (!b64) throw new Error("No image returned from Google");
+
+            // Format as Data URI
+            imageUrl = `data:image/png;base64,${b64}`;
+
+        } else {
+            // OPENAI DALL-E 3 GENERATION
+            let openaiApiKey = process.env.OPENAI_API_KEY || config.openaiApiKey;
+
+            if (!openaiApiKey) {
+                // Fallback for demo if no key
+                if (theme) {
+                    return NextResponse.json({
+                        success: true,
+                        imageUrl: `/posters/${theme}.png`,
+                        captionMN: captionTemplates[theme]?.mn || "",
+                        captionEN: captionTemplates[theme]?.en || "",
+                        hashtags: "#GateSIM #eSIM #Аялал",
+                        generated: false,
+                        message: "API key дутуу тул бэлэн зураг ашиглав"
+                    });
+                }
+                return NextResponse.json({ error: "OpenAI API Key missing" }, { status: 500 });
+            }
+
+            const openai = new OpenAI({ apiKey: openaiApiKey });
+
+            const imageResponse = await openai.images.generate({
+                model: "dall-e-3",
+                prompt: finalPrompt,
+                n: 1,
+                size: size === "landscape" ? "1792x1024" : size === "portrait" ? "1024x1792" : "1024x1024",
+                quality: "hd",
+                style: selectedStyle.dalleParam,
+            });
+
+            imageUrl = imageResponse.data?.[0]?.url || "";
         }
-
-        const openai = new OpenAI({ apiKey: openaiApiKey });
-
-        // 1. Generate Image
-        const imageResponse = await openai.images.generate({
-            model: "dall-e-3",
-            prompt: finalPrompt,
-            n: 1,
-            size: size || "1024x1024",
-            quality: "hd",
-            style: selectedStyle.dalleParam,
-        });
-
-        const imageUrl = imageResponse.data?.[0]?.url;
 
         if (!imageUrl) {
             throw new Error("Failed to generate image");
         }
 
-        // 2. Generate Caption (Dynamic)
-        const toneInstruction = captionTone || "Promotional";
-        const lengthInstruction = captionLength === "short" ? "very short (1-2 sentences)" : captionLength === "long" ? "long and storytelling (2 paragraphs)" : "medium length";
+        // Re-init OpenAI for Caption (Always use OpenAI/GPT-4o for text as Imagen doesn't do text)
+        let captionApiKey = process.env.OPENAI_API_KEY || config.openaiApiKey;
+        // If we only have Google Key, we can't generate captions with GPT.
+        let openaiForCaption = captionApiKey ? new OpenAI({ apiKey: captionApiKey }) : null;
 
-        const captionSystemPrompt = `You are a social media manager for GateSIM. Write a captivating Facebook/Instagram caption based on the image description.
-        
-Brand Voice: Professional, Adventurous, Helpful.
-Key Info: 200+ countries, Instant eSIM delivery, Affordable rates.
+        let captionData: any = {};
 
-Instructions:
-- Tone: ${toneInstruction}
-- Length: ${lengthInstruction}
-- Return JSON: { "mn": "Mongolian text...", "en": "English text...", "hashtags": "#tags..." }`;
+        if (openaiForCaption) {
+            // 2. Generate Caption (Dynamic)
+            const toneInstruction = captionTone || "Promotional";
+            const lengthInstruction = captionLength === "short" ? "very short (1-2 sentences)" : captionLength === "long" ? "long and storytelling (2 paragraphs)" : "medium length";
 
-        const captionResponse = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                { role: "system", content: captionSystemPrompt },
-                { role: "user", content: `Image Description: ${finalPrompt}` }
-            ],
-            response_format: { type: "json_object" }
-        });
+            const captionSystemPrompt = `You are a social media manager for GateSIM. Write a captivating Facebook/Instagram caption based on the image description.
+            
+    Brand Voice: Professional, Adventurous, Helpful.
+    Key Info: 200+ countries, Instant eSIM delivery, Affordable rates.
 
-        const captionData = JSON.parse(captionResponse.choices[0]?.message?.content || "{}");
+    Instructions:
+    - Tone: ${toneInstruction}
+    - Length: ${lengthInstruction}
+    - Return JSON: { "mn": "Mongolian text...", "en": "English text...", "hashtags": "#tags..." }`;
+
+            const captionResponse = await openaiForCaption.chat.completions.create({
+                model: "gpt-4o",
+                messages: [
+                    { role: "system", content: captionSystemPrompt },
+                    { role: "user", content: `Image Description: ${finalPrompt}` }
+                ],
+                response_format: { type: "json_object" }
+            });
+
+            captionData = JSON.parse(captionResponse.choices[0]?.message?.content || "{}");
+        }
 
         return NextResponse.json({
             success: true,
