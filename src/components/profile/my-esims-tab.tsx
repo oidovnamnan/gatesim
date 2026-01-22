@@ -30,6 +30,8 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
     const flag = getCountryFlag(order.countryCode);
     const isActive = order.status === "COMPLETED" && order.daysRemaining > 0;
     const isProcessing = order.status === "PAID" || order.status === "PROVISIONING";
+    const isPending = order.status === "PENDING" || order.status === "pending";
+    const isFailed = order.status === "PROVISIONING_FAILED" || order.status === "FAILED";
 
     return (
         <motion.div
@@ -53,10 +55,16 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                                     "px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider",
                                     isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                                         isProcessing ? "bg-blue-50 text-blue-600 border-blue-100" :
-                                            "bg-slate-100 text-slate-500 border-slate-200"
+                                            isPending ? "bg-amber-50 text-amber-600 border-amber-100" :
+                                                isFailed ? "bg-red-50 text-red-600 border-red-100" :
+                                                    "bg-slate-100 text-slate-500 border-slate-200"
                                 )}
                             >
-                                {isActive ? t("statusActive") : isProcessing ? t("statusPending") : t("statusCompleted")}
+                                {isActive ? t("statusActive") :
+                                    isProcessing ? t("statusPending") :
+                                        isPending ? "PENDING" :
+                                            isFailed ? "FAILED" :
+                                                t("statusCompleted")}
                             </Badge>
                         </div>
                         <p className="text-sm text-slate-500 font-medium">{order.packageName}</p>
