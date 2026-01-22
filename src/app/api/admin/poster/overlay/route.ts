@@ -22,8 +22,17 @@ export async function POST(req: NextRequest) {
         const mainImageRes = await fetch(mainImage);
         const mainImageBuffer = await mainImageRes.arrayBuffer();
 
-        // Logo image is expected to be base64 data URI
-        const logoBuffer = Buffer.from(logoImage.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+        // Handle Logo Image (Base64 or Local Path)
+        let logoBuffer: Buffer;
+        if (logoImage.startsWith('data:')) {
+            logoBuffer = Buffer.from(logoImage.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+        } else {
+            // Assume it's a public path
+            const path = require('path');
+            const fs = require('fs/promises');
+            const publicPath = path.join(process.cwd(), 'public', logoImage.startsWith('/') ? logoImage.slice(1) : logoImage);
+            logoBuffer = await fs.readFile(publicPath);
+        }
 
         // Main image metadata
         const mainMeta = await sharp(mainImageBuffer).metadata();

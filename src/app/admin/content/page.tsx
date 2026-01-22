@@ -89,7 +89,7 @@ export default function ContentManagerPage() {
     const [includeBranding, setIncludeBranding] = useState(true);
 
     // Watermark State
-    const [logoImage, setLogoImage] = useState<string | null>(null);
+    const [logoImage, setLogoImage] = useState<string | null>("/logo-v2.png");
     const [watermarking, setWatermarking] = useState(false);
     const [watermarkPosition, setWatermarkPosition] = useState("bottom-right");
     const fileInputRef = useRef<HTMLInputElement>(null);
