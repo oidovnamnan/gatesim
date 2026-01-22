@@ -9,19 +9,23 @@ export const maxDuration = 300; // Allow 5 minutes for this function
 
 export async function GET(request: Request) {
     try {
-        // Security check
+        // Security check - Support multiple auth methods
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get("secret");
+        const authHeader = request.headers.get("authorization");
 
-        // Allow EITHER the production env secret OR the temp secret for manual run
+        // 1. Vercel Cron sends "Bearer <CRON_SECRET>" header automatically
+        // 2. Manual calls can use ?secret=<CRON_SECRET>
+        // 3. Dev/test can use ?secret=temp-secret-123
         const isAuthorized =
+            (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`) ||
             (process.env.CRON_SECRET && secret === process.env.CRON_SECRET) ||
             secret === "temp-secret-123";
 
         if (!isAuthorized) {
             return NextResponse.json({
                 error: "Unauthorized",
-                hint: "Use ?secret=temp-secret-123"
+                hint: "Use ?secret=<CRON_SECRET> or Vercel Cron header"
             }, { status: 401 });
         }
 
