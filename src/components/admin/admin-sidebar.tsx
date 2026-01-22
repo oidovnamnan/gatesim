@@ -17,6 +17,7 @@ import {
     Package,
     ImagePlus
 } from "lucide-react";
+import { AdminNotificationBell } from "./admin-notification-bell";
 
 const sidebarItems = [
     {
@@ -82,7 +83,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
     return (
         <div className={cn("flex flex-col h-full w-64 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-r border-slate-200 dark:border-slate-800 transition-colors", className)}>
             {/* Logo Area */}
-            <div className="h-16 flex items-center px-6 border-b border-white/10 dark:border-white/10">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-white/10 dark:border-white/10">
                 <div className="relative h-8 w-auto">
                     {/* Light Mode Logo (Black Text) - Hidden in Dark Mode */}
                     <img
@@ -97,6 +98,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
                         className="h-full w-auto object-contain hidden dark:block"
                     />
                 </div>
+                <AdminNotificationBell />
             </div>
 
             {/* Navigation */}
