@@ -31,7 +31,7 @@ export default function AdminOrdersPage() {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("completed");
+    const [statusFilter, setStatusFilter] = useState("all");
 
     useEffect(() => {
         setLoading(true);
@@ -57,7 +57,7 @@ export default function AdminOrdersPage() {
             order.contactEmail.toLowerCase().includes(lowerSearch) ||
             (order.items[0]?.name || "").toLowerCase().includes(lowerSearch);
 
-        const matchesStatus = statusFilter === "all" || order.status?.toLowerCase() === statusFilter.toLowerCase();
+        const matchesStatus = statusFilter === "all" || order.status?.toUpperCase() === statusFilter.toUpperCase();
 
         return matchesSearch && matchesStatus;
     });
@@ -92,11 +92,11 @@ export default function AdminOrdersPage() {
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                             <SelectItem value="all">All Orders</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="paid">Paid</SelectItem>
-                            <SelectItem value="processing">Processing</SelectItem>
+                            <SelectItem value="COMPLETED">Completed</SelectItem>
+                            <SelectItem value="PAID">Paid</SelectItem>
+                            <SelectItem value="PROVISIONING">Provisioning</SelectItem>
+                            <SelectItem value="PROVISIONING_FAILED">Failed</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="failed">Failed</SelectItem>
                         </SelectContent>
                     </Select>
 

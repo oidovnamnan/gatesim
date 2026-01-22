@@ -149,8 +149,8 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
                             <div className="text-sm text-white/50 mb-2">Current Status</div>
                             <div>
-                                <Badge className={`uppercase ${order.status === 'completed' || order.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' :
-                                    order.status === 'failed' ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
+                                <Badge className={`uppercase ${order.status?.toUpperCase() === 'COMPLETED' || order.status?.toUpperCase() === 'PAID' ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' :
+                                    order.status?.toUpperCase() === 'PROVISIONING_FAILED' ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
                                         'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
                                     }`}>
                                     {order.status}
@@ -210,7 +210,7 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                     </div>
 
                     {/* Error Display */}
-                    {(order.status === 'PROVISIONING_FAILED' || order.status === 'failed' || order.metadata?.provisioningError) && (
+                    {(order.status?.toUpperCase() === 'PROVISIONING_FAILED' || order.metadata?.provisioningError) && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                             <div className="flex items-center gap-2 text-red-400 font-medium mb-2">
                                 <AlertTriangle className="w-4 h-4" /> Provisioning Error
@@ -239,7 +239,7 @@ export function OrderDetailsSheet({ order, open, onOpenChange }: OrderDetailsShe
                                 <span className="text-xs">Resend Email</span>
                             </Button>
 
-                            {(order.status === 'PROVISIONING_FAILED' || order.status === 'paid') && (
+                            {(order.status?.toUpperCase() === 'PROVISIONING_FAILED' || order.status?.toUpperCase() === 'PAID') && (
                                 <Button
                                     variant="outline"
                                     className="h-auto py-3 px-4 flex flex-col items-center gap-1 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white"
