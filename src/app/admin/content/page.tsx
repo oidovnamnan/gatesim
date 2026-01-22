@@ -352,79 +352,97 @@ export default function ContentManagerPage() {
                     <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
                         <h2 className="font-bold text-lg">Settings</h2>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>AI Model Provider</Label>
+                        <div className="space-y-4">
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <Label className="mb-2 block text-purple-600 dark:text-purple-400 font-bold">AI Model Provider</Label>
                                 <Select value={provider} onValueChange={(v) => setProvider(v as any)}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 text-md">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="openai">OpenAI DALL-E 3</SelectItem>
-                                        <SelectItem value="google">Google Imagen 3</SelectItem>
+                                        <SelectItem value="openai">
+                                            <div className="flex items-center gap-2">
+                                                <span>🤖</span>
+                                                <div className="flex flex-col text-left">
+                                                    <span className="font-bold">OpenAI DALL-E 3</span>
+                                                    <span className="text-xs text-slate-500">Best for text & complex prompts</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="google">
+                                            <div className="flex items-center gap-2">
+                                                <span>🎨</span>
+                                                <div className="flex flex-col text-left">
+                                                    <span className="font-bold">Google Imagen 3</span>
+                                                    <span className="text-xs text-slate-500">Best for photorealism & speed</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label>Size</Label>
-                                <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v as PosterSize)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {sizeOptions.map(s => (
-                                            <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Size</Label>
+                                    <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v as PosterSize)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {sizeOptions.map(s => (
+                                                <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label>Image Style</Label>
-                                <Select value={imageStyle} onValueChange={setImageStyle}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="vivid">🎨 Vivid (Dramatic)</SelectItem>
-                                        <SelectItem value="natural">📷 Natural (Realistic)</SelectItem>
-                                        <SelectItem value="cinematic">🎬 Cinematic (Movie)</SelectItem>
-                                        <SelectItem value="3d-model">🧸 3D Render (Cute)</SelectItem>
-                                        <SelectItem value="minimalist">⚪ Minimalist (Clean)</SelectItem>
-                                        <SelectItem value="anime">🌸 Anime (2D Art)</SelectItem>
-                                        <SelectItem value="analog">🎞️ Analog Film (Retro)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                <div className="space-y-2">
+                                    <Label>Image Style</Label>
+                                    <Select value={imageStyle} onValueChange={setImageStyle}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="vivid">🎨 Vivid (Dramatic)</SelectItem>
+                                            <SelectItem value="natural">📷 Natural (Realistic)</SelectItem>
+                                            <SelectItem value="cinematic">🎬 Cinematic (Movie)</SelectItem>
+                                            <SelectItem value="3d-model">🧸 3D Render (Cute)</SelectItem>
+                                            <SelectItem value="minimalist">⚪ Minimalist (Clean)</SelectItem>
+                                            <SelectItem value="anime">🌸 Anime (2D Art)</SelectItem>
+                                            <SelectItem value="analog">🎞️ Analog Film (Retro)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label>Caption Tone</Label>
-                                <Select value={captionTone} onValueChange={setCaptionTone}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="promotional">🔥 Promotional (Sales)</SelectItem>
-                                        <SelectItem value="educational">🧠 Educational (Facts)</SelectItem>
-                                        <SelectItem value="lifestyle">✨ Lifestyle (Vibes)</SelectItem>
-                                        <SelectItem value="funny">😄 Funny (Engaging)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                <div className="space-y-2">
+                                    <Label>Caption Tone</Label>
+                                    <Select value={captionTone} onValueChange={setCaptionTone}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="promotional">🔥 Promotional (Sales)</SelectItem>
+                                            <SelectItem value="educational">🧠 Educational (Facts)</SelectItem>
+                                            <SelectItem value="lifestyle">✨ Lifestyle (Vibes)</SelectItem>
+                                            <SelectItem value="funny">😄 Funny (Engaging)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label>Caption Length</Label>
-                                <Select value={captionLength} onValueChange={setCaptionLength}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="short">Short (1-2 sentences)</SelectItem>
-                                        <SelectItem value="medium">Medium (Standard)</SelectItem>
-                                        <SelectItem value="long">Long (Storytelling)</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <div className="space-y-2">
+                                    <Label>Caption Length</Label>
+                                    <Select value={captionLength} onValueChange={setCaptionLength}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="short">Short (1-2 sentences)</SelectItem>
+                                            <SelectItem value="medium">Medium (Standard)</SelectItem>
+                                            <SelectItem value="long">Long (Storytelling)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
 
