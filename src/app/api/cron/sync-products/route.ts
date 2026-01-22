@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { getMobiMatterProducts } from "@/lib/mobimatter";
 import { db } from "@/lib/firebase";
-import { collection, writeBatch, doc } from "firebase/firestore";
+import { collection, writeBatch, doc, getCountFromServer, getDocs, query, where } from "firebase/firestore";
 
 export const maxDuration = 300; // Allow 5 minutes for this function
 
@@ -30,6 +30,7 @@ export async function GET(request: Request) {
         }
 
         console.log("[Sync] Starting Product Sync...");
+        const syncStartedAt = new Date().toISOString(); // Capture start time for cleanup logic
         const packages = await getMobiMatterProducts();
 
         if (!packages || packages.length === 0) {
@@ -73,7 +74,59 @@ export async function GET(request: Request) {
             console.log(`[Sync] Batch ${index + 1}/${chunks.length} committed (${chunk.length} items).`);
         }
 
-        // Optional: Clean up old items? (For now, let's just upsert)
+        // 3. IDENTIFY AND DELETE OBSOLETE PRODUCTS (Safety Circuit Breaker applied)
+
+        // Count total products in DB before deletion to calculate percentage
+        const totalProductsSnapshot = await getCountFromServer(collection(db, "products"));
+        const totalProductsCount = totalProductsSnapshot.data().count;
+
+        // Query for products that were NOT updated in this sync cycle
+        // i.e., their lastSyncedAt is older than syncStartedAt
+        const obsoleteQuery = query(
+            collection(db, "products"),
+            where("lastSyncedAt", "<", syncStartedAt)
+        );
+
+        const obsoleteSnapshot = await getDocs(obsoleteQuery);
+        const candidatesToDelete = obsoleteSnapshot.docs;
+        const deleteCount = candidatesToDelete.length;
+
+        console.log(`[Sync] Cleanup check: Found ${deleteCount} obsolete products (Total in DB: ${totalProductsCount}).`);
+
+        // CIRCUIT BREAKER: If trying to delete more than 10% of total products, ABORT.
+        // This prevents mass deletion in case of API bug or partial response.
+        const SAFE_DELETE_THRESHOLD_PERCENT = 0.10; // 10%
+        const maxAllowedDelete = Math.ceil(totalProductsCount * SAFE_DELETE_THRESHOLD_PERCENT);
+
+        let deletedCount = 0;
+
+        if (deleteCount > 0) {
+            if (deleteCount > maxAllowedDelete) {
+                console.error(`[Sync] 🚨 CIRCUIT BREAKER TRIGGERED!`);
+                console.error(`[Sync] Attempted to delete ${deleteCount} items, which is > ${maxAllowedDelete} (10% of total).`);
+                console.error(`[Sync] Deletion ABORTED to protect data.`);
+                // We do NOT delete anything.
+            } else {
+                console.log(`[Sync] Deletion count (${deleteCount}) is within safe limits. Proceeding with cleanup...`);
+
+                // Delete in batches
+                const deleteBatches = [];
+                const deleteBatchSize = 300;
+
+                for (let i = 0; i < deleteCount; i += deleteBatchSize) {
+                    const chunk = candidatesToDelete.slice(i, i + deleteBatchSize);
+                    const batch = writeBatch(db);
+                    chunk.forEach(doc => batch.delete(doc.ref));
+                    deleteBatches.push(batch.commit());
+                }
+
+                await Promise.all(deleteBatches);
+                deletedCount = deleteCount;
+                console.log(`[Sync] Successfully deleted ${deletedCount} obsolete products.`);
+            }
+        } else {
+            console.log("[Sync] No obsolete products found to delete.");
+        }
 
         // IMPORTANT: Bust Next.js cache for packages pages
         try {
@@ -86,8 +139,9 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             success: true,
-            message: `Successfully synced ${totalWritten} products from MobiMatter to Firestore.`,
-            count: totalWritten,
+            message: `Synced ${totalWritten} products. Deleted ${deletedCount} obsolete items.`,
+            syncedCount: totalWritten,
+            deletedCount: deletedCount,
             batches: chunks.length
         });
 
