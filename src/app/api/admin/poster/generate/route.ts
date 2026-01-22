@@ -151,13 +151,28 @@ export async function POST(req: NextRequest) {
                     parameters: {
                         sampleCount: 1,
                         aspectRatio: size === "square" ? "1:1" : size === "landscape" ? "16:9" : "9:16",
+                        outputMimeType: "image/png"
                     }
                 })
             });
 
             if (!response.ok) {
-                const errText = await response.text();
-                throw new Error(`Google Generation Failed: ${errText}`);
+                const errJson = await response.json().catch(() => ({}));
+                const errMessage = errJson.error?.message || "Unknown error";
+
+                // If 404, try to list models for debugging
+                if (response.status === 404) {
+                    try {
+                        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${googleKey}`);
+                        const listData = await listRes.json();
+                        const availableModels = listData.models?.map((m: any) => m.name).join(", ");
+                        throw new Error(`Model '${modelId}' not found. Available models for this key: ${availableModels}`);
+                    } catch (listErr: any) {
+                        throw new Error(`Google AI Error (404): ${errMessage}. Error listing models: ${listErr.message}`);
+                    }
+                }
+
+                throw new Error(`Google Generation Failed: ${JSON.stringify(errJson)}`);
             }
 
             const data = await response.json();
