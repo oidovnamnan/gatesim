@@ -47,28 +47,42 @@ const PRESET_PROMPTS = [
         label: "Neon City",
         icon: "🌃",
         idea: "Futuristic Tokyo street at night, glowing neon signs, holding phone with high signal",
-        prompt: "Cyberpunk aesthetic shot of a busy Tokyo street at night. Neon signs reflect on wet pavement. In the foreground, a hand holds a modern bezel-less smartphone displaying the 'GateSIM' logo with full 5G bars. Blue and purple color grading, cinematic depth of field, 8k resolution, Unreal Engine 5 style rendering."
+        prompt: "Cyberpunk aesthetic shot of a busy Tokyo street at night. Neon signs reflect on wet pavement. In the foreground, a hand holds a modern bezel-less smartphone displaying the 'GateSIM' logo with full 5G bars. Blue and purple color grading, cinematic depth of field, 8k resolution."
     },
     {
         id: "minimalist",
         label: "Tech Minimalist",
         icon: "⚪",
         idea: "Clean white desk setup, coffee, passport and phone with GateSIM",
-        prompt: "Ultra-minimalist product photography. A pristine white marble desk surface. Organized layout featuring a passport, a cup of artisan coffee, and a premium smartphone displaying the 'GateSIM' app interface. Soft diffuse lighting, high-key photography, Apple-style advertising aesthetic, sharp focus."
+        prompt: "Ultra-minimalist product photography. A pristine white marble desk surface. Organized layout featuring a passport, a cup of artisan coffee, and a premium smartphone displaying the 'GateSIM' app interface. Soft diffuse lighting, high-key photography, Apple-style advertising aesthetic."
     },
     {
-        id: "travel_pov",
-        label: "Travel POV",
-        icon: "✈️",
-        idea: "First person view looking at Eiffel tower holding phone",
-        prompt: "First-person POV shot of a traveler's hand holding a smartphone against the backdrop of the Eiffel Tower during golden hour. The phone screen clearly shows 'GateSIM Connected'. Warm sunlight, dreamy atmosphere, travel blog aesthetic, bokeh background, highly detailed lifestyle photography."
+        id: "airport",
+        label: "Business Class",
+        icon: "💎",
+        idea: "Business traveler in luxury airport lounge at sunset",
+        prompt: "Cinematic shot of a business traveler in a modern luxury airport lounge. Outside the window, a plane takes off at sunset. The traveler checks their phone which shows 'GateSIM Connected'. Premium lifestyle, warm golden lighting, depth of field."
+    },
+    {
+        id: "cafe",
+        label: "Digital Nomad",
+        icon: "☕",
+        idea: "Working from a cozy cafe with laptop and phone",
+        prompt: "Cozy atmosphere in a hipster coffee shop. A wooden table with a laptop, latte art, and a smartphone showing 'GateSIM' app. Soft morning light entering through window. Digital nomad lifestyle, realistic texture."
+    },
+    {
+        id: "anime",
+        label: "Anime Travel",
+        icon: "🌸",
+        idea: "Anime character geek girl in Akihabara Tokyo",
+        prompt: "High quality anime illustration of a cute stylish girl traveling in Akihabara, Tokyo. She is happy and holding a phone with 'GateSIM' logo. Vibrant background with neon signs and cherry blossoms. Makoto Shinkai art style, beautiful clouds."
     },
     {
         id: "nature",
         label: "Wild Nature",
         icon: "🏔️",
         idea: "Hiking in Swiss Alps, phone showing connection on mountain peak",
-        prompt: "Epic wide shot of a hiker on a snowy mountain peak in the Swiss Alps. Blue sky, bright sunlight. The hiker holds a phone up, screen displaying 'GateSIM' logo. Sense of adventure and freedom. National Geographic style photography, sharp details, vibrant natural colors."
+        prompt: "Epic wide shot of a hiker on a snowy mountain peak in the Swiss Alps. Blue sky, bright sunlight. The hiker holds a phone up, screen displaying 'GateSIM' logo. National Geographic style photography, sharp details, vibrant natural colors."
     }
 ];
 
@@ -88,7 +102,7 @@ export default function ContentManagerPage() {
     const [enhancing, setEnhancing] = useState(false);
     const [includeBranding, setIncludeBranding] = useState(true);
 
-    // Watermark State
+    // Watermark State (Default to official logo)
     const [logoImage, setLogoImage] = useState<string | null>("/logo-official-full.jpg");
     const [watermarking, setWatermarking] = useState(false);
     const [watermarkPosition, setWatermarkPosition] = useState("bottom-right");
@@ -360,6 +374,11 @@ export default function ContentManagerPage() {
                                     <SelectContent>
                                         <SelectItem value="vivid">🎨 Vivid (Dramatic)</SelectItem>
                                         <SelectItem value="natural">📷 Natural (Realistic)</SelectItem>
+                                        <SelectItem value="cinematic">🎬 Cinematic (Movie)</SelectItem>
+                                        <SelectItem value="3d-model">🧸 3D Render (Cute)</SelectItem>
+                                        <SelectItem value="minimalist">⚪ Minimalist (Clean)</SelectItem>
+                                        <SelectItem value="anime">🌸 Anime (2D Art)</SelectItem>
+                                        <SelectItem value="analog">🎞️ Analog Film (Retro)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -538,7 +557,7 @@ export default function ContentManagerPage() {
                             <h3 className="font-semibold text-slate-600 dark:text-slate-400">Ready to create?</h3>
                             <p className="text-sm text-slate-500 mt-2">
                                 1. Enter your idea (or use a template)<br />
-                                2. "Enhance" to add details<br />
+                                2. "Write Pro Prompt" to add details<br />
                                 3. Generate & Add Logo Overlay
                             </p>
                         </div>

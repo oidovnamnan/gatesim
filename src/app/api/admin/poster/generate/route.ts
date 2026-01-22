@@ -85,13 +85,41 @@ export async function POST(req: NextRequest) {
 
         const { theme, customPrompt, captionTone, captionLength, size, style } = await req.json();
 
+        // Style Modifiers System
+        const STYLE_MODIFIERS: Record<string, { prompt: string; dalleParam: "vivid" | "natural" }> = {
+            "vivid": { prompt: "", dalleParam: "vivid" }, // Native
+            "natural": { prompt: "", dalleParam: "natural" }, // Native
+            "cinematic": {
+                prompt: " Cinematic movie scene aesthetic, dramatic lighting, teal and orange color grading, anamorphic lens flares, highly detailed, 8k.",
+                dalleParam: "vivid"
+            },
+            "3d-model": {
+                prompt: " 3D Blender render, isometric view, cute and rounded shapes, soft clay material, studio lighting, bright and friendly colors.",
+                dalleParam: "vivid"
+            },
+            "minimalist": {
+                prompt: " Ultra-minimalist design, negative space, Apple-style advertising aesthetic, clean white background, high key lighting, sharp focus on product.",
+                dalleParam: "natural"
+            },
+            "anime": {
+                prompt: " High quality anime art style, Makoto Shinkai inspired background, vibrant colors, beautiful clouds, 2D illustration.",
+                dalleParam: "vivid"
+            },
+            "analog": {
+                prompt: " Vintage film photography style, Kodak Portra 400 film grain, soft focus, nostalgia, warm tones, light leaks.",
+                dalleParam: "natural"
+            }
+        };
+
+        const selectedStyle = STYLE_MODIFIERS[style] || STYLE_MODIFIERS["vivid"];
+
         // Determine final prompt
         let finalPrompt = "";
 
         if (customPrompt) {
-            finalPrompt = customPrompt;
+            finalPrompt = customPrompt + selectedStyle.prompt;
         } else if (theme && themes[theme as keyof typeof themes]) {
-            finalPrompt = buildPrompt(theme);
+            finalPrompt = buildPrompt(theme) + selectedStyle.prompt;
         } else {
             return NextResponse.json({ error: "Invalid theme or missing prompt" }, { status: 400 });
         }
@@ -129,7 +157,7 @@ export async function POST(req: NextRequest) {
             n: 1,
             size: size || "1024x1024",
             quality: "hd",
-            style: style || "vivid",
+            style: selectedStyle.dalleParam,
         });
 
         const imageUrl = imageResponse.data?.[0]?.url;
