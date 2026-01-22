@@ -1,113 +1,84 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-import { User, Mail, Calendar, ShoppingCart, Shield, Loader2, Search } from "lucide-react";
+import { Users, ShoppingCart, Calendar, Loader2 } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
-import { Input } from "@/components/ui/input";
-
-// Simple relative time formatter
-function formatRelativeTime(date: Date): string {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days === 0) return "Өнөөдөр";
-    if (days === 1) return "Өчигдөр";
-    if (days < 7) return `${days} өдрийн өмнө`;
-    if (days < 30) return `${Math.floor(days / 7)} долоо хоногийн өмнө`;
-    if (days < 365) return `${Math.floor(days / 30)} сарын өмнө`;
-    return `${Math.floor(days / 365)} жилийн өмнө`;
-}
-
-interface UserData {
-    id: string;
-    email: string;
-    displayName?: string;
-    photoURL?: string;
-    role?: string;
-    createdAt?: number;
-    emailVerified?: boolean;
-    phone?: string;
-    // Aggregated stats
-    orderCount: number;
-    totalSpent: number;
-}
+import { collection, query, onSnapshot } from "firebase/firestore";
+import { UsersTable } from "./users-table";
+import { UserSheet, EnrichedUser } from "./user-sheet";
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<UserData[]>([]);
+    const [users, setUsers] = useState<EnrichedUser[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedUser, setSelectedUser] = useState<EnrichedUser | null>(null);
+    const [sheetOpen, setSheetOpen] = useState(false);
 
     useEffect(() => {
         setLoading(true);
 
-        // 1. Listen to Users
         const usersRef = collection(db, "users");
-        // Note: 'createdAt' in Firebase might be missing on old users, so order might be tricky.
-        // We'll sort client side.
+        // We fetch ALL users initially for client-side search/sort.
+        // In a huge app, this should be server-side paginated via API.
         const usersQuery = query(usersRef);
 
         const unsubUsers = onSnapshot(usersQuery, (userSnap) => {
-            const tempUsers: Record<string, UserData> = {};
+            const tempUsers: Record<string, EnrichedUser> = {};
+
             userSnap.docs.forEach(doc => {
                 const data = doc.data();
                 tempUsers[doc.id] = {
+                    ...(data as any),
                     id: doc.id,
-                    email: data.email || "",
-                    displayName: data.displayName || data.name,
-                    photoURL: data.photoURL || data.image,
-                    role: data.role,
-                    createdAt: data.createdAt,
-                    emailVerified: data.emailVerified,
-                    phone: data.phone,
                     orderCount: 0,
-                    totalSpent: 0
+                    totalSpent: 0,
+                    orders: []
                 };
             });
 
-            // 2. Listen to Orders to aggregate stats
+            // Listen to Orders to aggregate stats
             const ordersRef = collection(db, "orders");
-            // Fetch ALL orders (might be heavy later, but fine for now)
-            // Optimization: We could use a separate aggregate query if Firebase supported it cleanly on client
             const ordersQuery = query(ordersRef);
 
-            // We use a one-time fetch for orders to avoid double-stream complexity? 
-            // No, let's stream both.
             const unsubOrders = onSnapshot(ordersQuery, (orderSnap) => {
-                // Reset counts
+                // Reset counts in temp object to avoid double counting on updates
                 Object.values(tempUsers).forEach(u => {
                     u.orderCount = 0;
                     u.totalSpent = 0;
+                    u.orders = [];
                 });
 
                 orderSnap.docs.forEach(doc => {
                     const order = doc.data();
                     const uid = order.userId;
-                    // Also match by email if userId is missing (Guest orders linked by email)
                     const email = order.contactEmail;
+                    const orderData = { id: doc.id, ...order };
 
+                    // Match by UID or Email
+                    let userMatch = null;
                     if (uid && tempUsers[uid]) {
-                        tempUsers[uid].orderCount++;
-                        if (order.status === "paid" || order.status === "completed") {
-                            tempUsers[uid].totalSpent += (order.totalAmount || 0);
-                        }
+                        userMatch = tempUsers[uid];
                     } else if (email) {
-                        // Find user by email
-                        const userByEmail = Object.values(tempUsers).find(u => u.email === email);
-                        if (userByEmail) {
-                            userByEmail.orderCount++;
-                            if (order.status === "paid" || order.status === "completed") {
-                                userByEmail.totalSpent += (order.totalAmount || 0);
-                            }
+                        userMatch = Object.values(tempUsers).find(u => u.email === email);
+                    }
+
+                    if (userMatch) {
+                        userMatch.orderCount++;
+                        if (order.status === "paid" || order.status === "completed") {
+                            userMatch.totalSpent += (order.totalAmount || 0);
                         }
+                        // Add to local orders list for sheet view
+                        userMatch.orders?.push(orderData);
                     }
                 });
 
-                // Sort by CreatedAt desc
+                // Convert back to array and sort
                 const sortedUsers = Object.values(tempUsers).sort((a, b) => {
                     return (b.createdAt || 0) - (a.createdAt || 0);
+                });
+
+                // Sort orders within each user for display
+                sortedUsers.forEach(u => {
+                    u.orders?.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 });
 
                 setUsers(sortedUsers);
@@ -120,11 +91,7 @@ export default function UsersPage() {
         return () => unsubUsers();
     }, []);
 
-    const filteredUsers = users.filter(user =>
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
+    // Derived Stats
     const stats = {
         total: users.length,
         withOrders: users.filter(u => u.orderCount > 0).length,
@@ -135,7 +102,12 @@ export default function UsersPage() {
         }).length,
     };
 
-    if (loading) {
+    const handleUserClick = (user: EnrichedUser) => {
+        setSelectedUser(user);
+        setSheetOpen(true);
+    };
+
+    if (loading && users.length === 0) {
         return (
             <div className="flex items-center justify-center h-64">
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
@@ -146,28 +118,16 @@ export default function UsersPage() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        Users Management
-                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
-                            {users.length}
-                        </span>
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                        Бүртгэлтэй хэрэглэгчдийг удирдах
-                    </p>
-                </div>
-
-                <div className="relative w-full md:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                        placeholder="Хайх..."
-                        className="pl-9 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
+            <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    Users Management
+                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+                        {users.length}
+                    </span>
+                </h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">
+                    Manage registered users and view their activity
+                </p>
             </div>
 
             {/* Stats Cards */}
@@ -175,11 +135,11 @@ export default function UsersPage() {
                 <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/20 flex items-center justify-center">
-                            <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                            <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Нийт хэрэглэгч</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Total Users</p>
                         </div>
                     </div>
                 </div>
@@ -190,7 +150,7 @@ export default function UsersPage() {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.withOrders}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Захиалга хийсэн</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Active Customers</p>
                         </div>
                     </div>
                 </div>
@@ -201,113 +161,25 @@ export default function UsersPage() {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.newThisMonth}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Энэ сард шинэ</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">New This Month</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Users Table */}
-            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-slate-600 dark:text-slate-300">
-                        <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">Хэрэглэгч</th>
-                                <th className="px-4 py-3 font-medium">Имэйл</th>
-                                <th className="px-4 py-3 font-medium text-center">Захиалга</th>
-                                <th className="px-4 py-3 font-medium text-right">Нийт төлбөр</th>
-                                <th className="px-4 py-3 font-medium">Бүртгэгдсэн</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {filteredUsers.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                                        Хэрэглэгч олдсонгүй
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredUsers.map((user) => (
-                                    <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-3">
-                                                {user.photoURL ? (
-                                                    <img
-                                                        src={user.photoURL}
-                                                        alt={user.displayName || "User"}
-                                                        className="w-8 h-8 rounded-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                                        <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="font-medium text-slate-900 dark:text-white">
-                                                            {user.displayName || "Нэргүй"}
-                                                        </p>
-                                                        {user.role === 'super_admin' && (
-                                                            <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 border-0 text-[10px] px-1.5 h-4 flex items-center gap-1">
-                                                                <Shield className="w-2.5 h-2.5" />
-                                                                Admin
-                                                            </Badge>
-                                                        )}
-                                                        {user.role === 'staff' && (
-                                                            <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/30 border-0 text-[10px] px-1.5 h-4 flex items-center gap-1">
-                                                                <Shield className="w-2.5 h-2.5" />
-                                                                Staff
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                    {user.phone && (
-                                                        <p className="text-xs text-slate-500">{user.phone}</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2">
-                                                <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                                                <span className="text-slate-600 dark:text-slate-300">{user.email}</span>
-                                                {user.emailVerified && (
-                                                    <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 h-4 px-1">
-                                                        Verified
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            {user.orderCount > 0 ? (
-                                                <Badge className="bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 border-0">
-                                                    {user.orderCount}
-                                                </Badge>
-                                            ) : (
-                                                <span className="text-slate-400 dark:text-slate-500">0</span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            {user.totalSpent > 0 ? (
-                                                <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                                                    ₮{user.totalSpent.toLocaleString()}
-                                                </span>
-                                            ) : (
-                                                <span className="text-slate-400 dark:text-slate-500">-</span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <span className="text-slate-500 dark:text-slate-400 text-xs">
-                                                {user.createdAt ? formatRelativeTime(new Date(user.createdAt)) : "-"}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <UsersTable
+                users={users}
+                loading={loading}
+                onUserClick={handleUserClick}
+            />
+
+            {/* User Details Sheet */}
+            <UserSheet
+                user={selectedUser}
+                open={sheetOpen}
+                onOpenChange={setSheetOpen}
+            />
         </div>
     );
 }
