@@ -1,5 +1,6 @@
 
 import { NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getMobiMatterProducts } from "@/lib/mobimatter";
 import { db } from "@/lib/firebase";
 import { collection, writeBatch, doc } from "firebase/firestore";
@@ -69,6 +70,15 @@ export async function GET(request: Request) {
         }
 
         // Optional: Clean up old items? (For now, let's just upsert)
+
+        // IMPORTANT: Bust Next.js cache for packages pages
+        try {
+            revalidatePath('/packages');
+            revalidatePath('/'); // Home page might show featured packages
+            console.log('[Sync] Cache invalidated for /packages and /');
+        } catch (cacheError) {
+            console.warn('[Sync] Cache invalidation failed (non-critical):', cacheError);
+        }
 
         return NextResponse.json({
             success: true,
