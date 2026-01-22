@@ -99,7 +99,7 @@ class QPayClient {
             invoice_receiver_code: "terminal",
             invoice_description: params.description,
             amount: params.amount,
-            callback_url: `${this.config.callbackUrl}?order_id=${params.orderId}`,
+            callback_url: `${this.config.callbackUrl}?order_id=${params.orderId}${process.env.QPAY_WEBHOOK_SECRET ? `&secret=${process.env.QPAY_WEBHOOK_SECRET}` : ''}`,
         };
 
         return this.request<QPayInvoiceResponse>("/invoice", {
