@@ -142,7 +142,8 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: "Google API Key missing" }, { status: 500 });
             }
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${googleKey}`, {
+            const modelId = process.env.GOOGLE_MODEL_ID || config.googleModelId || "imagen-3.0-generate-001";
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelId}:predict?key=${googleKey}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
