@@ -8,8 +8,8 @@ function formatDataAmount(mb: number): string {
     return `${mb} MB`;
 }
 
-// Cache for 1 hour (Event-driven invalidation handles immediate updates)
-export const revalidate = 3600;
+// This page is Static and updated On-Demand (via /api/cron/sync-products)
+// No time-based revalidation needed as per user request
 
 import { getProductsFromDB } from "@/lib/products-db";
 
