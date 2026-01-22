@@ -4,7 +4,7 @@ export interface UserData {
     displayName?: string;
     photoURL?: string;
     phone?: string;
-    role: 'user' | 'admin';
+    role: 'user' | 'admin' | 'super_admin' | 'staff';
     createdAt: number; // Timestamp
     updatedAt: number;
 }

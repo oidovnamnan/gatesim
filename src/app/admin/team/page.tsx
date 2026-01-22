@@ -16,8 +16,8 @@ export default async function TeamPage() {
     const userEmail = session?.user?.email;
     const role = getAdminRole(userEmail);
 
-    // Only SUPER_ADMIN (or at least ADMIN) can access Team page
-    if (role !== 'super_admin' && role !== 'admin') {
+    // Only SUPER_ADMIN can access Team page
+    if (role !== 'super_admin') {
         if (!canAccess(role as any, 'team')) {
             redirect('/admin');
         }
