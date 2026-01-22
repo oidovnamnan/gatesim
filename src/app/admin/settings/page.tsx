@@ -21,6 +21,7 @@ interface PricingSettings {
     openaiApiKey?: string;
     googleApiKey?: string;
     preferredImageAI?: 'openai' | 'google';
+    googleModelId?: string;
 }
 
 export default function SettingsPage() {
@@ -65,7 +66,8 @@ export default function SettingsPage() {
                 maintenanceMode: config.maintenanceMode || false,
                 openaiApiKey: config.openaiApiKey || '',
                 googleApiKey: config.googleApiKey || '',
-                preferredImageAI: config.preferredImageAI || 'openai'
+                preferredImageAI: config.preferredImageAI || 'openai',
+                googleModelId: config.googleModelId || ''
             }));
             setLoading(false);
         });
@@ -334,7 +336,19 @@ export default function SettingsPage() {
                                     placeholder="AIza..."
                                     className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-10 text-sm font-mono"
                                 />
-                                <p className="text-xs text-slate-400">Google Cloud Console → Vertex AI → API Keys</p>
+                                <p className="text-xs text-slate-400">Google AI Studio (aistudio.google.com) → Get API Key</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500 dark:text-white/60">Model ID (Optional)</Label>
+                                <Input
+                                    type="text"
+                                    value={settings.googleModelId || ''}
+                                    onChange={(e) => setSettings(s => ({ ...s, googleModelId: e.target.value }))}
+                                    placeholder="imagen-3.0-generate-001"
+                                    className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-10 text-sm font-mono"
+                                />
+                                <p className="text-xs text-slate-400">Default: imagen-3.0-generate-001. If using Gemini Pro preview/Nano, enter your model ID here.</p>
                             </div>
                         </div>
                     </div>
