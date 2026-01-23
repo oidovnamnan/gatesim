@@ -25,7 +25,10 @@ import {
     Shuffle,
     ArrowUp,
     ArrowDown,
-    Move
+    Move,
+    Maximize2,
+    X,
+    Server
 } from "lucide-react";
 
 const RANDOM_IDEAS = [
@@ -294,6 +297,8 @@ export default function ContentManagerPage() {
 
     const [generating, setGenerating] = useState(false);
     const [generatingGoogle, setGeneratingGoogle] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [savingToHub, setSavingToHub] = useState(false);
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
     const [googlePoster, setGooglePoster] = useState<GeneratedPoster | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
@@ -327,6 +332,9 @@ export default function ContentManagerPage() {
                 const updated = { ...targetPoster, imageUrl: data.imageUrl };
                 if (targetPoster.provider === "openai") setPoster(updated);
                 else setGooglePoster(updated);
+
+                // Auto-save the watermarked version as well
+                autoSaveToHub(updated);
             }
         } catch (e) {
             console.error(e);
@@ -364,6 +372,32 @@ export default function ContentManagerPage() {
         }
     };
 
+    const autoSaveToHub = async (posterData: GeneratedPoster) => {
+        try {
+            setSavingToHub(true);
+            const res = await fetch('/api/admin/poster/hub/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    imageUrl: posterData.imageUrl,
+                    captionMN: posterData.captionMN,
+                    captionEN: posterData.captionEN,
+                    hashtags: posterData.hashtags,
+                    provider: posterData.provider,
+                    idea: idea,
+                    prompt: enhancedPrompt || idea
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to auto-save to hub");
+            console.log("Auto-saved to hub:", data.savedUrl);
+        } catch (error) {
+            console.error("Auto-save failed:", error);
+        } finally {
+            setSavingToHub(false);
+        }
+    };
+
     const handleGenerate = async () => {
         setGenerating(true);
         setGeneratingGoogle(provider === "dual");
@@ -391,13 +425,18 @@ export default function ContentManagerPage() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || `${targetProvider} generation failed`);
 
-            return {
+            const result = {
                 imageUrl: data.imageUrl,
                 captionMN: data.captionMN,
                 captionEN: data.captionEN,
                 hashtags: data.hashtags,
-                provider: targetProvider
+                provider: targetProvider as "openai" | "google"
             };
+
+            // Trigger auto-save immediately
+            autoSaveToHub(result);
+
+            return result;
         };
 
         try {
@@ -716,7 +755,13 @@ export default function ContentManagerPage() {
                                             {p!.provider === 'openai' ? '🤖 OpenAI DALL-E 3' : '🎨 Google Imagen 4'}
                                         </span>
                                     </div>
-                                    <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700">
+                                    <div
+                                        className="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 relative group/img cursor-zoom-in"
+                                        onClick={() => setSelectedImage(p!.imageUrl)}
+                                    >
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center z-10">
+                                            <Maximize2 className="w-8 h-8 text-white" />
+                                        </div>
                                         <img
                                             src={p!.imageUrl}
                                             alt="Generated Poster"
@@ -822,6 +867,53 @@ export default function ContentManagerPage() {
                     )}
                 </Card>
             </div>
+            {/* Image Zoom Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button
+                        className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedImage(null);
+                        }}
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+
+                    <div className="max-w-5xl max-h-[90vh] relative group" onClick={(e) => e.stopPropagation()}>
+                        <img
+                            src={selectedImage}
+                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain border border-white/10"
+                            alt="Zoomed Poster"
+                        />
+                        <div className="absolute top-4 left-4">
+                            <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full border border-white/20 flex items-center gap-2">
+                                <Maximize2 className="w-3 h-3" />
+                                PREVIEW MODE
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Hub Sync Toast (Subtle) */}
+            {savingToHub && (
+                <div className="fixed bottom-6 right-6 z-40 animate-in slide-in-from-right-10 duration-500">
+                    <div className="bg-white dark:bg-slate-900 shadow-2xl rounded-full px-5 py-2.5 flex items-center gap-3 border border-slate-200 dark:border-slate-800">
+                        <div className="flex -space-x-1">
+                            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                                <Server className="w-3 h-3 text-white animate-pulse" />
+                            </div>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                            Syncing to AI Hub...
+                        </span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
