@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
         }
 
         // --- STEP 2: GENERATE NEW IMAGE WITH IMAGEN 3 ---
-        const configModelId = config.googleModelId || "imagen-3.0-generate-001";
+        const configModelId = config.googleModelId || "imagen-4.0-generate-001";
         const modelIdRaw = (process.env.GOOGLE_MODEL_ID || configModelId).trim();
         const fullModelName = modelIdRaw.startsWith("models/") ? modelIdRaw : `models/${modelIdRaw}`;
 
