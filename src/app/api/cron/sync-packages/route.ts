@@ -15,7 +15,10 @@ export async function GET(req: Request) {
         if (result.success) {
             return NextResponse.json({ success: true, message: "Packages synced via cron" });
         } else {
-            return NextResponse.json({ success: false, error: result.error }, { status: 500 });
+            return NextResponse.json({
+                success: false,
+                error: (result as { error?: string }).error || "Unknown error"
+            }, { status: 500 });
         }
     } catch (error) {
         return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });

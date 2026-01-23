@@ -24,7 +24,7 @@ export function RefreshButton() {
                 });
                 router.refresh(); // Refresh current route to fetch new data
             } else {
-                throw new Error(res.error);
+                throw new Error((res as any).error || "Failed to sync packages");
             }
         } catch (error) {
             toast({
