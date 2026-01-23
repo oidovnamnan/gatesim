@@ -23,7 +23,7 @@ const useLanguageStore = create<LanguageState>()(
     )
 );
 
-const translations = {
+export const translations = {
     mn: {
         home: "Нүүр",
         packages: "Багцууд",

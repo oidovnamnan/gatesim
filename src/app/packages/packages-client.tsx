@@ -8,7 +8,7 @@ import { PackageCard, PackageCardCompact } from "@/components/packages/package-c
 import { popularCountries } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useInView } from "react-intersection-observer";
-import { useTranslation } from "@/providers/language-provider";
+import { useTranslation, translations, Language } from "@/providers/language-provider";
 import { useSearchParams } from "next/navigation";
 
 interface Package {
@@ -115,10 +115,12 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     const matchesOperator = pkg.operatorTitle.toLowerCase().includes(query);
                     const matchesCountryName = pkg.countryName?.toLowerCase().includes(query);
 
-                    // Check all associated countries
+                    // Check all associated countries in all supported languages
                     const matchesTranslatedCountries = pkg.countries.some(code => {
-                        const translated = t(`country_${code}`).toLowerCase();
-                        return translated.includes(query);
+                        return (["mn", "en", "cn"] as Language[]).some(lang => {
+                            const translated = (translations[lang] as any)[`country_${code}`]?.toLowerCase();
+                            return translated && translated.includes(query);
+                        });
                     });
 
                     return matchesTitle || matchesOperator || matchesCountryName || matchesTranslatedCountries;
