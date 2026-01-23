@@ -9,20 +9,20 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 // List of models to try for Vision (Image Analysis)
-// We try them in order of preference: Optimized (Flash) -> Powerful (Pro) -> Legacy (Pro Vision)
+// User confirmed Gemini 1.5 might not be enabled. Prioritizing older stable vision models.
 const VISON_MODELS = [
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-001",
-    "gemini-1.5-pro",
-    "gemini-1.5-pro-001",
-    "gemini-pro-vision"
+    "gemini-pro-vision",  // Legacy stable vision model (Most likely enabled)
+    "gemini-1.0-pro-vision-latest",
+    "gemini-1.5-flash",   // Fallback to newer ones just in case
+    "gemini-1.5-flash-001"
 ];
 
 // List of models to try for Text (Captioning)
+// Gemini Pro Vision cannot do text-only chat well without image, so use Gemini Pro for text
 const TEXT_MODELS = [
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
-    "gemini-pro"
+    "gemini-pro",
+    "gemini-1.0-pro",
+    "gemini-1.5-flash"
 ];
 
 async function generateContentWithFallback(genAI: GoogleGenerativeAI, models: string[], prompt: string, imagePart?: any) {
@@ -36,12 +36,10 @@ async function generateContentWithFallback(genAI: GoogleGenerativeAI, models: st
             return result;
         } catch (error: any) {
             console.warn(`Model ${modelName} failed:`, error.message);
-            // If it's a 404 (Not Found) or 400 (Not Supported), continue to next model
-            // Otherwise if it's auth error etc, maybe we should stop, but safe to try others.
             lastError = error;
         }
     }
-    throw new Error(`All Gemini models failed. Last error: ${lastError?.message || "Unknown"}`);
+    throw new Error(`All Gemini models failed. Please check if 'Gemini Pro Vision' API is enabled in Google Cloud Console. Last error: ${lastError?.message || "Unknown"}`);
 }
 
 export async function POST(req: NextRequest) {
@@ -97,8 +95,6 @@ export async function POST(req: NextRequest) {
             console.log("Gemini Vision Success. Prompt:", detailedPrompt);
         } catch (err: any) {
             console.error("Gemini Vision Analysis Failed completely:", err);
-            // Fallback: If vision fails entirely, just use a generic prompt based on filename or something?
-            // No, better to fail and tell user.
             throw new Error(`Gemini Vision Error: ${err.message}. Please check API Key permissions.`);
         }
 
