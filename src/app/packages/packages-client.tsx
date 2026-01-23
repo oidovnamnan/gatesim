@@ -41,6 +41,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
     const searchParams = useSearchParams();
 
     const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+    const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
     const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [sortBy, setSortBy] = useState<SortOption>("price-asc");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(searchParams.get("country")?.toUpperCase() || null);
@@ -60,6 +61,14 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         threshold: 0,
         rootMargin: "100px",
     });
+
+    // Debounce search query to improve typing performance (INP fix)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     // Synchronize state with URL parameters
     useEffect(() => {
@@ -97,17 +106,16 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         });
         packages = Array.from(packageGroups.values());
 
-        // 3. Filter by search
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
+        // 3. Filter by search (using debounced query for performance)
+        if (debouncedQuery) {
+            const query = debouncedQuery.toLowerCase();
             packages = packages.filter(
                 (pkg) => {
-                    // Check direct fields
                     const matchesTitle = pkg.title.toLowerCase().includes(query);
                     const matchesOperator = pkg.operatorTitle.toLowerCase().includes(query);
                     const matchesCountryName = pkg.countryName?.toLowerCase().includes(query);
 
-                    // Check all associated countries (translated to current language)
+                    // Check all associated countries
                     const matchesTranslatedCountries = pkg.countries.some(code => {
                         const translated = t(`country_${code}`).toLowerCase();
                         return translated.includes(query);
@@ -148,36 +156,58 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                 break;
         }
 
-        // If filtering by country, override countryName for regional packages
-        if (selectedCountry) {
-            const countryKey = `country_${selectedCountry}`;
-            const selectedCountryName = t(countryKey);
+        // FINAL STEP: Transform data for UI (Smart Titles & Reordering)
+        // This makes sure if someone searches "Italy", even a "Europe" package 
+        // will show up as "Italy + 30 countries" so the user isn't confused.
+        const activeSearch = debouncedQuery?.toLowerCase();
 
-            packages = packages.map(pkg => {
-                if (pkg.countries.length > 1 && pkg.countries.includes(selectedCountry)) {
+        return packages.map(pkg => {
+            let countryToHighlight = selectedCountry;
+
+            // If no country is selected but we are searching, check which country matched the search
+            if (!countryToHighlight && activeSearch) {
+                const matchingCode = pkg.countries.find(code => {
+                    const translated = t(`country_${code}`).toLowerCase();
+                    return translated.includes(activeSearch);
+                });
+                if (matchingCode) countryToHighlight = matchingCode;
+            }
+
+            if (countryToHighlight) {
+                const countryKey = `country_${countryToHighlight}`;
+                const highlightedCountryName = t(countryKey);
+                const isExactCountryMatch = pkg.countries.length === 1 && pkg.countries[0] === countryToHighlight;
+
+                if (!isExactCountryMatch && pkg.countries.includes(countryToHighlight)) {
                     const reorderedCountries = [
-                        selectedCountry,
-                        ...pkg.countries.filter(c => c !== selectedCountry)
+                        countryToHighlight,
+                        ...pkg.countries.filter(c => c !== countryToHighlight)
                     ];
 
                     return {
                         ...pkg,
                         countries: reorderedCountries,
-                        countryName: selectedCountryName,
-                        title: `${selectedCountryName} ${t("plusCountries").replace("{count}", (pkg.countries.length - 1).toString())}`
+                        countryName: highlightedCountryName,
+                        title: `${highlightedCountryName} ${t("plusCountries").replace("{count}", (pkg.countries.length - 1).toString())}`,
+                        isFeatured: true // Highlight in search results
+                    };
+                } else if (isExactCountryMatch) {
+                    return {
+                        ...pkg,
+                        countryName: highlightedCountryName,
+                        title: highlightedCountryName
                     };
                 }
-                return pkg;
-            });
-        }
+            }
 
-        return packages;
-    }, [initialPackages, searchQuery, selectedCountry, selectedDuration, sortBy, t]);
+            return pkg;
+        });
+    }, [initialPackages, debouncedQuery, selectedCountry, selectedDuration, sortBy, t]);
 
     // Reset display count when filters change
     useEffect(() => {
         setDisplayCount(PACKAGES_PER_PAGE);
-    }, [searchQuery, selectedCountry, selectedDuration, sortBy]);
+    }, [debouncedQuery, selectedCountry, selectedDuration, sortBy]);
 
     // Load more when scrolling to bottom
     const loadMore = useCallback(() => {
