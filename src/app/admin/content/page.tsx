@@ -48,45 +48,220 @@ const sizeOptions: { id: string; label: string; dimensions: string; ratio: strin
 const PRESET_PROMPTS = [
     {
         id: "cyberpunk",
-        label: "Neon City",
+        label: "Tokyo Neon",
         icon: "🌃",
         idea: "Futuristic Tokyo street at night, glowing neon signs, holding phone with high signal",
         prompt: "Cyberpunk aesthetic shot of a busy Tokyo street at night. Neon signs reflect on wet pavement. In the foreground, a hand holds a modern bezel-less smartphone displaying the 'GateSIM' logo with full 5G bars. Blue and purple color grading, cinematic depth of field, 8k resolution."
     },
     {
         id: "minimalist",
-        label: "Tech Minimalist",
+        label: "Tech Minimal",
         icon: "⚪",
         idea: "Clean white desk setup, coffee, passport and phone with GateSIM",
         prompt: "Ultra-minimalist product photography. A pristine white marble desk surface. Organized layout featuring a passport, a cup of artisan coffee, and a premium smartphone displaying the 'GateSIM' app interface. Soft diffuse lighting, high-key photography, Apple-style advertising aesthetic."
     },
     {
-        id: "airport",
+        id: "business",
         label: "Business Class",
         icon: "💎",
         idea: "Business traveler in luxury airport lounge at sunset",
         prompt: "Cinematic shot of a business traveler in a modern luxury airport lounge. Outside the window, a plane takes off at sunset. The traveler checks their phone which shows 'GateSIM Connected'. Premium lifestyle, warm golden lighting, depth of field."
     },
     {
-        id: "cafe",
-        label: "Digital Nomad",
+        id: "nomad",
+        label: "Bali Nomad",
         icon: "☕",
-        idea: "Working from a cozy cafe with laptop and phone",
-        prompt: "Cozy atmosphere in a hipster coffee shop. A wooden table with a laptop, latte art, and a smartphone showing 'GateSIM' app. Soft morning light entering through window. Digital nomad lifestyle, realistic texture."
+        idea: "Working from a cozy Bali cafe with laptop and phone",
+        prompt: "Cozy atmosphere in a hipster coffee shop in Bali. A wooden table with a laptop, latte art, and a smartphone showing 'GateSIM' app. Soft morning light entering through window. Digital nomad lifestyle, realistic texture."
     },
     {
-        id: "anime",
-        label: "Anime Travel",
-        icon: "🌸",
-        idea: "Anime character geek girl in Akihabara Tokyo",
-        prompt: "High quality anime illustration of a cute stylish girl traveling in Akihabara, Tokyo. She is happy and holding a phone with 'GateSIM' logo. Vibrant background with neon signs and cherry blossoms. Makoto Shinkai art style, beautiful clouds."
+        id: "santorini",
+        label: "Santorini Blue",
+        icon: "🇬🇷",
+        idea: "Traveler in Santorini white buildings with blue domes",
+        prompt: "Professional travel photograph of a stylish traveler standing against the iconic white walls and blue domes of Santorini. Breathtaking view of the Aegean Sea. They are holding a phone with 'GateSIM' logo. Soft morning light, vibrant blues, crisp whites, wide-angle lens."
     },
     {
-        id: "nature",
-        label: "Wild Nature",
+        id: "dubai",
+        label: "Dubai Safari",
+        icon: "🐪",
+        idea: "Camel safari in Dubai desert at sunset with phone",
+        prompt: "Epic sunset shot in the Arabian desert. A traveler on a camel trek over orange sand dunes. They are holding a smartphone showing 'GateSIM 5G Connectivity'. The sun is a large orange orb on the horizon. Warm cinematic lighting, high contrast, sharp details."
+    },
+    {
+        id: "iceland",
+        label: "Iceland Aurora",
+        icon: "🌌",
+        idea: "Northern lights in Iceland from a glass igloo",
+        prompt: "Magical night shot of the Aurora Borealis dancing over a snowy Icelandic landscape. View from the interior of a luxury glass igloo. A smartphone on a nightstand glows with the 'GateSIM' connected status. Long exposure feel, vibrant greens and purples, cozy interior lighting."
+    },
+    {
+        id: "newyork",
+        label: "NYC Pulse",
+        icon: "🗽",
+        idea: "Times Square New York busy street at night",
+        prompt: "High-energy editorial photograph of Times Square, New York City at night. Blurred motion of yellow taxis and crowds. In focus, a hand holds a phone with 'GateSIM' active. Glowing network nodes float subtly in the air. Vibrant colors, anamorphic lens flare, cinematic city vibes."
+    },
+    {
+        id: "swiss",
+        label: "Swiss Express",
+        icon: "🚂",
+        idea: "Glacier Express train journey through Swiss Alps",
+        prompt: "Interior shot of the luxury Glacier Express train traveling through the snowy Swiss Alps. Large panoramic windows show majestic peaks. On a table, a laptop and phone are set up with 'GateSIM' connection. Soft daylight, premium travel aesthetic, realistic textures."
+    },
+    {
+        id: "maldives",
+        label: "Maldives Villa",
+        icon: "🏝️",
+        idea: "Luxury overwater bungalow in the Maldives",
+        prompt: "Breathtaking view of a luxury overwater villa in the Maldives. Crystal clear turquoise water underneath. A phone sits on a sunbed showing 'GateSIM Unlimited'. Perfect tropical paradise, bright natural sunlight, high saturation, sharp focus."
+    },
+    {
+        id: "paris",
+        label: "Parisian Cafe",
+        icon: "🥐",
+        idea: "Chic traveler at a Parisian street cafe",
+        prompt: "Lifestyle photograph of a chic traveler sitting at a classic Parisian sidewalk cafe with the Eiffel Tower in the far background. They are using their phone to check a map via 'GateSIM'. Warm morning light, soft bokeh, romantic European atmosphere."
+    },
+    {
+        id: "singapore",
+        label: "Futuristic SG",
+        icon: "🦁",
+        idea: "Gardens by the Bay Singapore futuristic trees",
+        prompt: "Futuristic shot of the Supertree Grove at Gardens by the Bay, Singapore at twilight. Glowing artificial trees. A traveler uses a phone with a holographic 'GateSIM' network overlay. Sci-fi aesthetic, vibrant neon lighting, high-tech city vibes."
+    },
+    {
+        id: "machupicchu",
+        label: "Inca Trail",
+        icon: "⛰️",
+        idea: "Hiker at Machu Picchu ruins with phone",
+        prompt: "Adventure photography of a hiker reaching the summit overlooking Machu Picchu, Peru. Ancient stone ruins and lush green mountains. The hiker checks their phone: 'GateSIM Global Connected'. Dramatic lighting, authentic textures, National Geographic style."
+    },
+    {
+        id: "kyoto",
+        label: "Kyoto Zen",
+        icon: "🏮",
+        idea: "Traveler in Kyoto bamboo forest",
+        prompt: "Peaceful shot of a traveler walking through the Arashiyama Bamboo Grove in Kyoto. Sunbeams filtering through tall green bamboo stalks. They are looking at a phone with 'GateSIM' logo. Zen atmosphere, soft natural lighting, high depth of field."
+    },
+    {
+        id: "safari",
+        label: "Africa Safari",
+        icon: "🦁",
+        idea: "Lion in African savanna seen from safari jeep",
+        prompt: "Powerful wildlife shot from an open safari jeep in the Serengeti. A majestic lion is visible in the distance across the yellow savanna. A traveler takes a photo with a phone showing 'GateSIM active'. Golden hour glow, realistic wildlife textures, wide lens."
+    },
+    {
+        id: "rome",
+        label: "Roman Holiday",
+        icon: "🏛️",
+        idea: "Colosseum Rome with modern traveler",
+        prompt: "Cinematic wide shot of the Colosseum in Rome under a clear blue sky. A stylish traveler in the foreground holds a phone with an AR guide powered by 'GateSIM'. Rich historical textures, vibrant colors, professional travel editorial style."
+    },
+    {
+        id: "london",
+        label: "London Tube",
+        icon: "🎡",
+        idea: "London Underground station with motion blur",
+        prompt: "Urban photography of a busy London Underground station. A red tube train is arriving with motion blur. A young traveler stands on the platform looking at their phone: 'GateSIM 5G Underground'. Cool industrial color palette, high contrast, modern city energy."
+    },
+    {
+        id: "petra",
+        label: "Petra Mystery",
+        icon: "🏺",
+        idea: "Petra Treasury Jordan at night with candles",
+        prompt: "Atmospheric night shot of the Treasury (Al-Khazneh) in Petra, Jordan, illuminated by thousands of candles. A traveler holds a phone showing a digital map via 'GateSIM'. Mysterious and ancient vibes, warm candle light, deep shadows, cinematic."
+    },
+    {
+        id: "cappadocia",
+        label: "Sky Full of Balloons",
+        icon: "🎈",
+        idea: "Hot air balloons in Cappadocia Turkey at sunrise",
+        prompt: "Dreamy sunrise shot in Cappadocia, Turkey. Hundreds of colorful hot air balloons fill the sky over unique rock formations. A traveler takes a selfie with a phone showing 'GateSIM Connected'. Pastel sky colors, soft morning glow, epic scale."
+    },
+    {
+        id: "venice",
+        label: "Venice Canal",
+        icon: "🛶",
+        idea: "Gondola ride in Venice canals",
+        prompt: "Romantic shot of a gondola moving through the narrow canals of Venice. Historic arched bridges and colorful buildings. A passenger uses a phone to navigate via 'GateSIM'. Reflective water, soft afternoon light, classic Italian charm."
+    },
+    {
+        id: "sydney",
+        label: "Sydney Harbor",
+        icon: "🎡",
+        idea: "Sydney Opera House at night with fireworks",
+        prompt: "Spectacular night shot of the Sydney Opera House with fireworks exploding in the sky. Lights reflecting on the harbor water. A group of friends video call using 'GateSIM'. High energy, vibrant colors, festive atmosphere, celebration vibes."
+    },
+    {
+        id: "rio",
+        label: "Rio Carnival",
+        icon: "🇧🇷",
+        idea: "Christ the Redeemer in Rio de Janeiro",
+        prompt: "Epic aerial-style shot of the Christ the Redeemer statue in Rio de Janeiro, overlooking the city and ocean. A traveler in the foreground holds a phone with 'GateSIM' logo. Vibrant tropical colors, bright sunshine, cinematic wide angle."
+    },
+    {
+        id: "bangkok",
+        label: "Bangkok Food",
+        icon: "🍜",
+        idea: "Busy Bangkok street food market at night",
+        prompt: "Vibrant and busy night market in Bangkok. Steam rising from street food stalls, colorful signs, crowded atmosphere. A traveler uses their phone for digital payment via 'GateSIM'. Rich textures, neon lighting, authentic urban feel."
+    },
+    {
+        id: "lofoten",
+        label: "Norway Cabins",
+        icon: "🇳🇴",
+        idea: "Red fishing cabins in Lofoten Norway",
+        prompt: "Beautiful winter shot of red Rorbu cabins on the coast of Lofoten, Norway. Snowy mountains in the background and dark blue sea. A traveler checks their phone: 'GateSIM signal strong'. Cold crisp air, high contrast between red and white, stunning nature."
+    },
+    {
+        id: "cairo",
+        label: "Giza Pyramids",
+        icon: "🇪🇬",
+        idea: "Great Pyramids of Giza at sunset",
+        prompt: "Majestic shot of the Great Pyramids of Giza at sunset. The Sphinx is visible in the foreground. A traveler holds a phone showing 'GateSIM Connected in Egypt'. Cinematic golden lighting, silhouettes against orange sky, epic historical feel."
+    },
+    {
+        id: "seoul",
+        label: "Seoul Cyberpunk",
+        icon: "🇰🇷",
+        idea: "Gangnam district Seoul high-tech skyscrapers",
+        prompt: "High-tech urban shot of Seoul's Gangnam district at night. Huge LED screens and futuristic skyscrapers. Digitally transparent network pathways flow through the scene. A phone shows 'GateSIM 6G Ready'. Hyper-modern, intense colors, crisp digital aesthetic."
+    },
+    {
+        id: "amalfi",
+        label: "Amalfi Drive",
+        icon: "🍋",
+        idea: "Vintage car driving on Amalfi Coast road",
+        prompt: "Lifestyle shot of an open-top vintage convertible driving along the winding cliffside roads of the Amalfi Coast. Stunning view of the colorful towns and blue sea. A phone on the dashboard shows GPS map via 'GateSIM'. Sunny, Mediterranean vibes, classy travel."
+    },
+    {
+        id: "lisbon",
+        label: "Lisbon Tram",
+        icon: "🚋",
+        idea: "Yellow tram on cobblestone street in Lisbon",
+        prompt: "Charming shot of the famous yellow Tram 28 climbing a steep cobblestone street in Lisbon. Old colorful buildings with azulejo tiles. A traveler on the tram looks at their phone with 'GateSIM' active. Soft afternoon sun, vintage European feel."
+    },
+    {
+        id: "amazon",
+        label: "Amazon Jungle",
+        icon: "🦜",
+        idea: "Expedition boat in the Amazon rainforest",
+        prompt: "Immersive shot from a small expedition boat moving deep into the Amazon rainforest. Dense green canopy, exotic birds in flight. A researcher checks a data tablet: 'GateSIM Satellite Link Active'. Moody green lighting, humid atmosphere, authentic exploration."
+    },
+    {
+        id: "patagonia",
+        label: "Patagonia Trek",
         icon: "🏔️",
-        idea: "Hiking in Swiss Alps, phone showing connection on mountain peak",
-        prompt: "Epic wide shot of a hiker on a snowy mountain peak in the Swiss Alps. Blue sky, bright sunlight. The hiker holds a phone up, screen displaying 'GateSIM' logo. National Geographic style photography, sharp details, vibrant natural colors."
+        idea: "Glaciers and granite peaks in Patagonia",
+        prompt: "Rugged adventure photography of the Torres del Paine peaks in Patagonia. Turquoise glacial lakes and massive ice formations. A trekker holds a phone showing 'GateSIM Global'. Dramatic clouds, cold blue tones, sharp mountain textures."
+    },
+    {
+        id: "prague",
+        label: "Prague Dawn",
+        icon: "🏰",
+        idea: "Charles Bridge Prague in misty morning",
+        prompt: "Etherial shot of the Charles Bridge in Prague at dawn. Misty atmosphere, silhouettes of bridge statues. A lone traveler uses their phone with 'GateSIM'. Moody, historical, soft golden light breaking through fog, romantic."
     }
 ];
 
@@ -299,7 +474,7 @@ export default function ContentManagerPage() {
                                 <Lightbulb className="w-3 h-3" />
                                 Quick Start Templates
                             </Label>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
                                 {PRESET_PROMPTS.map(t => (
                                     <button
                                         key={t.id}
