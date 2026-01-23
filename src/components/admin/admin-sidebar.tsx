@@ -15,7 +15,8 @@ import {
     UserCog,
     Shield,
     Package,
-    ImagePlus
+    ImagePlus,
+    Image as ImageIcon
 } from "lucide-react";
 import { AdminNotificationBell } from "./admin-notification-bell";
 
@@ -57,9 +58,15 @@ const sidebarItems = [
         resource: 'ai' as const,
     },
     {
-        title: "Content",
+        title: "Content Studio",
         href: "/admin/content",
         icon: ImagePlus,
+        resource: null,
+    },
+    {
+        title: "AI Hub Gallery",
+        href: "/admin/content/hub",
+        icon: ImageIcon,
         resource: null,
     },
     {

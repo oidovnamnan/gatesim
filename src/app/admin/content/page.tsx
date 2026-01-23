@@ -33,8 +33,12 @@ import {
     Scissors,
     Layers,
     RotateCcw,
-    Eraser
+    Eraser,
+    Save,
+    ExternalLink,
+    Image as ImageIcon
 } from "lucide-react";
+import Link from "next/link";
 
 const RANDOM_IDEAS = [
     "Digital Nomad working at a beach cafe in Bali with laptop and phone",
@@ -407,9 +411,6 @@ export default function ContentManagerPage() {
                 const updated = { ...targetPoster, imageUrl: data.imageUrl };
                 if (targetPoster.provider === "openai") setPoster(updated);
                 else setGooglePoster(updated);
-
-                // Auto-save the watermarked version as well
-                autoSaveToHub(updated);
             }
         } catch (e) {
             console.error(e);
@@ -505,9 +506,6 @@ export default function ContentManagerPage() {
             if (magicPosterRef.provider === "openai") setPoster(updated);
             else setGooglePoster(updated);
 
-            // Auto-save the new magic version
-            autoSaveToHub(updated);
-
             // Reset states
             setActiveMagicAction(null);
             setMagicInstruction("");
@@ -554,9 +552,6 @@ export default function ContentManagerPage() {
                 hashtags: data.hashtags,
                 provider: targetProvider as "openai" | "google"
             };
-
-            // Trigger auto-save immediately
-            autoSaveToHub(result);
 
             return result;
         };
@@ -618,6 +613,12 @@ export default function ContentManagerPage() {
                         Create AI-powered marketing assets with precision
                     </p>
                 </div>
+                <Link href="/admin/content/hub">
+                    <Button variant="outline" className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10">
+                        <ImageIcon className="w-4 h-4 mr-2" />
+                        Open AI Hub Gallery
+                    </Button>
+                </Link>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1035,6 +1036,15 @@ export default function ContentManagerPage() {
                                             Variations
                                         </Button>
                                     </div>
+
+                                    <Button
+                                        onClick={() => autoSaveToHub(p!)}
+                                        disabled={savingToHub}
+                                        className="w-full h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm mt-1"
+                                    >
+                                        {savingToHub ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Save className="w-3 h-3 mr-2" />}
+                                        Save to AI Hub
+                                    </Button>
 
                                     {/* Magic Edit Input Overlay */}
                                     {activeMagicAction === 'edit' && magicPosterRef?.provider === p!.provider && (
