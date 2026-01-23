@@ -4,6 +4,7 @@ import { isAdmin } from "@/config/admin";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import OpenAI from "openai";
+import sharp from "sharp";
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -24,12 +25,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "No image file provided" }, { status: 400 });
         }
 
-        // Validate File Type (OpenAI specifically requires PNG)
-        // Although the SDK might handle conversion, it is safer to check.
-        // Actually, createVariation supports PNG. JPEG might need conversion if strict.
-        // But for now, we pass the file. If OpenAI errors, we catch it.
-
-        // Get API Key
+        // Get API Key first
         const configRef = doc(db, "system", "config");
         const configSnap = await getDoc(configRef);
         const config = configSnap.data() || {};
@@ -39,12 +35,36 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "OpenAI API Key missing" }, { status: 500 });
         }
 
+        // --- IMAGE PROCESSING WITH SHARP ---
+        // 1. Convert File to Buffer
+        const arrayBuffer = await imageFile.arrayBuffer();
+        const inputBuffer = Buffer.from(arrayBuffer);
+
+        // 2. Process with Sharp
+        // OpenAI DALL-E 2 Variation requirements:
+        // - Less than 4MB
+        // - PNG
+        // - Square aspect ratio is best practice for 1024x1024, though DALL-E might crop. 
+        //   We will force 1024x1024 square to avoid errors.
+        const processedBuffer = await sharp(inputBuffer)
+            .resize({
+                width: 1024,
+                height: 1024,
+                fit: 'cover', // crop center if not square
+                position: 'center'
+            })
+            .toFormat('png')
+            .toBuffer();
+
+        // 3. Create a new File object from the processed buffer
+        // OpenAI SDK accepts a File object.
+        const processedFile = new File([processedBuffer], "image.png", { type: "image/png" });
+
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
-        // Call OpenAI Variation
-        // The SDK helps with the FormData construction internally when passing a File object from the Web API
+        // Call OpenAI Variation with the PROCESSED file
         const response = await openai.images.createVariation({
-            image: imageFile,
+            image: processedFile,
             n: n,
             size: size,
             response_format: "url"
@@ -54,7 +74,7 @@ export async function POST(req: NextRequest) {
 
         if (!imageUrl) throw new Error("No image url returned");
 
-        // Generate Caption relative to the context (Variation of...)
+        // Generate Caption relative to the context
         const captionResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
