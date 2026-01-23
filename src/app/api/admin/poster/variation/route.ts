@@ -57,8 +57,9 @@ export async function POST(req: NextRequest) {
             .toBuffer();
 
         // 3. Create a new File object from the processed buffer
-        // OpenAI SDK accepts a File object.
-        const processedFile = new File([new Blob([processedBuffer])], "image.png", { type: "image/png" });
+        // Explicitly convert Buffer to Uint8Array to satisfy BlobPart type definition
+        const uInt8Array = new Uint8Array(processedBuffer);
+        const processedFile = new File([uInt8Array], "image.png", { type: "image/png" });
 
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
