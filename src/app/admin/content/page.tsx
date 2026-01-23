@@ -998,15 +998,20 @@ export default function ContentManagerPage() {
                                         </Button>
                                     </div>
 
-                                    <div className="flex gap-2">
-                                        <Button onClick={() => downloadPoster(p!)} variant="outline" size="sm" className="flex-1 h-8 text-[10px]">
+                                    <div className="grid grid-cols-3 gap-1.5 w-full">
+                                        <Button
+                                            onClick={() => downloadPoster(p!)}
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-[9px] px-1 bg-white dark:bg-slate-900 border-slate-200 w-full"
+                                        >
                                             <Download className="w-3 h-3 mr-1" />
                                             Download
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="h-8 text-[10px] border-amber-200 dark:border-amber-800/30 hover:bg-amber-50 dark:hover:bg-amber-900/10 text-amber-600"
+                                            className="h-8 text-[9px] px-1 border-amber-200 dark:border-amber-800/30 hover:bg-amber-50 dark:hover:bg-amber-900/10 text-amber-600 bg-white dark:bg-slate-900 w-full"
                                             onClick={() => {
                                                 setMagicPosterRef(p!);
                                                 setActiveMagicAction("edit");
@@ -1018,7 +1023,7 @@ export default function ContentManagerPage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="h-8 text-[10px] border-blue-200 dark:border-blue-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-blue-600"
+                                            className="h-8 text-[9px] px-1 border-blue-200 dark:border-blue-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-blue-600 bg-white dark:bg-slate-900 w-full"
                                             onClick={() => {
                                                 setMagicPosterRef(p!);
                                                 setActiveMagicAction("variation");
