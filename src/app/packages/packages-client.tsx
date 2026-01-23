@@ -101,10 +101,20 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             packages = packages.filter(
-                (pkg) =>
-                    pkg.countryName?.toLowerCase().includes(query) ||
-                    pkg.title.toLowerCase().includes(query) ||
-                    pkg.operatorTitle.toLowerCase().includes(query)
+                (pkg) => {
+                    // Check direct fields
+                    const matchesTitle = pkg.title.toLowerCase().includes(query);
+                    const matchesOperator = pkg.operatorTitle.toLowerCase().includes(query);
+                    const matchesCountryName = pkg.countryName?.toLowerCase().includes(query);
+
+                    // Check all associated countries (translated to current language)
+                    const matchesTranslatedCountries = pkg.countries.some(code => {
+                        const translated = t(`country_${code}`).toLowerCase();
+                        return translated.includes(query);
+                    });
+
+                    return matchesTitle || matchesOperator || matchesCountryName || matchesTranslatedCountries;
+                }
             );
         }
 
