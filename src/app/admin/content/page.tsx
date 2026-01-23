@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
@@ -621,517 +622,607 @@ export default function ContentManagerPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left Panel: Controls */}
-                <div className="space-y-6">
-                    <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="w-5 h-5 text-amber-500" />
-                            <h2 className="font-bold text-lg">Idea & Prompt</h2>
-                        </div>
+            <Tabs defaultValue="generate" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="generate">Text to Image</TabsTrigger>
+                    <TabsTrigger value="variation">Image Variation (Remix)</TabsTrigger>
+                </TabsList>
 
-                        {/* Templates */}
-                        <div className="space-y-2 mb-4">
-                            <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                                <Lightbulb className="w-3 h-3" />
-                                Quick Start Templates
-                            </Label>
-                            <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
-                                {PRESET_PROMPTS.map(t => (
-                                    <button
-                                        key={t.id}
-                                        onClick={() => {
-                                            setIdea(t.idea);
-                                            setEnhancedPrompt(t.prompt);
-                                        }}
-                                        className="text-left p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 group"
-                                    >
-                                        <span className="text-lg group-hover:scale-110 transition-transform">{t.icon}</span>
-                                        <div className="overflow-hidden">
-                                            <div className="text-xs font-medium truncate">{t.label}</div>
-                                            <div className="text-[10px] text-slate-500 truncate opacity-70">Click to load</div>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Step 1: Idea Input */}
-                        <div className="space-y-2">
-                            <Label>Your Idea</Label>
-                            <div className="flex flex-col gap-2">
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="e.g. Woman drinking coffee in Paris street"
-                                        value={idea}
-                                        onChange={(e) => setIdea(e.target.value)}
-                                    />
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleEnhance(true)}
-                                        title="Generate Random Idea"
-                                        disabled={enhancing}
-                                    >
-                                        {enhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shuffle className="w-4 h-4" />}
-                                    </Button>
+                <TabsContent value="generate" className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Left Panel: Controls */}
+                        <div className="space-y-6">
+                            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Sparkles className="w-5 h-5 text-amber-500" />
+                                    <h2 className="font-bold text-lg">Idea & Prompt</h2>
                                 </div>
-                                <div className="flex items-center space-x-2 py-1">
-                                    <input
-                                        type="checkbox"
-                                        id="branding"
-                                        className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                                        checked={includeBranding}
-                                        onChange={(e) => setIncludeBranding(e.target.checked)}
-                                    />
-                                    <Label htmlFor="branding" className="text-sm font-normal cursor-pointer text-slate-600 dark:text-slate-400">
-                                        Include "GateSIM" Text (AI Generated)
+
+                                {/* Templates */}
+                                <div className="space-y-2 mb-4">
+                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                        <Lightbulb className="w-3 h-3" />
+                                        Quick Start Templates
                                     </Label>
+                                    <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
+                                        {PRESET_PROMPTS.map(t => (
+                                            <button
+                                                key={t.id}
+                                                onClick={() => {
+                                                    setIdea(t.idea);
+                                                    setEnhancedPrompt(t.prompt);
+                                                }}
+                                                className="text-left p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 group"
+                                            >
+                                                <span className="text-lg group-hover:scale-110 transition-transform">{t.icon}</span>
+                                                <div className="overflow-hidden">
+                                                    <div className="text-xs font-medium truncate">{t.label}</div>
+                                                    <div className="text-[10px] text-slate-500 truncate opacity-70">Click to load</div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
+
+                                {/* Step 1: Idea Input */}
+                                <div className="space-y-2">
+                                    <Label>Your Idea</Label>
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="e.g. Woman drinking coffee in Paris street"
+                                                value={idea}
+                                                onChange={(e) => setIdea(e.target.value)}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => handleEnhance(true)}
+                                                title="Generate Random Idea"
+                                                disabled={enhancing}
+                                            >
+                                                {enhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shuffle className="w-4 h-4" />}
+                                            </Button>
+                                        </div>
+                                        <div className="flex items-center space-x-2 py-1">
+                                            <input
+                                                type="checkbox"
+                                                id="branding"
+                                                className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                                                checked={includeBranding}
+                                                onChange={(e) => setIncludeBranding(e.target.checked)}
+                                            />
+                                            <Label htmlFor="branding" className="text-sm font-normal cursor-pointer text-slate-600 dark:text-slate-400">
+                                                Include "GateSIM" Text (AI Generated)
+                                            </Label>
+                                        </div>
+                                        <Button
+                                            className="w-full bg-purple-600 hover:bg-purple-700 text-white min-w-[120px]"
+                                            onClick={() => handleEnhance(false)}
+                                            disabled={!idea || enhancing}
+                                        >
+                                            {enhancing ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <Wand2 className="w-4 h-4 mr-2" />
+                                                    Write Pro Prompt
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Step 2: Enhanced Prompt */}
+                                <div className="space-y-2">
+                                    <Label>AI Engineered Prompt (Editable)</Label>
+                                    <Textarea
+                                        value={enhancedPrompt}
+                                        onChange={(e) => setEnhancedPrompt(e.target.value)}
+                                        placeholder="Enhanced prompt will appear here..."
+                                        className="h-32 text-sm font-mono bg-slate-50 dark:bg-slate-950"
+                                    />
+                                    <p className="text-xs text-slate-500">
+                                        This prompt includes mandatory branding instructions for GateSIM.
+                                    </p>
+                                </div>
+                            </Card>
+
+                            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
+                                <h2 className="font-bold text-lg">Settings</h2>
+
+                                <div className="space-y-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                                        <Label className="mb-2 block text-purple-600 dark:text-purple-400 font-bold">AI Model Provider</Label>
+                                        <Select value={provider} onValueChange={(v) => setProvider(v as any)}>
+                                            <SelectTrigger className="h-12 text-md">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="openai">
+                                                    <div className="flex items-center gap-2">
+                                                        <span>🤖</span>
+                                                        <div className="flex flex-col text-left">
+                                                            <span className="font-bold">OpenAI DALL-E 3</span>
+                                                            <span className="text-xs text-slate-500">Best for text & complex prompts</span>
+                                                        </div>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="google">
+                                                    <div className="flex items-center gap-2">
+                                                        <span>🎨</span>
+                                                        <div className="flex flex-col text-left">
+                                                            <span className="font-bold">Google Imagen 3</span>
+                                                            <span className="text-xs text-slate-500">Best for photorealism & speed</span>
+                                                        </div>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="dual">
+                                                    <div className="flex items-center gap-2">
+                                                        <span>👯</span>
+                                                        <div className="flex flex-col text-left">
+                                                            <span className="font-bold">Dual Generation</span>
+                                                            <span className="text-xs text-slate-500">Compare OpenAI & Google</span>
+                                                        </div>
+                                                    </div>
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Size</Label>
+                                            <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v)}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {sizeOptions.map(s => (
+                                                        <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Image Style</Label>
+                                            <Select value={imageStyle} onValueChange={setImageStyle}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="vivid">🎨 Vivid (Dramatic)</SelectItem>
+                                                    <SelectItem value="natural">📷 Natural (Realistic)</SelectItem>
+                                                    <SelectItem value="cinematic">🎬 Cinematic (Movie)</SelectItem>
+                                                    <SelectItem value="3d-model">🧸 3D Render (Cute)</SelectItem>
+                                                    <SelectItem value="minimalist">⚪ Minimalist (Clean)</SelectItem>
+                                                    <SelectItem value="anime">🌸 Anime (2D Art)</SelectItem>
+                                                    <SelectItem value="analog">🎞️ Analog Film (Retro)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Caption Tone</Label>
+                                            <Select value={captionTone} onValueChange={setCaptionTone}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="promotional">🔥 Promotional (Sales)</SelectItem>
+                                                    <SelectItem value="educational">🧠 Educational (Facts)</SelectItem>
+                                                    <SelectItem value="lifestyle">✨ Lifestyle (Vibes)</SelectItem>
+                                                    <SelectItem value="funny">😄 Funny (Engaging)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Caption Length</Label>
+                                            <Select value={captionLength} onValueChange={setCaptionLength}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="short">Short (1-2 sentences)</SelectItem>
+                                                    <SelectItem value="medium">Medium (Standard)</SelectItem>
+                                                    <SelectItem value="long">Long (Storytelling)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <Button
-                                    className="w-full bg-purple-600 hover:bg-purple-700 text-white min-w-[120px]"
-                                    onClick={() => handleEnhance(false)}
-                                    disabled={!idea || enhancing}
+                                    className="w-full h-12 text-lg font-bold mt-4"
+                                    onClick={handleGenerate}
+                                    disabled={generating || (!idea && !enhancedPrompt)}
                                 >
-                                    {enhancing ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    {generating ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                            Generating Assets...
+                                        </>
                                     ) : (
                                         <>
-                                            <Wand2 className="w-4 h-4 mr-2" />
-                                            Write Pro Prompt
+                                            <ImagePlus className="w-5 h-5 mr-2" />
+                                            Generate Poster
                                         </>
                                     )}
                                 </Button>
-                            </div>
+                            </Card>
                         </div>
 
-                        {/* Step 2: Enhanced Prompt */}
-                        <div className="space-y-2">
-                            <Label>AI Engineered Prompt (Editable)</Label>
-                            <Textarea
-                                value={enhancedPrompt}
-                                onChange={(e) => setEnhancedPrompt(e.target.value)}
-                                placeholder="Enhanced prompt will appear here..."
-                                className="h-32 text-sm font-mono bg-slate-50 dark:bg-slate-950"
-                            />
-                            <p className="text-xs text-slate-500">
-                                This prompt includes mandatory branding instructions for GateSIM.
-                            </p>
-                        </div>
-                    </Card>
+                        {/* Right Panel: Preview */}
+                        <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-fit">
+                            <h2 className="font-bold text-lg mb-4">Preview</h2>
 
-                    <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
-                        <h2 className="font-bold text-lg">Settings</h2>
-
-                        <div className="space-y-4">
-                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                                <Label className="mb-2 block text-purple-600 dark:text-purple-400 font-bold">AI Model Provider</Label>
-                                <Select value={provider} onValueChange={(v) => setProvider(v as any)}>
-                                    <SelectTrigger className="h-12 text-md">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="openai">
-                                            <div className="flex items-center gap-2">
-                                                <span>🤖</span>
-                                                <div className="flex flex-col text-left">
-                                                    <span className="font-bold">OpenAI DALL-E 3</span>
-                                                    <span className="text-xs text-slate-500">Best for text & complex prompts</span>
-                                                </div>
+                            {generating || generatingGoogle ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {generating && (
+                                        <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                            <div className="text-center">
+                                                <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+                                                <p className="text-xs text-slate-500">OpenAI DALL-E 3...</p>
                                             </div>
-                                        </SelectItem>
-                                        <SelectItem value="google">
-                                            <div className="flex items-center gap-2">
-                                                <span>🎨</span>
-                                                <div className="flex flex-col text-left">
-                                                    <span className="font-bold">Google Imagen 3</span>
-                                                    <span className="text-xs text-slate-500">Best for photorealism & speed</span>
-                                                </div>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="dual">
-                                            <div className="flex items-center gap-2">
-                                                <span>👯</span>
-                                                <div className="flex flex-col text-left">
-                                                    <span className="font-bold">Dual Generation</span>
-                                                    <span className="text-xs text-slate-500">Compare OpenAI & Google</span>
-                                                </div>
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Size</Label>
-                                    <Select value={selectedSize} onValueChange={(v) => setSelectedSize(v)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {sizeOptions.map(s => (
-                                                <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Image Style</Label>
-                                    <Select value={imageStyle} onValueChange={setImageStyle}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="vivid">🎨 Vivid (Dramatic)</SelectItem>
-                                            <SelectItem value="natural">📷 Natural (Realistic)</SelectItem>
-                                            <SelectItem value="cinematic">🎬 Cinematic (Movie)</SelectItem>
-                                            <SelectItem value="3d-model">🧸 3D Render (Cute)</SelectItem>
-                                            <SelectItem value="minimalist">⚪ Minimalist (Clean)</SelectItem>
-                                            <SelectItem value="anime">🌸 Anime (2D Art)</SelectItem>
-                                            <SelectItem value="analog">🎞️ Analog Film (Retro)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Caption Tone</Label>
-                                    <Select value={captionTone} onValueChange={setCaptionTone}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="promotional">🔥 Promotional (Sales)</SelectItem>
-                                            <SelectItem value="educational">🧠 Educational (Facts)</SelectItem>
-                                            <SelectItem value="lifestyle">✨ Lifestyle (Vibes)</SelectItem>
-                                            <SelectItem value="funny">😄 Funny (Engaging)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Caption Length</Label>
-                                    <Select value={captionLength} onValueChange={setCaptionLength}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="short">Short (1-2 sentences)</SelectItem>
-                                            <SelectItem value="medium">Medium (Standard)</SelectItem>
-                                            <SelectItem value="long">Long (Storytelling)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Button
-                            className="w-full h-12 text-lg font-bold mt-4"
-                            onClick={handleGenerate}
-                            disabled={generating || (!idea && !enhancedPrompt)}
-                        >
-                            {generating ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    Generating Assets...
-                                </>
-                            ) : (
-                                <>
-                                    <ImagePlus className="w-5 h-5 mr-2" />
-                                    Generate Poster
-                                </>
-                            )}
-                        </Button>
-                    </Card>
-                </div>
-
-                {/* Right Panel: Preview */}
-                <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-fit">
-                    <h2 className="font-bold text-lg mb-4">Preview</h2>
-
-                    {generating || generatingGoogle ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {generating && (
-                                <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                    <div className="text-center">
-                                        <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-                                        <p className="text-xs text-slate-500">OpenAI DALL-E 3...</p>
-                                    </div>
-                                </div>
-                            )}
-                            {generatingGoogle && (
-                                <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                    <div className="text-center">
-                                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
-                                        <p className="text-xs text-slate-500">Google Imagen 4...</p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ) : (poster || googlePoster) ? (
-                        <div className={`grid grid-cols-1 ${provider === 'dual' ? 'md:grid-cols-2' : ''} gap-6`}>
-                            {[poster, googlePoster].filter(p => p !== null).map((p, idx) => (
-                                <div key={`${p!.provider}-${idx}`} className="space-y-4">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p!.provider === 'openai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                            {p!.provider === 'openai' ? '🤖 OpenAI DALL-E 3' : '🎨 Google Imagen 4'}
-                                        </span>
-                                    </div>
-                                    <div
-                                        className="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 relative group/img cursor-zoom-in"
-                                        onClick={() => setSelectedImage(p!.imageUrl)}
-                                    >
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center z-10">
-                                            <Maximize2 className="w-8 h-8 text-white" />
-                                        </div>
-                                        <img
-                                            src={p!.imageUrl}
-                                            alt="Generated Poster"
-                                            className="w-full h-auto object-contain"
-                                        />
-                                    </div>
-
-                                    {/* Watermark & Text Tool */}
-                                    <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Stamp className="w-4 h-4 text-blue-500" />
-                                            <h3 className="text-sm font-bold">Logo & Text Branding</h3>
-                                        </div>
-
-                                        <div className="flex gap-3">
-                                            <div
-                                                className="w-12 h-12 border-2 border-dashed border-slate-300 rounded overflow-hidden flex items-center justify-center cursor-pointer hover:bg-slate-100 bg-white"
-                                                onClick={() => fileInputRef.current?.click()}
-                                                title="Upload custom logo"
-                                            >
-                                                {logoImage ? (
-                                                    <img src={logoImage} className="w-full h-full object-contain" />
-                                                ) : (
-                                                    <Upload className="w-4 h-4 text-slate-400" />
-                                                )}
-                                            </div>
-
-                                            <div className="flex-1 space-y-3">
-                                                <div className="space-y-1">
-                                                    <div className="flex justify-between items-center text-[10px] text-slate-500">
-                                                        <span>Logo size</span>
-                                                        <span>{Math.round(logoScale * 100)}%</span>
-                                                    </div>
-                                                    <input
-                                                        type="range"
-                                                        min="0.05"
-                                                        max="0.5"
-                                                        step="0.01"
-                                                        value={logoScale}
-                                                        onChange={(e) => setLogoScale(parseFloat(e.target.value))}
-                                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                                    />
-                                                </div>
-
-                                                <div className="grid grid-cols-4 gap-1">
-                                                    {['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'center'].map((pos) => (
-                                                        <button
-                                                            key={pos}
-                                                            onClick={() => setWatermarkPosition(pos)}
-                                                            className={`p-1 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary' : 'border-slate-200'} hover:bg-slate-50 flex items-center justify-center`}
-                                                            title={pos}
-                                                        >
-                                                            {pos === 'top-left' && <ArrowUpLeft className="w-2.5 h-2.5" />}
-                                                            {pos === 'top-center' && <ArrowUp className="w-2.5 h-2.5" />}
-                                                            {pos === 'top-right' && <ArrowUpRight className="w-2.5 h-2.5" />}
-                                                            {pos === 'bottom-left' && <ArrowDownLeft className="w-2.5 h-2.5" />}
-                                                            {pos === 'bottom-center' && <ArrowDown className="w-2.5 h-2.5" />}
-                                                            {pos === 'bottom-right' && <ArrowDownRight className="w-2.5 h-2.5" />}
-                                                            {pos === 'center' && <Move className="w-2.5 h-2.5" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-3">
-                                            <div className="flex gap-2">
-                                                <div className="flex-1">
-                                                    <Label className="text-[10px] font-bold text-slate-500 uppercase">Poster Text</Label>
-                                                    <Input
-                                                        value={overlayText}
-                                                        onChange={(e) => setOverlayText(e.target.value)}
-                                                        placeholder="Add sale text, web URL..."
-                                                        className="h-7 text-xs"
-                                                    />
-                                                </div>
-                                                <div className="w-12">
-                                                    <Label className="text-[10px] font-bold text-slate-500 uppercase">Color</Label>
-                                                    <input
-                                                        type="color"
-                                                        value={overlayTextColor}
-                                                        onChange={(e) => setOverlayTextColor(e.target.value)}
-                                                        className="w-full h-7 p-0 border-0 bg-transparent cursor-pointer"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between items-center text-[10px] text-slate-500">
-                                                    <span>Font size</span>
-                                                    <span>{overlayFontSize}px</span>
-                                                </div>
-                                                <input
-                                                    type="range"
-                                                    min="20"
-                                                    max="200"
-                                                    step="5"
-                                                    value={overlayFontSize}
-                                                    onChange={(e) => setOverlayFontSize(parseInt(e.target.value))}
-                                                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <Button
-                                            size="sm"
-                                            className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700"
-                                            onClick={() => handleApplyWatermark(p!)}
-                                            disabled={(!logoImage && !overlayText) || watermarkingId === p!.provider}
-                                        >
-                                            {watermarkingId === p!.provider ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
-                                            Apply Branding
-                                        </Button>
-                                    </div>
-
-                                    <div className="grid grid-cols-3 gap-1.5 w-full">
-                                        <Button
-                                            onClick={() => downloadPoster(p!)}
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-[9px] px-1 bg-white dark:bg-slate-900 border-slate-200 w-full"
-                                        >
-                                            <Download className="w-3 h-3 mr-1" />
-                                            Download
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-[9px] px-1 border-amber-200 dark:border-amber-800/30 hover:bg-amber-50 dark:hover:bg-amber-900/10 text-amber-600 bg-white dark:bg-slate-900 w-full"
-                                            onClick={() => {
-                                                setMagicPosterRef(p!);
-                                                setActiveMagicAction("edit");
-                                            }}
-                                        >
-                                            <Wand2 className="w-3 h-3 mr-1" />
-                                            Magic Edit
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-[9px] px-1 border-blue-200 dark:border-blue-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-blue-600 bg-white dark:bg-slate-900 w-full"
-                                            onClick={() => {
-                                                setMagicPosterRef(p!);
-                                                setActiveMagicAction("variation");
-                                                // Directly trigger for variations
-                                                setTimeout(() => handleExecuteMagicAction(), 100);
-                                            }}
-                                        >
-                                            <Layers className="w-3 h-3 mr-1" />
-                                            Variations
-                                        </Button>
-                                    </div>
-
-                                    <Button
-                                        onClick={() => autoSaveToHub(p!)}
-                                        disabled={savingToHub}
-                                        className="w-full h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm mt-1"
-                                    >
-                                        {savingToHub ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Save className="w-3 h-3 mr-2" />}
-                                        Save to AI Hub
-                                    </Button>
-
-                                    {/* Magic Edit Input Overlay */}
-                                    {activeMagicAction === 'edit' && magicPosterRef?.provider === p!.provider && (
-                                        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 p-3 rounded-lg animate-in slide-in-from-top-2 duration-300">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
-                                                    <Palette className="w-3 h-3" />
-                                                    What to change?
-                                                </span>
-                                                <button onClick={() => setActiveMagicAction(null)}>
-                                                    <X className="w-3 h-3 text-amber-400 hover:text-amber-600" />
-                                                </button>
-                                            </div>
-                                            <Input
-                                                value={magicInstruction}
-                                                onChange={(e) => setMagicInstruction(e.target.value)}
-                                                placeholder="e.g. Change sky to sunset, add more clouds..."
-                                                className="h-8 text-xs bg-white dark:bg-slate-900 border-amber-100"
-                                                autoFocus
-                                            />
-                                            <Button
-                                                size="sm"
-                                                className="w-full mt-2 h-7 bg-amber-600 hover:bg-amber-700 text-white text-[10px]"
-                                                onClick={handleExecuteMagicAction}
-                                                disabled={magicLoading}
-                                            >
-                                                {magicLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Wand2 className="w-3 h-3 mr-1" />}
-                                                Apply Magic Edit
-                                            </Button>
                                         </div>
                                     )}
-
-                                    <div className="flex gap-2 text-[10px]">
-                                        <button
-                                            className="flex items-center gap-1 text-slate-400 hover:text-red-500 transition-colors"
-                                            onClick={() => {
-                                                setMagicPosterRef(p!);
-                                                setActiveMagicAction("bg-remove");
-                                                setTimeout(() => handleExecuteMagicAction(), 100);
-                                            }}
-                                        >
-                                            <Eraser className="w-3 h-3" />
-                                            Remove Background
-                                        </button>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 gap-2 mt-2">
-                                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg relative group">
-                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(p!.captionMN, "mn")}>
-                                                    {copied === "mn" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                                                </Button>
+                                    {generatingGoogle && (
+                                        <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                            <div className="text-center">
+                                                <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
+                                                <p className="text-xs text-slate-500">Google Imagen 4...</p>
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">MONGOLIAN (MN)</p>
-                                            <p className="text-xs whitespace-pre-wrap">{p!.captionMN}</p>
                                         </div>
-
-                                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg relative group">
-                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(p!.captionEN, "en")}>
-                                                    {copied === "en" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                                                </Button>
-                                            </div>
-                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">ENGLISH (EN)</p>
-                                            <p className="text-xs whitespace-pre-wrap">{p!.captionEN}</p>
-                                        </div>
-
-                                        <div className="text-[10px] text-blue-500 font-mono italic">
-                                            {p!.hashtags}
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
-                            ))}
+                            ) : (poster || googlePoster) ? (
+                                <div className={`grid grid-cols-1 ${provider === 'dual' ? 'md:grid-cols-2' : ''} gap-6`}>
+                                    {[poster, googlePoster].filter(p => p !== null).map((p, idx) => (
+                                        <div key={`${p!.provider}-${idx}`} className="space-y-4">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p!.provider === 'openai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                    {p!.provider === 'openai' ? '🤖 OpenAI DALL-E 3' : '🎨 Google Imagen 4'}
+                                                </span>
+                                            </div>
+                                            <div
+                                                className="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 relative group/img cursor-zoom-in"
+                                                onClick={() => setSelectedImage(p!.imageUrl)}
+                                            >
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center z-10">
+                                                    <Maximize2 className="w-8 h-8 text-white" />
+                                                </div>
+                                                <img
+                                                    src={p!.imageUrl}
+                                                    alt="Generated Poster"
+                                                    className="w-full h-auto object-contain"
+                                                />
+                                            </div>
+
+                                            {/* Watermark & Text Tool */}
+                                            <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <Stamp className="w-4 h-4 text-blue-500" />
+                                                    <h3 className="text-sm font-bold">Logo & Text Branding</h3>
+                                                </div>
+
+                                                <div className="flex gap-3">
+                                                    <div
+                                                        className="w-12 h-12 border-2 border-dashed border-slate-300 rounded overflow-hidden flex items-center justify-center cursor-pointer hover:bg-slate-100 bg-white"
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                        title="Upload custom logo"
+                                                    >
+                                                        {logoImage ? (
+                                                            <img src={logoImage} className="w-full h-full object-contain" />
+                                                        ) : (
+                                                            <Upload className="w-4 h-4 text-slate-400" />
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex-1 space-y-3">
+                                                        <div className="space-y-1">
+                                                            <div className="flex justify-between items-center text-[10px] text-slate-500">
+                                                                <span>Logo size</span>
+                                                                <span>{Math.round(logoScale * 100)}%</span>
+                                                            </div>
+                                                            <input
+                                                                type="range"
+                                                                min="0.05"
+                                                                max="0.5"
+                                                                step="0.01"
+                                                                value={logoScale}
+                                                                onChange={(e) => setLogoScale(parseFloat(e.target.value))}
+                                                                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                                            />
+                                                        </div>
+
+                                                        <div className="grid grid-cols-4 gap-1">
+                                                            {['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'center'].map((pos) => (
+                                                                <button
+                                                                    key={pos}
+                                                                    onClick={() => setWatermarkPosition(pos)}
+                                                                    className={`p-1 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary' : 'border-slate-200'} hover:bg-slate-50 flex items-center justify-center`}
+                                                                    title={pos}
+                                                                >
+                                                                    {pos === 'top-left' && <ArrowUpLeft className="w-2.5 h-2.5" />}
+                                                                    {pos === 'top-center' && <ArrowUp className="w-2.5 h-2.5" />}
+                                                                    {pos === 'top-right' && <ArrowUpRight className="w-2.5 h-2.5" />}
+                                                                    {pos === 'bottom-left' && <ArrowDownLeft className="w-2.5 h-2.5" />}
+                                                                    {pos === 'bottom-center' && <ArrowDown className="w-2.5 h-2.5" />}
+                                                                    {pos === 'bottom-right' && <ArrowDownRight className="w-2.5 h-2.5" />}
+                                                                    {pos === 'center' && <Move className="w-2.5 h-2.5" />}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+                                                    <div className="flex gap-2">
+                                                        <div className="flex-1">
+                                                            <Label className="text-[10px] font-bold text-slate-500 uppercase">Poster Text</Label>
+                                                            <Input
+                                                                value={overlayText}
+                                                                onChange={(e) => setOverlayText(e.target.value)}
+                                                                placeholder="Add sale text, web URL..."
+                                                                className="h-7 text-xs"
+                                                            />
+                                                        </div>
+                                                        <div className="w-12">
+                                                            <Label className="text-[10px] font-bold text-slate-500 uppercase">Color</Label>
+                                                            <input
+                                                                type="color"
+                                                                value={overlayTextColor}
+                                                                onChange={(e) => setOverlayTextColor(e.target.value)}
+                                                                className="w-full h-7 p-0 border-0 bg-transparent cursor-pointer"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <div className="flex justify-between items-center text-[10px] text-slate-500">
+                                                            <span>Font size</span>
+                                                            <span>{overlayFontSize}px</span>
+                                                        </div>
+                                                        <input
+                                                            type="range"
+                                                            min="20"
+                                                            max="200"
+                                                            step="5"
+                                                            value={overlayFontSize}
+                                                            onChange={(e) => setOverlayFontSize(parseInt(e.target.value))}
+                                                            className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <Button
+                                                    size="sm"
+                                                    className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700"
+                                                    onClick={() => handleApplyWatermark(p!)}
+                                                    disabled={(!logoImage && !overlayText) || watermarkingId === p!.provider}
+                                                >
+                                                    {watermarkingId === p!.provider ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
+                                                    Apply Branding
+                                                </Button>
+                                            </div>
+
+                                            <div className="grid grid-cols-3 gap-1.5 w-full">
+                                                <Button
+                                                    onClick={() => downloadPoster(p!)}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 text-[9px] px-1 bg-white dark:bg-slate-900 border-slate-200 w-full"
+                                                >
+                                                    <Download className="w-3 h-3 mr-1" />
+                                                    Download
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 text-[9px] px-1 border-amber-200 dark:border-amber-800/30 hover:bg-amber-50 dark:hover:bg-amber-900/10 text-amber-600 bg-white dark:bg-slate-900 w-full"
+                                                    onClick={() => {
+                                                        setMagicPosterRef(p!);
+                                                        setActiveMagicAction("edit");
+                                                    }}
+                                                >
+                                                    <Wand2 className="w-3 h-3 mr-1" />
+                                                    Magic Edit
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 text-[9px] px-1 border-blue-200 dark:border-blue-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-blue-600 bg-white dark:bg-slate-900 w-full"
+                                                    onClick={() => {
+                                                        setMagicPosterRef(p!);
+                                                        setActiveMagicAction("variation");
+                                                        // Directly trigger for variations
+                                                        setTimeout(() => handleExecuteMagicAction(), 100);
+                                                    }}
+                                                >
+                                                    <Layers className="w-3 h-3 mr-1" />
+                                                    Variations
+                                                </Button>
+                                            </div>
+
+                                            <Button
+                                                onClick={() => autoSaveToHub(p!)}
+                                                disabled={savingToHub}
+                                                className="w-full h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm mt-1"
+                                            >
+                                                {savingToHub ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Save className="w-3 h-3 mr-2" />}
+                                                Save to AI Hub
+                                            </Button>
+
+                                            {/* Magic Edit Input Overlay */}
+                                            {activeMagicAction === 'edit' && magicPosterRef?.provider === p!.provider && (
+                                                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 p-3 rounded-lg animate-in slide-in-from-top-2 duration-300">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                                                            <Palette className="w-3 h-3" />
+                                                            What to change?
+                                                        </span>
+                                                        <button onClick={() => setActiveMagicAction(null)}>
+                                                            <X className="w-3 h-3 text-amber-400 hover:text-amber-600" />
+                                                        </button>
+                                                    </div>
+                                                    <Input
+                                                        value={magicInstruction}
+                                                        onChange={(e) => setMagicInstruction(e.target.value)}
+                                                        placeholder="e.g. Change sky to sunset, add more clouds..."
+                                                        className="h-8 text-xs bg-white dark:bg-slate-900 border-amber-100"
+                                                        autoFocus
+                                                    />
+                                                    <Button
+                                                        size="sm"
+                                                        className="w-full mt-2 h-7 bg-amber-600 hover:bg-amber-700 text-white text-[10px]"
+                                                        onClick={handleExecuteMagicAction}
+                                                        disabled={magicLoading}
+                                                    >
+                                                        {magicLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Wand2 className="w-3 h-3 mr-1" />}
+                                                        Apply Magic Edit
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            <div className="flex gap-2 text-[10px]">
+                                                <button
+                                                    className="flex items-center gap-1 text-slate-400 hover:text-red-500 transition-colors"
+                                                    onClick={() => {
+                                                        setMagicPosterRef(p!);
+                                                        setActiveMagicAction("bg-remove");
+                                                        setTimeout(() => handleExecuteMagicAction(), 100);
+                                                    }}
+                                                >
+                                                    <Eraser className="w-3 h-3" />
+                                                    Remove Background
+                                                </button>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-2 mt-2">
+                                                <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg relative group">
+                                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(p!.captionMN, "mn")}>
+                                                            {copied === "mn" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                                                        </Button>
+                                                    </div>
+                                                    <p className="text-[10px] font-bold text-slate-500 mb-0.5">MONGOLIAN (MN)</p>
+                                                    <p className="text-xs whitespace-pre-wrap">{p!.captionMN}</p>
+                                                </div>
+
+                                                <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg relative group">
+                                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(p!.captionEN, "en")}>
+                                                            {copied === "en" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                                                        </Button>
+                                                    </div>
+                                                    <p className="text-[10px] font-bold text-slate-500 mb-0.5">ENGLISH (EN)</p>
+                                                    <p className="text-xs whitespace-pre-wrap">{p!.captionEN}</p>
+                                                </div>
+
+                                                <div className="text-[10px] text-blue-500 font-mono italic">
+                                                    {p!.hashtags}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 p-8 text-center">
+                                    <Sparkles className="w-12 h-12 text-slate-300 mb-4" />
+                                    <h3 className="font-semibold text-slate-600 dark:text-slate-400">Ready to create?</h3>
+                                    <p className="text-sm text-slate-500 mt-2">
+                                        1. Enter your idea (or use a template)<br />
+                                        2. "Write Pro Prompt" to add details<br />
+                                        3. Generate & Compare AI Results
+                                    </p>
+                                </div>
+                            )}
+                        </Card>
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="variation">
+                    <Card className="p-8 border-dashed border-2 bg-slate-50 dark:bg-slate-900/50 flex flex-col items-center justify-center min-h-[400px]">
+                        <div className="max-w-md w-full space-y-6 text-center">
+                            <div className="mx-auto w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                                <Layers className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                            </div>
+
+                            <div>
+                                <h2 className="text-xl font-bold">Image Variation Studio</h2>
+                                <p className="text-slate-500 text-sm mt-2">Upload an existing image to generate creative AI variations.</p>
+                            </div>
+
+                            <div className="flex flex-col gap-4">
+                                <Input
+                                    type="file"
+                                    accept="image/png, image/jpeg"
+                                    className="cursor-pointer bg-white dark:bg-slate-900"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setGenerating(true);
+                                            const formData = new FormData();
+                                            formData.append("image", file);
+                                            formData.append("n", "1");
+                                            formData.append("size", "1024x1024");
+
+                                            try {
+                                                const res = await fetch("/api/admin/poster/variation", {
+                                                    method: "POST",
+                                                    body: formData
+                                                });
+                                                const data = await res.json();
+                                                if (data.success) {
+                                                    setPoster({
+                                                        imageUrl: data.imageUrl,
+                                                        captionMN: data.captionMN,
+                                                        captionEN: data.captionEN,
+                                                        hashtags: data.hashtags,
+                                                        provider: "openai"
+                                                    });
+                                                    setGooglePoster(null); // Clear google poster
+                                                } else {
+                                                    alert("Variation failed: " + data.error);
+                                                }
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert("Upload failed");
+                                            } finally {
+                                                setGenerating(false);
+                                            }
+                                        }
+                                    }}
+                                />
+
+                                {generating && (
+                                    <div className="flex items-center justify-center gap-2 text-blue-600">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span>Generating variation...</span>
+                                    </div>
+                                )}
+
+                                {(poster && !generating) && (
+                                    <div className="mt-8 border rounded-xl overflow-hidden shadow-lg animate-in fade-in zoom-in duration-500">
+                                        <img src={poster.imageUrl} alt="System Variation" className="w-full h-auto" />
+                                        <div className="p-4 bg-white dark:bg-slate-800">
+                                            <p className="text-xs font-bold text-green-600 mb-2">Variation Generated Successfully!</p>
+                                            <Button
+                                                onClick={() => autoSaveToHub(poster!)}
+                                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                                            >
+                                                <Save className="w-4 h-4 mr-2" />
+                                                Save to AI Hub
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    ) : (
-                        <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 p-8 text-center">
-                            <Sparkles className="w-12 h-12 text-slate-300 mb-4" />
-                            <h3 className="font-semibold text-slate-600 dark:text-slate-400">Ready to create?</h3>
-                            <p className="text-sm text-slate-500 mt-2">
-                                1. Enter your idea (or use a template)<br />
-                                2. "Write Pro Prompt" to add details<br />
-                                3. Generate & Compare AI Results
-                            </p>
-                        </div>
-                    )}
-                </Card>
-            </div>
+                    </Card>
+                </TabsContent>
+            </Tabs>
             {/* Image Zoom Modal */}
             {selectedImage && (
                 <div
