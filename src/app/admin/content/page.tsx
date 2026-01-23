@@ -788,9 +788,20 @@ export default function ContentManagerPage() {
                                                     {copied === "mn" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
                                                 </Button>
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">MN</p>
-                                            <p className="text-xs line-clamp-3 overflow-y-auto max-h-[60px]">{p!.captionMN}</p>
+                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">MONGOLIAN (MN)</p>
+                                            <p className="text-xs whitespace-pre-wrap">{p!.captionMN}</p>
                                         </div>
+
+                                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg relative group">
+                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(p!.captionEN, "en")}>
+                                                    {copied === "en" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                                                </Button>
+                                            </div>
+                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">ENGLISH (EN)</p>
+                                            <p className="text-xs whitespace-pre-wrap">{p!.captionEN}</p>
+                                        </div>
+
                                         <div className="text-[10px] text-blue-500 font-mono italic">
                                             {p!.hashtags}
                                         </div>
