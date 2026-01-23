@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
         // --- STEP 1: ANALYZE IMAGE WITH GEMINI FLASH (Smart Vision) ---
         const genAI = new GoogleGenerativeAI(googleKey);
-        const visionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const visionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
         const arrayBuffer = await imageFile.arrayBuffer();
         const base64Image = Buffer.from(arrayBuffer).toString("base64");
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
         // --- STEP 3: GENERATE CAPTION (using Gemini Flash is cheaper/faster than OpenAI) ---
         // Or strictly strictly use standard text model
-        const captionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const captionModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
         const captionResult = await captionModel.generateContent(`
             You are a social media manager for GateSIM. 
             Based on this image description: "${detailedPrompt}"
