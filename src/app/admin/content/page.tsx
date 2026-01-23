@@ -55,6 +55,62 @@ const sizeOptions: { id: string; label: string; dimensions: string; ratio: strin
 
 const PRESET_PROMPTS = [
     {
+        id: "mongolia-gobi",
+        label: "Gobi Dunes",
+        icon: "🐪",
+        idea: "Sunset camels in the Gobi desert desert dunes",
+        prompt: "Cinematic sunset shot of a camel caravan moving across the orange sand dunes of the Gobi Desert, Mongolia. Long shadows, golden hour lighting, 8k resolution, highly detailed, professional travel photography. 'GateSIM' branding subtly integrated into the scene."
+    },
+    {
+        id: "mongolia-ub",
+        label: "UB Pulse",
+        icon: "🏙️",
+        idea: "Modern Ulaanbaatar skyline with Blue Sky tower",
+        prompt: "High-end urban photography of the Ulaanbaatar skyline at twilight. The Blue Sky tower and modern skyscrapers illuminated. Smooth light trails from traffic. A digital 'GateSIM' network pulse flows through the city. Sharp focus, vibrant city colors."
+    },
+    {
+        id: "mongolia-lake",
+        label: "Crystal Khuvsgul",
+        icon: "🌊",
+        idea: "Blue Pearl Khuvsgul lake with nomadic boat",
+        prompt: "Breathtaking wide shot of Lake Khuvsgul, the Blue Pearl of Mongolia. Crystal clear turquoise water reflecting snowy mountains. A traditional nomadic boat on the water. 'GateSIM' keeps the connection crystal clear. Bright natural lighting, serene atmosphere."
+    },
+    {
+        id: "mongolia-eagle",
+        label: "Steppe Wisdom",
+        icon: "🦅",
+        idea: "Eagle Hunter on a mountain in Altai",
+        prompt: "Powerful portrait of a Kazakh Eagle Hunter in traditional fur costume, standing on a rocky peak in the Altai Mountains. A golden eagle is perched on his arm. Epic mountain scenery behind. 'GateSIM' connectivity at the edge of the world. High contrast, realistic textures."
+    },
+    {
+        id: "mongolia-ger",
+        label: "Modern Ger",
+        icon: "🛖",
+        idea: "Traditional ger interior with modern tech",
+        prompt: "Interior shot of a beautifully decorated traditional Mongolian Ger. A traveler sits on a colorful rug, using a high-tech laptop and smartphone. Outside the door, the vast green steppe is visible. COmfort and 'GateSIM' connectivity in the wild. Soft warm indoor lighting."
+    },
+    {
+        id: "mongolia-naadam",
+        label: "Naadam Spirit",
+        icon: "🏹",
+        idea: "Traditional wrestling or archery at Naadam festival",
+        prompt: "High-energy action shot from the Mongolian Naadam Festival. Traditional wrestlers in colorful costumes or an archer aiming with a composite bow. A festive crowd in the background. 'GateSIM' shares the glory. Vibrant colors, ethnic patterns, sun-drenched festival atmosphere."
+    },
+    {
+        id: "mongolia-fiddle",
+        label: "Morin Khuur",
+        icon: "🎻",
+        idea: "Musician playing horse-head fiddle at sunset",
+        prompt: "Soulful shot of a musician in traditional Deel playing the Morin Khuur (horse-head fiddle) on a grassy hill at sunset. The 'GateSIM' connection carries the melody. Cinematic backlighting, dreamy atmosphere, deep emotional resonance."
+    },
+    {
+        id: "mongolia-script",
+        label: "Eternal Script",
+        icon: "📜",
+        idea: "Mongolian calligraphy artist in peaceful monastery",
+        prompt: "Artistic close-up of a Mongolian calligraphy artist gracefully writing 'GateSIM' in traditional vertical script. Natural lighting in a peaceful monastery setting. Rich textures of ink and parchment. Spiritual and artistic atmosphere."
+    },
+    {
         id: "cyberpunk",
         label: "Tokyo Neon",
         icon: "🌃",
