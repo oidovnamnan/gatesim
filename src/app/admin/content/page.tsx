@@ -1168,98 +1168,105 @@ export default function ContentManagerPage() {
                                     </div>
 
                                     <div className="flex flex-col gap-4">
-                                        <Input
-                                            type="file"
-                                            accept="image/png, image/jpeg"
-                                            className="cursor-pointer bg-white dark:bg-slate-900"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) setVariationFile(file);
-                                            }}
-                                        />
+                                        <div className="space-y-2 text-left">
+                                            <Label className="text-xs font-bold text-slate-500 uppercase">1. Upload Source Image</Label>
+                                            <Input
+                                                type="file"
+                                                accept="image/png, image/jpeg"
+                                                className="cursor-pointer bg-white dark:bg-slate-900 h-10"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) setVariationFile(file);
+                                                }}
+                                            />
+                                        </div>
 
-                                        {variationFile && (
-                                            <div className="space-y-4 text-left p-4 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-bold text-slate-500 uppercase">Number of Variations (1-4)</Label>
-                                                    <Select value={variationCount.toString()} onValueChange={(v) => setVariationCount(parseInt(v))}>
-                                                        <SelectTrigger className="h-10">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="1">1 Selection</SelectItem>
-                                                            <SelectItem value="2">2 Selections</SelectItem>
-                                                            <SelectItem value="3">3 Selections</SelectItem>
-                                                            <SelectItem value="4">4 Selections</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-bold text-slate-500 uppercase">Add Your Touch (Custom Prompt)</Label>
-                                                    <Textarea
-                                                        placeholder="e.g. Change it to Anime style, add more futuristic elements, make it look like a sunset..."
-                                                        className="h-20 text-xs"
-                                                        value={variationPrompt}
-                                                        onChange={(e) => setVariationPrompt(e.target.value)}
-                                                    />
-                                                </div>
-
-                                                <Button
-                                                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold"
-                                                    disabled={generating}
-                                                    onClick={async () => {
-                                                        if (!variationFile) return;
-                                                        setGenerating(true);
-                                                        setVariationResults([]);
-
-                                                        const formData = new FormData();
-                                                        formData.append("image", variationFile);
-                                                        formData.append("n", variationCount.toString());
-                                                        formData.append("customPrompt", variationPrompt);
-                                                        formData.append("size", "1024x1024");
-
-                                                        try {
-                                                            const res = await fetch("/api/admin/poster/variation", {
-                                                                method: "POST",
-                                                                body: formData
-                                                            });
-                                                            const data = await res.json();
-                                                            if (data.success && data.imageUrls) {
-                                                                const results = data.imageUrls.map((url: string) => ({
-                                                                    imageUrl: url,
-                                                                    captionMN: data.captionMN,
-                                                                    captionEN: data.captionEN,
-                                                                    hashtags: data.hashtags,
-                                                                    provider: "google"
-                                                                }));
-                                                                setVariationResults(results);
-                                                                toast({ title: "Success", description: data.message });
-                                                            } else {
-                                                                toast({ title: "Variation Failed", description: data.error, variant: "destructive" });
-                                                            }
-                                                        } catch (err) {
-                                                            console.error(err);
-                                                            toast({ title: "Error", description: "Variation generation failed", variant: "destructive" });
-                                                        } finally {
-                                                            setGenerating(false);
-                                                        }
-                                                    }}
-                                                >
-                                                    {generating ? (
-                                                        <>
-                                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                                            Generating {variationCount} Variations...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Sparkles className="w-5 h-5 mr-2" />
-                                                            Generate High-Fidelity Variations
-                                                        </>
-                                                    )}
-                                                </Button>
+                                        <div className="space-y-4 text-left p-4 bg-white dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-bold text-slate-500 uppercase">2. Number of Variations (1-4)</Label>
+                                                <Select value={variationCount.toString()} onValueChange={(v) => setVariationCount(parseInt(v))}>
+                                                    <SelectTrigger className="h-10 bg-white dark:bg-slate-900">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="1">1 Selection</SelectItem>
+                                                        <SelectItem value="2">2 Selections</SelectItem>
+                                                        <SelectItem value="3">3 Selections</SelectItem>
+                                                        <SelectItem value="4">4 Selections</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
-                                        )}
+
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-bold text-slate-500 uppercase">3. Custom Remix Instructions (Optional)</Label>
+                                                <Textarea
+                                                    placeholder="e.g. Change it to Anime style, add more futuristic elements..."
+                                                    className="h-20 text-xs bg-white dark:bg-slate-900"
+                                                    value={variationPrompt}
+                                                    onChange={(e) => setVariationPrompt(e.target.value)}
+                                                />
+                                            </div>
+
+                                            <Button
+                                                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg"
+                                                disabled={generating || !variationFile}
+                                                onClick={async () => {
+                                                    if (!variationFile) return;
+                                                    setGenerating(true);
+                                                    setVariationResults([]);
+
+                                                    const formData = new FormData();
+                                                    formData.append("image", variationFile);
+                                                    formData.append("n", variationCount.toString());
+                                                    formData.append("customPrompt", variationPrompt);
+                                                    formData.append("size", "1024x1024");
+
+                                                    try {
+                                                        const res = await fetch("/api/admin/poster/variation", {
+                                                            method: "POST",
+                                                            body: formData
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.success && data.imageUrls) {
+                                                            const results = data.imageUrls.map((url: string) => ({
+                                                                imageUrl: url,
+                                                                captionMN: data.captionMN,
+                                                                captionEN: data.captionEN,
+                                                                hashtags: data.hashtags,
+                                                                provider: "google"
+                                                            }));
+                                                            setVariationResults(results);
+                                                            toast({ title: "Success", description: data.message });
+                                                        } else {
+                                                            toast({ title: "Variation Failed", description: data.error, variant: "destructive" });
+                                                        }
+                                                    } catch (err) {
+                                                        console.error(err);
+                                                        toast({ title: "Error", description: "Variation generation failed", variant: "destructive" });
+                                                    } finally {
+                                                        setGenerating(false);
+                                                    }
+                                                }}
+                                            >
+                                                {generating ? (
+                                                    <>
+                                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                        Creating {variationCount} Variations...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="w-5 h-5 mr-2" />
+                                                        Generate High-Fidelity Variations
+                                                    </>
+                                                )}
+                                            </Button>
+
+                                            {!variationFile && !generating && (
+                                                <p className="text-[10px] text-amber-500 text-center animate-pulse mt-1 font-medium">
+                                                    * Please upload a file first to start
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
