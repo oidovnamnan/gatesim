@@ -1,23 +1,15 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { syncProductsToDB } from "@/lib/products-db";
 
 export async function syncPackages() {
     try {
-        // Revalidate the unstable_cache tags used by getMobiMatterProducts
-        // @ts-ignore - Next.js type definition conflict
-        revalidateTag('products-processed');
-        // @ts-ignore - Next.js type definition conflict
-        revalidateTag('products-raw');
+        const result = await syncProductsToDB();
 
-        // Also revalidate the pages
-        revalidatePath("/admin/packages");
-        revalidatePath("/packages");
-
-        console.log("Packages synced successfully");
-        return { success: true };
+        console.log("Packages synced successfully:", result);
+        return result;
     } catch (error) {
-        console.error("Failed to revalidate packages:", error);
-        return { success: false, error: "Failed to sync packages" };
+        console.error("Failed to sync packages:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Failed to sync packages" };
     }
 }

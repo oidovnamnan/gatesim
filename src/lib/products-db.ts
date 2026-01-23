@@ -1,7 +1,8 @@
 
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, limit, orderBy } from "firebase/firestore";
-import { MobiMatterProduct } from "./mobimatter";
+import { collection, query, where, getDocs, limit, orderBy, writeBatch, doc, getCountFromServer } from "firebase/firestore";
+import { MobiMatterProduct, getMobiMatterProducts } from "./mobimatter";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function getProductsFromDB(options: {
     countryCode?: string;
@@ -61,3 +62,90 @@ export async function getProductBySku(sku: string): Promise<MobiMatterProduct | 
     }
 }
 
+export async function syncProductsToDB() {
+    console.log("[Sync] Starting Product Sync...");
+    const syncStartedAt = new Date().toISOString();
+
+    // 1. Force revalidation of API caches
+    // @ts-ignore
+    revalidateTag('products-raw');
+    // @ts-ignore
+    revalidateTag('products-processed');
+
+    const packages = await getMobiMatterProducts();
+
+    if (!packages || packages.length === 0) {
+        throw new Error("No packages found from API");
+    }
+
+    // 2. Write to Firestore in batches
+    const batchSize = 300;
+    const chunks = [];
+    for (let i = 0; i < packages.length; i += batchSize) {
+        chunks.push(packages.slice(i, i + batchSize));
+    }
+
+    let totalWritten = 0;
+    for (const chunk of chunks) {
+        const batch = writeBatch(db);
+        chunk.forEach((pkg) => {
+            if (!pkg.sku) return;
+            const docRef = doc(db, "products", pkg.sku);
+            batch.set(docRef, {
+                ...pkg,
+                lastSyncedAt: new Date().toISOString(),
+                keywords: [
+                    ...(pkg.countries || []),
+                    pkg.name,
+                    pkg.provider
+                ].map(k => k?.toString().toLowerCase()).filter(Boolean)
+            }, { merge: true });
+        });
+        await batch.commit();
+        totalWritten += chunk.length;
+    }
+
+    // 3. Cleanup Obsolete Products
+    const totalProductsSnapshot = await getCountFromServer(collection(db, "products"));
+    const totalProductsCount = totalProductsSnapshot.data().count;
+
+    const obsoleteQuery = query(
+        collection(db, "products"),
+        where("lastSyncedAt", "<", syncStartedAt)
+    );
+
+    const obsoleteSnapshot = await getDocs(obsoleteQuery);
+    const candidatesToDelete = obsoleteSnapshot.docs;
+    const deleteCount = candidatesToDelete.length;
+
+    // Circuit Breaker (10%)
+    const SAFE_DELETE_THRESHOLD_PERCENT = 0.10;
+    const maxAllowedDelete = Math.ceil(totalProductsCount * SAFE_DELETE_THRESHOLD_PERCENT);
+
+    let deletedCount = 0;
+    if (deleteCount > 0 && deleteCount <= maxAllowedDelete) {
+        const deleteBatches = [];
+        for (let i = 0; i < deleteCount; i += batchSize) {
+            const chunk = candidatesToDelete.slice(i, i + batchSize);
+            const batch = writeBatch(db);
+            chunk.forEach(doc => batch.delete(doc.ref));
+            deleteBatches.push(batch.commit());
+        }
+        await Promise.all(deleteBatches);
+        deletedCount = deleteCount;
+    }
+
+    // 4. Invalidate Pages
+    try {
+        revalidatePath('/packages');
+        revalidatePath('/');
+    } catch (e) {
+        console.warn("[Sync] Revalidation non-critical error:", e);
+    }
+
+    return {
+        success: true,
+        syncedCount: totalWritten,
+        deletedCount: deletedCount
+    };
+}
