@@ -348,7 +348,7 @@ export default function ContentManagerPage() {
 
     // Watermark State (Default to official logo)
     const [logoImage, setLogoImage] = useState<string | null>("/logo-official-full.jpg");
-    const [watermarking, setWatermarking] = useState(false);
+    const [watermarkingId, setWatermarkingId] = useState<string | null>(null);
     const [watermarkPosition, setWatermarkPosition] = useState("bottom-right");
     const [logoScale, setLogoScale] = useState(0.2);
     const [overlayText, setOverlayText] = useState("");
@@ -387,7 +387,7 @@ export default function ContentManagerPage() {
 
     const handleApplyWatermark = async (targetPoster: GeneratedPoster) => {
         if (!targetPoster.imageUrl || !logoImage) return;
-        setWatermarking(true);
+        setWatermarkingId(targetPoster.provider);
         try {
             const res = await fetch('/api/admin/poster/overlay', {
                 method: 'POST',
@@ -414,7 +414,7 @@ export default function ContentManagerPage() {
         } catch (e) {
             console.error(e);
         } finally {
-            setWatermarking(false);
+            setWatermarkingId(null);
         }
     };
 
@@ -991,9 +991,9 @@ export default function ContentManagerPage() {
                                             size="sm"
                                             className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700"
                                             onClick={() => handleApplyWatermark(p!)}
-                                            disabled={(!logoImage && !overlayText) || watermarking}
+                                            disabled={(!logoImage && !overlayText) || watermarkingId === p!.provider}
                                         >
-                                            {watermarking ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
+                                            {watermarkingId === p!.provider ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
                                             Apply Branding
                                         </Button>
                                     </div>

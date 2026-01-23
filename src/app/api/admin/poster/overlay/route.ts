@@ -99,26 +99,36 @@ export async function POST(req: NextRequest) {
         if (text) {
             const fSize = fontSize || Math.round(mainWidth * 0.05);
             const color = textColor || "#ffffff";
+            const strokeColor = color === "#ffffff" || color === "white" ? "#000000" : "#ffffff";
 
-            // Simple SVG text wrap or single line
+            // Calculate Text Position within SVG
+            // We use the same 'top' and 'left' logic but adapted for SVG coords
+            let x = "50%";
+            let y = "50%";
+            let anchor = "middle";
+
+            if (position.includes('left')) { x = `${padding}px`; anchor = "start"; }
+            else if (position.includes('right')) { x = `${mainWidth - padding}px`; anchor = "end"; }
+
+            if (position.includes('top')) { y = `${padding + fSize}px`; }
+            else if (position.includes('bottom')) { y = `${mainHeight - padding}px`; }
+
             const svgText = `
                 <svg width="${mainWidth}" height="${mainHeight}">
                     <style>
-                        .title { fill: ${color}; font-size: ${fSize}px; font-weight: bold; font-family: sans-serif; }
+                        .title { 
+                            fill: ${color}; 
+                            font-size: ${fSize}px; 
+                            font-weight: bold; 
+                            font-family: sans-serif;
+                            stroke: ${strokeColor};
+                            stroke-width: ${Math.max(1, fSize / 30)}px;
+                            paint-order: stroke;
+                        }
                     </style>
-                    <text x="50%" y="50%" text-anchor="middle" class="title">${text}</text>
+                    <text x="${x}" y="${y}" text-anchor="${anchor}" class="title">${text}</text>
                 </svg>
             `;
-
-            // Actually, we should position the text based on requested 'position' too, 
-            // but for a start let's put it in the composite relative to the same logic or separate.
-            // Let's reuse position but with padding offsets.
-
-            let textTop = top;
-            let textLeft = left;
-
-            // If logo exists, offset text so they don't overlap too much, or just use the same position logic
-            // for now let's just center text if it's substantial, or follow the same corner logic.
 
             const textBuffer = Buffer.from(svgText);
             composites.push({ input: textBuffer, top: 0, left: 0 }); // SVG covers full canvas
