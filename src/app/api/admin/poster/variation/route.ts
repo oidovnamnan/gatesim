@@ -61,7 +61,8 @@ export async function POST(req: NextRequest) {
         const configSnap = await getDoc(configRef);
         const config = configSnap.data() || {};
 
-        const googleKey = process.env.GOOGLE_API_KEY || config.googleApiKey;
+        // Prioritize dynamic config key over env var to allow override from Admin Settings
+        const googleKey = config.googleApiKey || process.env.GOOGLE_API_KEY;
 
         if (!googleKey) {
             return NextResponse.json({ error: "Google API Key missing" }, { status: 500 });
