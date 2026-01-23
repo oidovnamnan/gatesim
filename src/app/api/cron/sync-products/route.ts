@@ -31,6 +31,13 @@ export async function GET(request: Request) {
 
         console.log("[Sync] Starting Product Sync...");
         const syncStartedAt = new Date().toISOString(); // Capture start time for cleanup logic
+
+        // Force revalidation of caches to ensure fresh data during this once-daily run
+        // @ts-ignore - Next.js type definition conflict
+        revalidateTag('products-raw');
+        // @ts-ignore - Next.js type definition conflict
+        revalidateTag('products-processed');
+
         const packages = await getMobiMatterProducts();
 
         if (!packages || packages.length === 0) {

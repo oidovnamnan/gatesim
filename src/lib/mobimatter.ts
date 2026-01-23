@@ -159,7 +159,7 @@ export const getMobiMatterProducts = unstable_cache(
     },
     ['mobimatter-products-processed'],
     {
-        revalidate: 3600, // Revalidate every 1 hour
+        revalidate: 86400, // Revalidate every 24 hours
         tags: ['products-processed']
     }
 );
