@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
         const formData = await req.formData();
         const imageFile = formData.get("image") as File;
         const size = (formData.get("size") as string) || "1:1";
+        const n = parseInt((formData.get("n") as string) || "1");
+        const customPrompt = (formData.get("customPrompt") as string) || "";
 
         if (!imageFile) {
             return NextResponse.json({ error: "No image file provided" }, { status: 400 });
@@ -79,12 +81,16 @@ export async function POST(req: NextRequest) {
             }
         };
 
-        const visionPrompt = `Analyze this image in extreme detail to create a prompt for an AI image generator (Imagen 3).
+        let visionPrompt = `Analyze this image in extreme detail to create a prompt for an AI image generator (Imagen 3/4).
         
         1. Describe the main subject, composition, and lighting.
         2. If there is valid text like "GateSIM" or country names, include them in the description as 'text "GateSIM"'.
         3. Ignore artifacts or QR codes if they look messy, but describe the intended layout.
         4. Output ONLY the detailed prompt string, nothing else.`;
+
+        if (customPrompt) {
+            visionPrompt += `\n\nUSER MODIFICATION REQUEST: "${customPrompt}". Please adjust the description to prioritize this change while keeping the core identity of the source image.`;
+        }
 
         let detailedPrompt = "";
 
@@ -97,7 +103,7 @@ export async function POST(req: NextRequest) {
             throw new Error(`Gemini Vision Error: ${err.message}. Please check API Key permissions.`);
         }
 
-        // --- STEP 2: GENERATE NEW IMAGE WITH IMAGEN 3 ---
+        // --- STEP 2: GENERATE NEW IMAGE WITH IMAGEN ---
         const configModelId = config.googleModelId || "imagen-4.0-generate-001";
         const modelIdRaw = (process.env.GOOGLE_MODEL_ID || configModelId).trim();
         const fullModelName = modelIdRaw.startsWith("models/") ? modelIdRaw : `models/${modelIdRaw}`;
@@ -107,30 +113,41 @@ export async function POST(req: NextRequest) {
         if (size.includes("1792") && size.startsWith("1792")) aspectRatio = "16:9";
         if (size === "9:16" || size === "16:9" || size === "4:3" || size === "3:4") aspectRatio = size;
 
-        const imagenResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fullModelName}:predict?key=${googleKey}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                instances: [{ prompt: detailedPrompt }],
-                parameters: {
-                    sampleCount: 1,
-                    aspectRatio: aspectRatio,
-                    outputMimeType: "image/png"
+        // Generate N variations
+        const actualCount = Math.min(Math.max(1, n), 4);
+        const imagePromises = Array(actualCount).fill(0).map(() =>
+            fetch(`https://generativelanguage.googleapis.com/v1beta/${fullModelName}:predict?key=${googleKey}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    instances: [{ prompt: detailedPrompt }],
+                    parameters: {
+                        sampleCount: 1,
+                        aspectRatio: aspectRatio,
+                        outputMimeType: "image/png"
+                    }
+                })
+            }).then(async (res) => {
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error?.message || "Generation error");
                 }
+                const data = await res.json();
+                return data.predictions?.[0]?.bytesBase64Encoded;
             })
-        });
+        );
 
-        if (!imagenResponse.ok) {
-            const err = await imagenResponse.json();
-            throw new Error(`Imagen Generation Failed: ${err.error?.message || JSON.stringify(err)}`);
+        const results = await Promise.allSettled(imagePromises);
+        const imageUrls = results
+            .filter(r => r.status === "fulfilled" && r.value)
+            .map(r => `data:image/png;base64,${(r as PromiseFulfilledResult<string>).value}`);
+
+        if (imageUrls.length === 0) {
+            const firstError = results.find(r => r.status === "rejected") as PromiseRejectedResult;
+            throw new Error(`Imagen Generation Failed: ${firstError?.reason?.message || "Unknown error"}`);
         }
 
-        const imagenData = await imagenResponse.json();
-        const b64 = imagenData.predictions?.[0]?.bytesBase64Encoded;
-
-        if (!b64) throw new Error("No image returned from Google Imagen");
-
-        const imageUrl = `data:image/png;base64,${b64}`;
+        const imageUrl = imageUrls[0];
 
         // --- STEP 3: GENERATE CAPTION (with Fallback) ---
         let captionData = {};
@@ -138,6 +155,7 @@ export async function POST(req: NextRequest) {
             const captionPrompt = `
             You are a social media manager for GateSIM. 
             Based on this image description: "${detailedPrompt}"
+            ${customPrompt ? `User also requested: "${customPrompt}"` : ""}
             
             Write a travel caption.
             Return ONLY valid JSON: { "mn": "...", "en": "...", "hashtags": "..." }
@@ -155,11 +173,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             success: true,
             imageUrl,
+            imageUrls,
             captionMN: (captionData as any).mn || "Gemini Variation",
             captionEN: (captionData as any).en || "Gemini Variation",
             hashtags: (captionData as any).hashtags || "#GateSIM #AI",
             provider: "google-gemini",
-            message: "Gemini High-Fidelity Variation Created"
+            message: `Created ${imageUrls.length} variations`
         });
 
     } catch (error: any) {

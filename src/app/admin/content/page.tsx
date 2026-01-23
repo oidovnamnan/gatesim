@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 import {
     ImagePlus,
     Download,
@@ -343,7 +344,9 @@ interface GeneratedPoster {
 }
 
 export default function ContentManagerPage() {
+    const { toast } = useToast();
     const [selectedSize, setSelectedSize] = useState<string>("square");
+
 
     // Prompt Studio State
     const [idea, setIdea] = useState("");
@@ -378,6 +381,13 @@ export default function ContentManagerPage() {
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
     const [googlePoster, setGooglePoster] = useState<GeneratedPoster | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
+
+    // Variation Studio Enhancements
+    const [variationCount, setVariationCount] = useState<number>(1);
+    const [variationPrompt, setVariationPrompt] = useState<string>("");
+    const [variationResults, setVariationResults] = useState<GeneratedPoster[]>([]);
+    const [variationFile, setVariationFile] = useState<File | null>(null);
+
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -1143,84 +1153,184 @@ export default function ContentManagerPage() {
                 </TabsContent>
 
                 <TabsContent value="variation">
-                    <Card className="p-8 border-dashed border-2 bg-slate-50 dark:bg-slate-900/50 flex flex-col items-center justify-center min-h-[400px]">
-                        <div className="max-w-md w-full space-y-6 text-center">
-                            <div className="mx-auto w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                                <Layers className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-                            </div>
-
-                            <div>
-                                <h2 className="text-xl font-bold">Image Variation Studio</h2>
-                                <p className="text-slate-500 text-sm mt-2">Upload an existing image to generate creative AI variations.</p>
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                <Input
-                                    type="file"
-                                    accept="image/png, image/jpeg"
-                                    className="cursor-pointer bg-white dark:bg-slate-900"
-                                    onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            setGenerating(true);
-                                            const formData = new FormData();
-                                            formData.append("image", file);
-                                            formData.append("n", "1");
-                                            formData.append("size", "1024x1024");
-
-                                            try {
-                                                const res = await fetch("/api/admin/poster/variation", {
-                                                    method: "POST",
-                                                    body: formData
-                                                });
-                                                const data = await res.json();
-                                                if (data.success) {
-                                                    setPoster({
-                                                        imageUrl: data.imageUrl,
-                                                        captionMN: data.captionMN,
-                                                        captionEN: data.captionEN,
-                                                        hashtags: data.hashtags,
-                                                        provider: "openai"
-                                                    });
-                                                    setGooglePoster(null); // Clear google poster
-                                                } else {
-                                                    alert("Variation failed: " + data.error);
-                                                }
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert("Upload failed");
-                                            } finally {
-                                                setGenerating(false);
-                                            }
-                                        }
-                                    }}
-                                />
-
-                                {generating && (
-                                    <div className="flex items-center justify-center gap-2 text-blue-600">
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        <span>Generating variation...</span>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Left: Upload & Controls */}
+                        <div className="space-y-6">
+                            <Card className="p-8 border-dashed border-2 bg-slate-50 dark:bg-slate-900/50 flex flex-col items-center justify-center min-h-[300px]">
+                                <div className="max-w-md w-full space-y-6 text-center">
+                                    <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                                        <Layers className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                )}
 
-                                {(poster && !generating) && (
-                                    <div className="mt-8 border rounded-xl overflow-hidden shadow-lg animate-in fade-in zoom-in duration-500">
-                                        <img src={poster.imageUrl} alt="System Variation" className="w-full h-auto" />
-                                        <div className="p-4 bg-white dark:bg-slate-800">
-                                            <p className="text-xs font-bold text-green-600 mb-2">Variation Generated Successfully!</p>
-                                            <Button
-                                                onClick={() => autoSaveToHub(poster!)}
-                                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                                            >
-                                                <Save className="w-4 h-4 mr-2" />
-                                                Save to AI Hub
-                                            </Button>
-                                        </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold">Image Variation Studio</h2>
+                                        <p className="text-slate-500 text-sm mt-2">Upload an image to generate creative AI variations.</p>
                                     </div>
-                                )}
-                            </div>
+
+                                    <div className="flex flex-col gap-4">
+                                        <Input
+                                            type="file"
+                                            accept="image/png, image/jpeg"
+                                            className="cursor-pointer bg-white dark:bg-slate-900"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) setVariationFile(file);
+                                            }}
+                                        />
+
+                                        {variationFile && (
+                                            <div className="space-y-4 text-left p-4 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-bold text-slate-500 uppercase">Number of Variations (1-4)</Label>
+                                                    <Select value={variationCount.toString()} onValueChange={(v) => setVariationCount(parseInt(v))}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="1">1 Selection</SelectItem>
+                                                            <SelectItem value="2">2 Selections</SelectItem>
+                                                            <SelectItem value="3">3 Selections</SelectItem>
+                                                            <SelectItem value="4">4 Selections</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-bold text-slate-500 uppercase">Add Your Touch (Custom Prompt)</Label>
+                                                    <Textarea
+                                                        placeholder="e.g. Change it to Anime style, add more futuristic elements, make it look like a sunset..."
+                                                        className="h-20 text-xs"
+                                                        value={variationPrompt}
+                                                        onChange={(e) => setVariationPrompt(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <Button
+                                                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                                                    disabled={generating}
+                                                    onClick={async () => {
+                                                        if (!variationFile) return;
+                                                        setGenerating(true);
+                                                        setVariationResults([]);
+
+                                                        const formData = new FormData();
+                                                        formData.append("image", variationFile);
+                                                        formData.append("n", variationCount.toString());
+                                                        formData.append("customPrompt", variationPrompt);
+                                                        formData.append("size", "1024x1024");
+
+                                                        try {
+                                                            const res = await fetch("/api/admin/poster/variation", {
+                                                                method: "POST",
+                                                                body: formData
+                                                            });
+                                                            const data = await res.json();
+                                                            if (data.success && data.imageUrls) {
+                                                                const results = data.imageUrls.map((url: string) => ({
+                                                                    imageUrl: url,
+                                                                    captionMN: data.captionMN,
+                                                                    captionEN: data.captionEN,
+                                                                    hashtags: data.hashtags,
+                                                                    provider: "google"
+                                                                }));
+                                                                setVariationResults(results);
+                                                                toast({ title: "Success", description: data.message });
+                                                            } else {
+                                                                toast({ title: "Variation Failed", description: data.error, variant: "destructive" });
+                                                            }
+                                                        } catch (err) {
+                                                            console.error(err);
+                                                            toast({ title: "Error", description: "Variation generation failed", variant: "destructive" });
+                                                        } finally {
+                                                            setGenerating(false);
+                                                        }
+                                                    }}
+                                                >
+                                                    {generating ? (
+                                                        <>
+                                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                            Generating {variationCount} Variations...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Sparkles className="w-5 h-5 mr-2" />
+                                                            Generate High-Fidelity Variations
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </Card>
                         </div>
-                    </Card>
+
+                        {/* Right: Results Grid */}
+                        <div className="space-y-6">
+                            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[400px]">
+                                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <ImageIcon className="w-5 h-5 text-blue-500" />
+                                    Variation Results
+                                </h3>
+
+                                {generating ? (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {[...Array(variationCount)].map((_, i) => (
+                                            <div key={i} className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse flex items-center justify-center">
+                                                <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : variationResults.length > 0 ? (
+                                    <div className="grid grid-cols-2 gap-4 h-fit max-h-[700px] overflow-y-auto pr-1 pb-4">
+                                        {variationResults.map((v, idx) => (
+                                            <div key={idx} className="group relative space-y-2 border rounded-xl p-2 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 animate-in zoom-in duration-300">
+                                                <div
+                                                    className="aspect-square rounded-lg overflow-hidden cursor-zoom-in relative"
+                                                    onClick={() => setSelectedImage(v.imageUrl)}
+                                                >
+                                                    <img src={v.imageUrl} alt={`Variation ${idx + 1}`} className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Maximize2 className="w-6 h-6 text-white" />
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-1 flex-col">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => autoSaveToHub(v)}
+                                                        disabled={savingToHub}
+                                                        className="h-7 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white w-full"
+                                                    >
+                                                        <Save className="w-3 h-3 mr-1" />
+                                                        Save to Hub
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            const link = document.createElement('a');
+                                                            link.href = v.imageUrl;
+                                                            link.download = `variation-${idx + 1}.png`;
+                                                            link.click();
+                                                        }}
+                                                        className="h-7 text-[10px] w-full"
+                                                    >
+                                                        <Download className="w-3 h-3 mr-1" />
+                                                        Download
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-[300px] text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                                        <Shuffle className="w-12 h-12 mb-4 opacity-20" />
+                                        <p className="text-sm">Click 'Generate Variations' to see results</p>
+                                    </div>
+                                )}
+                            </Card>
+                        </div>
+                    </div>
                 </TabsContent>
             </Tabs>
             {/* Image Zoom Modal */}
