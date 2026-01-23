@@ -388,6 +388,12 @@ export default function ContentManagerPage() {
     const [variationResults, setVariationResults] = useState<GeneratedPoster[]>([]);
     const [variationFile, setVariationFile] = useState<File | null>(null);
 
+    // Image-to-Prompt (Reverse) States
+    const [reverseFile, setReverseFile] = useState<File | null>(null);
+    const [extractedPrompt, setExtractedPrompt] = useState<string>("");
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isEnhancing, setIsEnhancing] = useState(false);
+
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -633,9 +639,10 @@ export default function ContentManagerPage() {
             </div>
 
             <Tabs defaultValue="generate" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="generate">Text to Image</TabsTrigger>
                     <TabsTrigger value="variation">Image Variation (Remix)</TabsTrigger>
+                    <TabsTrigger value="reverse">Image to Prompt</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="generate" className="space-y-6">
@@ -1333,6 +1340,151 @@ export default function ContentManagerPage() {
                                     <div className="flex flex-col items-center justify-center h-[300px] text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                                         <Shuffle className="w-12 h-12 mb-4 opacity-20" />
                                         <p className="text-sm">Click 'Generate Variations' to see results</p>
+                                    </div>
+                                )}
+                            </Card>
+                        </div>
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="reverse">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Left: Input & Analysis */}
+                        <div className="space-y-6">
+                            <Card className="p-8 border-dashed border-2 bg-slate-50 dark:bg-slate-900/50 flex flex-col items-center justify-center min-h-[300px]">
+                                <div className="max-w-md w-full space-y-6 text-center">
+                                    <div className="mx-auto w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                        <RotateCcw className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold">Reverse Prompt Studio</h2>
+                                        <p className="text-slate-500 text-sm mt-2">Upload an image to extract its "secret" AI design prompt.</p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-4">
+                                        <div className="space-y-2 text-left">
+                                            <Label className="text-xs font-bold text-slate-500 uppercase">1. Upload Reference Image</Label>
+                                            <Input
+                                                type="file"
+                                                accept="image/png, image/jpeg"
+                                                className="cursor-pointer bg-white dark:bg-slate-900 h-10"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) setReverseFile(file);
+                                                }}
+                                            />
+                                        </div>
+
+                                        <Button
+                                            className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-lg"
+                                            disabled={isAnalyzing || !reverseFile}
+                                            onClick={async () => {
+                                                if (!reverseFile) return;
+                                                setIsAnalyzing(true);
+                                                const formData = new FormData();
+                                                formData.append("image", reverseFile);
+                                                try {
+                                                    const res = await fetch("/api/admin/poster/analyze", { method: "POST", body: formData });
+                                                    const data = await res.json();
+                                                    if (data.success) {
+                                                        setExtractedPrompt(data.prompt);
+                                                        toast({ title: "Analysis Complete", description: "Design prompt extracted successfully." });
+                                                    } else {
+                                                        toast({ title: "Analysis Failed", description: data.error, variant: "destructive" });
+                                                    }
+                                                } catch (err) {
+                                                    toast({ title: "Error", description: "Failed to connect to AI vision engine.", variant: "destructive" });
+                                                } finally { setIsAnalyzing(false); }
+                                            }}
+                                        >
+                                            {isAnalyzing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Analyzing Image...</> : <><Scissors className="w-5 h-5 mr-2" /> Extract Design Prompt</>}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            {extractedPrompt && (
+                                <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-bold text-sm text-slate-500 uppercase flex items-center gap-2">
+                                            <Wand2 className="w-4 h-4 text-purple-500" />
+                                            Extracted Design Concept
+                                        </h3>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 text-[10px]"
+                                                onClick={async () => {
+                                                    setIsEnhancing(true);
+                                                    try {
+                                                        const res = await fetch('/api/ai/enhance-prompt', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ idea: extractedPrompt, targetModel: 'google' })
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.prompt) setExtractedPrompt(data.prompt);
+                                                    } catch (e) {
+                                                        toast({ title: "Enhance Failed", variant: "destructive" });
+                                                    } finally { setIsEnhancing(false); }
+                                                }}
+                                                disabled={isEnhancing}
+                                            >
+                                                {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1 text-amber-500" />}
+                                                Magic Enhance
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="h-8 p-2" onClick={() => {
+                                                navigator.clipboard.writeText(extractedPrompt);
+                                                toast({ title: "Copied to clipboard" });
+                                            }}>
+                                                <Copy className="w-3 h-3" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <Textarea
+                                        value={extractedPrompt}
+                                        onChange={(e) => setExtractedPrompt(e.target.value)}
+                                        className="min-h-[150px] text-xs leading-relaxed bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800"
+                                        placeholder="AI will write the prompt here..."
+                                    />
+                                    <div className="pt-2">
+                                        <Button
+                                            className="w-full bg-blue-600 hover:bg-blue-700 h-10 text-xs shadow-lg"
+                                            onClick={() => {
+                                                setIdea(extractedPrompt);
+                                                setEnhancedPrompt(extractedPrompt);
+                                                // Ideally switch tab, but for now just show feedback
+                                                toast({ title: "Prompt Loaded", description: "Design concept ready for generation." });
+                                            }}
+                                        >
+                                            <ImagePlus className="w-4 h-4 mr-2" />
+                                            Generate New Image from this Concept
+                                        </Button>
+                                    </div>
+                                </Card>
+                            )}
+                        </div>
+
+                        {/* Right: Preview (Source Image) */}
+                        <div className="space-y-6">
+                            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[400px] flex flex-col">
+                                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <ImageIcon className="w-5 h-5 text-purple-500" />
+                                    Source Reference
+                                </h3>
+                                {reverseFile ? (
+                                    <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
+                                        <img
+                                            src={URL.createObjectURL(reverseFile)}
+                                            alt="Source"
+                                            className="max-w-full max-h-[500px] object-contain shadow-2xl"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/20 text-slate-400">
+                                        <Upload className="w-12 h-12 mb-4 opacity-10" />
+                                        <p className="text-sm">Upload an image on the left to start</p>
                                     </div>
                                 )}
                             </Card>
