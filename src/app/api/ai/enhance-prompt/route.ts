@@ -47,9 +47,9 @@ AESTHETIC GUIDELINES (TRAVEL & NETWORK):
 3. TECH AESTHETIC: Integrate connectivity elements naturally: "Global network nodes", "Digital pathways", "Interconnected data streams", "Vibrant blue and magenta light trails".
 4. FORBIDDEN WORDS: Do NOT use "4K", "Hyperrealistic", "Masterpiece", or "HD". Instead, use "Professional editorial travel photograph", "Shot on 35mm film", or "Authentic textures".
 
-BRANDING:
+BRANDING & CONNECTIVITY:
 ${shouldBrand
-                ? `The image MUST feature a smartphone or digital element with the 'GateSIM' text clearly yet naturally integrated. ${brandDescription ? `Logo Details: ${brandDescription}` : ""}`
+                ? `Represent 'connectivity' naturally and artistically. The word 'GateSIM' should be integrated professionally only if it fits the scene (e.g., on a digital display, branded travel gear, or subtle holographic UI). DO NOT force a smartphone unless it is a natural part of the traveler's activity. Focus on the vibe of 'seamless global connection'.`
                 : "No text or logos."}
 
 RANDOMIZATION:
