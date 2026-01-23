@@ -28,7 +28,12 @@ import {
     Move,
     Maximize2,
     X,
-    Server
+    Server,
+    Palette,
+    Scissors,
+    Layers,
+    RotateCcw,
+    Eraser
 } from "lucide-react";
 
 const RANDOM_IDEAS = [
@@ -299,6 +304,12 @@ export default function ContentManagerPage() {
     const [generatingGoogle, setGeneratingGoogle] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [savingToHub, setSavingToHub] = useState(false);
+
+    // Magic AI Edit States
+    const [magicLoading, setMagicLoading] = useState(false);
+    const [magicInstruction, setMagicInstruction] = useState("");
+    const [activeMagicAction, setActiveMagicAction] = useState<"edit" | "variation" | "bg-remove" | null>(null);
+    const [magicPosterRef, setMagicPosterRef] = useState<GeneratedPoster | null>(null);
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
     const [googlePoster, setGooglePoster] = useState<GeneratedPoster | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
@@ -395,6 +406,53 @@ export default function ContentManagerPage() {
             console.error("Auto-save failed:", error);
         } finally {
             setSavingToHub(false);
+        }
+    };
+
+    const handleExecuteMagicAction = async () => {
+        if (!magicPosterRef || !activeMagicAction) return;
+        if (activeMagicAction === 'edit' && !magicInstruction.trim()) return;
+
+        setMagicLoading(true);
+        try {
+            const res = await fetch('/api/admin/poster/edit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    originalImageUrl: magicPosterRef.imageUrl,
+                    action: activeMagicAction,
+                    instruction: magicInstruction,
+                    originalPrompt: enhancedPrompt || idea,
+                    provider: magicPosterRef.provider
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Magic Edit failed");
+
+            const updated: GeneratedPoster = {
+                imageUrl: data.imageUrl,
+                captionMN: data.captionMN,
+                captionEN: data.captionEN,
+                hashtags: data.hashtags,
+                provider: magicPosterRef.provider
+            };
+
+            if (magicPosterRef.provider === "openai") setPoster(updated);
+            else setGooglePoster(updated);
+
+            // Auto-save the new magic version
+            autoSaveToHub(updated);
+
+            // Reset states
+            setActiveMagicAction(null);
+            setMagicInstruction("");
+            setMagicPosterRef(null);
+        } catch (e: any) {
+            console.error(e);
+            alert(`Magic Error: ${e.message}`);
+        } finally {
+            setMagicLoading(false);
         }
     };
 
@@ -820,10 +878,81 @@ export default function ContentManagerPage() {
                                     </div>
 
                                     <div className="flex gap-2">
-                                        <Button onClick={() => downloadPoster(p!)} variant="outline" size="sm" className="flex-1 h-8 text-xs">
-                                            <Download className="w-3 h-3 mr-2" />
+                                        <Button onClick={() => downloadPoster(p!)} variant="outline" size="sm" className="flex-1 h-8 text-[10px]">
+                                            <Download className="w-3 h-3 mr-1" />
                                             Download
                                         </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-[10px] border-amber-200 dark:border-amber-800/30 hover:bg-amber-50 dark:hover:bg-amber-900/10 text-amber-600"
+                                            onClick={() => {
+                                                setMagicPosterRef(p!);
+                                                setActiveMagicAction("edit");
+                                            }}
+                                        >
+                                            <Wand2 className="w-3 h-3 mr-1" />
+                                            Magic Edit
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-[10px] border-blue-200 dark:border-blue-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-blue-600"
+                                            onClick={() => {
+                                                setMagicPosterRef(p!);
+                                                setActiveMagicAction("variation");
+                                                // Directly trigger for variations
+                                                setTimeout(() => handleExecuteMagicAction(), 100);
+                                            }}
+                                        >
+                                            <Layers className="w-3 h-3 mr-1" />
+                                            Variations
+                                        </Button>
+                                    </div>
+
+                                    {/* Magic Edit Input Overlay */}
+                                    {activeMagicAction === 'edit' && magicPosterRef?.provider === p!.provider && (
+                                        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 p-3 rounded-lg animate-in slide-in-from-top-2 duration-300">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                                                    <Palette className="w-3 h-3" />
+                                                    What to change?
+                                                </span>
+                                                <button onClick={() => setActiveMagicAction(null)}>
+                                                    <X className="w-3 h-3 text-amber-400 hover:text-amber-600" />
+                                                </button>
+                                            </div>
+                                            <Input
+                                                value={magicInstruction}
+                                                onChange={(e) => setMagicInstruction(e.target.value)}
+                                                placeholder="e.g. Change sky to sunset, add more clouds..."
+                                                className="h-8 text-xs bg-white dark:bg-slate-900 border-amber-100"
+                                                autoFocus
+                                            />
+                                            <Button
+                                                size="sm"
+                                                className="w-full mt-2 h-7 bg-amber-600 hover:bg-amber-700 text-white text-[10px]"
+                                                onClick={handleExecuteMagicAction}
+                                                disabled={magicLoading}
+                                            >
+                                                {magicLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Wand2 className="w-3 h-3 mr-1" />}
+                                                Apply Magic Edit
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-2 text-[10px]">
+                                        <button
+                                            className="flex items-center gap-1 text-slate-400 hover:text-red-500 transition-colors"
+                                            onClick={() => {
+                                                setMagicPosterRef(p!);
+                                                setActiveMagicAction("bg-remove");
+                                                setTimeout(() => handleExecuteMagicAction(), 100);
+                                            }}
+                                        >
+                                            <Eraser className="w-3 h-3" />
+                                            Remove Background
+                                        </button>
                                     </div>
 
                                     <div className="grid grid-cols-1 gap-2 mt-2">
