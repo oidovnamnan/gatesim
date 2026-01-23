@@ -95,6 +95,7 @@ interface GeneratedPoster {
     captionMN: string;
     captionEN: string;
     hashtags: string;
+    provider: "openai" | "google";
 }
 
 export default function ContentManagerPage() {
@@ -111,15 +112,15 @@ export default function ContentManagerPage() {
     const [watermarking, setWatermarking] = useState(false);
     const [watermarkPosition, setWatermarkPosition] = useState("bottom-right");
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    // Caption Settings
     const [captionTone, setCaptionTone] = useState("promotional");
     const [captionLength, setCaptionLength] = useState("medium");
     const [imageStyle, setImageStyle] = useState("vivid");
-    const [provider, setProvider] = useState<"openai" | "google">("openai");
+    const [provider, setProvider] = useState<"openai" | "google" | "dual">("openai");
 
     const [generating, setGenerating] = useState(false);
+    const [generatingGoogle, setGeneratingGoogle] = useState(false);
     const [poster, setPoster] = useState<GeneratedPoster | null>(null);
+    const [googlePoster, setGooglePoster] = useState<GeneratedPoster | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,22 +134,24 @@ export default function ContentManagerPage() {
         }
     };
 
-    const handleApplyWatermark = async () => {
-        if (!poster?.imageUrl || !logoImage) return;
+    const handleApplyWatermark = async (targetPoster: GeneratedPoster) => {
+        if (!targetPoster.imageUrl || !logoImage) return;
         setWatermarking(true);
         try {
             const res = await fetch('/api/admin/poster/overlay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    mainImage: poster.imageUrl,
+                    mainImage: targetPoster.imageUrl,
                     logoImage,
                     position: watermarkPosition
                 })
             });
             const data = await res.json();
             if (data.imageUrl) {
-                setPoster(prev => prev ? ({ ...prev, imageUrl: data.imageUrl }) : null);
+                const updated = { ...targetPoster, imageUrl: data.imageUrl };
+                if (targetPoster.provider === "openai") setPoster(updated);
+                else setGooglePoster(updated);
             }
         } catch (e) {
             console.error(e);
@@ -188,16 +191,15 @@ export default function ContentManagerPage() {
 
     const handleGenerate = async () => {
         setGenerating(true);
+        setGeneratingGoogle(provider === "dual");
         setPoster(null);
+        setGooglePoster(null);
 
-        // Use enhanced prompt if available, otherwise just use the idea
         const finalPrompt = enhancedPrompt || idea;
-
-        // Match selected size to its ratio for the API
         const sizeObj = sizeOptions.find(s => s.id === selectedSize) || sizeOptions[0];
         const apiSize = sizeObj.ratio;
 
-        try {
+        const generateRequest = async (targetProvider: "openai" | "google") => {
             const response = await fetch('/api/admin/poster/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -207,30 +209,50 @@ export default function ContentManagerPage() {
                     captionTone,
                     captionLength,
                     style: imageStyle,
-                    provider
+                    provider: targetProvider
                 })
             });
 
             const data = await response.json();
+            if (!response.ok) throw new Error(data.error || `${targetProvider} generation failed`);
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Generation failed');
-            }
-
-            setPoster({
+            return {
                 imageUrl: data.imageUrl,
                 captionMN: data.captionMN,
                 captionEN: data.captionEN,
-                hashtags: data.hashtags
-            });
+                hashtags: data.hashtags,
+                provider: targetProvider
+            };
+        };
 
+        try {
+            if (provider === "dual") {
+                // Dual mode: fire both in parallel
+                const [openaiRes, googleRes] = await Promise.allSettled([
+                    generateRequest("openai"),
+                    generateRequest("google")
+                ]);
+
+                if (openaiRes.status === "fulfilled") setPoster(openaiRes.value as GeneratedPoster);
+                else console.error("OpenAI failed:", openaiRes.reason);
+
+                if (googleRes.status === "fulfilled") setGooglePoster(googleRes.value as GeneratedPoster);
+                else console.error("Google failed:", googleRes.reason);
+
+                if (openaiRes.status === "rejected" && googleRes.status === "rejected") {
+                    throw new Error("Both AI providers failed. Check console for details.");
+                }
+            } else {
+                // Single provider mode
+                const result = await generateRequest(provider as "openai" | "google");
+                setPoster(result as GeneratedPoster);
+            }
         } catch (error: any) {
             console.error('Poster generation error:', error);
-            // Show error to user
-            const errorMessage = error.message || "Something went wrong";
-            alert(`Error: ${errorMessage}`); // Using alert directly for visibility, or use toast if available
+            alert(`Error: ${error.message || "Something went wrong"}`);
         } finally {
             setGenerating(false);
+            setGeneratingGoogle(false);
         }
     };
 
@@ -240,11 +262,11 @@ export default function ContentManagerPage() {
         setTimeout(() => setCopied(null), 2000);
     };
 
-    const downloadPoster = () => {
-        if (poster?.imageUrl) {
+    const downloadPoster = (targetPoster: GeneratedPoster) => {
+        if (targetPoster.imageUrl) {
             const link = document.createElement('a');
-            link.href = poster.imageUrl;
-            link.download = `gatesim-poster-${Date.now()}.png`;
+            link.href = targetPoster.imageUrl;
+            link.download = `gatesim-${targetPoster.provider}-${Date.now()}.png`;
             link.click();
         }
     };
@@ -390,6 +412,15 @@ export default function ContentManagerPage() {
                                                 </div>
                                             </div>
                                         </SelectItem>
+                                        <SelectItem value="dual">
+                                            <div className="flex items-center gap-2">
+                                                <span>👯</span>
+                                                <div className="flex flex-col text-left">
+                                                    <span className="font-bold">Dual Generation</span>
+                                                    <span className="text-xs text-slate-500">Compare OpenAI & Google</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -482,122 +513,115 @@ export default function ContentManagerPage() {
                 <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-fit">
                     <h2 className="font-bold text-lg mb-4">Preview</h2>
 
-                    {generating ? (
-                        <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <div className="text-center">
-                                <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
-                                <p className="text-slate-500">Creating magic with DALL-E 3...</p>
-                            </div>
+                    {generating || generatingGoogle ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {generating && (
+                                <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+                                        <p className="text-xs text-slate-500">OpenAI DALL-E 3...</p>
+                                    </div>
+                                </div>
+                            )}
+                            {generatingGoogle && (
+                                <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
+                                        <p className="text-xs text-slate-500">Google Imagen 4...</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    ) : poster ? (
-                        <div className="space-y-4">
-                            <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700">
-                                <img
-                                    src={poster.imageUrl}
-                                    alt="Generated Poster"
-                                    className="w-full h-auto object-contain"
-                                />
-                            </div>
-
-                            {/* Watermark Tool */}
-                            <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Stamp className="w-4 h-4 text-blue-500" />
-                                    <h3 className="text-sm font-bold">Logo & Watermark Tool</h3>
-                                </div>
-
-                                <div className="flex gap-3">
-                                    <div
-                                        className="w-16 h-16 border-2 border-dashed border-slate-300 rounded overflow-hidden flex items-center justify-center cursor-pointer hover:bg-slate-100 bg-white"
-                                        onClick={() => fileInputRef.current?.click()}
-                                    >
-                                        {logoImage ? (
-                                            <img src={logoImage} className="w-full h-full object-contain" />
-                                        ) : (
-                                            <Upload className="w-4 h-4 text-slate-400" />
-                                        )}
+                    ) : (poster || googlePoster) ? (
+                        <div className={`grid grid-cols-1 ${provider === 'dual' ? 'md:grid-cols-2' : ''} gap-6`}>
+                            {[poster, googlePoster].filter(p => p !== null).map((p, idx) => (
+                                <div key={`${p!.provider}-${idx}`} className="space-y-4">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p!.provider === 'openai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                            {p!.provider === 'openai' ? '🤖 OpenAI DALL-E 3' : '🎨 Google Imagen 4'}
+                                        </span>
                                     </div>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={handleLogoUpload}
-                                    />
+                                    <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700">
+                                        <img
+                                            src={p!.imageUrl}
+                                            alt="Generated Poster"
+                                            className="w-full h-auto object-contain"
+                                        />
+                                    </div>
 
-                                    <div className="flex-1 flex flex-col justify-between">
-                                        <div className="grid grid-cols-4 gap-1">
-                                            {['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'center'].map((pos) => (
-                                                <button
-                                                    key={pos}
-                                                    onClick={() => setWatermarkPosition(pos)}
-                                                    className={`p-1.5 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary ring-1 ring-primary' : 'border-slate-200'} hover:bg-slate-50 flex items-center justify-center`}
-                                                    title={pos}
-                                                >
-                                                    {pos === 'top-left' && <ArrowUpLeft className="w-3 h-3" />}
-                                                    {pos === 'top-center' && <ArrowUp className="w-3 h-3" />}
-                                                    {pos === 'top-right' && <ArrowUpRight className="w-3 h-3" />}
-                                                    {pos === 'bottom-left' && <ArrowDownLeft className="w-3 h-3" />}
-                                                    {pos === 'bottom-center' && <ArrowDown className="w-3 h-3" />}
-                                                    {pos === 'bottom-right' && <ArrowDownRight className="w-3 h-3" />}
-                                                    {pos === 'center' && <Move className="w-3 h-3" />}
-                                                </button>
-                                            ))}
+                                    {/* Watermark Tool */}
+                                    <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Stamp className="w-4 h-4 text-blue-500" />
+                                            <h3 className="text-sm font-bold">Logo & Watermark</h3>
                                         </div>
-                                        <Button
-                                            size="sm"
-                                            className="w-full h-7 text-xs"
-                                            onClick={handleApplyWatermark}
-                                            disabled={!logoImage || watermarking}
-                                        >
-                                            {watermarking ? (
-                                                <>
-                                                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                                                    Applying...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Stamp className="w-3 h-3 mr-2" />
-                                                    Overlay Logo
-                                                </>
-                                            )}
+
+                                        <div className="flex gap-3">
+                                            <div
+                                                className="w-12 h-12 border-2 border-dashed border-slate-300 rounded overflow-hidden flex items-center justify-center cursor-pointer hover:bg-slate-100 bg-white"
+                                                onClick={() => fileInputRef.current?.click()}
+                                            >
+                                                {logoImage ? (
+                                                    <img src={logoImage} className="w-full h-full object-contain" />
+                                                ) : (
+                                                    <Upload className="w-4 h-4 text-slate-400" />
+                                                )}
+                                            </div>
+
+                                            <div className="flex-1 space-y-2">
+                                                <div className="grid grid-cols-4 gap-1">
+                                                    {['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'center'].map((pos) => (
+                                                        <button
+                                                            key={pos}
+                                                            onClick={() => setWatermarkPosition(pos)}
+                                                            className={`p-1 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary' : 'border-slate-200'} hover:bg-slate-50 flex items-center justify-center`}
+                                                        >
+                                                            {pos === 'top-left' && <ArrowUpLeft className="w-2.5 h-2.5" />}
+                                                            {pos === 'top-center' && <ArrowUp className="w-2.5 h-2.5" />}
+                                                            {pos === 'top-right' && <ArrowUpRight className="w-2.5 h-2.5" />}
+                                                            {pos === 'bottom-left' && <ArrowDownLeft className="w-2.5 h-2.5" />}
+                                                            {pos === 'bottom-center' && <ArrowDown className="w-2.5 h-2.5" />}
+                                                            {pos === 'bottom-right' && <ArrowDownRight className="w-2.5 h-2.5" />}
+                                                            {pos === 'center' && <Move className="w-2.5 h-2.5" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <Button
+                                                    size="sm"
+                                                    className="w-full h-7 text-xs"
+                                                    onClick={() => handleApplyWatermark(p!)}
+                                                    disabled={!logoImage || watermarking}
+                                                >
+                                                    {watermarking ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
+                                                    Overlay
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <Button onClick={() => downloadPoster(p!)} variant="outline" size="sm" className="flex-1 h-8 text-xs">
+                                            <Download className="w-3 h-3 mr-2" />
+                                            Download
                                         </Button>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div className="flex gap-2">
-                                <Button onClick={downloadPoster} variant="outline" className="flex-1">
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Download
-                                </Button>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 mt-4">
-                                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg relative group">
-                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(poster.captionMN, "mn")}>
-                                            {copied === "mn" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                                        </Button>
+                                    <div className="grid grid-cols-1 gap-2 mt-2">
+                                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg relative group">
+                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(p!.captionMN, "mn")}>
+                                                    {copied === "mn" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                                                </Button>
+                                            </div>
+                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">MN</p>
+                                            <p className="text-xs line-clamp-3 overflow-y-auto max-h-[60px]">{p!.captionMN}</p>
+                                        </div>
+                                        <div className="text-[10px] text-blue-500 font-mono italic">
+                                            {p!.hashtags}
+                                        </div>
                                     </div>
-                                    <p className="text-xs font-bold text-slate-500 mb-1">MONGOLIAN</p>
-                                    <p className="text-sm whitespace-pre-wrap">{poster.captionMN}</p>
                                 </div>
-
-                                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg relative group">
-                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(poster.captionEN, "en")}>
-                                            {copied === "en" ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                                        </Button>
-                                    </div>
-                                    <p className="text-xs font-bold text-slate-500 mb-1">ENGLISH</p>
-                                    <p className="text-sm whitespace-pre-wrap">{poster.captionEN}</p>
-                                </div>
-
-                                <div className="text-xs text-blue-500 font-mono">
-                                    {poster.hashtags}
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     ) : (
                         <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 p-8 text-center">
@@ -606,7 +630,7 @@ export default function ContentManagerPage() {
                             <p className="text-sm text-slate-500 mt-2">
                                 1. Enter your idea (or use a template)<br />
                                 2. "Write Pro Prompt" to add details<br />
-                                3. Generate & Add Logo Overlay
+                                3. Generate & Compare AI Results
                             </p>
                         </div>
                     )}
