@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
         // 3. Create a new File object from the processed buffer
         // OpenAI SDK accepts a File object.
-        const processedFile = new File([processedBuffer], "image.png", { type: "image/png" });
+        const processedFile = new File([new Blob([processedBuffer])], "image.png", { type: "image/png" });
 
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
