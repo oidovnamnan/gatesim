@@ -11,18 +11,16 @@ export const maxDuration = 60;
 // List of models to try for Vision (Image Analysis)
 // User confirmed Gemini 1.5 might not be enabled. Prioritizing older stable vision models.
 const VISON_MODELS = [
-    "gemini-pro-vision",  // Legacy stable vision model (Most likely enabled)
-    "gemini-1.0-pro-vision-latest",
-    "gemini-1.5-flash",   // Fallback to newer ones just in case
-    "gemini-1.5-flash-001"
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-2.0-flash-exp"
 ];
 
 // List of models to try for Text (Captioning)
 // Gemini Pro Vision cannot do text-only chat well without image, so use Gemini Pro for text
 const TEXT_MODELS = [
-    "gemini-pro",
-    "gemini-1.0-pro",
-    "gemini-1.5-flash"
+    "gemini-1.5-flash",
+    "gemini-1.5-pro"
 ];
 
 async function generateContentWithFallback(genAI: GoogleGenerativeAI, models: string[], prompt: string, imagePart?: any) {
