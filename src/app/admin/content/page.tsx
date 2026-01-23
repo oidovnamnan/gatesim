@@ -157,21 +157,27 @@ export default function ContentManagerPage() {
         }
     };
 
-    const handleEnhance = async () => {
-        if (!idea.trim()) return;
+    const handleEnhance = async (isRandom = false) => {
+        if (!isRandom && !idea.trim()) return;
         setEnhancing(true);
+        if (isRandom) setIdea(""); // Clear idea if randomizing
+
         try {
             const res = await fetch('/api/ai/enhance-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    idea,
-                    includeBranding
+                    idea: isRandom ? "" : idea,
+                    includeBranding,
+                    targetModel: provider, // 'openai' or 'google'
+                    isRandom
                 })
             });
             const data = await res.json();
             if (data.prompt) {
                 setEnhancedPrompt(data.prompt);
+                // If it was random, we might want to put a simple title/idea in the input
+                // but for now let's just leave it to keep the UI clean
             }
         } catch (e) {
             console.error(e);
@@ -304,10 +310,11 @@ export default function ContentManagerPage() {
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => setIdea(RANDOM_IDEAS[Math.floor(Math.random() * RANDOM_IDEAS.length)])}
-                                        title="Surprise me"
+                                        onClick={() => handleEnhance(true)}
+                                        title="Generate Random Idea"
+                                        disabled={enhancing}
                                     >
-                                        <Shuffle className="w-4 h-4" />
+                                        {enhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shuffle className="w-4 h-4" />}
                                     </Button>
                                 </div>
                                 <div className="flex items-center space-x-2 py-1">
@@ -324,7 +331,7 @@ export default function ContentManagerPage() {
                                 </div>
                                 <Button
                                     className="w-full bg-purple-600 hover:bg-purple-700 text-white min-w-[120px]"
-                                    onClick={handleEnhance}
+                                    onClick={() => handleEnhance(false)}
                                     disabled={!idea || enhancing}
                                 >
                                     {enhancing ? (

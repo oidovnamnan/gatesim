@@ -14,11 +14,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { idea, includeBranding, brandDescription } = await req.json();
-
-        if (!idea) {
-            return NextResponse.json({ error: "Idea is required" }, { status: 400 });
-        }
+        const { idea, includeBranding, brandDescription, targetModel, isRandom } = await req.json();
 
         // Get API key
         let openaiApiKey = process.env.OPENAI_API_KEY;
@@ -34,56 +30,45 @@ export async function POST(req: NextRequest) {
 
         const openai = new OpenAI({ apiKey: openaiApiKey });
 
-        const shouldBrand = includeBranding !== false; // Default to true if undefined
+        const shouldBrand = includeBranding !== false;
 
-        let detailedBranding = `
-1. The image MUST feature a smartphone or digital element representing connectivity.
-2. The text "GateSIM" MUST be included in the image, naturally integrated (e.g., on a phone screen, a holographic overlay, or a modern 3D element in the background).
-3. The aesthetic should be Premium, Modern, and Travel-focused.`;
+        const systemPrompt = `You are a World-Class AI Prompt Engineer for Image Generation, specializing in high-end commercial travel photography and technology marketing.
+Your task is to take a simple concept (or invent one if isRandom is true) and expand it into a MASTERPIECE PROMPT.
 
-        if (shouldBrand && brandDescription) {
-            detailedBranding = `
-1. The image MUST feature a smartphone or digital element representing connectivity.
-2. BRAND IDENTITY & LOGO EXECUTION (Critical): 
-   ${brandDescription}
-   ENSURE the logo is rendered exactly as described above.
-3. The text "GateSIM" MUST be included.
-4. The aesthetic should be Premium, Modern, and Travel-focused.`;
-        }
+TARGET MODEL: ${targetModel === 'google' ? 'Google Imagen 4/3' : 'DALL-E 3'}
 
-        const brandingInstructions = shouldBrand
-            ? `MANDATORY BRANDING REQUIREMENTS:
-${detailedBranding}`
-            : `AESTHETIC GUIDELINES:
-1. Focus purely on high-quality, professional photography or artistic rendering.
-2. Do NOT include any forced text or logos.
-3. The aesthetic should be Premium and Cinematic.`;
+${targetModel === 'google'
+                ? "Prompting Style for Imagen: Use a structured 'Subject-Action-Context-Lighting-Camera' approach. Focus on photo-realism and precise placement."
+                : "Prompting Style for DALL-E 3: Use natural language, descriptive sentences. Avoid list-style keywords. Describe the scene as a story."}
 
-        const systemPrompt = `You are a World-Class AI Prompt Engineer for DALL-E 3, specializing in commercial advertising.
-Your task is to take a simple concept and expand it into a MASTERPIECE PROMPT (100-200 words).
+AESTHETIC GUIDELINES (TRAVEL & NETWORK):
+1. LIGHTING: Use terms like "Golden hour", "Cinematic ambient glow", "Soft HDR", or "Natural sunlight streaming".
+2. COMPOSITION: Focus on "Rule of thirds", "Wide-angle lens (24mm)", "Depth of field", "Soft bokeh background".
+3. TECH AESTHETIC: Integrate connectivity elements naturally: "Global network nodes", "Digital pathways", "Interconnected data streams", "Vibrant blue and magenta light trails".
+4. FORBIDDEN WORDS: Do NOT use "4K", "Hyperrealistic", "Masterpiece", or "HD". Instead, use "Professional editorial travel photograph", "Shot on 35mm film", or "Authentic textures".
 
-${brandingInstructions}
+BRANDING:
+${shouldBrand
+                ? `The image MUST feature a smartphone or digital element with the 'GateSIM' text clearly yet naturally integrated. ${brandDescription ? `Logo Details: ${brandDescription}` : ""}`
+                : "No text or logos."}
 
-REQUIREMENTS FOR "MASTERPIECE PROMPT":
-1. VISUAL FIDELITY: Describe the lighting (e.g., golden hour, cinematic teal/orange, volumetric fog), camera gear (e.g., 85mm lens, f/1.8 aperture, 8k resolution, Unreal Engine 5 render style), and textures (skin pores, fabric details, glass reflections).
-2. ATMOSPHERE: Describe the mood (e.g., adventurous, serene, futuristic, high-energy).
-3. COMPOSITION: Describe the angle (wide shot, POV, macro) and depth of field.
-4. LENGTH: The output MUST be detailed and comprehensive. Do not summarize. Since this is for DALL-E 3, be descriptive and specific.
+RANDOMIZATION:
+If isRandom is true, generate a unique, non-repeating scenario involving travel and connectivity in a famous or beautiful global location.
 
 OUTPUT FORMAT:
-Return ONLY the raw enhanced prompt text. No "Here is the prompt" prefix.
+Return ONLY the raw enhanced prompt text. No "Here is the prompt" prefix.`
 
-Example Input: "Woman on beach"
-Example Output: "${shouldBrand ? "A photorealistic 8k masterpiece shot at golden hour on a pristine Maldives beach. A young professional female traveler is relaxing on a hammock, wearing a light summer dress. In her hand, she holds a sleek modern smartphone... on the screen, the 'GateSIM' logo is glowing in white and neon blue... The lighting is soft and warm with lens flare... bokeh palm trees in background..." : "A photorealistic 8k masterpiece shot..."}"
-`;
+        const userContent = isRandom
+            ? "Generate a random, stunning, non-repeating travel and network connectivity scenario and enhance it."
+            : `Enhance this idea for a marketing poster: "${idea}"`;
 
         const response = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Enhance this idea for a marketing poster: "${idea}"` }
+                { role: "user", content: userContent }
             ],
-            temperature: 0.7,
+            temperature: 0.8, // Slightly higher for more variety
         });
 
         const enhancedPrompt = response.choices[0]?.message?.content || "";
