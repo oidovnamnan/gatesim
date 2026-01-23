@@ -345,6 +345,7 @@ interface GeneratedPoster {
 
 export default function ContentManagerPage() {
     const { toast } = useToast();
+    const [activeTab, setActiveTab] = useState<string>("generate");
     const [selectedSize, setSelectedSize] = useState<string>("square");
 
 
@@ -535,13 +536,13 @@ export default function ContentManagerPage() {
         }
     };
 
-    const handleGenerate = async () => {
+    const handleGenerate = async (overridePrompt?: string) => {
         setGenerating(true);
         setGeneratingGoogle(provider === "dual");
         setPoster(null);
         setGooglePoster(null);
 
-        const finalPrompt = enhancedPrompt || idea;
+        const finalPrompt = overridePrompt || enhancedPrompt || idea;
         const sizeObj = sizeOptions.find(s => s.id === selectedSize) || sizeOptions[0];
         const apiSize = sizeObj.ratio;
 
@@ -638,7 +639,7 @@ export default function ContentManagerPage() {
                 </Link>
             </div>
 
-            <Tabs defaultValue="generate" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="generate">Text to Image</TabsTrigger>
                     <TabsTrigger value="variation">Image Variation (Remix)</TabsTrigger>
@@ -853,7 +854,7 @@ export default function ContentManagerPage() {
 
                                 <Button
                                     className="w-full h-12 text-lg font-bold mt-4"
-                                    onClick={handleGenerate}
+                                    onClick={() => handleGenerate()}
                                     disabled={generating || (!idea && !enhancedPrompt)}
                                 >
                                     {generating ? (
@@ -1452,10 +1453,12 @@ export default function ContentManagerPage() {
                                         <Button
                                             className="w-full bg-blue-600 hover:bg-blue-700 h-10 text-xs shadow-lg"
                                             onClick={() => {
-                                                setIdea(extractedPrompt);
-                                                setEnhancedPrompt(extractedPrompt);
-                                                // Ideally switch tab, but for now just show feedback
-                                                toast({ title: "Prompt Loaded", description: "Design concept ready for generation." });
+                                                const prompt = extractedPrompt;
+                                                setIdea(prompt);
+                                                setEnhancedPrompt(prompt);
+                                                setActiveTab("generate");
+                                                handleGenerate(prompt);
+                                                toast({ title: "Generation Started", description: "Analyzing and creating your image..." });
                                             }}
                                         >
                                             <ImagePlus className="w-4 h-4 mr-2" />
