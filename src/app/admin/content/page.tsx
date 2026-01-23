@@ -294,6 +294,10 @@ export default function ContentManagerPage() {
     const [logoImage, setLogoImage] = useState<string | null>("/logo-official-full.jpg");
     const [watermarking, setWatermarking] = useState(false);
     const [watermarkPosition, setWatermarkPosition] = useState("bottom-right");
+    const [logoScale, setLogoScale] = useState(0.2);
+    const [overlayText, setOverlayText] = useState("");
+    const [overlayTextColor, setOverlayTextColor] = useState("#ffffff");
+    const [overlayFontSize, setOverlayFontSize] = useState(60);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [captionTone, setCaptionTone] = useState("promotional");
     const [captionLength, setCaptionLength] = useState("medium");
@@ -335,7 +339,11 @@ export default function ContentManagerPage() {
                 body: JSON.stringify({
                     mainImage: targetPoster.imageUrl,
                     logoImage,
-                    position: watermarkPosition
+                    position: watermarkPosition,
+                    text: overlayText,
+                    textColor: overlayTextColor,
+                    fontSize: overlayFontSize,
+                    logoScale
                 })
             });
             const data = await res.json();
@@ -827,17 +835,18 @@ export default function ContentManagerPage() {
                                         />
                                     </div>
 
-                                    {/* Watermark Tool */}
-                                    <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
-                                        <div className="flex items-center gap-2 mb-3">
+                                    {/* Watermark & Text Tool */}
+                                    <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
+                                        <div className="flex items-center gap-2 mb-1">
                                             <Stamp className="w-4 h-4 text-blue-500" />
-                                            <h3 className="text-sm font-bold">Logo & Watermark</h3>
+                                            <h3 className="text-sm font-bold">Logo & Text Branding</h3>
                                         </div>
 
                                         <div className="flex gap-3">
                                             <div
                                                 className="w-12 h-12 border-2 border-dashed border-slate-300 rounded overflow-hidden flex items-center justify-center cursor-pointer hover:bg-slate-100 bg-white"
                                                 onClick={() => fileInputRef.current?.click()}
+                                                title="Upload custom logo"
                                             >
                                                 {logoImage ? (
                                                     <img src={logoImage} className="w-full h-full object-contain" />
@@ -846,13 +855,30 @@ export default function ContentManagerPage() {
                                                 )}
                                             </div>
 
-                                            <div className="flex-1 space-y-2">
+                                            <div className="flex-1 space-y-3">
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between items-center text-[10px] text-slate-500">
+                                                        <span>Logo size</span>
+                                                        <span>{Math.round(logoScale * 100)}%</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min="0.05"
+                                                        max="0.5"
+                                                        step="0.01"
+                                                        value={logoScale}
+                                                        onChange={(e) => setLogoScale(parseFloat(e.target.value))}
+                                                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                                    />
+                                                </div>
+
                                                 <div className="grid grid-cols-4 gap-1">
                                                     {['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'center'].map((pos) => (
                                                         <button
                                                             key={pos}
                                                             onClick={() => setWatermarkPosition(pos)}
                                                             className={`p-1 rounded bg-white shadow-sm border ${watermarkPosition === pos ? 'border-primary' : 'border-slate-200'} hover:bg-slate-50 flex items-center justify-center`}
+                                                            title={pos}
                                                         >
                                                             {pos === 'top-left' && <ArrowUpLeft className="w-2.5 h-2.5" />}
                                                             {pos === 'top-center' && <ArrowUp className="w-2.5 h-2.5" />}
@@ -864,17 +890,56 @@ export default function ContentManagerPage() {
                                                         </button>
                                                     ))}
                                                 </div>
-                                                <Button
-                                                    size="sm"
-                                                    className="w-full h-7 text-xs"
-                                                    onClick={() => handleApplyWatermark(p!)}
-                                                    disabled={!logoImage || watermarking}
-                                                >
-                                                    {watermarking ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
-                                                    Overlay
-                                                </Button>
                                             </div>
                                         </div>
+
+                                        <div className="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <div className="flex gap-2">
+                                                <div className="flex-1">
+                                                    <Label className="text-[10px] font-bold text-slate-500 uppercase">Poster Text</Label>
+                                                    <Input
+                                                        value={overlayText}
+                                                        onChange={(e) => setOverlayText(e.target.value)}
+                                                        placeholder="Add sale text, web URL..."
+                                                        className="h-7 text-xs"
+                                                    />
+                                                </div>
+                                                <div className="w-12">
+                                                    <Label className="text-[10px] font-bold text-slate-500 uppercase">Color</Label>
+                                                    <input
+                                                        type="color"
+                                                        value={overlayTextColor}
+                                                        onChange={(e) => setOverlayTextColor(e.target.value)}
+                                                        className="w-full h-7 p-0 border-0 bg-transparent cursor-pointer"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <div className="flex justify-between items-center text-[10px] text-slate-500">
+                                                    <span>Font size</span>
+                                                    <span>{overlayFontSize}px</span>
+                                                </div>
+                                                <input
+                                                    type="range"
+                                                    min="20"
+                                                    max="200"
+                                                    step="5"
+                                                    value={overlayFontSize}
+                                                    onChange={(e) => setOverlayFontSize(parseInt(e.target.value))}
+                                                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <Button
+                                            size="sm"
+                                            className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700"
+                                            onClick={() => handleApplyWatermark(p!)}
+                                            disabled={(!logoImage && !overlayText) || watermarking}
+                                        >
+                                            {watermarking ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Stamp className="w-3 h-3 mr-2" />}
+                                            Apply Branding
+                                        </Button>
                                     </div>
 
                                     <div className="flex gap-2">

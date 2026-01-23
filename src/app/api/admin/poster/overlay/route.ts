@@ -12,10 +12,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { mainImage, logoImage, position } = await req.json();
+        const { mainImage, logoImage, position, text, textColor, fontSize, logoScale = 0.2 } = await req.json();
 
-        if (!mainImage || !logoImage) {
-            return NextResponse.json({ error: "Missing images" }, { status: 400 });
+        if (!mainImage && !logoImage && !text) {
+            return NextResponse.json({ error: "No content to overlay" }, { status: 400 });
         }
 
         // Fetch main image (it's a URL)
@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
         const mainWidth = mainMeta.width || 1024;
         const mainHeight = mainMeta.height || 1024;
 
-        // Resize logo to ~20% of main image width or height (max)
-        const targetLogoSize = Math.round(Math.min(mainWidth, mainHeight) * 0.2);
+        // Resize logo based on logoScale
+        const targetLogoSize = Math.round(Math.min(mainWidth, mainHeight) * logoScale);
         const resizedLogo = await sharp(logoBuffer)
             .resize({ width: targetLogoSize, fit: 'contain' })
             .toBuffer();
@@ -88,11 +88,45 @@ export async function POST(req: NextRequest) {
                 left = mainWidth - logoW - padding;
         }
 
+        // 5. Prepare Composites array
+        const composites: any[] = [];
+
+        if (logoBuffer) {
+            composites.push({ input: resizedLogo, top: Math.round(top), left: Math.round(left) });
+        }
+
+        // 6. Handle Text Overlay (SVG)
+        if (text) {
+            const fSize = fontSize || Math.round(mainWidth * 0.05);
+            const color = textColor || "#ffffff";
+
+            // Simple SVG text wrap or single line
+            const svgText = `
+                <svg width="${mainWidth}" height="${mainHeight}">
+                    <style>
+                        .title { fill: ${color}; font-size: ${fSize}px; font-weight: bold; font-family: sans-serif; }
+                    </style>
+                    <text x="50%" y="50%" text-anchor="middle" class="title">${text}</text>
+                </svg>
+            `;
+
+            // Actually, we should position the text based on requested 'position' too, 
+            // but for a start let's put it in the composite relative to the same logic or separate.
+            // Let's reuse position but with padding offsets.
+
+            let textTop = top;
+            let textLeft = left;
+
+            // If logo exists, offset text so they don't overlap too much, or just use the same position logic
+            // for now let's just center text if it's substantial, or follow the same corner logic.
+
+            const textBuffer = Buffer.from(svgText);
+            composites.push({ input: textBuffer, top: 0, left: 0 }); // SVG covers full canvas
+        }
+
         // Composite
         const compositeBuffer = await sharp(mainImageBuffer)
-            .composite([
-                { input: resizedLogo, top: Math.round(top), left: Math.round(left) }
-            ])
+            .composite(composites)
             .toBuffer();
 
         // Convert back to base64
