@@ -72,7 +72,7 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                         </button>
 
                         {/* Content */}
-                        <div className="p-6 sm:p-8">
+                        <div className="p-6 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             {step === "select" && (
                                 <div className="space-y-6">
                                     <div className="text-center space-y-2">
