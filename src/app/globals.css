@@ -127,7 +127,12 @@ body {
   color: hsl(var(--foreground));
   min-height: 100vh;
   min-height: 100dvh;
-  overscroll-behavior: none;
+}
+
+body.ai-chat-open {
+  overflow: hidden !important;
+  height: 100vh;
+  overflow-y: hidden;
 }
 
 /* Mobile App-like scrolling */
