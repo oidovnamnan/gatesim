@@ -80,7 +80,7 @@ export function ExpenseDashboard() {
     const calculateTotals = () => {
         const totals: Record<string, number> = {};
         expenses.forEach(exp => {
-            const curr = exp.currency || "JPY";
+            const curr = exp.currency || "MNT";
             totals[curr] = (totals[curr] || 0) + exp.amount;
         });
         setTotalByCurrency(totals);
@@ -98,8 +98,8 @@ export function ExpenseDashboard() {
         setExpenses(prev => prev.filter(e => e.id !== id));
     };
 
-    // Get primary total (first currency found or JPY)
-    const primaryCurrency = Object.keys(totalByCurrency)[0] || "JPY";
+    // Get primary total (first currency found or MNT)
+    const primaryCurrency = Object.keys(totalByCurrency)[0] || "MNT";
     const primaryTotal = totalByCurrency[primaryCurrency] || 0;
 
     return (
@@ -118,37 +118,40 @@ export function ExpenseDashboard() {
                 />
             </div>
 
-            {/* Premium Header */}
-            <header className="relative z-10 px-6 pt-10 pb-6">
+            {/* Premium Header - Floating Glass */}
+            <header className="relative z-10 px-6 pt-12 pb-8">
                 <div className="flex items-center gap-4">
                     <motion.button
                         whileHover={{ x: -2 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => router.push("/ai")}
-                        className="w-10 h-10 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"
+                        className="w-12 h-12 rounded-2xl bg-white/80 border border-white/50 shadow-lg shadow-blue-900/5 backdrop-blur-xl flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </motion.button>
                     <div className="flex-1">
-                        <h1 className="text-2xl font-black tracking-tighter text-slate-900">
-                            Budget Tracker
+                        <h1 className="text-3xl font-black tracking-tighter text-slate-900 leading-none">
+                            Budget<span className="text-blue-600">.</span>
                         </h1>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-0.5">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1.5 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                             AI Expense Control
                         </p>
                     </div>
                     {expenses.length > 0 && (
                         <ExpenseScanner
                             onSave={addExpense}
+                            customCategories={customCategories}
+                            onAddCategory={addCustomCategory}
                             trigger={
                                 <motion.button
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    whileHover={{ scale: 1.1 }}
+                                    whileHover={{ scale: 1.1, rotate: 90 }}
                                     whileTap={{ scale: 0.9 }}
-                                    className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-900/20"
+                                    className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-xl shadow-slate-900/20"
                                 >
-                                    <Plus className="w-5 h-5" />
+                                    <Plus className="w-6 h-6" />
                                 </motion.button>
                             }
                         />
@@ -157,45 +160,73 @@ export function ExpenseDashboard() {
             </header>
 
             <div className="relative z-10 px-6 space-y-8 pb-32">
-                {/* Visual Summary Card - High End */}
+                {/* Visual Summary Card - Premium Credit Card Look */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="relative overflow-hidden rounded-[32px] bg-slate-900 p-8 text-white shadow-2xl shadow-slate-900/20"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] p-8 text-white shadow-2xl shadow-slate-900/30 group"
                 >
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                {t("totalSpent") || "Total Expenditure"}
-                            </p>
+                    {/* Noise Texture */}
+                    <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150 z-0" />
+
+                    {/* Glass Shine */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-[80px] -mr-32 -mt-32 rounded-full pointer-events-none group-hover:bg-white/10 transition-colors duration-500" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/20 blur-[60px] -ml-24 -mb-24 rounded-full pointer-events-none" />
+
+                    <div className="relative z-10 flex flex-col justify-between h-[180px]">
+                        <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/5 backdrop-blur-md">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse" />
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                                    {t("totalSpent") || "Total Spent"}
+                                </p>
+                            </div>
+                            {/* Chip Icon */}
+                            <div className="w-10 h-8 rounded-lg border border-white/20 bg-gradient-to-br from-yellow-200/20 to-yellow-600/20 backdrop-blur-sm relative overflow-hidden hidden sm:block">
+                                <div className="absolute inset-0 opacity-30 flex gap-1 justify-center items-center">
+                                    <div className="w-[1px] h-full bg-white/40" />
+                                    <div className="w-full h-[1px] bg-white/40" />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex items-baseline gap-2">
-                            <h2 className="text-5xl font-black tracking-tighter tabular-nums">
-                                {primaryTotal.toLocaleString()}
-                            </h2>
-                            <span className="text-xl font-black text-blue-400 italic">{primaryCurrency}</span>
+                        <div>
+                            <div className="flex items-baseline gap-2 mb-1">
+                                <h2 className="text-5xl sm:text-6xl font-black tracking-tighter tabular-nums text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+                                    {primaryTotal.toLocaleString()}
+                                </h2>
+                                <span className="text-xl font-black text-slate-500 italic uppercase">{primaryCurrency}</span>
+                            </div>
+
+                            {/* Fake Card Number / Decoration */}
+                            <div className="flex items-center gap-3 opacity-50 mt-2">
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/50" />)}
+                                </div>
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/50" />)}
+                                </div>
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/50" />)}
+                                </div>
+                                <span className="text-[10px] font-mono tracking-widest text-white/70 ml-1">EXPENSE</span>
+                            </div>
                         </div>
 
-                        {/* Secondary Currencies */}
+                        {/* Secondary Currencies - Moved to bottom right */}
                         {Object.keys(totalByCurrency).length > 1 && (
-                            <div className="mt-6 flex flex-wrap gap-2">
+                            <div className="absolute bottom-6 right-6 flex flex-col items-end gap-1">
                                 {Object.entries(totalByCurrency).map(([curr, amount]) => (
                                     curr !== primaryCurrency && (
-                                        <div key={curr} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/5 backdrop-blur-md flex items-center gap-2">
-                                            <span className="text-[10px] font-black text-white">{amount.toLocaleString()}</span>
-                                            <span className="text-[10px] font-black text-slate-500 italic">{curr}</span>
+                                        <div key={curr} className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                                            <span className="text-[10px] font-bold text-white tabular-nums">{amount.toLocaleString()}</span>
+                                            <span className="text-[8px] font-black text-slate-400 uppercase">{curr}</span>
                                         </div>
                                     )
                                 ))}
                             </div>
                         )}
                     </div>
-
-                    {/* Artistic Glows */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 blur-[80px] -mr-32 -mt-32" />
-                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/10 blur-[60px] -ml-24 -mb-24" />
                 </motion.div>
 
                 {/* Expenses List */}
