@@ -223,6 +223,74 @@ const CITY_SUGGESTIONS: Record<string, { name: string, nameEn: string }[]> = {
         { name: "Палаван", nameEn: "Palawan" },
         { name: "Давао", nameEn: "Davao" },
     ],
+    "AU": [
+        { name: "Сидней", nameEn: "Sydney" },
+        { name: "Мельбурн", nameEn: "Melbourne" },
+        { name: "Брисбэн", nameEn: "Brisbane" },
+        { name: "Перт", nameEn: "Perth" },
+        { name: "Голд Кост", nameEn: "Gold Coast" },
+    ],
+    "GB": [
+        { name: "Лондон", nameEn: "London" },
+        { name: "Манчестер", nameEn: "Manchester" },
+        { name: "Эдинбург", nameEn: "Edinburgh" },
+        { name: "Ливерпүүл", nameEn: "Liverpool" },
+        { name: "Бирмингем", nameEn: "Birmingham" },
+    ],
+    "FR": [
+        { name: "Парис", nameEn: "Paris" },
+        { name: "Ницца", nameEn: "Nice" },
+        { name: "Лион", nameEn: "Lyon" },
+        { name: "Марсель", nameEn: "Marseille" },
+        { name: "Бордо", nameEn: "Bordeaux" },
+    ],
+    "DE": [
+        { name: "Берлин", nameEn: "Berlin" },
+        { name: "Мюнхен", nameEn: "Munich" },
+        { name: "Франкфурт", nameEn: "Frankfurt" },
+        { name: "Гамбург", nameEn: "Hamburg" },
+        { name: "Кёльн", nameEn: "Cologne" },
+    ],
+    "IT": [
+        { name: "Ром", nameEn: "Rome" },
+        { name: "Милан", nameEn: "Milan" },
+        { name: "Венец", nameEn: "Venice" },
+        { name: "Флоренц", nameEn: "Florence" },
+        { name: "Неаполь", nameEn: "Naples" },
+    ],
+    "ES": [
+        { name: "Барселона", nameEn: "Barcelona" },
+        { name: "Мадрид", nameEn: "Madrid" },
+        { name: "Севилья", nameEn: "Seville" },
+        { name: "Валенси", nameEn: "Valencia" },
+        { name: "Ибиза", nameEn: "Ibiza" },
+    ],
+    "RU": [
+        { name: "Москва", nameEn: "Moscow" },
+        { name: "Санкт-Петербург", nameEn: "Saint Petersburg" },
+        { name: "Казань", nameEn: "Kazan" },
+        { name: "Екатеринбург", nameEn: "Yekaterinburg" },
+        { name: "Сочи", nameEn: "Sochi" },
+        { name: "Иркутск", nameEn: "Irkutsk" },
+    ],
+    "TR": [
+        { name: "Истанбул", nameEn: "Istanbul" },
+        { name: "Анталья", nameEn: "Antalya" },
+        { name: "Каппадоки", nameEn: "Cappadocia" },
+        { name: "Бодрум", nameEn: "Bodrum" },
+        { name: "Измир", nameEn: "Izmir" },
+    ],
+    "AE": [
+        { name: "Дубай", nameEn: "Dubai" },
+        { name: "Абу Даби", nameEn: "Abu Dhabi" },
+        { name: "Шаржа", nameEn: "Sharjah" },
+    ],
+    "CA": [
+        { name: "Торонто", nameEn: "Toronto" },
+        { name: "Ванкувер", nameEn: "Vancouver" },
+        { name: "Монреаль", nameEn: "Montreal" },
+        { name: "Калгари", nameEn: "Calgary" },
+    ],
 };
 
 const tripPurposes = [
@@ -1224,11 +1292,11 @@ export default function AITravelPlannerV2() {
                                             </div>
 
                                             {isSuggestingCities ? (
-                                                <div className="flex gap-2 overflow-x-auto pb-1">
-                                                    {[1, 2, 3].map(i => <div key={i} className="h-12 w-32 bg-slate-50 animate-pulse rounded-xl shrink-0" />)}
+                                                <div className="flex gap-2 pb-1">
+                                                    {[1, 2, 3].map(i => <div key={i} className="h-20 w-full bg-slate-50 animate-pulse rounded-2xl shrink-0 border border-slate-100" />)}
                                                 </div>
                                             ) : (
-                                                <div className="flex flex-wrap gap-2">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                     {suggestedCities.map((c) => {
                                                         const isSelected = selectedCities.includes(c.name);
                                                         return (
@@ -1236,33 +1304,33 @@ export default function AITravelPlannerV2() {
                                                                 key={c.name}
                                                                 onClick={() => isSelected ? removeCity(c.name) : addCity(c.name)}
                                                                 className={cn(
-                                                                    "group text-left px-4 py-3 rounded-2xl border-2 transition-all max-w-[200px] relative",
+                                                                    "group text-left p-4 rounded-2xl border-2 transition-all relative overflow-hidden",
                                                                     isSelected
-                                                                        ? "border-emerald-200 bg-emerald-50"
-                                                                        : "border-slate-50 bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50"
+                                                                        ? "border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100"
+                                                                        : "border-slate-100 bg-white hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-0.5"
                                                                 )}
                                                             >
-                                                                <div className={cn("transition-all", isSelected ? "opacity-20 grayscale" : "opacity-100")}>
-                                                                    <div className="flex items-center justify-between mb-1">
+                                                                <div className={cn("transition-all relative z-10", isSelected ? "opacity-100" : "opacity-100")}>
+                                                                    <div className="flex items-start justify-between mb-2">
                                                                         <div className="flex flex-col">
-                                                                            <span className="text-xs font-black text-slate-900 truncate pr-2">{isMongolian ? c.nameMn : c.name}</span>
+                                                                            <span className="text-sm font-black text-slate-900 leading-none mb-1">{isMongolian ? c.nameMn : c.name}</span>
                                                                             {c.distance && (
-                                                                                <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full w-fit mt-0.5">
+                                                                                <span className="text-[9px] font-black text-emerald-600 bg-emerald-100/50 px-2 py-0.5 rounded-full w-fit">
                                                                                     {c.distance}
                                                                                 </span>
                                                                             )}
                                                                         </div>
-                                                                        {!isSelected && <Plus className="w-3 h-3 text-emerald-500 shrink-0" />}
+                                                                        <div className={cn(
+                                                                            "w-6 h-6 rounded-full flex items-center justify-center transition-colors",
+                                                                            isSelected ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-500"
+                                                                        )}>
+                                                                            {isSelected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                                                                        </div>
                                                                     </div>
-                                                                    <p className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-2 italic">
+                                                                    <p className="text-[10px] text-slate-500 font-medium leading-relaxed line-clamp-2">
                                                                         {c.reason}
                                                                     </p>
                                                                 </div>
-                                                                {isSelected && (
-                                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                                        <Check className="w-6 h-6 text-emerald-600" />
-                                                                    </div>
-                                                                )}
                                                             </button>
                                                         );
                                                     })}
