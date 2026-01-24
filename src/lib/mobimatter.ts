@@ -114,11 +114,12 @@ export const getMobiMatterProducts = unstable_cache(
 
                 // --- TOPUP DETECTION ---
                 // MobiMatter products are topups if they have "topup" in title/category 
-                // or if specific flags are set (isAddon/addon)
+                // or if specific flags are set (isAddon/addon) or detail field TOPUP is "1"
                 const isTopUp = title.toLowerCase().includes("topup") ||
                     (p.productCategory && p.productCategory.toLowerCase().includes("topup")) ||
                     p.isAddon === true ||
-                    p.addon === true;
+                    p.addon === true ||
+                    getValue("TOPUP") === "1";
 
                 // --- PRICING CALCULATION ---
                 const basePrice = p.retailPrice || 0;

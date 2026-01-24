@@ -82,6 +82,7 @@ export default async function CheckoutPage({ searchParams }: Props) {
         currency: "MNT",
         countries: activeCountries,
         countryName: getCountryName(activeCountries[0]),
+        isTopUp: p.isTopUp,
     };
 
     // If it's a regional package and we have a context, update title to match

@@ -38,6 +38,7 @@ interface CheckoutPackage {
     currency: string;
     countries: string[];
     countryName: string;
+    isTopUp?: boolean;
 }
 
 interface CheckoutClientProps {
@@ -487,6 +488,17 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                         </div>
                     </div>
                 </Card>
+
+                {/* Top-up Warning */}
+                {pkg.isTopUp && (
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 shadow-sm">
+                        <Smartphone className="h-5 w-5 text-amber-600 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-bold text-amber-900">{t("topUp")}</p>
+                            <p className="text-xs text-amber-800/80 font-medium leading-relaxed">{t("topUpDesc")}</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Email Input */}
                 <div className="space-y-2">
