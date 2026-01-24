@@ -346,6 +346,10 @@ model AuditLog {
   createdAt  DateTime @default(now())
   
 
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
 // ============ AI USAGE & MONETIZATION ============
 
 model AIUsage {
