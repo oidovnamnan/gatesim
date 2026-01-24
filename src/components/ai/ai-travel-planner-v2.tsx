@@ -1698,36 +1698,7 @@ export default function AITravelPlannerV2() {
                                 </div>
                             </div>
 
-                            {/* Category Tabs */}
-                            <div className="flex flex-wrap gap-2 justify-center">
-                                {[
-                                    { id: 'attraction' as const, icon: Camera, label: isMongolian ? 'Үзвэр' : 'Attractions' },
-                                    { id: 'shopping' as const, icon: ShoppingBag, label: isMongolian ? 'Шопинг' : 'Shopping' },
-                                    { id: 'medical' as const, icon: Stethoscope, label: isMongolian ? 'Эмчилгээ' : 'Medical' },
-                                    { id: 'dining' as const, icon: Utensils, label: isMongolian ? 'Хоол' : 'Dining' },
-                                    { id: 'education' as const, icon: GraduationCap, label: isMongolian ? 'Боловсрол' : 'Education' },
-                                ].map((cat) => {
-                                    const Icon = cat.icon;
-                                    const isActive = activeCategory === cat.id;
-                                    return (
-                                        <Button
-                                            key={cat.id}
-                                            variant={isActive ? "default" : "outline"}
-                                            onClick={() => {
-                                                setActiveCategory(cat.id);
-                                                fetchDiscoveryData(cat.id, activeCityTab);
-                                            }}
-                                            className={cn(
-                                                "rounded-full h-10 px-6 font-bold gap-2",
-                                                isActive ? "bg-emerald-600 hover:bg-emerald-700" : "border-slate-100 text-slate-600 hover:bg-slate-50"
-                                            )}
-                                        >
-                                            <Icon className="w-4 h-4" />
-                                            {cat.label}
-                                        </Button>
-                                    );
-                                })}
-                            </div>
+                            {/* Category Tabs Removed as per user request - auto-selected based on purpose */}
 
                             {isDiscoveryLoading ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
