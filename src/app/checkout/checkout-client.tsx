@@ -417,7 +417,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                 <Smartphone className="w-4 h-4" />
                                 {t("bankAppPay")}
                             </p>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-2 gap-2">
                                 {invoice.deeplinks.map((bank, index) => {
                                     // Helper to match bank names fuzzily (supports Cyrillic and Latin)
                                     const getBankLogo = (name: string) => {
@@ -445,44 +445,41 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                     };
 
                                     const localLogo = getBankLogo(bank.name);
-                                    const isLocalImage = localLogo?.startsWith("/");
 
                                     return (
                                         <a
                                             key={index}
                                             href={bank.link}
-                                            className="flex flex-col items-center gap-1 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                            className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group"
                                         >
-                                            <div className="w-10 h-10 relative mb-1 flex items-center justify-center">
+                                            <div className="w-8 h-8 relative flex-shrink-0 flex items-center justify-center">
                                                 <img
                                                     src={localLogo || bank.logo}
                                                     alt={bank.name}
-                                                    className="w-full h-full object-contain rounded-lg"
+                                                    className="w-full h-full object-contain rounded-md"
                                                     onError={(e) => {
                                                         const target = e.target as HTMLImageElement;
-                                                        // 1. If failed local, try remote
                                                         if (localLogo && target.src.includes(localLogo)) {
                                                             target.src = bank.logo;
-                                                        }
-                                                        // 2. If failed remote (or local again), hide and show text
-                                                        else {
+                                                        } else {
                                                             target.style.display = 'none';
                                                             const parent = target.parentElement;
                                                             if (parent) {
                                                                 parent.innerText = "🏦";
-                                                                parent.className = "w-10 h-10 relative mb-1 flex items-center justify-center text-2xl";
+                                                                parent.className = "w-8 h-8 flex items-center justify-center text-xl";
                                                             }
                                                         }
                                                     }}
                                                 />
                                             </div>
-                                            <span className="text-[10px] font-medium text-slate-600 text-center leading-tight">
-                                                {bank.description || bank.name}
+                                            <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                                                {bank.name}
                                             </span>
                                         </a>
                                     );
                                 })}
                             </div>
+
                         </div>
                     )}
 
