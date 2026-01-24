@@ -1,11 +1,15 @@
 
 import { prisma as db } from "@/lib/prisma";
 
-export type AIUsageType = "PLAN" | "SCAN";
+export type AIUsageType = "PLAN" | "SCAN" | "TRANSIT" | "TRANSLATE" | "POSTER" | "MEDICAL";
 
 const FREE_LIMITS = {
     PLAN: 3,
-    SCAN: 3
+    SCAN: 3,
+    TRANSIT: 3,
+    TRANSLATE: 20,
+    POSTER: 3,
+    MEDICAL: 3
 };
 
 /**
@@ -28,10 +32,14 @@ export async function checkAILimit(userId: string, type: AIUsageType): Promise<b
     }
 
     // 2. Check Free Limits
-    if (type === "PLAN") {
-        return usage.planCount < FREE_LIMITS.PLAN;
-    } else {
-        return usage.scanCount < FREE_LIMITS.SCAN;
+    switch (type) {
+        case "PLAN": return usage.planCount < FREE_LIMITS.PLAN;
+        case "SCAN": return usage.scanCount < FREE_LIMITS.SCAN;
+        case "TRANSIT": return usage.transitCount < FREE_LIMITS.TRANSIT;
+        case "TRANSLATE": return usage.translatorCount < FREE_LIMITS.TRANSLATE;
+        case "POSTER": return usage.posterCount < FREE_LIMITS.POSTER;
+        case "MEDICAL": return usage.medicalCount < FREE_LIMITS.MEDICAL;
+        default: return false;
     }
 }
 
@@ -47,11 +55,19 @@ export async function incrementAIUsage(userId: string, type: AIUsageType) {
         create: {
             userId,
             planCount: type === "PLAN" ? 1 : 0,
-            scanCount: type === "SCAN" ? 1 : 0
+            scanCount: type === "SCAN" ? 1 : 0,
+            transitCount: type === "TRANSIT" ? 1 : 0,
+            translatorCount: type === "TRANSLATE" ? 1 : 0,
+            posterCount: type === "POSTER" ? 1 : 0,
+            medicalCount: type === "MEDICAL" ? 1 : 0,
         },
         update: {
             planCount: type === "PLAN" ? { increment: 1 } : undefined,
-            scanCount: type === "SCAN" ? { increment: 1 } : undefined
+            scanCount: type === "SCAN" ? { increment: 1 } : undefined,
+            transitCount: type === "TRANSIT" ? { increment: 1 } : undefined,
+            translatorCount: type === "TRANSLATE" ? { increment: 1 } : undefined,
+            posterCount: type === "POSTER" ? { increment: 1 } : undefined,
+            medicalCount: type === "MEDICAL" ? { increment: 1 } : undefined,
         }
     });
 }
@@ -98,11 +114,26 @@ export async function getAIStatus(userId: string) {
     return {
         isPremium: !!isPremium,
         premiumExpiresAt: usage?.premiumExpiresAt,
+        // Counts
         planCount: usage?.planCount || 0,
         scanCount: usage?.scanCount || 0,
+        transitCount: usage?.transitCount || 0,
+        translatorCount: usage?.translatorCount || 0,
+        posterCount: usage?.posterCount || 0,
+        medicalCount: usage?.medicalCount || 0,
+        // Limits
         planLimit: FREE_LIMITS.PLAN,
         scanLimit: FREE_LIMITS.SCAN,
+        transitLimit: FREE_LIMITS.TRANSIT,
+        translatorLimit: FREE_LIMITS.TRANSLATE,
+        posterLimit: FREE_LIMITS.POSTER,
+        medicalLimit: FREE_LIMITS.MEDICAL,
+        // Remaining
         remainingPlans: isPremium ? 9999 : Math.max(0, FREE_LIMITS.PLAN - (usage?.planCount || 0)),
         remainingScans: isPremium ? 9999 : Math.max(0, FREE_LIMITS.SCAN - (usage?.scanCount || 0)),
+        remainingTransit: isPremium ? 9999 : Math.max(0, FREE_LIMITS.TRANSIT - (usage?.transitCount || 0)),
+        remainingTranslator: isPremium ? 9999 : Math.max(0, FREE_LIMITS.TRANSLATE - (usage?.translatorCount || 0)),
+        remainingPoster: isPremium ? 9999 : Math.max(0, FREE_LIMITS.POSTER - (usage?.posterCount || 0)),
+        remainingMedical: isPremium ? 9999 : Math.max(0, FREE_LIMITS.MEDICAL - (usage?.medicalCount || 0)),
     };
 }

@@ -358,8 +358,12 @@ model AiUsage {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Usage Counters (Lifetime limits)
-  planCount   Int      @default(0) // Default limit: 3
-  scanCount   Int      @default(0) // Default limit: 3
+  planCount       Int      @default(0) // Limit: 3
+  scanCount       Int      @default(0) // Limit: 3
+  transitCount    Int      @default(0) // Limit: 3
+  translatorCount Int      @default(0) // Limit: 20
+  posterCount     Int      @default(0) // Limit: 3
+  medicalCount    Int      @default(0) // Limit: 3
   
   // Premium Status
   isPremium        Boolean   @default(false)

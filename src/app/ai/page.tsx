@@ -200,30 +200,64 @@ export default function AIHubPage() {
             {/* AI Status Banner - Shows for free users or loading */}
             {!aiStatus?.isPremium && aiStatus && (
                 <section className="relative z-10 px-6 mb-6">
-                    <Card className="p-4 bg-white/40 backdrop-blur-md border border-white rounded-2xl flex items-center justify-between">
-                        <div className="flex gap-4">
+                    <Card className="p-5 bg-white/40 backdrop-blur-md border border-white rounded-[28px] shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                <Sparkles className="w-3 h-3 text-blue-500" />
+                                {isMongolian ? "Үнэгүй эрх" : "Free Usage Left"}
+                            </h3>
+                            <button
+                                onClick={() => setIsPremiumModalOpen(true)}
+                                className="text-[9px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors uppercase tracking-tighter"
+                            >
+                                {isMongolian ? "Хязгааргүй болгох" : "Go Unlimited"}
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-y-4 gap-x-2">
                             <div className="text-center">
-                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Аялал" : "Plans"}</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-lg font-black text-slate-900">{aiStatus.remainingPlans}</span>
-                                    <span className="text-[10px] text-slate-400">/{aiStatus.planLimit}</span>
+                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Аялал" : "Plans"}</p>
+                                <div className="flex items-baseline justify-center gap-0.5">
+                                    <span className="text-sm font-black text-slate-900">{aiStatus.remainingPlans}</span>
+                                    <span className="text-[8px] text-slate-400">/{aiStatus.planLimit}</span>
                                 </div>
                             </div>
-                            <div className="w-[1px] h-8 bg-slate-200 self-center" />
+                            <div className="text-center border-x border-slate-200/50">
+                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Тээвэр" : "Transit"}</p>
+                                <div className="flex items-baseline justify-center gap-0.5">
+                                    <span className="text-sm font-black text-slate-900">{aiStatus.remainingTransit}</span>
+                                    <span className="text-[8px] text-slate-400">/{aiStatus.transitLimit}</span>
+                                </div>
+                            </div>
                             <div className="text-center">
-                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Баримт" : "Scans"}</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-lg font-black text-slate-900">{aiStatus.remainingScans}</span>
-                                    <span className="text-[10px] text-slate-400">/{aiStatus.scanLimit}</span>
+                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Орчуулга" : "Translate"}</p>
+                                <div className="flex items-baseline justify-center gap-0.5">
+                                    <span className="text-sm font-black text-slate-900">{aiStatus.remainingTranslator}</span>
+                                    <span className="text-[8px] text-slate-400">/{aiStatus.translatorLimit}</span>
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Баримт" : "Scans"}</p>
+                                <div className="flex items-baseline justify-center gap-0.5">
+                                    <span className="text-sm font-black text-slate-900">{aiStatus.remainingScans}</span>
+                                    <span className="text-[8px] text-slate-400">/{aiStatus.scanLimit}</span>
+                                </div>
+                            </div>
+                            <div className="text-center border-x border-slate-200/50">
+                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Зураг" : "Poster"}</p>
+                                <div className="flex items-baseline justify-center gap-0.5">
+                                    <span className="text-sm font-black text-slate-900">{aiStatus.remainingPoster}</span>
+                                    <span className="text-[8px] text-slate-400">/{aiStatus.posterLimit}</span>
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Эмнэлэг" : "Medical"}</p>
+                                <div className="flex items-baseline justify-center gap-0.5">
+                                    <span className="text-sm font-black text-slate-900">{aiStatus.remainingMedical}</span>
+                                    <span className="text-[8px] text-slate-400">/{aiStatus.medicalLimit}</span>
                                 </div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setIsPremiumModalOpen(true)}
-                            className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors"
-                        >
-                            {isMongolian ? "Эрх сунгах" : "Upgrade"}
-                        </button>
                     </Card>
                 </section>
             )}

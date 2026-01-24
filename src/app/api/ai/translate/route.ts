@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { auth } from "@/lib/auth";
+import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -25,6 +27,23 @@ export async function POST(request: NextRequest) {
                 { success: false, error: "Missing required fields" },
                 { status: 400 }
             );
+        }
+
+        const session = await auth();
+        const userId = session?.user?.id;
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
+        }
+
+        // 1. Check AI Limit (20 for Translate)
+        const canUse = await checkAILimit(userId, "TRANSLATE");
+        if (!canUse) {
+            return NextResponse.json({
+                success: false,
+                error: "LIMIT_REACHED",
+                message: "Translation limit reached. Please upgrade to Premium."
+            }, { status: 403 });
         }
 
         const sourceLanguage = languageNames[sourceLang] || "English";
@@ -56,11 +75,10 @@ If the text contains slang or idioms, translate them to natural equivalents in t
             sourceLang,
             targetLang,
         });
-    } catch (error) {
-        console.error("Translation error:", error);
-        return NextResponse.json(
-            { success: false, error: "Translation failed" },
-            { status: 500 }
-        );
+    } finally {
+        const session = await auth();
+        if (session?.user?.id) {
+            await incrementAIUsage(session.user.id, "TRANSLATE");
+        }
     }
 }

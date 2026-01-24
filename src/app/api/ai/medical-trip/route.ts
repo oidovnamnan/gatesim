@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { auth } from "@/lib/auth";
+import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -31,6 +33,23 @@ export async function POST(request: NextRequest) {
                 { success: false, error: "Missing required fields" },
                 { status: 400 }
             );
+        }
+
+        const session = await auth();
+        const userId = session?.user?.id;
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
+        }
+
+        // 1. Check AI Limit
+        const canUse = await checkAILimit(userId, "MEDICAL");
+        if (!canUse) {
+            return NextResponse.json({
+                success: false,
+                error: "LIMIT_REACHED",
+                message: "Medical Assistant limit reached. Please upgrade to Premium."
+            }, { status: 403 });
         }
 
         const duration = treatmentDuration[treatment] || 7;
@@ -153,11 +172,10 @@ Include:
             success: true,
             itinerary,
         });
-    } catch (error) {
-        console.error("Medical trip generation error:", error);
-        return NextResponse.json(
-            { success: false, error: "Medical trip generation failed" },
-            { status: 500 }
-        );
+    } finally {
+        const session = await auth();
+        if (session?.user?.id) {
+            await incrementAIUsage(session.user.id, "MEDICAL");
+        }
     }
 }

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserTravelContext } from "@/lib/ai-server-context";
+import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 
 // Rate limiting for guests
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -34,10 +35,26 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         const { messages, country, apiKey, language = "mn", mode = "tourist", tripContext } = body;
-        const session = await auth();
-
         if (!messages || messages.length === 0) {
             return Response.json({ error: "No messages provided" }, { status: 400 });
+        }
+
+        // ============ CUSTOM LIMIT CHECK (TRANSIT) ============
+        const session = await auth();
+        const userId = session?.user?.id;
+
+        if (mode === 'transit') {
+            if (!userId) {
+                return Response.json({ error: "Authentication required" }, { status: 401 });
+            }
+
+            const canUse = await checkAILimit(userId, "TRANSIT");
+            if (!canUse) {
+                return Response.json({
+                    role: "assistant",
+                    content: language === 'mn' ? "Нийтийн тээврийн хөтчийн үнэгүй эрх дууссан байна. Premium эрх авч хязгааргүй ашиглаарай." : "Transit Guide limit reached. Please upgrade to Premium for unlimited access."
+                });
+            }
         }
 
         const lastMessage = messages[messages.length - 1];
@@ -174,6 +191,10 @@ INTERACTION GUIDELINES:
             temperature: 0.7,
             max_tokens: 600,
         });
+
+        if (mode === 'transit' && userId) {
+            await incrementAIUsage(userId, "TRANSIT");
+        }
 
         return Response.json({
             role: "assistant",

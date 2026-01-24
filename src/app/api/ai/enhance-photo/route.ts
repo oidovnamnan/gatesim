@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { auth } from "@/lib/auth";
+import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -14,6 +16,23 @@ export async function POST(request: NextRequest) {
                 { success: false, error: "No image provided" },
                 { status: 400 }
             );
+        }
+
+        const session = await auth();
+        const userId = session?.user?.id;
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
+        }
+
+        // 1. Check AI Limit
+        const canUse = await checkAILimit(userId, "POSTER");
+        if (!canUse) {
+            return NextResponse.json({
+                success: false,
+                error: "LIMIT_REACHED",
+                message: "Poster/Memory Art limit reached. Please upgrade to Premium."
+            }, { status: 403 });
         }
 
         // For now, we'll use a simple approach
@@ -89,17 +108,10 @@ Return ONLY a JSON object with:
                 suggestion: analysis.suggestion,
             },
         });
-    } catch (error) {
-        console.error("Photo enhancement error:", error);
-
-        // Return a default enhancement on error
-        return NextResponse.json({
-            success: true,
-            enhancedImage: null,
-            enhancement: {
-                filter: "brightness(1.05) contrast(1.1) saturate(1.2)",
-                suggestion: "Зураг сайжруулагдлаа",
-            },
-        });
+    } finally {
+        const session = await auth();
+        if (session?.user?.id) {
+            await incrementAIUsage(session.user.id, "POSTER");
+        }
     }
 }
