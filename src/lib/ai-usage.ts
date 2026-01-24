@@ -91,7 +91,7 @@ export async function activatePremium(userId: string, days: number) {
  * Get current usage stats for UI
  */
 export async function getAIStatus(userId: string) {
-    const usage = await db.aIUsage.findUnique({ where: { userId } });
+    const usage = await db.aiUsage.findUnique({ where: { userId } });
 
     const isPremium = usage?.isPremium && usage.premiumExpiresAt && usage.premiumExpiresAt > new Date();
 
