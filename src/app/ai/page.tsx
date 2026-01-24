@@ -93,7 +93,7 @@ export default function AIHubPage() {
     const isMongolian = language === "mn";
 
     return (
-        <div className="min-h-screen pb-40 bg-slate-50 text-slate-900 selection:bg-blue-100 relative overflow-hidden">
+        <div className="min-h-screen pb-40 bg-slate-50 text-slate-900 selection:bg-blue-100 relative overflow-x-hidden">
             {/* Animated Background Blobs */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <motion.div

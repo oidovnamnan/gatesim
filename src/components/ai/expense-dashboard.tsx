@@ -78,7 +78,7 @@ export function ExpenseDashboard() {
     const primaryTotal = totalByCurrency[primaryCurrency] || 0;
 
     return (
-        <div className="min-h-screen bg-slate-50 relative overflow-hidden selection:bg-blue-100">
+        <div className="min-h-screen bg-slate-50 relative overflow-x-hidden selection:bg-blue-100">
             {/* Animated Background Blobs */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <motion.div
