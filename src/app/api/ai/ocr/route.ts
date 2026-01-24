@@ -33,10 +33,11 @@ export async function POST(req: Request) {
                         "merchant": "Store Name",
                         "date": "YYYY-MM-DD",
                         "amount": 1000,
-                        "currency": "JPY",
+                        "currency": "MNT",
                         "category": "Food" | "Transport" | "Shopping" | "Entertainment" | "Other"
                     }
-                    If currency symbol is used (¥, $, ₩), convert to ISO code (JPY, USD, KRW).
+                    If currency symbol is used (₮, ¥, $, ₩), convert to ISO code (MNT, JPY, USD, KRW).
+                    If amount is in thousands (e.g. 5.0, 5,000) but looks like MNT, assume MNT.
                     If date is missing, use today's date.
                     If unsure, use "Other" category.`
                 },
