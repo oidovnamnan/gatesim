@@ -242,13 +242,13 @@ export default function AIHubPage() {
                         </div>
 
                         <div className="flex flex-col items-end">
-                            <span className="text-2xl font-black text-slate-900 tracking-tighter">$3.99</span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">/ mo</span>
+                            <span className="text-2xl font-black text-slate-900 tracking-tighter">25,000₮</span>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">-өөс эхлээд</span>
                         </div>
                     </div>
 
                     <button className="w-full mt-6 py-3.5 rounded-[20px] bg-slate-900 text-white font-black text-[13px] shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98]">
-                        {isMongolian ? "Premium болох" : "Upgrade now"}
+                        {isMongolian ? "Premium эрх авах" : "Get Premium"}
                     </button>
                 </Card>
             </section>

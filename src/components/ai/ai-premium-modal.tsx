@@ -1,171 +1,184 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    X,
-    Crown,
-    Check,
-    Sparkles,
-    MessageCircle,
-    Globe,
-    Zap,
-    Shield,
-    Languages,
-    Map,
-    Image as ImageIcon,
-    Mic,
+    X, Crown, Check, Sparkles, MessageCircle, Globe, Zap, Shield,
+    Languages, Map, Image as ImageIcon, Mic, Loader2, ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { aiPricing } from "@/lib/ai-assistant";
+import Image from "next/image";
 
 interface AIPremiumModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onPurchase?: (plan: "premium" | "perPackage") => void;
 }
 
-export function AIPremiumModal({ isOpen, onClose, onPurchase }: AIPremiumModalProps) {
+const PLANS = [
+    { id: "5_DAYS", days: 5, price: 25000, label: "5 Хоног", sub: "Богино аялал" },
+    { id: "10_DAYS", days: 10, price: 40000, label: "10 Хоног", sub: "Стандарт аялал", popular: true },
+    { id: "30_DAYS", days: 30, price: 90000, label: "30 Хоног", sub: "Урт хугацаа" }
+];
+
+export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
+    const [step, setStep] = useState<"select" | "loading" | "payment">("select");
+    const [selectedPlan, setSelectedPlan] = useState<string | null>("10_DAYS");
+    const [paymentData, setPaymentData] = useState<any>(null);
+
+    const handlePurchase = async () => {
+        if (!selectedPlan) return;
+        setStep("loading");
+        try {
+            const res = await fetch("/api/ai/upgrade", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ planId: selectedPlan }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPaymentData(data);
+                setStep("payment");
+            }
+        } catch (error) {
+            console.error("Purchase failed", error);
+            setStep("select");
+        }
+    };
+
     if (!isOpen) return null;
 
-    const features = [
-        { icon: MessageCircle, text: "AI Чат (хязгааргүй)" },
-        { icon: Languages, text: "AI Орчуулагч" },
-        { icon: Map, text: "Аялал Төлөвлөгч" },
-        { icon: ImageIcon, text: "Постер Үүсгэгч" },
-        { icon: Mic, text: "Дуут оруулга" },
-        { icon: Globe, text: "Бүх улсын мэдээлэл" },
-        { icon: Zap, text: "Хурдан хариулт" },
-        { icon: Shield, text: "24/7 дэмжлэг" },
-    ];
-
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-        >
-            <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-lg bg-[#0d111c] rounded-t-3xl border-t border-white/10 overflow-hidden"
-            >
-                {/* Header */}
-                <div className="relative px-6 pt-6 pb-4">
-                    <div className="absolute top-3 right-3">
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
-                        >
-                            <X className="h-4 w-4 text-white/70" />
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    onClick={onClose}
+                >
+                    <motion.div
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full max-w-md bg-slate-900 rounded-[32px] border border-white/10 overflow-hidden shadow-2xl relative"
+                    >
+                        {/* Close Button */}
+                        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors z-10">
+                            <X className="w-5 h-5 text-slate-400" />
                         </button>
-                    </div>
 
-                    <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                            <Crown className="h-8 w-8 text-white" />
-                        </div>
-                        <h2 className="text-xl font-bold text-white">AI Туслах Premium</h2>
-                        <p className="text-white/60 text-sm mt-1">
-                            Аялалын хамгийн сайн туслах
-                        </p>
-                    </div>
-                </div>
-
-                {/* Features */}
-                <div className="px-6 pb-4">
-                    <div className="grid grid-cols-2 gap-2">
-                        {features.map((feature, index) => {
-                            const Icon = feature.icon;
-                            return (
-                                <div
-                                    key={index}
-                                    className="flex items-center gap-2 p-3 rounded-xl bg-white/5"
-                                >
-                                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                                        <Icon className="h-4 w-4 text-white/70" />
+                        {/* Content */}
+                        <div className="p-6 sm:p-8">
+                            {step === "select" && (
+                                <div className="space-y-6">
+                                    <div className="text-center space-y-2">
+                                        <div className="w-16 h-16 mx-auto bg-gradient-to-br from-amber-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 mb-4">
+                                            <Crown className="w-8 h-8 text-white" />
+                                        </div>
+                                        <h2 className="text-2xl font-black text-white">GateSIM AI Premium</h2>
+                                        <p className="text-slate-400 text-sm font-medium">Аялалын ухаалаг туслахаа идэвхжүүлээрэй</p>
                                     </div>
-                                    <span className="text-sm text-white">{feature.text}</span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
 
-                {/* Pricing options */}
-                <div className="px-6 pb-6 space-y-3">
-                    {/* Premium plan */}
-                    <Card className="p-4 border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10">
-                        <div className="flex items-center justify-between mb-3">
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-white">Premium</h3>
-                                    <Badge variant="warning" size="sm">Хамгийн хямд</Badge>
-                                </div>
-                                <p className="text-xs text-white/60 mt-1">Бүх аялалд ашиглах</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-2xl font-bold text-white">
-                                    ${aiPricing.premium.price}
-                                </p>
-                                <p className="text-xs text-white/50">/ сар</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2 mb-4">
-                            {aiPricing.premium.features.map((f, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm text-white/70">
-                                    <Check className="h-4 w-4 text-emerald-400" />
-                                    {f}
-                                </div>
-                            ))}
-                        </div>
-                        <Button
-                            fullWidth
-                            onClick={() => onPurchase?.("premium")}
-                            className="bg-gradient-to-r from-amber-500 to-orange-500"
-                        >
-                            <Crown className="h-4 w-4" />
-                            Premium болох
-                        </Button>
-                    </Card>
+                                    {/* Features Grid */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {[
+                                            "Хязгааргүй Төлөвлөгч", "Хязгааргүй Сканнер",
+                                            "PDF Татах", "Клауд Хадгалалт"
+                                        ].map((f, i) => (
+                                            <div key={i} className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                                                <Check className="w-4 h-4 text-emerald-500" /> {f}
+                                            </div>
+                                        ))}
+                                    </div>
 
-                    {/* Per package plan */}
-                    <Card className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <div>
-                                <h3 className="font-semibold text-white">Нэг багцад</h3>
-                                <p className="text-xs text-white/60 mt-1">Тухайн улсад зориулсан</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-2xl font-bold text-white">
-                                    ${aiPricing.perPackage.price}
-                                </p>
-                                <p className="text-xs text-white/50">/ багц</p>
-                            </div>
-                        </div>
-                        <Button
-                            fullWidth
-                            variant="secondary"
-                            onClick={() => onPurchase?.("perPackage")}
-                        >
-                            Нэмэх
-                        </Button>
-                    </Card>
-                </div>
+                                    {/* Plans */}
+                                    <div className="space-y-3">
+                                        {PLANS.map((plan) => (
+                                            <div
+                                                key={plan.id}
+                                                onClick={() => setSelectedPlan(plan.id)}
+                                                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all relative ${selectedPlan === plan.id ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
+                                            >
+                                                {plan.popular && (
+                                                    <div className="absolute -top-3 right-4 bg-amber-500 text-black text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider">
+                                                        Popular
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <div className="font-black text-white">{plan.label}</div>
+                                                        <div className="text-xs text-slate-400 font-medium">{plan.sub}</div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="font-black text-amber-400">{plan.price.toLocaleString()}₮</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
 
-                {/* Footer */}
-                <div className="px-6 pb-6">
-                    <p className="text-center text-xs text-white/40">
-                        Хэзээ ч цуцлах боломжтой. Баталгаат буцаалт.
-                    </p>
-                </div>
-            </motion.div>
-        </motion.div>
+                                    <Button onClick={handlePurchase} className="w-full h-14 rounded-2xl bg-white text-slate-900 font-black text-lg hover:bg-slate-200">
+                                        Идэвхжүүлэх <ArrowRight className="w-5 h-5 ml-2" />
+                                    </Button>
+                                </div>
+                            )}
+
+                            {step === "loading" && (
+                                <div className="py-20 flex flex-col items-center justify-center space-y-4">
+                                    <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+                                    <p className="text-slate-400 font-bold animate-pulse">Төлбөрийн мэдээлэл үүсгэж байна...</p>
+                                </div>
+                            )}
+
+                            {step === "payment" && paymentData && (
+                                <div className="space-y-6 text-center">
+                                    <div className="space-y-2">
+                                        <h3 className="text-xl font-black text-white">QPay Төлбөр</h3>
+                                        <p className="text-slate-400 text-sm">QR кодыг уншуулж төлбөрөө төлнө үү</p>
+                                    </div>
+
+                                    <div className="bg-white p-4 rounded-3xl inline-block">
+                                        {paymentData.invoice.qr_image ? (
+                                            <img
+                                                src={`data:image/png;base64,${paymentData.invoice.qr_image}`}
+                                                alt="QPay QR"
+                                                className="w-48 h-48 object-contain"
+                                            />
+                                        ) : (
+                                            <div className="w-48 h-48 flex items-center justify-center text-slate-900 font-bold">
+                                                QR Error
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {paymentData.invoice.urls?.map((bank: any) => (
+                                            <a
+                                                key={bank.name}
+                                                href={bank.link}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="p-3 bg-white/5 rounded-xl flex items-center gap-3 hover:bg-white/10 transition-colors"
+                                            >
+                                                <img src={bank.logo} className="w-6 h-6 rounded-lg" alt={bank.name} />
+                                                <span className="text-xs text-white font-bold truncate">{bank.name}</span>
+                                            </a>
+                                        ))}
+                                    </div>
+
+                                    <Button variant="outline" onClick={onClose} className="w-full h-12 rounded-xl text-slate-500 border-white/10 hover:bg-white/5 hover:text-white">
+                                        Хаах (Төлсний дараа автоматаар идэвхжнэ)
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 }

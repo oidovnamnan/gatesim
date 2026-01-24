@@ -37,6 +37,7 @@ model User {
   sessions      Session[]
   orders        Order[]
   pushSubscriptions PushSubscription[]
+  aiUsage       AIUsage?
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -344,6 +345,23 @@ model AuditLog {
   
   createdAt  DateTime @default(now())
   
-  @@index([entityType, entityId])
-  @@index([createdAt])
+
+// ============ AI USAGE & MONETIZATION ============
+
+model AIUsage {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Usage Counters (Lifetime limits)
+  planCount   Int      @default(0) // Default limit: 3
+  scanCount   Int      @default(0) // Default limit: 3
+  
+  // Premium Status
+  isPremium        Boolean   @default(false)
+  premiumExpiresAt DateTime? // Null means not premium or expired
+  
+  updatedAt   DateTime @updatedAt
+  
+  @@index([isPremium])
 }
