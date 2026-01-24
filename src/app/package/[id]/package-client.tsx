@@ -14,13 +14,21 @@ import {
     ChevronUp,
     Smartphone,
     ShieldCheck,
+    AlertCircle,
+    UserCircle,
+    ArrowRight
 } from "lucide-react";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice, getCountryFlag } from "@/lib/utils";
+import { formatPrice, getCountryFlag, cn } from "@/lib/utils";
 import { useTranslation } from "@/providers/language-provider";
+import { useAuth } from "@/providers/auth-provider";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useEffect, useMemo } from "react";
+import Link from "next/link";
 
 interface PackageDetail {
     id: string;
@@ -46,10 +54,68 @@ interface PackageClientProps {
 
 export default function PackageClient({ pkg }: PackageClientProps) {
     const { t, language } = useTranslation();
+    const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [showDetails, setShowDetails] = useState(false);
     const [showCountries, setShowCountries] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [userOrders, setUserOrders] = useState<any[]>([]);
+    const [ordersLoading, setOrdersLoading] = useState(true);
+
+    // Fetch user orders to check for existing eSIMs
+    useEffect(() => {
+        if (authLoading || !user) {
+            setOrdersLoading(false);
+            return;
+        }
+
+        const ordersRef = collection(db, "orders");
+        const q = query(
+            ordersRef,
+            where("userId", "==", user.uid),
+            where("status", "in", ["COMPLETED", "PAID", "PROVISIONING"])
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setUserOrders(orders);
+            setOrdersLoading(false);
+        }, (err) => {
+            console.error("Error fetching orders for safety check:", err);
+            setOrdersLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user, authLoading]);
+
+    // Safety validation logic
+    const { canBuy, reason } = useMemo(() => {
+        if (!pkg.isTopUp) return { canBuy: true, reason: null };
+
+        // 1. Must be logged in
+        if (!user) return { canBuy: false, reason: "LOGIN_REQUIRED" };
+
+        if (ordersLoading) return { canBuy: false, reason: "LOADING" };
+
+        // 2. Must have at least one eSIM
+        if (userOrders.length === 0) return { canBuy: false, reason: "NO_ESIM" };
+
+        // 3. Must have a matching provider
+        // MobiMatter uses provider names like "eSIMGo", "RedteaGO", "Sparks"
+        // We check if any existing order item's operator matches
+        const hasMatchingProvider = userOrders.some(order => {
+            const items = order.items || [];
+            return items.some((item: any) => {
+                const operator = item.metadata?.operator || "";
+                return operator.toLowerCase().includes(pkg.operatorTitle.toLowerCase()) ||
+                    pkg.operatorTitle.toLowerCase().includes(operator.toLowerCase());
+            });
+        });
+
+        if (!hasMatchingProvider) return { canBuy: false, reason: "PROVIDER_MISMATCH" };
+
+        return { canBuy: true, reason: null };
+    }, [pkg.isTopUp, user, userOrders, ordersLoading, pkg.operatorTitle]);
 
     // Dynamic translation helpers
     const getTranslatedCountryName = (code: string, defaultName: string) => {
@@ -356,22 +422,69 @@ export default function PackageClient({ pkg }: PackageClientProps) {
 
             {/* Fixed bottom CTA */}
             <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom)+70px)] md:pb-4 bg-gradient-to-t from-background via-background to-transparent z-30">
-                <div className="max-w-md mx-auto bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-4 shadow-xl shadow-slate-900/10 border border-slate-200 pointer-events-auto flex items-center justify-between gap-4">
-                    <div>
-                        <p className="text-xs text-slate-500 font-medium ml-1">{t("totalAmount")}</p>
-                        <p className="text-xl font-extrabold text-slate-900">
-                            {formatPrice(pkg.price, pkg.currency)}
-                        </p>
+                <div className={cn(
+                    "max-w-md mx-auto rounded-2xl p-4 shadow-xl border flex flex-col gap-3",
+                    canBuy ? "bg-gradient-to-r from-slate-50 to-blue-50 border-slate-200" : "bg-white border-red-100"
+                )}>
+                    {reason === "LOGIN_REQUIRED" && (
+                        <div className="flex items-center gap-2 text-red-600 mb-1">
+                            <UserCircle className="h-4 w-4" />
+                            <p className="text-[10px] font-bold uppercase tracking-wider">{t("loginRequired")}</p>
+                        </div>
+                    )}
+                    {(reason === "NO_ESIM" || reason === "PROVIDER_MISMATCH") && (
+                        <div className="flex items-center gap-2 text-amber-600 mb-1">
+                            <AlertCircle className="h-4 w-4" />
+                            <p className="text-[10px] font-bold uppercase tracking-wider">{t("incompatible")}</p>
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <p className="text-xs text-slate-500 font-medium ml-1">{t("totalAmount")}</p>
+                            <p className="text-xl font-extrabold text-slate-900">
+                                {formatPrice(pkg.price, pkg.currency)}
+                            </p>
+                        </div>
+
+                        {canBuy ? (
+                            <Button
+                                size="lg"
+                                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl px-8 shadow-lg shadow-blue-500/30"
+                                onClick={handleBuy}
+                                loading={isLoading}
+                                disabled={ordersLoading}
+                            >
+                                {t("buyNow")}
+                                <Zap className="h-4 w-4 ml-1 fill-white" />
+                            </Button>
+                        ) : reason === "LOGIN_REQUIRED" ? (
+                            <Link href="/profile" className="flex-1 max-w-[200px]">
+                                <Button
+                                    size="lg"
+                                    fullWidth
+                                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg"
+                                >
+                                    {t("login")}
+                                    <ArrowRight className="h-4 w-4 ml-1" />
+                                </Button>
+                            </Link>
+                        ) : (
+                            <div className="flex-1 max-w-[240px]">
+                                <p className="text-[10px] text-red-500 font-bold leading-tight text-right mb-1">
+                                    {reason === "NO_ESIM" ? t("topUpNoEsimError") : t("topUpProviderError").replace("{provider}", pkg.operatorTitle)}
+                                </p>
+                                <Button
+                                    size="lg"
+                                    fullWidth
+                                    disabled
+                                    className="bg-slate-200 text-slate-400 font-bold rounded-xl cursor-not-allowed border-none"
+                                >
+                                    {t("buyNow")}
+                                </Button>
+                            </div>
+                        )}
                     </div>
-                    <Button
-                        size="lg"
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl px-8 shadow-lg shadow-blue-500/30"
-                        onClick={handleBuy}
-                        loading={isLoading}
-                    >
-                        {t("buyNow")}
-                        <Zap className="h-4 w-4 ml-1 fill-white" />
-                    </Button>
                 </div>
             </div>
         </div>
