@@ -78,9 +78,9 @@ export function ExpenseDashboard() {
     const primaryTotal = totalByCurrency[primaryCurrency] || 0;
 
     return (
-        <div className="relative selection:bg-blue-100 pb-40 bg-slate-50">
+        <div className="relative selection:bg-blue-100 pb-40 bg-slate-50 min-h-screen overflow-y-auto">
             {/* Animated Background Blobs */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                 <motion.div
                     animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
                     transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
