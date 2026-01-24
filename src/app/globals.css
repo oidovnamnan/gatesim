@@ -579,9 +579,9 @@ html[data-fb-browser="true"] {
   /* Default is 16px, this scales everything down to ~87.5% */
 }
 
-/* Ensure proper overflow handling in FB WebView */
-html[data-fb-browser="true"] .overflow-hidden {
-  overflow: hidden !important;
+/* Ensure proper overflow handling in FB WebView - Removed restrictive hidden rule */
+html[data-fb-browser="true"] {
+  -webkit-overflow-scrolling: touch;
 }
 
 @theme inline {
