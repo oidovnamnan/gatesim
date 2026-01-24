@@ -24,6 +24,7 @@ interface Package {
     isUnlimited?: boolean;
     isPopular?: boolean;
     isFeatured?: boolean;
+    isTopUp?: boolean;
 }
 
 interface PackagesClientProps {
@@ -191,7 +192,8 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         countries: reorderedCountries,
                         countryName: highlightedCountryName,
                         title: `${highlightedCountryName} ${t("plusCountries").replace("{count}", (pkg.countries.length - 1).toString())}`,
-                        isFeatured: true // Highlight in search results
+                        isFeatured: true, // Highlight in search results
+                        isTopUp: pkg.isTopUp
                     };
                 } else if (isExactCountryMatch) {
                     return {

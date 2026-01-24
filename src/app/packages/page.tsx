@@ -35,7 +35,8 @@ export default async function PackagesPage() {
             countries: product.countries,
             isUnlimited: product.dataAmount === -1,
             isPopular: product.countries.includes("MN") || product.countries.includes("JP") || product.countries.includes("KR"),
-            isFeatured: false,
+            isFeatured: product.isRegional || false,
+            isTopUp: product.isTopUp || false,
         };
     });
 

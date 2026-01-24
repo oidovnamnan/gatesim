@@ -101,6 +101,7 @@ export async function FeaturedSection() {
                             countries={pkg.countries}
                             operatorTitle={pkg.provider}
                             isFeatured={true}
+                            isTopUp={pkg.isTopUp}
                             className="bg-white border-slate-100 shadow-sm md:bg-white/10 md:border-white/20"
                         />
                     </motion.div>
