@@ -80,7 +80,7 @@ export function ExpenseDashboard() {
     return (
         <div className="relative selection:bg-blue-100 pb-40 bg-slate-50">
             {/* Animated Background Blobs */}
-            <div className="fixed inset-0 pointer-events-none z-0">
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <motion.div
                     animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
                     transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
