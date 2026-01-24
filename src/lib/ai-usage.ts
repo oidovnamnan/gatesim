@@ -61,7 +61,7 @@ export async function incrementAIUsage(userId: string, type: AIUsageType) {
  * Adds days to current expiry if already active, or starts new.
  */
 export async function activatePremium(userId: string, days: number) {
-    const usage = await db.aIUsage.findUnique({ where: { userId } });
+    const usage = await db.aiUsage.findUnique({ where: { userId } });
 
     let newExpiry = new Date();
 
