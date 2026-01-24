@@ -75,8 +75,12 @@ export async function POST(req: Request) {
             invoice: invoice
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Upgrade Error:", error);
-        return new NextResponse("Internal Error", { status: 500 });
+        return NextResponse.json({
+            success: false,
+            error: error.message || "Internal Error",
+            details: error.code // Prisma error code if available
+        }, { status: 500 });
     }
 }
