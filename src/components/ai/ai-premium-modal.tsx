@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     X, Crown, Check, Sparkles, MessageCircle, Globe, Zap, Shield,
@@ -26,6 +26,16 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
     const [step, setStep] = useState<"select" | "loading" | "payment">("select");
     const [selectedPlan, setSelectedPlan] = useState<string | null>("10_DAYS");
     const [paymentData, setPaymentData] = useState<any>(null);
+
+    // Hide BottomNav when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.classList.add("modal-open");
+        } else {
+            document.body.classList.remove("modal-open");
+        }
+        return () => document.body.classList.remove("modal-open");
+    }, [isOpen]);
 
     const handlePurchase = async () => {
         if (!selectedPlan) return;
