@@ -65,7 +65,7 @@ export async function POST(req: Request) {
                 qpayInvoiceId: invoice.invoice_id,
                 qpayQrText: invoice.qr_text,
                 qpayQrImage: invoice.qr_image,
-                qpayDeeplinks: invoice.urls
+                qpayDeeplinks: invoice.urls as any
             }
         });
 
