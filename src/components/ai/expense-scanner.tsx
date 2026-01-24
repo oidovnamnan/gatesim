@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, Upload, X, Loader2, Check } from "lucide-react";
+import { Camera, Upload, X, Loader2, Check, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { Expense } from "./expense-types";
 import { useTranslation } from "@/providers/language-provider";
+import { motion } from "framer-motion";
 
 interface ExpenseScannerProps {
     onSave: (expense: Expense) => void;
@@ -105,37 +106,45 @@ export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
             if (!open) resetForm();
         }}>
             <DialogTrigger asChild>
-                <Button className="rounded-full h-14 w-14 bg-black hover:bg-slate-800 text-white shadow-lg fixed bottom-24 right-6 flex items-center justify-center border-none z-40">
-                    <Camera className="w-6 h-6" />
+                <Button className="rounded-full h-14 w-14 bg-slate-900 hover:bg-black text-white shadow-2xl shadow-slate-900/30 fixed bottom-28 right-6 flex items-center justify-center border-none z-40 transition-transform active:scale-95">
+                    <Plus className="w-8 h-8" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-50 border-none max-w-sm sm:max-w-md p-0 overflow-hidden text-slate-900">
+            <DialogContent className="bg-white/80 backdrop-blur-2xl border border-white/20 max-w-sm sm:max-w-md p-0 overflow-hidden text-slate-900 rounded-[32px] shadow-2xl shadow-slate-900/20">
                 {step === "upload" ? (
-                    <div className="p-6 flex flex-col items-center justify-center min-h-[300px] text-center">
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                            <Camera className="w-8 h-8 text-blue-600" />
+                    <div className="p-8 flex flex-col items-center justify-center min-h-[350px] text-center relative overflow-hidden">
+                        {/* Background Accents */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[50px] -mr-16 -mt-16" />
+
+                        <div className="relative z-10 w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20">
+                            <Camera className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="text-xl font-bold mb-2 text-slate-900">{t("aiScanReceipt") || "Scan Receipt"}</h2>
-                        <p className="text-sm text-slate-500 mb-6 max-w-[200px]">
-                            Take a photo of your receipt to automatically track expenses.
+
+                        <h2 className="relative z-10 text-2xl font-black mb-2 text-slate-900 tracking-tight">{t("aiScanReceipt") || "Receipt Scan"}</h2>
+                        <p className="relative z-10 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-8 max-w-[220px] leading-relaxed">
+                            AI will analyze your receipt and track expenses automatically.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-4 w-full">
+                        <div className="relative z-10 grid grid-cols-2 gap-3 w-full">
                             <Button
                                 variant="outline"
-                                className="h-24 flex flex-col gap-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-500 bg-white"
+                                className="h-28 flex flex-col gap-3 rounded-[24px] border border-slate-100 hover:border-blue-500/30 hover:bg-blue-50/50 bg-white shadow-sm transition-all group"
                                 onClick={() => fileInputRef.current?.click()}
                             >
-                                <Upload className="w-6 h-6 text-slate-400" />
-                                <span className="text-xs font-bold text-slate-600">Upload Photo</span>
+                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                                    <Upload className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Upload</span>
                             </Button>
                             <Button
                                 variant="outline"
-                                className="h-24 flex flex-col gap-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-500 bg-white"
-                                onClick={() => fileInputRef.current?.click()} // Mobile camera triggers same input usually
+                                className="h-28 flex flex-col gap-3 rounded-[24px] border border-slate-100 hover:border-emerald-500/30 hover:bg-emerald-50/50 bg-white shadow-sm transition-all group"
+                                onClick={() => fileInputRef.current?.click()}
                             >
-                                <Camera className="w-6 h-6 text-slate-400" />
-                                <span className="text-xs font-bold text-slate-600">Take Photo</span>
+                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                    <Camera className="w-5 h-5 text-slate-400 group-hover:text-emerald-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Camera</span>
                             </Button>
                         </div>
                         <input
@@ -149,34 +158,49 @@ export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
                     </div>
                 ) : (
                     <div className="flex flex-col h-full max-h-[85vh]">
-                        <div className="relative h-48 bg-slate-900 shrink-0">
+                        <div className="relative h-56 bg-slate-900 shrink-0">
                             {imagePreview && (
-                                <img src={imagePreview} className="w-full h-full object-cover opacity-80" alt="Receipt" />
+                                <img src={imagePreview} className="w-full h-full object-cover opacity-70" alt="Receipt" />
                             )}
-                            <div className="absolute top-4 right-4">
-                                <Button size="icon" variant="ghost" className="text-white hover:bg-white/20 rounded-full" onClick={resetForm}>
+                            <div className="absolute top-4 right-4 z-20">
+                                <Button size="icon" variant="ghost" className="bg-black/20 text-white hover:bg-black/40 rounded-full backdrop-blur-md" onClick={resetForm}>
                                     <X className="w-5 h-5" />
                                 </Button>
                             </div>
                             {isProcessing && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                                    <div className="bg-white/90 backdrop-blur rounded-2xl p-4 flex flex-col items-center shadow-xl">
-                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
-                                        <p className="text-xs font-bold text-slate-900">AI Analysis...</p>
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-10 px-6">
+                                    <div className="bg-white/10 backdrop-blur-xl rounded-[28px] p-6 flex flex-col items-center shadow-2xl border border-white/10 w-full">
+                                        <div className="relative">
+                                            <Loader2 className="w-10 h-10 text-blue-400 animate-spin mb-4" />
+                                            <Sparkles className="w-4 h-4 text-blue-300 absolute -top-1 -right-1 animate-pulse" />
+                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400">AI Reasoning...</p>
+                                        <div className="mt-3 w-1/2 h-0.5 bg-white/10 rounded-full overflow-hidden">
+                                            <motion.div
+                                                animate={{ x: [-50, 50] }}
+                                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                                className="w-1/2 h-full bg-blue-500"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-6 overflow-y-auto space-y-4 bg-white flex-1">
-                            <div className="space-y-1">
-                                <Label className="text-xs text-slate-500 font-bold uppercase">Merchant Value</Label>
+                        <div className="p-8 overflow-y-auto space-y-5 bg-white flex-1 rounded-t-[32px] -mt-6 relative z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="h-1 w-4 bg-blue-600 rounded-full" />
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Merchant Details</h3>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">Amount & Currency</Label>
                                 <div className="flex gap-2">
-                                    <div className="relative flex-1">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">₮</span>
+                                    <div className="relative flex-1 group">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg font-black transition-colors group-hover:text-blue-500">₮</div>
                                         <Input
                                             type="number"
-                                            className="pl-7 bg-slate-50 border-slate-200 font-bold text-lg"
+                                            className="pl-9 h-14 bg-slate-50/50 border-slate-100 font-black text-xl rounded-2xl focus:ring-blue-500/20"
                                             value={formData.amount}
                                             onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
                                             placeholder="0"
@@ -186,14 +210,14 @@ export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
                                         value={formData.currency}
                                         onValueChange={(v) => setFormData({ ...formData, currency: v })}
                                     >
-                                        <SelectTrigger className="w-[100px] bg-slate-50 border-slate-200 font-bold">
+                                        <SelectTrigger className="w-[100px] h-14 bg-slate-50/50 border-slate-100 font-black rounded-2xl">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
                                             <SelectItem value="JPY">JPY ¥</SelectItem>
+                                            <SelectItem value="MNT">MNT ₮</SelectItem>
                                             <SelectItem value="USD">USD $</SelectItem>
                                             <SelectItem value="KRW">KRW ₩</SelectItem>
-                                            <SelectItem value="MNT">MNT ₮</SelectItem>
                                             <SelectItem value="CNY">CNY ¥</SelectItem>
                                             <SelectItem value="EUR">EUR €</SelectItem>
                                         </SelectContent>
@@ -201,36 +225,36 @@ export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <Label className="text-xs text-slate-500 font-bold uppercase">Merchant Name</Label>
+                            <div className="space-y-2">
+                                <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">Establishment Name</Label>
                                 <Input
-                                    className="bg-slate-50 border-slate-200 font-bold"
+                                    className="h-14 bg-slate-50/50 border-slate-100 font-black rounded-2xl px-4"
                                     value={formData.merchant || ""}
                                     onChange={(e) => setFormData({ ...formData, merchant: e.target.value })}
-                                    placeholder="e.g. 7-Eleven"
+                                    placeholder="e.g. Starbucks, 7-Eleven"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-slate-500 font-bold uppercase">Date</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">Date</Label>
                                     <Input
                                         type="date"
-                                        className="bg-slate-50 border-slate-200 font-bold text-sm"
+                                        className="h-12 bg-slate-50/50 border-slate-100 font-black text-xs rounded-xl"
                                         value={formData.date}
                                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-slate-500 font-bold uppercase">Category</Label>
+                                <div className="space-y-2">
+                                    <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">Category</Label>
                                     <Select
                                         value={formData.category}
                                         onValueChange={(v) => setFormData({ ...formData, category: v as any })}
                                     >
-                                        <SelectTrigger className="bg-slate-50 border-slate-200 font-bold text-sm">
+                                        <SelectTrigger className="h-12 bg-slate-50/50 border-slate-100 font-black text-xs rounded-xl">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="rounded-xl border-slate-100 shadow-xl">
                                             <SelectItem value="Food">🍔 Food</SelectItem>
                                             <SelectItem value="Transport">🚕 Transport</SelectItem>
                                             <SelectItem value="Shopping">🛍️ Shopping</SelectItem>
@@ -243,12 +267,12 @@ export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
                             </div>
 
                             <Button
-                                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl mt-4"
+                                className="w-full h-14 bg-slate-900 border border-slate-800 hover:bg-black text-white font-black rounded-[20px] mt-4 shadow-xl shadow-slate-900/10 active:scale-[0.98] transition-all"
                                 onClick={handleSave}
-                                disabled={!formData.amount || !formData.merchant}
+                                disabled={!formData.amount || !formData.merchant || isProcessing}
                             >
-                                <Check className="w-5 h-5 mr-2" />
-                                Save Expense
+                                <Check className="w-5 h-5 mr-3" />
+                                Sync to History
                             </Button>
                         </div>
                     </div>
