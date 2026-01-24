@@ -137,6 +137,7 @@ export default async function PackagePage({ params, searchParams }: Props) {
         })),
         isUnlimited: pkg.dataAmount === -1,
         isFeatured: pkg.countries.includes("CN") || pkg.provider.includes("Premium"),
+        isTopUp: pkg.isTopUp,
         shortInfo: "eSIM QR код таны и-мэйл хаягаар 1-5 минутын дотор ирнэ. Та зөвхөн eSIM дэмждэг утастай байх шаардлагатай.",
         operatorInfo: [
             "4G/5G өндөр хурдны сүлжээ",

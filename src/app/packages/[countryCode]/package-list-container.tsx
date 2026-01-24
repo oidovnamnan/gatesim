@@ -70,7 +70,8 @@ export async function PackageListContainer({ countryCode }: Props) {
             countryName: displayTitle,
             isUnlimited: pkg.dataAmount === -1,
             isFeatured: sortedCountries.length > 1,
-            isPopular: false
+            isPopular: false,
+            isTopUp: pkg.isTopUp
         };
     });
 

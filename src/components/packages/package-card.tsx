@@ -144,6 +144,7 @@ interface PackageCardProps {
     isUnlimited?: boolean;
     isPopular?: boolean;
     isFeatured?: boolean;
+    isTopUp?: boolean;
     contextualCountry?: string;
     className?: string;
 }
@@ -160,6 +161,7 @@ export function PackageCard({
     isUnlimited = false,
     isPopular = false,
     isFeatured = false,
+    isTopUp = false,
     contextualCountry,
     className,
 }: PackageCardProps) {
@@ -206,8 +208,25 @@ export function PackageCard({
 
                     {/* Badge */}
                     <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5">
-                        {(isPopular || isFeatured || isRegional) && (
+                        {(isPopular || isFeatured || isRegional || isTopUp) && (
                             <div className="flex flex-col items-end gap-1.5">
+                                {isTopUp ? (
+                                    <Badge
+                                        className={cn(
+                                            "text-[10px] font-bold px-2.5 py-1 shadow-sm border-none bg-amber-500 text-white"
+                                        )}
+                                    >
+                                        🔄 {t("topUp")}
+                                    </Badge>
+                                ) : (
+                                    <Badge
+                                        className={cn(
+                                            "text-[10px] font-bold px-2.5 py-1 shadow-sm border-none bg-red-600 text-white"
+                                        )}
+                                    >
+                                        ✨ {t("newEsim")}
+                                    </Badge>
+                                )}
                                 {(isPopular || isFeatured) && (
                                     <Badge
                                         className={cn(
@@ -335,6 +354,7 @@ export function PackageCardCompact({
     price,
     countryName,
     countries,
+    isTopUp = false,
     contextualCountry,
     className,
 }: PackageCardProps) {
@@ -361,7 +381,13 @@ export function PackageCardCompact({
                         </div>
                         <div className="flex items-start justify-between mt-1 gap-1">
                             <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-slate-600 font-medium">
-                                <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold shrink-0">{data}</span>
+                                {isTopUp ? (
+                                    <span className="bg-amber-50 border border-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold shrink-0">{t("topUp")}</span>
+                                ) : (
+                                    <span className="bg-red-50 border border-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold shrink-0">{t("newEsim")}</span>
+                                )}
+                                <span className="text-slate-300 hidden sm:inline">•</span>
+                                <span className="bg-slate-50 border border-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-bold shrink-0">{data}</span>
                                 <span className="text-slate-300 hidden sm:inline">•</span>
                                 <span className="shrink-0">{validityDays} {t("day")}</span>
 

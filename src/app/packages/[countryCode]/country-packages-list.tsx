@@ -22,6 +22,7 @@ interface Package {
     isUnlimited?: boolean;
     isFeatured?: boolean;
     isPopular?: boolean;
+    isTopUp?: boolean;
 }
 
 interface Props {
@@ -33,6 +34,7 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
     const { t } = useTranslation();
     const [durationFilter, setDurationFilter] = useState<"short" | "medium" | "long" | null>(null);
     const [isUnlimitedFilter, setIsUnlimitedFilter] = useState(false);
+    const [typeFilter, setTypeFilter] = useState<"new" | "topup" | null>(null);
 
     const filteredPackages = useMemo(() => {
         return packages.filter(pkg => {
@@ -44,9 +46,13 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
             // Unlimited Data Filter
             if (isUnlimitedFilter && !pkg.isUnlimited) return false;
 
+            // Type Filter
+            if (typeFilter === "new" && pkg.isTopUp) return false;
+            if (typeFilter === "topup" && !pkg.isTopUp) return false;
+
             return true;
         });
-    }, [packages, durationFilter, isUnlimitedFilter]);
+    }, [packages, durationFilter, isUnlimitedFilter, typeFilter]);
 
     // Pagination State
     const PACKAGES_PER_PAGE = 20;
@@ -62,7 +68,7 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
     // Reset display count when filters change
     useEffect(() => {
         setDisplayCount(PACKAGES_PER_PAGE);
-    }, [durationFilter, isUnlimitedFilter]);
+    }, [durationFilter, isUnlimitedFilter, typeFilter]);
 
     // Load more function
     const loadMore = useCallback(() => {
@@ -105,15 +111,43 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
                         onClick={() => {
                             setDurationFilter(null);
                             setIsUnlimitedFilter(false);
+                            setTypeFilter(null);
                         }}
                         className={cn(
                             "px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border",
-                            !durationFilter && !isUnlimitedFilter
+                            !durationFilter && !isUnlimitedFilter && !typeFilter
                                 ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900"
                                 : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
                         )}
                     >
                         {t("all")}
+                    </button>
+
+                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1" />
+
+                    {/* Type Filters */}
+                    <button
+                        onClick={() => setTypeFilter(typeFilter === "new" ? null : "new")}
+                        className={cn(
+                            "px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border",
+                            typeFilter === "new"
+                                ? "bg-red-600 text-white border-red-600 shadow-md"
+                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+                        )}
+                    >
+                        {t("newEsim")}
+                    </button>
+
+                    <button
+                        onClick={() => setTypeFilter(typeFilter === "topup" ? null : "topup")}
+                        className={cn(
+                            "px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border",
+                            typeFilter === "topup"
+                                ? "bg-amber-500 text-white border-amber-500 shadow-md"
+                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+                        )}
+                    >
+                        {t("topUp")}
                     </button>
 
                     <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1" />

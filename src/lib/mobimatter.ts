@@ -10,6 +10,7 @@ export interface MobiMatterProduct {
     provider: string; // e.g. "eSIMGo", "RedteaGO"
     description?: string;
     isRegional?: boolean;
+    isTopUp: boolean;
     originalPrice?: number;
     originalCurrency?: string;
 }
@@ -111,6 +112,14 @@ export const getMobiMatterProducts = unstable_cache(
                 // Countries
                 const countryCodes = p.countries ? p.countries.map((c: any) => (c.alpha2Code || c).toString().toUpperCase()) : [];
 
+                // --- TOPUP DETECTION ---
+                // MobiMatter products are topups if they have "topup" in title/category 
+                // or if specific flags are set (isAddon/addon)
+                const isTopUp = title.toLowerCase().includes("topup") ||
+                    (p.productCategory && p.productCategory.toLowerCase().includes("topup")) ||
+                    p.isAddon === true ||
+                    p.addon === true;
+
                 // --- PRICING CALCULATION ---
                 const basePrice = p.retailPrice || 0;
                 const originalCurrency = p.currencyCode;
@@ -141,6 +150,7 @@ export const getMobiMatterProducts = unstable_cache(
                     provider: p.providerName,
                     description: description.substring(0, 150) + (description.length > 150 ? "..." : ""),
                     isRegional: countryCodes.length > 1,
+                    isTopUp: isTopUp,
                     originalPrice: basePrice,
                     originalCurrency: originalCurrency
                 };

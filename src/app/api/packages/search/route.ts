@@ -135,6 +135,7 @@ export async function GET(request: Request) {
                         price: p.price,
                         countries: sortedCountries,
                         countryName: displayTitle,
+                        isTopUp: p.isTopUp
                     };
                 }
 
@@ -148,6 +149,7 @@ export async function GET(request: Request) {
                     price: p.price,
                     countries: p.countries,
                     countryName: getCountryName(p.countries[0]),
+                    isTopUp: p.isTopUp
                 };
             });
 

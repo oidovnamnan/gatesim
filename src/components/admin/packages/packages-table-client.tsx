@@ -36,6 +36,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
     const [searchQuery, setSearchQuery] = useState("");
     const [providerFilter, setProviderFilter] = useState("all");
     const [regionFilter, setRegionFilter] = useState("all");
+    const [typeFilter, setTypeFilter] = useState("all");
     const [deduplicateFilter, setDeduplicateFilter] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>(null);
     const [page, setPage] = useState(1);
@@ -73,6 +74,15 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                 result = result.filter(p => p.isRegional);
             } else if (regionFilter === "single") {
                 result = result.filter(p => !p.isRegional);
+            }
+        }
+
+        // 3.5 Filter by Type (New vs Top-up)
+        if (typeFilter !== "all") {
+            if (typeFilter === "topup") {
+                result = result.filter(p => p.isTopUp);
+            } else if (typeFilter === "new") {
+                result = result.filter(p => !p.isTopUp);
             }
         }
 
@@ -131,7 +141,7 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
         }
 
         return result;
-    }, [products, searchQuery, providerFilter, regionFilter, deduplicateFilter, sortConfig, initialUsdToMnt]);
+    }, [products, searchQuery, providerFilter, regionFilter, typeFilter, deduplicateFilter, sortConfig, initialUsdToMnt]);
 
     // Pagination
     const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
@@ -192,6 +202,17 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                                 <SelectItem value="all">All Regions</SelectItem>
                                 <SelectItem value="single">Single Country</SelectItem>
                                 <SelectItem value="regional">Regional / Global</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
+                            <SelectTrigger className="h-10 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
+                                <SelectValue placeholder="Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Types</SelectItem>
+                                <SelectItem value="new">New eSIM</SelectItem>
+                                <SelectItem value="topup">Top-up Only</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -266,8 +287,17 @@ export default function PackagesTableClient({ products, initialUsdToMnt }: Packa
                                             <div className="font-bold text-slate-900 dark:text-white mb-0.5 truncate" title={p.name}>{p.name}</div>
                                             <div className="font-mono text-[10px] text-slate-500 truncate" title={p.sku}>{p.sku}</div>
                                             {p.isRegional && (
-                                                <Badge variant="outline" className="mt-1 text-[10px] border-blue-500/50 text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1 py-0 h-4">
+                                                <Badge variant="outline" className="mt-1 text-[10px] border-blue-500/50 text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1 py-0 h-4 mr-1">
                                                     Regional
+                                                </Badge>
+                                            )}
+                                            {p.isTopUp ? (
+                                                <Badge variant="outline" className="mt-1 text-[10px] border-amber-500/50 text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1 py-0 h-4">
+                                                    Top-up
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline" className="mt-1 text-[10px] border-red-500/50 text-red-600 dark:text-red-400 bg-red-500/10 px-1 py-0 h-4">
+                                                    New eSIM
                                                 </Badge>
                                             )}
                                         </td>

@@ -34,6 +34,7 @@ interface PackageDetail {
     countryName: string;
     isUnlimited: boolean;
     isFeatured: boolean;
+    isTopUp: boolean;
     supportedCountries: { code: string; name: string }[];
     shortInfo: string;
     operatorInfo: string[];
@@ -106,6 +107,27 @@ export default function PackageClient({ pkg }: PackageClientProps) {
                     <p className="text-slate-500 font-medium">{pkg.operatorTitle}</p>
                 </div>
             </div>
+
+            {/* Top-up Warning */}
+            {pkg.isTopUp && (
+                <div className="px-4 mb-4">
+                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 shadow-sm">
+                        <div className="flex items-start gap-4">
+                            <div className="bg-amber-100 p-2 rounded-xl mt-0.5">
+                                <Zap className="h-6 w-6 text-amber-600" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-amber-900 text-sm mb-1">
+                                    {t("topUp")}: {t("importantNotes")}
+                                </h3>
+                                <p className="text-xs text-amber-800/80 leading-relaxed font-medium">
+                                    {t("topUpDesc")}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* VPN Info for China */}
             {pkg.countries.includes("CN") && (
