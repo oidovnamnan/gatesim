@@ -152,16 +152,6 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         <>
             {/* Floating button - Always Rendered */}
             <motion.div
-                drag
-                dragMomentum={false}
-                dragElastic={0.1}
-                dragConstraints={{
-                    left: typeof window !== 'undefined' ? -(window.innerWidth - 80) : -300,
-                    right: 40,
-                    top: typeof window !== 'undefined' ? -(window.innerHeight - 180) : -600,
-                    bottom: 80
-                }}
-                whileDrag={{ scale: 1.1, cursor: "grabbing" }}
                 className={cn(
                     "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
                     (isOpen || (pathname?.startsWith("/ai") && !pathname.endsWith("/ai"))) && "opacity-0 pointer-events-none"
