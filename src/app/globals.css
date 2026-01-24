@@ -120,13 +120,16 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  overflow-y: auto;
+  height: auto;
 }
 
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 body.ai-chat-open {
