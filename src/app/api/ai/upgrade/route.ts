@@ -1,6 +1,6 @@
 
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { prisma as db } from "@/lib/prisma";
 import { qpay } from "@/services/payments/qpay/client";
 import { NextResponse } from "next/server";
 
@@ -26,10 +26,7 @@ export async function POST(req: Request) {
         }
 
         // 2. Create Order
-        // Note: We use a placeholder 'AI_PASS' as packageId for now, 
-        // in a real scenario we might want a Product table or consistent ID.
-        // We assume User already exists.
-
+        // Note: We use a placeholder 'AI_PASS' as packageId for now.
         const orderId = `AI-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
         const order = await db.order.create({
@@ -66,9 +63,9 @@ export async function POST(req: Request) {
                 currency: "MNT",
                 status: "PENDING",
                 qpayInvoiceId: invoice.invoice_id,
-                qpayQrText: invoice.qPay_QRcode,
-                qpayQrImage: invoice.qPay_QRimage,
-                qpayDeeplinks: invoice.qPay_deeplink
+                qpayQrText: invoice.qr_text,
+                qpayQrImage: invoice.qr_image,
+                qpayDeeplinks: invoice.urls
             }
         });
 
