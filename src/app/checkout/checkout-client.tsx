@@ -58,23 +58,7 @@ interface QPayInvoice {
     amountMNT: number;
 }
 
-// Bank logos mapping
-const bankLogos: Record<string, string> = {
-    "Khan Bank": "/banks/khanbank.svg",
-    "Golomt Bank": "/banks/golomt.png",
-    "TDB": "/banks/tdb.png",
-    "State Bank": "/banks/statebank.png",
-    "Xac Bank": "/banks/xacbank.svg",
-    "M Bank": "/banks/mbank.png",
-    "Bogd Bank": "/banks/bogd.png",
-    "Arig Bank": "/banks/arig.png",
-    "Chinggis Khaan Bank": "/banks/chinggis.png",
-    "SocialPay": "/banks/socialpay.png",
-    "Capitron Bank": "/banks/capitron.png",
-    "National Investment Bank": "/banks/nibank.png",
-    "QPay Wallet": "/banks/qpay.png",
-    "TransBank": "/banks/transbank.png",
-};
+// Bank logos mapping no longer needed as we use the official QPay API logos
 
 export default function CheckoutClient({ pkg }: CheckoutClientProps) {
     const { t, language } = useTranslation();
@@ -413,72 +397,35 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     {/* Bank Deeplinks */}
                     {invoice.deeplinks && invoice.deeplinks.length > 0 && (
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                                <Smartphone className="w-4 h-4" />
-                                {t("bankAppPay")}
-                            </p>
-                            <div className="grid grid-cols-2 gap-2">
-                                {invoice.deeplinks.map((bank, index) => {
-                                    // Helper to match bank names fuzzily (supports Cyrillic and Latin)
-                                    const getBankLogo = (name: string) => {
-                                        const lower = name.toLowerCase();
-
-                                        if (lower.includes("khan") || lower.includes("хаан")) return "/banks/khanbank.svg";
-                                        if (lower.includes("golomt") || lower.includes("голомт")) return "/banks/golomt.png";
-                                        if (lower.includes("state") || lower.includes("төрийн")) return "/banks/statebank.png";
-                                        if (lower.includes("tdb") || lower.includes("trade") || lower.includes("худалдаа")) return "/banks/tdb.png";
-                                        if (lower.includes("xac") || lower.includes("хас")) return "/banks/xacbank.svg";
-                                        if (lower.includes("mbank") || lower.includes("m bank") || lower.includes("м банк")) return "/banks/mbank.png";
-                                        if (lower.includes("bogd") || lower.includes("богд")) return "/banks/bogd.png";
-                                        if (lower.includes("arig") || lower.includes("ариг")) return "/banks/arig.png";
-                                        if (lower.includes("chinggis") || lower.includes("чингис")) return "/banks/chinggis.png";
-                                        if (lower.includes("most") || lower.includes("мост")) return "/banks/most.png";
-                                        if (lower.includes("social") || lower.includes("socialpay")) return "/banks/socialpay.png";
-                                        if (lower.includes("capitron") || lower.includes("капитрон")) return "/banks/capitron.png";
-                                        if (lower.includes("national") || lower.includes("nibank") || lower.includes("үндэсний")) return "/banks/nibank.png";
-                                        if (lower.includes("trans") || lower.includes("тээвэр")) return "/banks/transbank.png";
-                                        if (lower.includes("wallet") || lower.includes("qpay") || lower.includes("хэтэвч")) return "/banks/qpay.png";
-                                        if (lower.includes("ard") || lower.includes("ард")) return "/banks/ard.png";
-                                        if (lower.includes("toki") || lower.includes("токи")) return "/banks/toki.png";
-
-                                        return bankLogos[name]; // Fallback to exact match or undefined
-                                    };
-
-                                    const localLogo = getBankLogo(bank.name);
-
-                                    return (
-                                        <a
-                                            key={index}
-                                            href={bank.link}
-                                            className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group"
-                                        >
-                                            <div className="w-8 h-8 relative flex-shrink-0 flex items-center justify-center">
-                                                <img
-                                                    src={localLogo || bank.logo}
-                                                    alt={bank.name}
-                                                    className="w-full h-full object-contain rounded-md"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        if (localLogo && target.src.includes(localLogo)) {
-                                                            target.src = bank.logo;
-                                                        } else {
-                                                            target.style.display = 'none';
-                                                            const parent = target.parentElement;
-                                                            if (parent) {
-                                                                parent.innerText = "🏦";
-                                                                parent.className = "w-8 h-8 flex items-center justify-center text-xl";
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                            <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">
-                                                {bank.name}
-                                            </span>
-                                        </a>
-                                    );
-                                })}
-                            </div>
+                            {invoice.deeplinks.map((bank, index) => {
+                                return (
+                                    <a
+                                        key={index}
+                                        href={bank.link}
+                                        className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                                    >
+                                        <div className="w-8 h-8 relative flex-shrink-0 flex items-center justify-center bg-slate-50 rounded-lg overflow-hidden p-1 border border-slate-100/50">
+                                            <img
+                                                src={bank.logo}
+                                                alt={bank.name}
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent) {
+                                                        parent.innerText = "🏦";
+                                                        parent.className = "w-8 h-8 flex items-center justify-center text-xl";
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                                            {bank.name}
+                                        </span>
+                                    </a>
+                                );
+                            })}
 
                         </div>
                     )}
