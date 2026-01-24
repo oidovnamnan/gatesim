@@ -126,13 +126,10 @@ body {
   color: hsl(var(--foreground));
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
 }
 
 body.ai-chat-open {
   overflow: hidden !important;
-  position: fixed;
-  width: 100%;
 }
 
 /* Mobile App-like scrolling */
