@@ -14,9 +14,10 @@ import { motion } from "framer-motion";
 
 interface ExpenseScannerProps {
     onSave: (expense: Expense) => void;
+    trigger?: React.ReactNode;
 }
 
-export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
+export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState<"upload" | "review">("upload");
@@ -106,9 +107,13 @@ export function ExpenseScanner({ onSave }: ExpenseScannerProps) {
             if (!open) resetForm();
         }}>
             <DialogTrigger asChild>
-                <Button className="rounded-full h-14 w-14 bg-slate-900 hover:bg-black text-white shadow-2xl shadow-slate-900/30 fixed bottom-28 right-6 flex items-center justify-center border-none z-40 transition-transform active:scale-95">
-                    <Plus className="w-8 h-8" />
-                </Button>
+                {trigger ? (
+                    trigger
+                ) : (
+                    <Button className="rounded-full h-14 w-14 bg-slate-900 hover:bg-black text-white shadow-2xl shadow-slate-900/30 fixed bottom-28 right-6 flex items-center justify-center border-none z-40 transition-transform active:scale-95">
+                        <Plus className="w-8 h-8" />
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="bg-white/80 backdrop-blur-2xl border border-white/20 max-w-sm sm:max-w-md p-0 overflow-hidden text-slate-900 rounded-[32px] shadow-2xl shadow-slate-900/20">
                 {step === "upload" ? (

@@ -104,7 +104,7 @@ export function ExpenseDashboard() {
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </motion.button>
-                    <div>
+                    <div className="flex-1">
                         <h1 className="text-2xl font-black tracking-tighter text-slate-900">
                             Budget Tracker
                         </h1>
@@ -112,6 +112,22 @@ export function ExpenseDashboard() {
                             AI Expense Control
                         </p>
                     </div>
+                    {expenses.length > 0 && (
+                        <ExpenseScanner
+                            onSave={addExpense}
+                            trigger={
+                                <motion.button
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-900/20"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                </motion.button>
+                            }
+                        />
+                    )}
                 </div>
             </header>
 
@@ -173,17 +189,24 @@ export function ExpenseDashboard() {
 
                     <AnimatePresence mode="popLayout">
                         {expenses.length === 0 ? (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-center py-16 bg-white/40 backdrop-blur-xl rounded-[32px] border border-dashed border-slate-200"
-                            >
-                                <div className="w-16 h-16 bg-slate-100 rounded-[22px] flex items-center justify-center mx-auto mb-4 border border-white">
-                                    <Plus className="w-6 h-6 text-slate-300" />
-                                </div>
-                                <h4 className="font-black text-slate-900 text-lg tracking-tight">No history found</h4>
-                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Scan a receipt to start tracking</p>
-                            </motion.div>
+                            <ExpenseScanner
+                                onSave={addExpense}
+                                trigger={
+                                    <motion.button
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full text-center py-16 bg-white/40 backdrop-blur-xl rounded-[32px] border border-dashed border-slate-200 hover:bg-white/60 hover:border-blue-200 hover:shadow-lg transition-all group cursor-pointer"
+                                    >
+                                        <div className="w-16 h-16 bg-slate-100 group-hover:bg-blue-50 rounded-[22px] flex items-center justify-center mx-auto mb-4 border border-white group-hover:border-blue-100 transition-colors">
+                                            <Plus className="w-6 h-6 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                                        </div>
+                                        <h4 className="font-black text-slate-900 text-lg tracking-tight group-hover:text-blue-600 transition-colors">No history found</h4>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 group-hover:text-blue-400 transition-colors">Tap to scan a receipt</p>
+                                    </motion.button>
+                                }
+                            />
                         ) : (
                             <div className="grid grid-cols-1 gap-3">
                                 {expenses.map((expense, idx) => {
@@ -243,9 +266,6 @@ export function ExpenseDashboard() {
                     </AnimatePresence>
                 </div>
             </div>
-
-            {/* Scanner Action */}
-            <ExpenseScanner onSave={addExpense} />
         </div>
     );
 }
@@ -261,4 +281,3 @@ function Badge({ children, className, variant }: any) {
         </span>
     );
 }
-
