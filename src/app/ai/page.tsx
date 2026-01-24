@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -93,8 +93,39 @@ export default function AIHubPage() {
     const { language } = useTranslation();
     const isMongolian = language === "mn";
 
-
     const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+    const [aiStatus, setAiStatus] = useState<any>(null);
+    const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+
+    // Fetch AI Status
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const res = await fetch("/api/ai/usage");
+                if (res.ok) {
+                    const data = await res.json();
+                    setAiStatus(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch AI status:", error);
+            } finally {
+                setIsLoadingStatus(false);
+            }
+        };
+
+        fetchStatus();
+    }, []);
+
+    // Helper to format date
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleDateString(isMongolian ? "mn-MN" : "en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+    };
 
     return (
         <div className="relative min-h-screen pb-10 bg-slate-50 text-slate-900 selection:bg-blue-100">
@@ -145,6 +176,16 @@ export default function AIHubPage() {
                         <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white flex items-center gap-3">
                             AI Hub
                             <Sparkles className="w-6 h-6 text-blue-500 fill-blue-500/10 animate-pulse" />
+                            {aiStatus?.isPremium && (
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200 flex items-center gap-1"
+                                >
+                                    <Crown className="w-3 h-3 text-amber-600 fill-amber-600" />
+                                    <span className="text-[8px] font-black text-amber-800 uppercase tracking-tighter">Premium</span>
+                                </motion.div>
+                            )}
                         </h1>
                     </div>
                     <motion.div
@@ -155,6 +196,37 @@ export default function AIHubPage() {
                     </motion.div>
                 </div>
             </header>
+
+            {/* AI Status Banner - Shows for free users or loading */}
+            {!aiStatus?.isPremium && aiStatus && (
+                <section className="relative z-10 px-6 mb-6">
+                    <Card className="p-4 bg-white/40 backdrop-blur-md border border-white rounded-2xl flex items-center justify-between">
+                        <div className="flex gap-4">
+                            <div className="text-center">
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Аялал" : "Plans"}</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-lg font-black text-slate-900">{aiStatus.remainingPlans}</span>
+                                    <span className="text-[10px] text-slate-400">/{aiStatus.planLimit}</span>
+                                </div>
+                            </div>
+                            <div className="w-[1px] h-8 bg-slate-200 self-center" />
+                            <div className="text-center">
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{isMongolian ? "Баримт" : "Scans"}</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-lg font-black text-slate-900">{aiStatus.remainingScans}</span>
+                                    <span className="text-[10px] text-slate-400">/{aiStatus.scanLimit}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setIsPremiumModalOpen(true)}
+                            className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors"
+                        >
+                            {isMongolian ? "Эрх сунгах" : "Upgrade"}
+                        </button>
+                    </Card>
+                </section>
+            )}
 
             {/* Smart Features Grid - Premium Glassmorphism Compact */}
             <section className="relative z-10 px-6 mb-8">
@@ -241,21 +313,34 @@ export default function AIHubPage() {
                                 <h2 className="text-xl font-black text-slate-900 tracking-tighter italic leading-none">
                                     AI <span className="text-blue-600 not-italic">Premium</span>
                                 </h2>
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">Unlimited Access</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">
+                                    {aiStatus?.isPremium ? (isMongolian ? "Идэвхтэй байна" : "Active Now") : "Unlimited Access"}
+                                </p>
                             </div>
                         </div>
 
                         <div className="flex flex-col items-end">
-                            <span className="text-2xl font-black text-slate-900 tracking-tighter">25,000₮</span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">-өөс эхлээд</span>
+                            {aiStatus?.isPremium ? (
+                                <>
+                                    <span className="text-xs font-black text-emerald-600 uppercase tracking-tighter">{isMongolian ? "Хугацаа" : "Expires"}</span>
+                                    <span className="text-sm font-black text-slate-900 tracking-tighter">{formatDate(aiStatus.premiumExpiresAt)}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-2xl font-black text-slate-900 tracking-tighter">25,000₮</span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">-өөс эхлээд</span>
+                                </>
+                            )}
                         </div>
                     </div>
 
-                    <button
-                        onClick={() => setIsPremiumModalOpen(true)}
-                        className="w-full mt-6 py-3.5 rounded-[20px] bg-slate-900 text-white font-black text-[13px] shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98]">
-                        {isMongolian ? "Premium эрх авах" : "Get Premium"}
-                    </button>
+                    {!aiStatus?.isPremium && (
+                        <button
+                            onClick={() => setIsPremiumModalOpen(true)}
+                            className="w-full mt-6 py-3.5 rounded-[20px] bg-slate-900 text-white font-black text-[13px] shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98]">
+                            {isMongolian ? "Premium эрх авах" : "Get Premium"}
+                        </button>
+                    )}
                 </Card>
             </section>
 

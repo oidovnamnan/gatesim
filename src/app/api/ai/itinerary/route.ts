@@ -4,6 +4,8 @@ import { getGroundingContext } from "@/lib/ai/itinerary-grounding";
 import { countryInfoDatabase } from "@/data/country-info";
 import { airalo } from "@/services/airalo";
 import { getExchangeRates } from "@/lib/currency";
+import { auth } from "@/lib/auth";
+import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -45,6 +47,25 @@ const budgetEstimates: Record<string, Record<string, string>> = {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // 1. Check AI Limit
+    const canUse = await checkAILimit(userId, "PLAN");
+    if (!canUse) {
+      return NextResponse.json(
+        { success: false, error: "LIMIT_REACHED", message: "AI usage limit reached. Please upgrade to Premium." },
+        { status: 403 }
+      );
+    }
+
     const {
       destination,
       duration,
@@ -338,11 +359,18 @@ Include 4-6 activities per day. Be specific with locations and costs.`;
       success: true,
       itinerary,
     });
+
   } catch (error) {
     console.error("Itinerary generation error:", error);
     return NextResponse.json(
       { success: false, error: "Itinerary generation failed" },
       { status: 500 }
     );
+  } finally {
+    // 2. Increment usage if successful (or even if partial, since tokens were spent)
+    const session = await auth();
+    if (session?.user?.id) {
+      await incrementAIUsage(session.user.id, "PLAN");
+    }
   }
 }

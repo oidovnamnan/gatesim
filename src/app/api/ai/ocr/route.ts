@@ -1,12 +1,26 @@
 import { OpenAI } from "openai";
 import { auth } from "@/lib/auth";
+import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 
 export const maxDuration = 60; // Allow longer timeout for vision processing
 
 export async function POST(req: Request) {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+        return Response.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     try {
-        const session = await auth();
-        // Allow guests to try it out too, or restrict? Let's allow for now as a hook.
+        // 1. Check AI Limit
+        const canUse = await checkAILimit(userId, "SCAN");
+        if (!canUse) {
+            return Response.json({
+                error: "LIMIT_REACHED",
+                message: "Scan limit reached. Please upgrade to Premium."
+            }, { status: 403 });
+        }
 
         const { image } = await req.json();
 
@@ -63,6 +77,9 @@ export async function POST(req: Request) {
         if (!result) {
             throw new Error("No response from AI");
         }
+
+        // 2. Increment usage on success
+        await incrementAIUsage(userId, "SCAN");
 
         return Response.json(JSON.parse(result));
 
