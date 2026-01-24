@@ -164,26 +164,33 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                 whileDrag={{ scale: 1.1, cursor: "grabbing" }}
                 className={cn(
                     "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
-                    (isOpen || pathname?.startsWith("/ai")) && "opacity-0 pointer-events-none"
+                    (isOpen || (pathname?.startsWith("/ai") && !pathname.endsWith("/ai"))) && "opacity-0 pointer-events-none"
                 )}
             >
+                {/* Enhanced Proactive Pulse */}
                 <motion.div
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-0 bg-red-500 rounded-full opacity-30 pointer-events-none"
+                    animate={{
+                        scale: [1, 1.4, 1],
+                        opacity: [0.3, 0, 0.3],
+                        borderWidth: [2, 10, 2]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 bg-red-400 rounded-full blur-md pointer-events-none border-red-500/20"
                 />
                 <motion.button
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => setIsOpen(true)}
-                    className="relative w-16 h-16 rounded-full gradient-primary shadow-xl shadow-red-500/30 flex items-center justify-center border-4 border-white dark:border-slate-900 touch-none"
+                    className="relative w-16 h-16 rounded-full gradient-primary shadow-2xl shadow-red-500/40 flex items-center justify-center border-4 border-white dark:border-slate-900 touch-none group"
                 >
-                    <Bot className="h-7 w-7 text-white" />
+                    <Bot className="h-7 w-7 text-white transition-transform group-hover:scale-110" />
+
+                    {/* Activity Indicator */}
                     <div className="absolute -top-1 -right-1 flex h-6 w-6">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-6 w-6 bg-sky-500 border-2 border-white items-center justify-center">
+                        <span className="relative inline-flex rounded-full h-6 w-6 bg-sky-500 border-2 border-white dark:border-slate-900 items-center justify-center shadow-sm">
                             <Sparkles className="w-3 h-3 text-white" />
                         </span>
                     </div>
