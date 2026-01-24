@@ -152,53 +152,43 @@ export default function AIHubPage() {
                 </div>
             </header>
 
-            {/* Smart Features Grid - Premium Glassmorphism */}
-            <section className="relative z-10 px-6 mb-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Smart Features Grid - Premium Glassmorphism Compact */}
+            <section className="relative z-10 px-6 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {aiFeatures.map((feature, index) => {
                         const Icon = feature.icon;
                         return (
                             <motion.div
                                 key={feature.id}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 15 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
+                                transition={{ delay: index * 0.05 }}
                                 className="h-full"
                             >
                                 <Link href={feature.href} className="block h-full group">
-                                    <Card className="relative h-full flex flex-col p-6 border border-white bg-white/60 backdrop-blur-xl hover:bg-white/90 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 rounded-[32px] shadow-sm overflow-hidden">
-                                        {/* Abstract background shape for each card */}
+                                    <Card className="relative h-full flex flex-col p-4 border border-white bg-white/60 backdrop-blur-xl hover:bg-white/90 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-500 rounded-[24px] shadow-sm overflow-hidden">
                                         <div className={cn(
-                                            "absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br opacity-5 blur-2xl rounded-full group-hover:opacity-10 transition-opacity duration-500",
-                                            feature.color
-                                        )} />
-
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-[18px] flex items-center justify-center mb-5 shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br",
+                                            "w-10 h-10 rounded-[14px] flex items-center justify-center mb-3 shadow-lg transition-transform duration-500 group-hover:scale-110 bg-gradient-to-br",
                                             feature.color
                                         )}>
-                                            <Icon className="w-6 h-6 text-white" />
+                                            <Icon className="w-5 h-5 text-white" />
                                         </div>
 
                                         <div className="flex-1">
-                                            <h3 className="font-black text-lg text-slate-900 leading-tight mb-2 tracking-tight">
+                                            <h3 className="font-black text-[13px] text-slate-900 leading-tight mb-1 tracking-tight">
                                                 {isMongolian ? feature.title : feature.titleEn}
                                             </h3>
-                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
                                                 {isMongolian ? feature.description : feature.descriptionEn}
                                             </p>
                                         </div>
 
-                                        <div className="mt-8 flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                                    AI Powered
-                                                </span>
+                                        <div className="mt-4 flex items-center justify-between">
+                                            <div className="flex items-center gap-1.5 font-black text-[8px] text-blue-500/60 uppercase tracking-widest">
+                                                <div className="w-1 h-1 rounded-full bg-blue-500" />
+                                                AI
                                             </div>
-                                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:text-blue-500 group-hover:bg-blue-50 transition-all border border-slate-100">
-                                                <ChevronRight className="w-4 h-4 transform transition-transform group-hover:translate-x-0.5" />
-                                            </div>
+                                            <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-blue-500 transform transition-transform group-hover:translate-x-0.5" />
                                         </div>
                                     </Card>
                                 </Link>
@@ -208,68 +198,58 @@ export default function AIHubPage() {
                 </div>
             </section>
 
-            {/* Primary Action Row - AI Concierge Card */}
-            <section className="relative z-10 px-6 mb-12">
+            {/* Primary Action Row - AI Concierge Card - Compacted */}
+            <section className="relative z-10 px-6 mb-8">
                 <Link href="#chat">
-                    <Card className="group p-6 flex items-center gap-6 bg-slate-900 border border-slate-800 rounded-[36px] hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 relative overflow-hidden">
-                        {/* Shimmer Effect */}
+                    <Card className="group p-4 flex items-center gap-4 bg-slate-900 border border-slate-800 rounded-[28px] hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-500 relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] transition-transform pointer-events-none" />
 
-                        <div className="w-16 h-16 rounded-[22px] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-6">
-                            <MessageCircle className="w-8 h-8 text-white" />
+                        <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20 transition-transform duration-500 group-hover:scale-105">
+                            <MessageCircle className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-black text-xl text-white leading-none tracking-tight">
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-black text-base text-white leading-none tracking-tight">
                                     AI Concierge
                                 </h3>
-                                <Badge className="bg-blue-500 text-[9px] uppercase font-black py-0 px-2 h-4 border-none">Active</Badge>
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             </div>
-                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">
-                                {isMongolian ? "24/7 ухаалаг хөтөч" : "24/7 Your Smart Travel Companion"}
+                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                                {isMongolian ? "24/7 ухаалаг хөтөч" : "24/7 Travel Companion"}
                             </p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-white group-hover:bg-white/10 transition-all border border-white/10">
-                            <ChevronRight className="w-5 h-5" />
-                        </div>
+                        <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-white transition-colors" />
                     </Card>
                 </Link>
             </section>
 
-            {/* Exclusive Premium Section - High End Dark */}
+            {/* Exclusive Premium Section - Refined Compact */}
             <section className="relative z-10 px-6">
-                <Card className="relative p-8 rounded-[40px] overflow-hidden bg-white border border-slate-100 shadow-2xl shadow-slate-200/50">
-                    {/* Artistic Background Accent */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[80px] -mr-32 -mt-32" />
-                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/5 blur-[70px] -ml-24 -mb-24" />
+                <Card className="relative p-6 rounded-[32px] overflow-hidden bg-white border border-slate-100 shadow-xl shadow-slate-200/50">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/5 blur-[60px] -mr-24 -mt-24" />
 
-                    <div className="relative z-10 text-center">
-                        <div className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20 mx-auto mb-6">
-                            <Crown className="w-8 h-8 text-white" />
-                        </div>
-
-                        <div className="mb-6">
-                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em]">Unlimited Access</span>
-                            <h2 className="text-3xl font-black text-slate-900 leading-tight mt-2 tracking-tighter italic">
-                                AI <span className="text-blue-600 not-italic">Premium</span>
-                            </h2>
-                            <p className="text-[12px] text-slate-500 font-medium mt-3 leading-relaxed max-w-[240px] mx-auto">
-                                {isMongolian ? "Бүх боломжийг хязгааргүй нээж, аялалаа ухаалгаар удирд" : "Unlock the full potential of sovereign travel AI."}
-                            </p>
-                        </div>
-
-                        <div className="flex items-center justify-center gap-2 mb-8">
-                            <span className="text-4xl font-black text-slate-900 tracking-tighter">$3.99</span>
-                            <div className="text-left">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Monthly</p>
-                                <p className="text-[10px] font-bold text-slate-500 italic mt-0.5">Cancel anytime</p>
+                    <div className="relative z-10 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 text-left">
+                            <div className="w-12 h-12 rounded-[18px] bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20 flex-shrink-0">
+                                <Crown className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900 tracking-tighter italic leading-none">
+                                    AI <span className="text-blue-600 not-italic">Premium</span>
+                                </h2>
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">Unlimited Access</p>
                             </div>
                         </div>
 
-                        <button className="w-full py-4 rounded-[24px] bg-slate-900 text-white font-black text-sm shadow-xl shadow-slate-900/20 hover:bg-slate-800 transition-all active:scale-[0.98]">
-                            {isMongolian ? "Premium болох" : "Upgrade to Premium"}
-                        </button>
+                        <div className="flex flex-col items-end">
+                            <span className="text-2xl font-black text-slate-900 tracking-tighter">$3.99</span>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">/ mo</span>
+                        </div>
                     </div>
+
+                    <button className="w-full mt-6 py-3.5 rounded-[20px] bg-slate-900 text-white font-black text-[13px] shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98]">
+                        {isMongolian ? "Premium болох" : "Upgrade now"}
+                    </button>
                 </Card>
             </section>
         </div>
