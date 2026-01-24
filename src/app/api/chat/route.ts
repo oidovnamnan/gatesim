@@ -2,9 +2,9 @@ import { OpenAI } from "openai";
 import { findContextData, generateLocalResponse } from "@/lib/local-ai";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { getUserTravelContext } from "@/lib/ai-server-context";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
+import { getOpenAIConfig } from "@/lib/ai-config";
 
 // Rate limiting for guests
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -32,38 +32,23 @@ const MODE_PROMPTS: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
+    let userId: string | undefined;
+
     try {
         const body = await req.json();
-        const { messages, country, apiKey, language = "mn", mode = "tourist", tripContext } = body;
+        const { messages, country, apiKey: clientProvidedKey, language = "mn", mode = "tourist", tripContext } = body;
+
         if (!messages || messages.length === 0) {
             return Response.json({ error: "No messages provided" }, { status: 400 });
         }
 
-        // ============ CUSTOM LIMIT CHECK (TRANSIT) ============
         const session = await auth();
-        const userId = session?.user?.id;
-
-        if (mode === 'transit') {
-            if (!userId) {
-                return Response.json({ error: "Authentication required" }, { status: 401 });
-            }
-
-            const canUse = await checkAILimit(userId, "TRANSIT");
-            if (!canUse) {
-                return Response.json({
-                    role: "assistant",
-                    content: language === 'mn' ? "Нийтийн тээврийн хөтчийн үнэгүй эрх дууссан байна. Premium эрх авч хязгааргүй ашиглаарай." : "Transit Guide limit reached. Please upgrade to Premium for unlimited access."
-                });
-            }
-        }
-
-        const lastMessage = messages[messages.length - 1];
-        const userQuery = lastMessage.content;
-        const requestHeaders = await headers();
-        const ip = requestHeaders.get("x-forwarded-for") || "unknown";
+        userId = session?.user?.id;
 
         // ============ 1. RATE LIMITING (GUESTS) ============
         if (!session?.user?.email) {
+            const requestHeaders = await headers();
+            const ip = requestHeaders.get("x-forwarded-for") || "unknown";
             const now = Date.now();
             let limitData = rateLimitMap.get(ip);
 
@@ -75,6 +60,9 @@ export async function POST(req: Request) {
                 const blockedMsg = language === "en" ? "Your chat access is temporarily blocked." : "Таны чатлах эрх түр хаагдсан байна.";
                 return Response.json({ role: "assistant", content: blockedMsg });
             }
+
+            const lastMessage = messages[messages.length - 1];
+            const userQuery = lastMessage.content;
 
             // Check repetition
             if (limitData.lastMessage === userQuery) {
@@ -96,10 +84,37 @@ export async function POST(req: Request) {
             rateLimitMap.set(ip, limitData);
         }
 
-        // ============ 2. FETCH USER CONTEXT (NEW) ============
+        // ============ 2. LIMIT CHECK (TRANSIT) ============
+        if (mode === 'transit') {
+            if (!userId) {
+                return Response.json({ error: "Authentication required" }, { status: 401 });
+            }
+
+            const canUse = await checkAILimit(userId, "TRANSIT");
+            if (!canUse) {
+                return Response.json({
+                    role: "assistant",
+                    content: language === 'mn' ? "Нийтийн тээврийн хөтчийн үнэгүй эрх дууссан байна. Premium эрх авч хязгааргүй ашиглаарай." : "Transit Guide limit reached. Please upgrade to Premium for unlimited access."
+                });
+            }
+        }
+
+        // ============ 3. GET DYNAMIC CONFIG ============
+        const aiConfig = await getOpenAIConfig();
+        const effectiveApiKey = clientProvidedKey || aiConfig.apiKey;
+
+        if (!effectiveApiKey) {
+            const lastMsg = messages[messages.length - 1].content;
+            return Response.json({
+                role: "assistant",
+                content: generateLocalResponse(lastMsg, country) + "\n\n(System: AI Service configuration pending)"
+            });
+        }
+
+        // ============ 4. FETCH USER CONTEXT ============
         const travelContext = await getUserTravelContext();
 
-        // ============ 3. CONSTRUCT SYSTEM PROMPT ============
+        // ============ 5. CONSTRUCT SYSTEM PROMPT ============
         const languageInstruction = language === "en" ? "English" : language === "cn" ? "Chinese (Simplified)" : "Mongolian (Cyrillic)";
         const modeInstruction = MODE_PROMPTS[mode] || MODE_PROMPTS.default;
 
@@ -110,9 +125,8 @@ export async function POST(req: Request) {
             scopeInstruction = `User does NOT have an active plan. Your primary goal is to help them buy an eSIM. If they ask generic questions, answer briefly but remind them they need internet to travel.`;
         }
 
-        // Check for tripContext (Local Plan)
+        // Trip Context (Local Plan)
         let localPlanContext = "";
-
         if (tripContext && mode === 'transit') {
             try {
                 const plan = JSON.parse(tripContext);
@@ -126,64 +140,24 @@ USER'S ITINERARY CONTEXT:
 - Destination: ${plan.destination}
 - Type: ${plan.type}
 - Key Locations: ${locations.join(", ")}
-- Goal: You MUST provide specific routes to these locations if asked. Assume "getting there" means getting to one of these spots from their hotel (generic).
+- Goal: You MUST provide specific routes to these locations if asked.
 `;
             } catch (e) {
-                console.error("Failed to parse tripContext in API", e);
+                console.error("Failed to parse tripContext in Chat API", e);
             }
         }
 
-        // Context Injection
-        let contextBlock = "";
-        if (travelContext.activePlan) {
-            contextBlock = `
-USER CONTEXT:
-- Active Trip Country: ${travelContext.activePlan.country}
-- Data Plan: ${travelContext.activePlan.provider} (${travelContext.activePlan.dataTotal})
-- Days Remaining: ${travelContext.activePlan.daysRemaining}
-- Mode: ${mode.toUpperCase()}
-`;
-        } else {
-            contextBlock = `
-USER CONTEXT:
-- No active plan found.
-- Mode: ${mode.toUpperCase()}
-`;
-        }
+        const contextBlock = travelContext.activePlan
+            ? `USER CONTEXT: Country: ${travelContext.activePlan.country}, Mode: ${mode.toUpperCase()}`
+            : `USER CONTEXT: No active plan, Mode: ${mode.toUpperCase()}`;
 
-        contextBlock += localPlanContext;
+        const systemPrompt = `You are GateSIM AI. ${modeInstruction} You strictly answer in ${languageInstruction}. ${scopeInstruction}\n\n${contextBlock}\n${localPlanContext}\n\nINTERACTION GUIDELINES: Friendly, polite. For packages: [SEARCH_PACKAGES: country=CODE]. For directions: [TRANSIT_ROUTE: to=NAME, mode=transit].`;
 
-        const systemPrompt = `You are GateSIM AI.
-${modeInstruction}
-You strictly answer in ${languageInstruction}.
-${scopeInstruction}
-
-${contextBlock}
-
-INTERACTION GUIDELINES:
-1. Extremely polite and friendly.
-2. If the user has an active plan for a specific country (e.g. Japan), assume their questions are about that country unless specified otherwise.
-3. If the user asks for package recommendations, output "[SEARCH_PACKAGES: country=CODE, minDays=N]" command.
-4. If the user asks for DIRECTIONS, HOW TO GET SOMEWHERE, or "Яаж очих вэ", "Хаана байдаг вэ", output "[TRANSIT_ROUTE: to=DESTINATION_NAME, mode=transit]" command. 
-   - Example directly: "[TRANSIT_ROUTE: to=Tokyo Tower, mode=transit]"
-   - Do not give text directions like "Take line 5...". Just give the card.
-5. Keep answers concise vs comprehensive based on Mode (e.g. Medical = Concise, Tourist = Detailed).
-`;
-
-        // ============ 4. CALL OPENAI ============
-        const effectiveApiKey = apiKey || process.env.OPENAI_API_KEY;
-
-        if (!effectiveApiKey) {
-            return Response.json({
-                role: "assistant",
-                content: generateLocalResponse(userQuery, country) + "\n\n(System: OpenAI Key missing)"
-            });
-        }
-
+        // ============ 6. CALL OPENAI ============
         const openai = new OpenAI({ apiKey: effectiveApiKey });
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: aiConfig.model,
             messages: [
                 { role: "system", content: systemPrompt },
                 ...messages.map((m: any) => ({ role: m.role, content: m.content }))
@@ -192,8 +166,9 @@ INTERACTION GUIDELINES:
             max_tokens: 600,
         });
 
+        // ============ 7. INCREMENT USAGE ============
         if (mode === 'transit' && userId) {
-            await incrementAIUsage(userId, "TRANSIT");
+            incrementAIUsage(userId, "TRANSIT").catch(e => console.error("Usage increment failed (chat):", e));
         }
 
         return Response.json({
@@ -201,11 +176,17 @@ INTERACTION GUIDELINES:
             content: response.choices[0].message.content
         });
 
-    } catch (error) {
-        console.error("AI API Error:", error);
+    } catch (error: any) {
+        console.error("AI API Chat Error:", error);
+
+        let errorMsg = "An error occurred with AI service. Please try again.";
+        if (error.message?.includes("API key")) {
+            errorMsg = "AI service configuration error. Admin verification required.";
+        }
+
         return Response.json({
             role: "assistant",
-            content: "An error occurred. Please try again."
+            content: "⚠️ " + errorMsg
         }, { status: 500 });
     }
 }

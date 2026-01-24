@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { OpenAI } from "openai";
 import { getGroundingContext } from "@/lib/ai/itinerary-grounding";
 import { countryInfoDatabase } from "@/data/country-info";
 import { airalo } from "@/services/airalo";
 import { getExchangeRates } from "@/lib/currency";
 import { auth } from "@/lib/auth";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getOpenAIConfig } from "@/lib/ai-config";
 
 // Country names
 const countryNames: Record<string, { en: string; mn: string }> = {
@@ -46,9 +43,11 @@ const budgetEstimates: Record<string, Record<string, string>> = {
 };
 
 export async function POST(request: NextRequest) {
+  let userId: string | undefined;
+
   try {
     const session = await auth();
-    const userId = session?.user?.id;
+    userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json(
@@ -89,6 +88,18 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 2. GET DYNAMIC CONFIG
+    const aiConfig = await getOpenAIConfig();
+    if (!aiConfig.apiKey) {
+      return NextResponse.json({
+        success: false,
+        error: "AI_NOT_CONFIGURED",
+        message: "AI service is currently not configured. Please contact support or check Admin Panel."
+      }, { status: 503 });
+    }
+
+    const openai = new OpenAI({ apiKey: aiConfig.apiKey });
 
     const travelersStr = travelers
       ? `${travelers.adults} adults${travelers.children > 0 ? `, ${travelers.children} children` : ''}`
@@ -298,7 +309,7 @@ ${pricingLogic}
 Include 4-6 activities per day. Be specific with locations and costs.`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: aiConfig.model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Create the itinerary now.` },
@@ -355,22 +366,26 @@ Include 4-6 activities per day. Be specific with locations and costs.`;
       };
     }
 
+    // 3. Increment usage (Safe background call)
+    if (userId) {
+      incrementAIUsage(userId, "PLAN").catch(e => console.error("Usage increment failed (itinerary):", e));
+    }
+
     return NextResponse.json({
       success: true,
       itinerary,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Itinerary generation error:", error);
+
+    const errorMessage = error.message?.includes("API key")
+      ? "AI configuration error. Admin must verify API key."
+      : "Itinerary generation failed. Please try again.";
+
     return NextResponse.json(
-      { success: false, error: "Itinerary generation failed" },
+      { success: false, error: "AI_ERROR", message: errorMessage },
       { status: 500 }
     );
-  } finally {
-    // 2. Increment usage if successful (or even if partial, since tokens were spent)
-    const session = await auth();
-    if (session?.user?.id) {
-      await incrementAIUsage(session.user.id, "PLAN");
-    }
   }
 }

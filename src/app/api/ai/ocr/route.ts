@@ -1,18 +1,21 @@
 import { OpenAI } from "openai";
 import { auth } from "@/lib/auth";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
+import { getOpenAIConfig } from "@/lib/ai-config";
 
 export const maxDuration = 60; // Allow longer timeout for vision processing
 
 export async function POST(req: Request) {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-        return Response.json({ error: "Authentication required" }, { status: 401 });
-    }
+    let userId: string | undefined;
 
     try {
+        const session = await auth();
+        userId = session?.user?.id;
+
+        if (!userId) {
+            return Response.json({ error: "Authentication required" }, { status: 401 });
+        }
+
         // 1. Check AI Limit
         const canUse = await checkAILimit(userId, "SCAN");
         if (!canUse) {
@@ -28,15 +31,19 @@ export async function POST(req: Request) {
             return Response.json({ error: "No image provided" }, { status: 400 });
         }
 
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) {
-            return Response.json({ error: "Server configuration error" }, { status: 500 });
+        // 2. GET DYNAMIC CONFIG
+        const aiConfig = await getOpenAIConfig();
+        if (!aiConfig.apiKey) {
+            return Response.json({
+                error: "AI_NOT_CONFIGURED",
+                message: "AI service is currently not configured. Please contact support or check Admin Panel."
+            }, { status: 503 });
         }
 
-        const openai = new OpenAI({ apiKey });
+        const openai = new OpenAI({ apiKey: aiConfig.apiKey });
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // Using mini for cost efficiency, capable enough for OCR
+            model: "gpt-4o-mini", // Keep vision-capable model
             messages: [
                 {
                     role: "system",
@@ -78,13 +85,18 @@ export async function POST(req: Request) {
             throw new Error("No response from AI");
         }
 
-        // 2. Increment usage on success
-        await incrementAIUsage(userId, "SCAN");
+        // 3. Increment usage on success (Safe background call)
+        incrementAIUsage(userId, "SCAN").catch(e => console.error("Usage increment failed (OCR):", e));
 
         return Response.json(JSON.parse(result));
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("OCR Error:", error);
-        return Response.json({ error: "Failed to process image" }, { status: 500 });
+
+        const errorMessage = error.message?.includes("API key")
+            ? "AI API configuration error. Admin must verify key."
+            : "Failed to process image. Please try again.";
+
+        return Response.json({ error: "AI_ERROR", message: errorMessage }, { status: 500 });
     }
 }

@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { OpenAI } from "openai";
 import { auth } from "@/lib/auth";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+import { getOpenAIConfig } from "@/lib/ai-config";
 
 // Language names for prompts
 const languageNames: Record<string, string> = {
@@ -19,6 +16,8 @@ const languageNames: Record<string, string> = {
 };
 
 export async function POST(request: NextRequest) {
+    let userId: string | undefined;
+
     try {
         const { text, sourceLang, targetLang } = await request.json();
 
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest) {
         }
 
         const session = await auth();
-        const userId = session?.user?.id;
+        userId = session?.user?.id;
 
         if (!userId) {
             return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
@@ -46,11 +45,22 @@ export async function POST(request: NextRequest) {
             }, { status: 403 });
         }
 
+        // 2. GET DYNAMIC CONFIG
+        const aiConfig = await getOpenAIConfig();
+        if (!aiConfig.apiKey) {
+            return NextResponse.json({
+                success: false,
+                error: "AI_NOT_CONFIGURED",
+                message: "AI service is currently not configured. Please contact support or check Admin Panel."
+            }, { status: 503 });
+        }
+
+        const openai = new OpenAI({ apiKey: aiConfig.apiKey });
         const sourceLanguage = languageNames[sourceLang] || "English";
         const targetLanguage = languageNames[targetLang] || "Mongolian";
 
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: aiConfig.model,
             messages: [
                 {
                     role: "system",
@@ -69,16 +79,31 @@ If the text contains slang or idioms, translate them to natural equivalents in t
 
         const translatedText = completion.choices[0]?.message?.content?.trim() || "";
 
+        // 3. Increment usage (Don't let DB failure block response)
+        try {
+            await incrementAIUsage(userId, "TRANSLATE");
+        } catch (dbErr) {
+            console.error("Failed to increment AI usage (translate):", dbErr);
+        }
+
         return NextResponse.json({
             success: true,
             translatedText,
             sourceLang,
             targetLang,
         });
-    } finally {
-        const session = await auth();
-        if (session?.user?.id) {
-            await incrementAIUsage(session.user.id, "TRANSLATE");
-        }
+
+    } catch (error: any) {
+        console.error("Translation error:", error);
+
+        // Return a cleaner error message
+        const errorMessage = error.message?.includes("API key")
+            ? "AI API configuration error. Please notify admin."
+            : "Translation failed. Please try again later.";
+
+        return NextResponse.json(
+            { success: false, error: "AI_ERROR", message: errorMessage },
+            { status: 500 }
+        );
     }
 }
