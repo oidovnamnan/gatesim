@@ -1,8 +1,9 @@
-
 import { auth } from "@/lib/auth";
-import { prisma as db } from "@/lib/prisma";
+import { db } from "@/lib/firebase";
+import { collection, doc, setDoc } from "firebase/firestore";
 import { qpay } from "@/services/payments/qpay/client";
 import { NextResponse } from "next/server";
+
 
 const PRICING = {
     "5_DAYS": { days: 5, price: 25000, name: "5 Days AI Pass" },
@@ -25,55 +26,57 @@ export async function POST(req: Request) {
             return new NextResponse("Invalid Plan", { status: 400 });
         }
 
-        // 2. Create Order
-        // Note: We use a placeholder 'AI_PASS' as packageId for now.
+        // 2. Create Order in Firebase (Source of Truth for Orders)
         const orderId = `AI-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const orderRef = doc(collection(db, "orders"), orderId);
 
-        const order = await db.order.create({
-            data: {
-                orderNumber: orderId,
-                userId: session.user.id,
-                userEmail: session.user.email,
-                packageId: "AI_PASS", // Virtual Product ID
-                packageSnapshot: { name: plan.name, days: plan.days, type: "digital_service" },
-                amount: plan.price,
-                currency: "MNT",
-                status: "PENDING_PAYMENT",
-                metadata: {
-                    type: "AI_PASS",
-                    planId: planId,
-                    days: plan.days
-                }
-            }
-        });
+        const orderData = {
+            id: orderId,
+            userId: session.user.id,
+            contactEmail: session.user.email,
+            items: [{
+                sku: "AI_PASS",
+                name: plan.name,
+                price: plan.price,
+                quantity: 1,
+                metadata: { planId, days: plan.days }
+            }],
+            totalAmount: plan.price,
+            currency: "MNT",
+            status: "pending",
+            type: "AI_UPGRADE", // Field for webhook to distinguish
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+
+        await setDoc(orderRef, orderData);
 
         // 3. Create QPay Invoice
         const invoice = await qpay.createInvoice({
-            orderId: order.orderNumber,
+            orderId: orderId,
             amount: plan.price,
             description: `GateSIM: ${plan.name}`
         });
 
-        // 4. Save Payment Record
-        await db.payment.create({
-            data: {
-                orderId: order.id,
-                provider: "QPAY",
-                amount: plan.price,
-                currency: "MNT",
-                status: "PENDING",
-                qpayInvoiceId: invoice.invoice_id,
-                qpayQrText: invoice.qr_text,
-                qpayQrImage: invoice.qr_image,
-                qpayDeeplinks: invoice.urls as any
+        // 4. Update Order with Payment Info
+        await setDoc(orderRef, {
+            paymentId: invoice.invoice_id,
+            paymentMethod: "qpay",
+            paymentData: {
+                invoice_id: invoice.invoice_id,
+                qr_text: invoice.qr_text,
+                qr_image: invoice.qr_image,
+                urls: invoice.urls as any
             }
-        });
+        }, { merge: true });
+
 
         return NextResponse.json({
             success: true,
-            orderId: order.orderNumber,
+            orderId: orderId,
             invoice: invoice
         });
+
 
     } catch (error: any) {
         console.error("AI Upgrade Error:", error);

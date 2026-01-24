@@ -4,6 +4,8 @@ import { doc, getDoc, updateDoc, runTransaction } from "firebase/firestore";
 import { createMobiMatterOrder } from "@/lib/mobimatter";
 import { MailService } from "@/lib/mail";
 import { qpay } from "@/services/payments/qpay/client";
+import { activatePremium } from "@/lib/ai-usage";
+
 import { sendAdminOrderNotification, formatOrderForNotification } from "@/lib/admin-notifications";
 
 // 🔐 SECURITY: Webhook secret for verification
@@ -69,14 +71,24 @@ export async function POST(request: NextRequest) {
                 webhookPayload: body
             });
 
-            // Provision eSIM from Airalo
-            // Note: In Firebase version, packageId is inside the order data
-            if (orderData.package?.id || orderData.items?.[0]?.id) {
+            // 5. Handle AI Upgrade vs eSIM Provisioning
+            if (orderData.type === "AI_UPGRADE") {
+                const days = orderData.items?.[0]?.metadata?.days || 5;
+                console.log(`[Webhook] Activating AI Premium for User ${orderData.userId}, Days: ${days}`);
+                await activatePremium(orderData.userId, days);
+
+                // Update order to COMPLETED
+                await updateDoc(orderRef, {
+                    status: "COMPLETED",
+                    updatedAt: Date.now()
+                });
+            } else if (orderData.package?.id || orderData.items?.[0]?.id) {
                 const packageId = orderData.package?.id || orderData.items?.[0]?.id;
                 await provisionEsim(orderId, packageId);
             } else {
-                console.error("QPay webhook: No package ID found in order");
+                console.error("QPay webhook: No package ID or upgrade type found in order");
             }
+
 
         } catch (dbError) {
             console.error("QPay webhook: Database error:", dbError);
