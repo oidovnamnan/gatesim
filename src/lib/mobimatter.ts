@@ -113,13 +113,14 @@ export const getMobiMatterProducts = unstable_cache(
                 const countryCodes = p.countries ? p.countries.map((c: any) => (c.alpha2Code || c).toString().toUpperCase()) : [];
 
                 // --- TOPUP DETECTION ---
-                // MobiMatter products are topups if they have "topup" in title/category 
-                // or if specific flags are set (isAddon/addon) or detail field TOPUP is "1"
-                const isTopUp = title.toLowerCase().includes("topup") ||
+                // A package is ONLY considered strictly "Top-up Only" IF:
+                // 1. Its category is "esim_addon"
+                // 2. OR its title/category explicitly contains "topup"
+                // 3. OR description specifically contains "add-on package for existing"
+                const isTopUp = (p.productCategory === "esim_addon") ||
+                    title.toLowerCase().includes("topup") ||
                     (p.productCategory && p.productCategory.toLowerCase().includes("topup")) ||
-                    p.isAddon === true ||
-                    p.addon === true ||
-                    getValue("TOPUP") === "1";
+                    description.toLowerCase().includes("add-on package for existing");
 
                 // --- PRICING CALCULATION ---
                 const basePrice = p.retailPrice || 0;
