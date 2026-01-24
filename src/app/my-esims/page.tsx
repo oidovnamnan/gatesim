@@ -59,10 +59,13 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
                 <div className="flex items-start gap-4">
                     <div className="text-4xl shadow-sm rounded-xl overflow-hidden bg-slate-50">{flag}</div>
                     <div className="flex-1 min-w-0 pt-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center flex-wrap gap-2 mb-1">
                             <h3 className="font-bold text-slate-900 truncate text-lg">
                                 {t(`country_${order.countryCode}`)}
                             </h3>
+                            {order.isTopUp && (
+                                <Badge className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0">🔄 {t("topUp")}</Badge>
+                            )}
                             <Badge
                                 variant="secondary"
                                 className={cn(
@@ -464,6 +467,7 @@ export default function MyEsimsPage() {
                         activationCode: esim.lpa || "Generating...",
                         iccid: esim.iccid || "Pending...",
                         createdAt: formatDate(data.createdAt),
+                        isTopUp: pkg.isTopUp || false,
                         raw: data
                     };
                 });
@@ -567,6 +571,7 @@ export default function MyEsimsPage() {
                     activationCode: esim.lpa || "Generating...",
                     iccid: esim.iccid || "Pending...",
                     createdAt: formatDate(data.createdAt),
+                    isTopUp: pkg.isTopUp || false,
                     raw: data
                 };
             });
