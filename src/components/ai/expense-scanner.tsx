@@ -1,25 +1,48 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Camera, Upload, X, Loader2, Check, Plus, Sparkles } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Camera, Upload, X, Loader2, Check, Plus, Sparkles, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Expense } from "./expense-types";
+import { Expense, CustomCategory } from "./expense-types";
 import { useTranslation } from "@/providers/language-provider";
 import { motion } from "framer-motion";
 
 interface ExpenseScannerProps {
     onSave: (expense: Expense) => void;
     trigger?: React.ReactNode;
+    customCategories?: CustomCategory[];
+    onAddCategory?: (category: CustomCategory) => void;
 }
 
-export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
+const PRESET_COLORS = [
+    "bg-red-500/10 text-red-600 border-red-200/50",
+    "bg-orange-500/10 text-orange-600 border-orange-200/50",
+    "bg-amber-500/10 text-amber-600 border-amber-200/50",
+    "bg-green-500/10 text-green-600 border-green-200/50",
+    "bg-emerald-500/10 text-emerald-600 border-emerald-200/50",
+    "bg-teal-500/10 text-teal-600 border-teal-200/50",
+    "bg-cyan-500/10 text-cyan-600 border-cyan-200/50",
+    "bg-blue-500/10 text-blue-600 border-blue-200/50",
+    "bg-indigo-500/10 text-indigo-600 border-indigo-200/50",
+    "bg-violet-500/10 text-violet-600 border-violet-200/50",
+    "bg-purple-500/10 text-purple-600 border-purple-200/50",
+    "bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-200/50",
+    "bg-pink-500/10 text-pink-600 border-pink-200/50",
+    "bg-rose-500/10 text-rose-600 border-rose-200/50",
+];
+
+export function ExpenseScanner({ onSave, trigger, customCategories = [], onAddCategory }: ExpenseScannerProps) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
+    const [createCategoryOpen, setCreateCategoryOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
+    const [newCategoryEmoji, setNewCategoryEmoji] = useState("✨");
+
     const [step, setStep] = useState<"upload" | "review">("upload");
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -84,7 +107,7 @@ export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
             merchant: formData.merchant,
             amount: Number(formData.amount),
             currency: formData.currency || "JPY",
-            category: (formData.category as any) || "Other",
+            category: formData.category || "Other",
             date: formData.date || new Date().toISOString().split('T')[0],
             imageUrl: imagePreview || undefined,
             timestamp: Date.now()
@@ -95,11 +118,79 @@ export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
         resetForm();
     };
 
+    const handleCreateCategory = () => {
+        if (!newCategoryName || !onAddCategory) return;
+
+        const randomColor = PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)];
+
+        const newCat: CustomCategory = {
+            id: Date.now().toString(),
+            name: newCategoryName,
+            emoji: newCategoryEmoji,
+            color: randomColor
+        };
+
+        onAddCategory(newCat);
+        setFormData({ ...formData, category: newCategoryName });
+        setCreateCategoryOpen(false);
+        setNewCategoryName("");
+        setNewCategoryEmoji("✨");
+    };
+
     const resetForm = () => {
         setStep("upload");
         setImagePreview(null);
         setFormData({ currency: "JPY", category: "Food", date: new Date().toISOString().split('T')[0] });
     };
+
+    // Auto-suggest emoji based on name (Super simple logic for now)
+    useEffect(() => {
+        const lower = newCategoryName.toLowerCase();
+        if (lower.includes("beer") || lower.includes("drink")) setNewCategoryEmoji("🍺");
+        else if (lower.includes("game") || lower.includes("play")) setNewCategoryEmoji("🎮");
+        else if (lower.includes("home") || lower.includes("house")) setNewCategoryEmoji("🏠");
+        else if (lower.includes("book") || lower.includes("read")) setNewCategoryEmoji("📚");
+        else if (lower.includes("gym") || lower.includes("fit")) setNewCategoryEmoji("💪");
+        else if (lower.includes("gift")) setNewCategoryEmoji("🎁");
+        else if (lower.includes("pet") || lower.includes("dog") || lower.includes("cat")) setNewCategoryEmoji("🐾");
+        else if (lower.includes("work") || lower.includes("job")) setNewCategoryEmoji("💼");
+        else if (lower.length > 0) setNewCategoryEmoji("✨");
+    }, [newCategoryName]);
+
+    if (createCategoryOpen) {
+        return (
+            <Dialog open={createCategoryOpen} onOpenChange={setCreateCategoryOpen}>
+                <DialogContent className="bg-white/90 backdrop-blur-2xl border border-white/20 p-6 rounded-[32px] shadow-2xl max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle className="text-center font-black text-slate-900">New Category</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="flex items-center justify-center">
+                            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-6xl shadow-inner">
+                                {newCategoryEmoji}
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="uppercase text-[10px] font-black tracking-widest text-slate-400 pl-1">Name</Label>
+                            <Input
+                                placeholder="e.g. Gaming"
+                                className="h-12 bg-slate-50 border-slate-200 rounded-xl font-bold"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                            />
+                        </div>
+                        <Button
+                            className="w-full h-12 bg-black text-white rounded-xl font-bold"
+                            onClick={handleCreateCategory}
+                            disabled={!newCategoryName}
+                        >
+                            Create Category
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        );
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={(open: boolean) => {
@@ -130,7 +221,7 @@ export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
                             AI will analyze your receipt and track expenses automatically.
                         </p>
 
-                        <div className="relative z-10 grid grid-cols-2 gap-3 w-full">
+                        <div className="relative z-10 grid grid-cols-3 gap-3 w-full">
                             <Button
                                 variant="outline"
                                 className="h-28 flex flex-col gap-3 rounded-[24px] border border-slate-100 hover:border-blue-500/30 hover:bg-blue-50/50 bg-white shadow-sm transition-all group"
@@ -139,7 +230,7 @@ export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
                                 <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
                                     <Upload className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Upload</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Upload</span>
                             </Button>
                             <Button
                                 variant="outline"
@@ -149,7 +240,20 @@ export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
                                 <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
                                     <Camera className="w-5 h-5 text-slate-400 group-hover:text-emerald-600" />
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Camera</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Camera</span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-28 flex flex-col gap-3 rounded-[24px] border border-slate-100 hover:border-purple-500/30 hover:bg-purple-50/50 bg-white shadow-sm transition-all group"
+                                onClick={() => {
+                                    setStep("review");
+                                    setFormData({ currency: "JPY", category: "Food", date: new Date().toISOString().split('T')[0] });
+                                }}
+                            >
+                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+                                    <Edit2 className="w-5 h-5 text-slate-400 group-hover:text-purple-600" />
+                                </div>
+                                <span className="text-center text-[9px] font-black uppercase tracking-widest text-slate-500">Manual Entry</span>
                             </Button>
                         </div>
                         <input
@@ -254,18 +358,47 @@ export function ExpenseScanner({ onSave, trigger }: ExpenseScannerProps) {
                                     <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">Category</Label>
                                     <Select
                                         value={formData.category}
-                                        onValueChange={(v) => setFormData({ ...formData, category: v as any })}
+                                        onValueChange={(v) => {
+                                            if (v === "CREATE_NEW") {
+                                                setCreateCategoryOpen(true);
+                                            } else {
+                                                setFormData({ ...formData, category: v as any });
+                                            }
+                                        }}
                                     >
                                         <SelectTrigger className="h-12 bg-slate-50/50 border-slate-100 font-black text-xs rounded-xl">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                                        <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
                                             <SelectItem value="Food">🍔 Food</SelectItem>
                                             <SelectItem value="Transport">🚕 Transport</SelectItem>
+                                            <SelectItem value="Flight">✈️ Flight</SelectItem>
+                                            <SelectItem value="Hotel">🏨 Hotel</SelectItem>
                                             <SelectItem value="Shopping">🛍️ Shopping</SelectItem>
                                             <SelectItem value="Entertainment">🎟️ Fun</SelectItem>
                                             <SelectItem value="Medical">💊 Medical</SelectItem>
                                             <SelectItem value="Other">📝 Other</SelectItem>
+
+                                            {customCategories.length > 0 && (
+                                                <>
+                                                    <div className="h-px bg-slate-100 my-1 mx-2" />
+                                                    <p className="text-[9px] font-black text-slate-400 px-2 py-1 uppercase tracking-widest">Custom</p>
+                                                    {customCategories.map(cat => (
+                                                        <SelectItem key={cat.id} value={cat.name}>
+                                                            {cat.emoji} {cat.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </>
+                                            )}
+
+                                            {onAddCategory && (
+                                                <>
+                                                    <div className="h-px bg-slate-100 my-1 mx-2" />
+                                                    <SelectItem value="CREATE_NEW" className="text-blue-600 font-bold">
+                                                        <Plus className="w-3 h-3 mr-2 inline" /> Create New...
+                                                    </SelectItem>
+                                                </>
+                                            )}
                                         </SelectContent>
                                     </Select>
                                 </div>

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, TrendingUp, ShoppingBag, Utensils, Bus, Stethoscope, Ticket, ArrowLeft, ChevronRight, Plus } from "lucide-react";
+import { Trash2, TrendingUp, ShoppingBag, Utensils, Bus, Stethoscope, Ticket, ArrowLeft, ChevronRight, Plus, Plane, BedDouble } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Expense } from "./expense-types";
+import { Expense, CustomCategory } from "./expense-types";
 import { ExpenseScanner } from "./expense-scanner";
 import { useTranslation } from "@/providers/language-provider";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 const CATEGORY_ICONS: Record<string, any> = {
     Food: Utensils,
     Transport: Bus,
+    Flight: Plane,
+    Hotel: BedDouble,
     Shopping: ShoppingBag,
     Medical: Stethoscope,
     Entertainment: Ticket,
@@ -26,6 +28,8 @@ const CATEGORY_ICONS: Record<string, any> = {
 const CATEGORY_COLORS: Record<string, string> = {
     Food: "bg-orange-500/10 text-orange-600 border-orange-200/50",
     Transport: "bg-blue-500/10 text-blue-600 border-blue-200/50",
+    Flight: "bg-sky-500/10 text-sky-600 border-sky-200/50",
+    Hotel: "bg-indigo-500/10 text-indigo-600 border-indigo-200/50",
     Shopping: "bg-pink-500/10 text-pink-600 border-pink-200/50",
     Medical: "bg-emerald-500/10 text-emerald-600 border-emerald-200/50",
     Entertainment: "bg-purple-500/10 text-purple-600 border-purple-200/50",
@@ -37,6 +41,7 @@ export function ExpenseDashboard() {
     const router = useRouter();
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [totalByCurrency, setTotalByCurrency] = useState<Record<string, number>>({});
+    const [customCategories, setCustomCategories] = useState<CustomCategory[]>([]);
 
     // Load from local storage
     useEffect(() => {
@@ -48,6 +53,15 @@ export function ExpenseDashboard() {
                 console.error("Failed to load expenses", e);
             }
         }
+
+        const savedCategories = localStorage.getItem("gatesim_custom_categories");
+        if (savedCategories) {
+            try {
+                setCustomCategories(JSON.parse(savedCategories));
+            } catch (e) {
+                console.error("Failed to load custom categories", e);
+            }
+        }
     }, []);
 
     // Save to local storage
@@ -55,6 +69,13 @@ export function ExpenseDashboard() {
         localStorage.setItem("gatesim_expenses", JSON.stringify(expenses));
         calculateTotals();
     }, [expenses]);
+
+    // Save custom categories
+    useEffect(() => {
+        if (customCategories.length > 0) {
+            localStorage.setItem("gatesim_custom_categories", JSON.stringify(customCategories));
+        }
+    }, [customCategories]);
 
     const calculateTotals = () => {
         const totals: Record<string, number> = {};
@@ -67,6 +88,10 @@ export function ExpenseDashboard() {
 
     const addExpense = (newExpense: Expense) => {
         setExpenses(prev => [newExpense, ...prev]);
+    };
+
+    const addCustomCategory = (newCategory: CustomCategory) => {
+        setCustomCategories(prev => [...prev, newCategory]);
     };
 
     const deleteExpense = (id: string) => {
@@ -191,6 +216,8 @@ export function ExpenseDashboard() {
                         {expenses.length === 0 ? (
                             <ExpenseScanner
                                 onSave={addExpense}
+                                customCategories={customCategories}
+                                onAddCategory={addCustomCategory}
                                 trigger={
                                     <motion.button
                                         initial={{ opacity: 0 }}
@@ -210,8 +237,11 @@ export function ExpenseDashboard() {
                         ) : (
                             <div className="grid grid-cols-1 gap-3">
                                 {expenses.map((expense, idx) => {
+                                    const isCustom = !CATEGORY_ICONS[expense.category];
+                                    const customCat = customCategories.find(c => c.name === expense.category);
+
                                     const Icon = CATEGORY_ICONS[expense.category] || CATEGORY_ICONS.Other;
-                                    const colorClass = CATEGORY_COLORS[expense.category] || CATEGORY_COLORS.Other;
+                                    const colorClass = CATEGORY_COLORS[expense.category] || (customCat ? customCat.color : CATEGORY_COLORS.Other);
 
                                     return (
                                         <motion.div
@@ -223,8 +253,12 @@ export function ExpenseDashboard() {
                                             className="group relative"
                                         >
                                             <Card className="p-4 rounded-[24px] bg-white/60 backdrop-blur-xl border border-white hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 flex items-center gap-4">
-                                                <div className={cn("w-12 h-12 rounded-[18px] flex items-center justify-center shrink-0 border shadow-sm", colorClass)}>
-                                                    <Icon className="w-6 h-6" />
+                                                <div className={cn("w-12 h-12 rounded-[18px] flex items-center justify-center shrink-0 border shadow-sm text-lg", colorClass)}>
+                                                    {isCustom && customCat ? (
+                                                        <span>{customCat.emoji}</span>
+                                                    ) : (
+                                                        <Icon className="w-6 h-6" />
+                                                    )}
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">

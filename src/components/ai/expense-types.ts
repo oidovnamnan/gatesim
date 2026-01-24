@@ -4,7 +4,14 @@ export interface Expense {
     date: string;
     amount: number;
     currency: string;
-    category: "Food" | "Transport" | "Shopping" | "Entertainment" | "Medical" | "Other";
+    category: string;
     imageUrl?: string;
     timestamp: number;
+}
+
+export interface CustomCategory {
+    id: string;
+    name: string;
+    emoji: string;
+    color: string;
 }
