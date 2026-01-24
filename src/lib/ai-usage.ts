@@ -15,7 +15,7 @@ const FREE_LIMITS = {
 export async function checkAILimit(userId: string, type: AIUsageType): Promise<boolean> {
     if (!userId) return false;
 
-    const usage = await db.aIUsage.findUnique({
+    const usage = await db.aiUsage.findUnique({
         where: { userId }
     });
 
@@ -42,7 +42,7 @@ export async function checkAILimit(userId: string, type: AIUsageType): Promise<b
 export async function incrementAIUsage(userId: string, type: AIUsageType) {
     if (!userId) return;
 
-    await db.aIUsage.upsert({
+    await db.aiUsage.upsert({
         where: { userId },
         create: {
             userId,
@@ -73,7 +73,7 @@ export async function activatePremium(userId: string, days: number) {
     // Add days
     newExpiry.setDate(newExpiry.getDate() + days);
 
-    await db.aIUsage.upsert({
+    await db.aiUsage.upsert({
         where: { userId },
         create: {
             userId,

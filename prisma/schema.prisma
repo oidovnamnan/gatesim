@@ -37,7 +37,7 @@ model User {
   sessions      Session[]
   orders        Order[]
   pushSubscriptions PushSubscription[]
-  aiUsage       AIUsage?
+  aiUsage       AiUsage?
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -352,7 +352,7 @@ model AuditLog {
 
 // ============ AI USAGE & MONETIZATION ============
 
-model AIUsage {
+model AiUsage {
   id          String   @id @default(cuid())
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
