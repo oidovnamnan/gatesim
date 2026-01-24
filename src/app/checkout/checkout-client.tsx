@@ -397,35 +397,43 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     {/* Bank Deeplinks */}
                     {invoice.deeplinks && invoice.deeplinks.length > 0 && (
                         <div className="space-y-2">
-                            {invoice.deeplinks.map((bank, index) => {
-                                return (
-                                    <a
-                                        key={index}
-                                        href={bank.link}
-                                        className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group"
-                                    >
-                                        <div className="w-8 h-8 relative flex-shrink-0 flex items-center justify-center bg-slate-50 rounded-lg overflow-hidden p-1 border border-slate-100/50">
-                                            <img
-                                                src={bank.logo}
-                                                alt={bank.name}
-                                                className="w-full h-full object-contain"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.style.display = 'none';
-                                                    const parent = target.parentElement;
-                                                    if (parent) {
-                                                        parent.innerText = "🏦";
-                                                        parent.className = "w-8 h-8 flex items-center justify-center text-xl";
-                                                    }
-                                                }}
-                                            />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">
-                                            {bank.name}
-                                        </span>
-                                    </a>
-                                );
-                            })}
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                                    <Smartphone className="w-4 h-4" />
+                                    {t("bankAppPay")}
+                                </p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {invoice.deeplinks.map((bank, index) => {
+                                        return (
+                                            <a
+                                                key={index}
+                                                href={bank.link}
+                                                className="p-2.5 bg-white rounded-xl border border-slate-200 flex items-center gap-2 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                                            >
+                                                <div className="w-6 h-6 relative flex-shrink-0 flex items-center justify-center bg-slate-50 rounded-lg overflow-hidden p-1 border border-slate-100/50">
+                                                    <img
+                                                        src={bank.logo}
+                                                        alt={bank.name}
+                                                        className="w-full h-full object-contain"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.style.display = 'none';
+                                                            const parent = target.parentElement;
+                                                            if (parent) {
+                                                                parent.innerText = "🏦";
+                                                                parent.className = "w-6 h-6 flex items-center justify-center text-[10px]";
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors leading-tight">
+                                                    {bank.name}
+                                                </span>
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
 
                         </div>
                     )}
