@@ -23,6 +23,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
+import { AIPremiumModal } from "@/components/ai/ai-premium-modal";
 
 // Main AI features
 const aiFeatures = [
@@ -91,6 +92,9 @@ const aiFeatures = [
 export default function AIHubPage() {
     const { language } = useTranslation();
     const isMongolian = language === "mn";
+
+
+    const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
     return (
         <div className="relative min-h-screen pb-10 bg-slate-50 text-slate-900 selection:bg-blue-100">
@@ -247,11 +251,18 @@ export default function AIHubPage() {
                         </div>
                     </div>
 
-                    <button className="w-full mt-6 py-3.5 rounded-[20px] bg-slate-900 text-white font-black text-[13px] shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98]">
+                    <button
+                        onClick={() => setIsPremiumModalOpen(true)}
+                        className="w-full mt-6 py-3.5 rounded-[20px] bg-slate-900 text-white font-black text-[13px] shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98]">
                         {isMongolian ? "Premium эрх авах" : "Get Premium"}
                     </button>
                 </Card>
             </section>
+
+            <AIPremiumModal
+                isOpen={isPremiumModalOpen}
+                onClose={() => setIsPremiumModalOpen(false)}
+            />
         </div>
     );
 }
