@@ -333,16 +333,9 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                             <p className="text-sm font-medium text-slate-700 flex items-center gap-2"><Smartphone className="w-4 h-4" />{t("bankAppPay")}</p>
                             <div className="grid grid-cols-2 gap-3">
                                 {invoice.deeplinks.map((bank, index) => (
-                                    <button
+                                    <a
                                         key={index}
-                                        onClick={() => {
-                                            // Direct assignment to window.location.href is usually best for deeplinks.
-                                            // We use a small timeout to ensure the browser identifies this as a primary action.
-                                            const link = bank.link;
-                                            setTimeout(() => {
-                                                window.location.assign(link);
-                                            }, 10);
-                                        }}
+                                        href={bank.link}
                                         className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group shadow-sm text-left w-full"
                                     >
                                         <div className="w-11 h-11 relative flex-shrink-0 flex items-center justify-center bg-white rounded-xl overflow-hidden border border-slate-100 shadow-inner">
@@ -364,7 +357,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                         <span className="text-xs font-black text-slate-700 truncate group-hover:text-blue-600 transition-colors leading-tight">
                                             {bank.name}
                                         </span>
-                                    </button>
+                                    </a>
                                 ))}
                             </div>
                         </div>
