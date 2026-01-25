@@ -167,18 +167,19 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
 
                                     <div className="grid grid-cols-2 gap-2">
                                         {paymentData.invoice.urls?.map((bank: any) => (
-                                            <a
+                                            <button
                                                 key={bank.name}
-                                                href={bank.link}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="p-3 bg-white/5 rounded-2xl flex items-center gap-3 hover:bg-white/10 transition-colors"
+                                                onClick={() => {
+                                                    // Direct redirection is critical for QPay mobile deep-links
+                                                    window.location.href = bank.link;
+                                                }}
+                                                className="p-3 bg-white/5 rounded-2xl flex items-center gap-3 hover:bg-white/10 transition-colors w-full text-left"
                                             >
                                                 <div className="w-11 h-11 relative flex-shrink-0 rounded-xl overflow-hidden bg-white shadow-inner">
                                                     <img src={bank.logo} className="w-full h-full object-cover" alt={bank.name} />
                                                 </div>
                                                 <span className="text-xs text-white font-black truncate">{bank.name}</span>
-                                            </a>
+                                            </button>
                                         ))}
                                     </div>
 
