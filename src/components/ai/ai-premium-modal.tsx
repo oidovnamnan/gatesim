@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     X, Crown, Check, Sparkles, MessageCircle, Globe, Zap, Shield,
-    Languages, Map, Image as ImageIcon, Mic, Loader2, ArrowRight
+    Languages, Map, Image as ImageIcon, Mic, Loader2, ArrowRight, Smartphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
