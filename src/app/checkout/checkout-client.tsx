@@ -336,8 +336,12 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                     <button
                                         key={index}
                                         onClick={() => {
-                                            // Direct redirection is more reliable for mobile deep-links than target="_blank"
-                                            window.location.href = bank.link;
+                                            // Direct assignment to window.location.href is usually best for deeplinks.
+                                            // We use a small timeout to ensure the browser identifies this as a primary action.
+                                            const link = bank.link;
+                                            setTimeout(() => {
+                                                window.location.assign(link);
+                                            }, 10);
                                         }}
                                         className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group shadow-sm text-left w-full"
                                     >

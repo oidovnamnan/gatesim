@@ -170,8 +170,11 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                                             <button
                                                 key={bank.name}
                                                 onClick={() => {
-                                                    // Direct redirection is critical for QPay mobile deep-links
-                                                    window.location.href = bank.link;
+                                                    // Robust redirection for QPay mobile deep-links
+                                                    const link = bank.link;
+                                                    setTimeout(() => {
+                                                        window.location.assign(link);
+                                                    }, 10);
                                                 }}
                                                 className="p-3 bg-white/5 rounded-2xl flex items-center gap-3 hover:bg-white/10 transition-colors w-full text-left"
                                             >
