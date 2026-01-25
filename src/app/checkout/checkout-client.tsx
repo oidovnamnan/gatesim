@@ -329,16 +329,36 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                     <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"><div className="text-center"><p className="text-sm text-slate-600 mb-1">{t("totalAmount")}</p><p className="text-3xl font-bold text-blue-600">₮{invoice.amountMNT.toLocaleString()}</p><p className="text-xs text-slate-500 mt-1">{displayPrice}</p></div></Card>
                     <Card className="p-6 bg-white border-slate-200"><div className="flex flex-col items-center"><p className="text-sm text-slate-600 mb-4 flex items-center gap-2"><QrCode className="w-4 h-4" />{t("qrScanInstructions")}</p>{invoice.qrImage ? (<div className="w-48 h-48 bg-white rounded-lg border-2 border-slate-100 flex items-center justify-center p-2"><img src={invoice.qrImage.startsWith("http") ? invoice.qrImage : invoice.qrImage.startsWith("data:") ? invoice.qrImage : `data:image/png;base64,${invoice.qrImage}`} alt="QPay QR Code" className="w-full h-full object-contain" /></div>) : (<div className="w-48 h-48 bg-slate-100 rounded-lg flex items-center justify-center"><QrCode className="w-20 h-20 text-slate-300" /></div>)}<div className="flex items-center gap-2 mt-4 text-xs text-slate-500"><RefreshCw className={cn("w-3 h-3", checkCount > 0 && "animate-spin")} />{t("waitingPayment")} ({checkCount})</div></div></Card>
                     {invoice.deeplinks && invoice.deeplinks.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-sm font-medium text-slate-700 flex items-center gap-2"><Smartphone className="w-4 h-4" />{t("bankAppPay")}</p>
+                        <div className="space-y-4">
+                            <div className="pt-2">
+                                <Button
+                                    onClick={() => window.location.href = invoice.shortUrl}
+                                    className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all"
+                                >
+                                    <Smartphone className="w-5 h-5 mr-2" />
+                                    {t("bankAppPay")} (QPay)
+                                </Button>
+                                <p className="text-[10px] text-slate-400 text-center mt-2 font-medium uppercase tracking-tighter">Дээрх товч дээр дарж бүх банкны апп-аас сонгон төлөх боломжтой</p>
+                            </div>
+
+                            <div className="relative flex items-center gap-3">
+                                <div className="flex-1 h-px bg-slate-100" />
+                                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">эсвэл шууд нээх</span>
+                                <div className="flex-1 h-px bg-slate-100" />
+                            </div>
+
                             <div className="grid grid-cols-2 gap-3">
                                 {invoice.deeplinks.map((bank, index) => (
                                     <a
                                         key={index}
                                         href={bank.link}
-                                        className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group shadow-sm text-left w-full"
+                                        onClick={(e) => {
+                                            // Manual trigger for browsers that intercept <a> tags
+                                            window.location.href = bank.link;
+                                        }}
+                                        className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-50 transition-all group shadow-sm text-left w-full select-none"
                                     >
-                                        <div className="w-11 h-11 relative flex-shrink-0 flex items-center justify-center bg-white rounded-xl overflow-hidden border border-slate-100 shadow-inner">
+                                        <div className="w-11 h-11 relative flex-shrink-0 flex items-center justify-center bg-white rounded-xl overflow-hidden border border-slate-100 shadow-inner pointer-events-none">
                                             <img
                                                 src={bank.logo}
                                                 alt={bank.name}
@@ -354,7 +374,7 @@ export default function CheckoutClient({ pkg }: CheckoutClientProps) {
                                                 }}
                                             />
                                         </div>
-                                        <span className="text-xs font-black text-slate-700 truncate group-hover:text-blue-600 transition-colors leading-tight">
+                                        <span className="text-xs font-black text-slate-700 truncate group-hover:text-blue-600 transition-colors leading-tight pointer-events-none">
                                             {bank.name}
                                         </span>
                                     </a>
