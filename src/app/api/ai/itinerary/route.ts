@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 import { getOpenAIConfig } from "@/lib/ai-config";
 import { getForecast } from "@/lib/weather";
+import { getAmadeusFlightContext } from "@/lib/ai/amadeus-grounding";
 
 // Country names
 const countryNames: Record<string, { en: string; mn: string }> = {
@@ -220,6 +221,12 @@ export async function POST(request: NextRequest) {
       console.error("Weather fetch failed:", e);
     }
 
+    // --- Amadeus Real-time Flight Context (New) ---
+    let amadeusContext = "";
+    if (intlTransport === "flight") {
+      amadeusContext = await getAmadeusFlightContext(destination);
+    }
+
     const pricingLogic = `
     **TRANSPORT PRICING (HARD CONSTRAINT):**
     - **International (${intlTransport}):** The estimated cost is **${intlCost.min} - ${intlCost.max} ${intlCost.currency}**. You MUST use a value within this range for the 'Departure from Ulaanbaatar' activity.
@@ -268,6 +275,7 @@ ${pricingLogic}
 
     ${groundingContext}
     ${weatherContext}
+    ${amadeusContext}
 
 **CRITICAL INSTRUCTIONS:**
 1. **Multi-modal Logistics**: Plan the itinerary STRICTLY following the Transport Modes. 
