@@ -40,9 +40,10 @@ export async function POST(request: NextRequest) {
         1. If "hotel": Find ${budget}-appropriate hotels. If children are traveling (${travelers.children} children), prioritize hotels with family rooms or suitable room configurations.
         2. If "shopping" and purpose is "procurement": Find wholesale markets, trade centers, and industrial hubs.
         3. If children are traveling: Prioritize activities and places that are family-friendly and safe for kids.
-        4. IMAGE CRITERIA: For each option, find a high-quality professional ARCHITECTURAL or EXTERIOR photo from Unsplash. 
+        4. IMAGE CRITERIA: For each option, find a high-quality professional ARCHITECTURAL, EXTERIOR, or SCENIC photo from Unsplash.
            E.g., https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800
-           CRITICAL: NEVER include images of people, food (unless Dining), or internal rooms (unless specified).
+           CRITICAL: NEVER include images of people, interior details like bathrooms/beds, or close-ups. 
+           ONLY use stunning wide shots of the building or surroundings.
         5. Provide highly detailed descriptions (2-3 sentences) explaining WHY this fits the purpose for ${travelersStr}.
 
         Return ONLY a JSON object with this structure:
@@ -105,7 +106,8 @@ export async function POST(request: NextRequest) {
                             description: `Real-time availability confirmed via Amadeus. Star rating: ${h.rating || 'N/A'}.`,
                             rating: h.rating ? parseFloat(h.rating) : 4.0,
                             price: "Live Price available",
-                            imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
+                            // Dynamic image based on hotel name keywords to avoid duplicates.
+                            imageUrl: `https://loremflickr.com/800/600/hotel,luxury,${encodeURIComponent(h.name.split(' ')[0])}`,
                             location: h.iataCode || city,
                             isLive: true,
                             bookingUrl: `https://www.google.com/search?q=hotel+${encodeURIComponent(h.name)}+${encodeURIComponent(city || '')}`
@@ -114,18 +116,49 @@ export async function POST(request: NextRequest) {
                 } else if (type === 'attraction' || type === 'tourist') {
                     const cityDetails = await getCityDetails(city || destination);
                     if (cityDetails?.geoCode) {
-                        const pois = await getPointsOfInterest(cityDetails.geoCode.latitude, cityDetails.geoCode.longitude);
-                        if (pois && pois.length > 0) {
-                            amadeusOptions.push(...pois.slice(0, 3).map((p: any) => ({
-                                id: `poi-${p.id}`,
-                                name: p.name,
-                                description: `Popular local attraction (${p.category}). Recommended by real traveler data.`,
-                                rating: 4.8,
-                                price: "Entry Fee Varies",
-                                imageUrl: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
-                                location: city || destination,
-                                isLive: true
-                            })));
+                        try {
+                            // Fetch both POIs and Activities (which have images)
+                            const [pois, activities] = await Promise.all([
+                                getPointsOfInterest(cityDetails.geoCode.latitude, cityDetails.geoCode.longitude),
+                                getToursAndActivities(cityDetails.geoCode.latitude, cityDetails.geoCode.longitude)
+                            ]);
+
+                            const combined = [];
+
+                            // Prioritize Activities as they often have real pictures
+                            if (activities && activities.length > 0) {
+                                combined.push(...activities.slice(0, 3).map((a: any) => ({
+                                    id: `act-${a.id}`,
+                                    name: a.name,
+                                    description: a.shortDescription || `Exciting activity in ${city || destination}.`,
+                                    rating: parseFloat(a.rating) || 4.8,
+                                    price: a.price ? `${a.price.amount} ${a.price.currencyCode}` : "Price Varies",
+                                    // USE REAL AMADEUS IMAGE IF AVAILABLE
+                                    imageUrl: a.pictures && a.pictures.length > 0 ? a.pictures[0] : "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+                                    location: city || destination,
+                                    isLive: true,
+                                    bookingUrl: a.bookingLink || `https://www.google.com/search?q=${encodeURIComponent(a.name)}`
+                                })));
+                            }
+
+                            // Fallback to POIs if needed
+                            if (pois && pois.length > 0 && combined.length < 5) {
+                                combined.push(...pois.slice(0, 5 - combined.length).map((p: any) => ({
+                                    id: `poi-${p.id}`,
+                                    name: p.name,
+                                    description: `Popular local attraction (${p.category}). Recommended by real traveler data.`,
+                                    rating: 4.8,
+                                    price: "Entry Fee Varies",
+                                    imageUrl: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+                                    location: city || destination,
+                                    isLive: true
+                                })));
+                            }
+
+                            amadeusOptions.push(...combined);
+
+                        } catch (err) {
+                            console.error("Activity fetch error:", err);
                         }
                     }
                 }

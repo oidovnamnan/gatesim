@@ -109,6 +109,19 @@ export async function getHotelOffers(hotelIds: string[]) {
     }
 }
 
+const CITY_COORDINATES: Record<string, { latitude: number, longitude: number }> = {
+    'seoul': { latitude: 37.5665, longitude: 126.9780 },
+    'tokyo': { latitude: 35.6762, longitude: 139.6503 },
+    'bangkok': { latitude: 13.7563, longitude: 100.5018 },
+    'beijing': { latitude: 39.9042, longitude: 116.4074 },
+    'chengdu': { latitude: 30.5728, longitude: 104.0668 },
+    'guangzhou': { latitude: 23.1291, longitude: 113.2644 },
+    'shanghai': { latitude: 31.2304, longitude: 121.4737 },
+    'hong kong': { latitude: 22.3193, longitude: 114.1694 },
+    'singapore': { latitude: 1.3521, longitude: 103.8198 },
+    'ulaanbaatar': { latitude: 47.8864, longitude: 106.9057 },
+};
+
 /**
  * Get detailed city info including coordinates
  */
@@ -116,14 +129,34 @@ export async function getCityDetails(cityName: string) {
     const amadeus = getAmadeus();
     if (!amadeus) return null;
 
+    // Use hardcoded fallback for Sandbox reliability
+    const fallback = CITY_COORDINATES[cityName.toLowerCase()];
+
     try {
         const response = await amadeus.referenceData.locations.get({
             keyword: cityName,
             subType: Amadeus.location.city,
         });
-        return response.data[0] || null;
+
+        const data = response.data[0];
+        if (data && data.geoCode) return data;
+
+        // If Amadeus returns nothing but we have a fallback, use it
+        if (fallback) {
+            return {
+                name: cityName,
+                geoCode: fallback
+            };
+        }
+        return null;
     } catch (error) {
-        console.error("[Amadeus] City details fetch failed:", error);
+        console.warn("[Amadeus] City details fetch failed, trying fallback:", cityName);
+        if (fallback) {
+            return {
+                name: cityName,
+                geoCode: fallback
+            };
+        }
         return null;
     }
 }
