@@ -70,6 +70,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -371,6 +379,11 @@ export default function AITravelPlannerV2() {
     const [progress, setProgress] = useState(0);
     const [isSavingTrip, setIsSavingTrip] = useState(false);
     const [showChecklist, setShowChecklist] = useState(false);
+
+    // --- Activity Insight State ---
+    const [selectedInsight, setSelectedInsight] = useState<any>(null);
+    const [isInsightLoading, setIsInsightLoading] = useState(false);
+    const [isInsightOpen, setIsInsightOpen] = useState(false);
 
     // --- Hotel Filters ---
     const [hotelStars, setHotelStars] = useState("all");
@@ -730,6 +743,34 @@ export default function AITravelPlannerV2() {
         setActiveCategory(bestCategory);
         fetchDiscoveryData(bestCategory, firstCity);
         setStep(5);
+    };
+
+    const fetchActivityInsight = async (activityName: string, location: string) => {
+        setIsInsightLoading(true);
+        setIsInsightOpen(true);
+        setSelectedInsight(null);
+
+        try {
+            const response = await fetch('/api/ai/activity-info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    activity: activityName,
+                    location: location,
+                    city: destination,
+                    language: isMongolian ? 'mn' : 'en'
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setSelectedInsight(data.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch activity insight:", error);
+        } finally {
+            setIsInsightLoading(false);
+        }
     };
 
     const handleSaveTrip = async () => {
@@ -2021,7 +2062,10 @@ export default function AITravelPlannerV2() {
                                                                 return (
                                                                     <div key={idx} className="relative group">
                                                                         <div className="absolute -left-[41px] top-6 w-4 h-4 rounded-full bg-white border-[3px] border-slate-200 group-hover:border-emerald-500 transition-colors z-10" />
-                                                                        <Card className="p-4 rounded-2xl border border-slate-100 group-hover:border-emerald-500/30 transition-all shadow-sm group-hover:shadow-md bg-white">
+                                                                        <Card
+                                                                            onClick={() => fetchActivityInsight(act.activity, act.location)}
+                                                                            className="p-4 rounded-2xl border border-slate-100 group-hover:border-emerald-500/30 transition-all shadow-sm group-hover:shadow-md bg-white cursor-pointer hover:scale-[1.02]"
+                                                                        >
                                                                             <div className="flex gap-4">
                                                                                 <div className="w-11 h-11 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-emerald-50 transition-colors">
                                                                                     <ActivityIcon className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
@@ -2035,6 +2079,9 @@ export default function AITravelPlannerV2() {
                                                                                                     {act.cost}
                                                                                                 </span>
                                                                                             )}
+                                                                                        </div>
+                                                                                        <div className="text-[8px] font-bold text-slate-300 uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                            {isMongolian ? "Дэлгэрэнгүй" : "View Details"}
                                                                                         </div>
                                                                                     </div>
                                                                                     <h4 className="font-black text-slate-900 text-sm leading-tight group-hover:text-emerald-700 transition-colors">{act.activity}</h4>
@@ -2141,7 +2188,132 @@ export default function AITravelPlannerV2() {
                     )
                 }
             </AnimatePresence>
-        </div >
+
+            {/* Activity Insight Dialog */}
+            <Dialog open={isInsightOpen} onOpenChange={setIsInsightOpen}>
+                <DialogContent className="max-w-xl p-0 overflow-hidden rounded-[32px] border-none shadow-2xl bg-white/95 backdrop-blur-xl">
+                    <div className="relative h-48 bg-slate-900 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 to-slate-900/40 z-10" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Sparkles className="w-16 h-16 text-white/10 animate-pulse" />
+                        </div>
+                        <div className="absolute bottom-6 left-8 right-8 z-20">
+                            <Badge className="mb-3 bg-emerald-500 text-white border-none px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
+                                {isMongolian ? "AI Танилцуулга" : "AI Insight"}
+                            </Badge>
+                            <h2 className="text-2xl font-black text-white leading-tight">
+                                {isInsightLoading ? (isMongolian ? "Мэдээлэл цуглуулж байна..." : "Gathering insights...") : (isMongolian ? selectedInsight?.titleMn : selectedInsight?.title) || (isMongolian ? "Дэлгэрэнгүй" : "Details")}
+                            </h2>
+                        </div>
+                        <button
+                            onClick={() => setIsInsightOpen(false)}
+                            className="absolute top-6 right-6 z-30 w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md flex items-center justify-center text-white transition-all"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh] scrollbar-hide">
+                        {isInsightLoading ? (
+                            <div className="py-12 flex flex-col items-center justify-center gap-6">
+                                <div className="relative">
+                                    <div className="w-20 h-20 rounded-full border-4 border-slate-100 border-t-emerald-500 animate-spin" />
+                                    <Sparkles className="absolute inset-0 m-auto w-8 h-8 text-emerald-500 animate-pulse" />
+                                </div>
+                                <div className="text-center space-y-2">
+                                    <p className="text-slate-900 font-black text-lg">{isMongolian ? "AI мэдээлэл боловсруулж байна" : "AI is processing information"}</p>
+                                    <p className="text-slate-400 text-sm font-medium">{isMongolian ? "Түр хүлээнэ үү..." : "Please wait a moment..."}</p>
+                                </div>
+                            </div>
+                        ) : selectedInsight ? (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {/* Description Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                            <Landmark className="w-5 h-5 text-emerald-600" />
+                                        </div>
+                                        <h3 className="font-black text-slate-900 uppercase tracking-wider text-xs">
+                                            {isMongolian ? "Тойм мэдээлэл" : "Overview"}
+                                        </h3>
+                                    </div>
+                                    <p className="text-slate-600 leading-relaxed font-medium">
+                                        {isMongolian ? selectedInsight.descriptionMn : selectedInsight.description}
+                                    </p>
+                                </div>
+
+                                {/* Details Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                                <Check className="w-5 h-5 text-blue-600" />
+                                            </div>
+                                            <h3 className="font-black text-slate-900 uppercase tracking-wider text-xs">
+                                                {isMongolian ? "Онцлох зүйлс" : "Highlights"}
+                                            </h3>
+                                        </div>
+                                        <ul className="space-y-2.5">
+                                            {(isMongolian ? selectedInsight.detailsMn : selectedInsight.details)?.map((detail: string, i: number) => (
+                                                <li key={i} className="flex gap-2.5 text-sm text-slate-500 font-medium">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 mt-1.5" />
+                                                    {detail}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                                                <Sparkles className="w-5 h-5 text-amber-600" />
+                                            </div>
+                                            <h3 className="font-black text-slate-900 uppercase tracking-wider text-xs">
+                                                {isMongolian ? "Pro Зөвлөмж" : "Pro Tips"}
+                                            </h3>
+                                        </div>
+                                        <ul className="space-y-2.5">
+                                            {(isMongolian ? selectedInsight.tipsMn : selectedInsight.tips)?.map((tip: string, i: number) => (
+                                                <li key={i} className="flex gap-2.5 text-sm text-slate-500 font-medium bg-amber-50/50 p-2 rounded-lg border border-amber-100/50">
+                                                    {tip}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Culture Note */}
+                                <div className="p-6 rounded-[24px] bg-slate-50 border border-slate-100 flex gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0">
+                                        <Heart className="w-6 h-6 text-red-500" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h4 className="font-black text-xs text-slate-400 uppercase tracking-widest">
+                                            {isMongolian ? "Соёл ба уламжлал" : "Culture & Ettiquette"}
+                                        </h4>
+                                        <p className="text-sm text-slate-700 font-bold leading-relaxed">
+                                            {isMongolian ? selectedInsight.cultureNoteMn : selectedInsight.cultureNote}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="py-20 text-center space-y-4">
+                                <p className="text-slate-400 font-medium">{isMongolian ? "Мэдээлэл олдсонгүй." : "No insights found."}</p>
+                                <Button variant="outline" onClick={() => setIsInsightOpen(false)}>{isMongolian ? "Хаах" : "Close"}</Button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="p-6 border-t border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">GateSIM AI Curator</p>
+                        <Button onClick={() => setIsInsightOpen(false)} className="rounded-2xl h-10 px-6 bg-slate-900 font-bold">
+                            {isMongolian ? "Ойлголоо" : "Got it"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </div>
     );
 }
 
