@@ -44,6 +44,16 @@ const aiFeatures = [
         href: "/ai/planner",
     },
     {
+        id: "transit",
+        icon: Bus,
+        title: "Нийтийн Тээвэр",
+        titleEn: "Transit Guide",
+        description: "Цэвэрхэн, хялбар замын хөтөч",
+        descriptionEn: "Seamless navigation with AI",
+        color: "from-blue-400 to-indigo-500",
+        href: "/ai/transit",
+    },
+    {
         id: "translator",
         icon: Languages,
         title: "Орчуулагч",
@@ -52,6 +62,16 @@ const aiFeatures = [
         descriptionEn: "Voice and text translation",
         color: "from-purple-400 to-indigo-600",
         href: "/ai/translator",
+    },
+    {
+        id: "poster",
+        icon: Image,
+        title: "Аялалын Дурсамж",
+        titleEn: "Memory Art",
+        description: "Зургийг арт болгож хувиргах",
+        descriptionEn: "Turn photos into AI art",
+        color: "from-orange-400 to-rose-500",
+        href: "/ai/poster",
     },
     {
         id: "expense",
