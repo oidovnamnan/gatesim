@@ -378,6 +378,7 @@ export default function AITravelPlannerV2() {
     const [loadingPhase, setLoadingPhase] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isSavingTrip, setIsSavingTrip] = useState(false);
+    const [savedTripId, setSavedTripId] = useState<string | null>(null);
     const [showChecklist, setShowChecklist] = useState(false);
 
     // --- Activity Insight State ---
@@ -796,6 +797,7 @@ export default function AITravelPlannerV2() {
             });
             const data = await res.json();
             if (data.success) {
+                setSavedTripId(data.id);
                 alert(isMongolian ? "Амжилттай хадгалагдлаа! Та өөрийн профайлаас үзэх боломжтой." : "Successfully saved! You can view it in your profile.");
             } else {
                 throw new Error(data.error);
@@ -821,10 +823,14 @@ export default function AITravelPlannerV2() {
 
     const handleShare = async () => {
         console.log("Share clicked");
+        const shareUrl = savedTripId
+            ? `${window.location.origin}/share/trip/${savedTripId}?lang=${isMongolian ? 'mn' : 'en'}`
+            : window.location.href;
+
         const shareData = {
             title: isMongolian ? "Аяллын Төлөвлөгөө" : "Travel Itinerary",
             text: isMongolian ? `Миний ${destination} руу хийх аяллын төлөвлөгөөг үзээрэй!` : `Check out my travel plan for ${destination}!`,
-            url: window.location.href,
+            url: shareUrl,
         };
 
         try {
@@ -1964,7 +1970,7 @@ export default function AITravelPlannerV2() {
                                             body > * { display: none !important; }
                                             
                                             /* Show only the itinerary content */
-                                            body > #itinerary-root { display: block !important; }
+                                            body > div:first-child #itinerary-root { display: block !important; }
                                             #itinerary-content { 
                                                 display: block !important;
                                                 position: absolute; 
@@ -1985,7 +1991,7 @@ export default function AITravelPlannerV2() {
                                         }
                                     `}</style>
 
-                                    <div id="itinerary-content" className="space-y-10">
+                                    <div id="itinerary-root" className="space-y-10">
                                         {/* Hero Header */}
                                         <div className="relative h-[300px] sm:h-[400px] rounded-[40px] overflow-hidden shadow-2xl">
                                             <img
