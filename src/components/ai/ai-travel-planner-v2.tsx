@@ -1970,43 +1970,70 @@ export default function AITravelPlannerV2() {
                                             <div className="lg:col-span-8 space-y-12">
                                                 {itinerary.days?.map((day: any, dayIdx: number) => (
                                                     <div key={dayIdx} className="relative">
-                                                        <div className="flex items-center gap-6 mb-8 sticky top-4 z-20 bg-white/80 backdrop-blur-md py-2 px-4 rounded-2xl border border-slate-50/50 shadow-sm">
-                                                            <div className="w-16 h-16 bg-slate-900 text-white rounded-[20px] flex flex-col items-center justify-center shrink-0">
-                                                                <span className="text-[10px] font-black uppercase opacity-60 leading-none mb-1">{isMongolian ? "Өдөр" : "Day"}</span>
-                                                                <span className="text-2xl font-black leading-none">{day.day}</span>
+                                                        <div className="flex items-center gap-4 mb-6 sticky top-4 z-20 bg-white/90 backdrop-blur-md py-3 px-5 rounded-2xl border border-slate-100 shadow-sm">
+                                                            <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex flex-col items-center justify-center shrink-0 shadow-lg">
+                                                                <span className="text-[8px] font-black uppercase opacity-60 leading-none mb-0.5">{isMongolian ? "Өдөр" : "Day"}</span>
+                                                                <span className="text-xl font-black leading-none">{day.day}</span>
                                                             </div>
-                                                            <div>
-                                                                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{day.title}</h3>
-                                                                <p className="text-[10px] font-bold text-emerald-600 uppercase">
-                                                                    {day.activities.length} {isMongolian ? "үйл ажиллагаа" : "activities"}
-                                                                </p>
+                                                            <div className="min-w-0">
+                                                                <h3 className="text-lg font-black text-slate-900 tracking-tight truncate">{day.title}</h3>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-1 h-1 rounded-full bg-emerald-500" />
+                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                                                                        {day.activities.length} {isMongolian ? "үйл ажиллагаа" : "activities"}
+                                                                    </p>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-8 border-l-2 border-slate-100 pl-10 space-y-6">
-                                                            {day.activities.map((act: any, idx: number) => (
-                                                                <div key={idx} className="relative group">
-                                                                    <div className="absolute -left-[51px] top-4 w-5 h-5 rounded-full bg-white border-2 border-emerald-500 z-10" />
-                                                                    <Card className="p-5 rounded-[24px] border-2 border-slate-100">
-                                                                        <div className="flex flex-col sm:flex-row gap-5">
-                                                                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100">
-                                                                                <Camera className="w-6 h-6 text-slate-400" />
-                                                                            </div>
-                                                                            <div className="flex-1 space-y-2">
-                                                                                <div className="flex items-center gap-2">
-                                                                                    <span className="text-xs font-black bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">{act.time}</span>
-                                                                                    {act.cost && act.cost !== "0" && <Badge variant="outline" className="text-[10px] font-extrabold">{act.cost}</Badge>}
+                                                        <div className="ml-6 border-l-[1.5px] border-slate-100 pl-8 space-y-4">
+                                                            {day.activities.map((act: any, idx: number) => {
+                                                                // Simple context-aware icon logic
+                                                                let ActivityIcon = Camera;
+                                                                const lowerAct = act.activity.toLowerCase();
+                                                                if (lowerAct.includes('depart') || lowerAct.includes('flight') || lowerAct.includes('нисэх')) ActivityIcon = Plane;
+                                                                if (lowerAct.includes('arrive') || lowerAct.includes('хүрэлцэн')) ActivityIcon = MapPin;
+                                                                if (lowerAct.includes('eat') || lowerAct.includes('lunch') || lowerAct.includes('dinner') || lowerAct.includes('хоол')) ActivityIcon = Utensils;
+                                                                if (lowerAct.includes('hotel') || lowerAct.includes('check') || lowerAct.includes('зочид буудал')) ActivityIcon = Bed;
+                                                                if (lowerAct.includes('car') || lowerAct.includes('taxi')) ActivityIcon = Car;
+                                                                if (lowerAct.includes('train') || lowerAct.includes('metro')) ActivityIcon = TrainFront;
+                                                                if (lowerAct.includes('shop') || lowerAct.includes('market')) ActivityIcon = ShoppingBag;
+                                                                if (lowerAct.includes('museum') || lowerAct.includes('temple') || lowerAct.includes('palace')) ActivityIcon = Landmark;
+
+                                                                return (
+                                                                    <div key={idx} className="relative group">
+                                                                        <div className="absolute -left-[41px] top-6 w-4 h-4 rounded-full bg-white border-[3px] border-slate-200 group-hover:border-emerald-500 transition-colors z-10" />
+                                                                        <Card className="p-4 rounded-2xl border border-slate-100 group-hover:border-emerald-500/30 transition-all shadow-sm group-hover:shadow-md bg-white">
+                                                                            <div className="flex gap-4">
+                                                                                <div className="w-11 h-11 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-emerald-50 transition-colors">
+                                                                                    <ActivityIcon className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                                                                                 </div>
-                                                                                <h4 className="font-black text-slate-900 text-lg leading-tight">{act.activity}</h4>
-                                                                                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                                                                                    <MapPin className="w-3.5 h-3.5" />
-                                                                                    <span>{act.location}</span>
+                                                                                <div className="flex-1 min-w-0 space-y-1.5">
+                                                                                    <div className="flex items-center justify-between gap-2">
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <span className="text-[10px] font-black bg-slate-900 text-white px-2 py-0.5 rounded-md min-w-[50px] text-center">{act.time}</span>
+                                                                                            {act.cost && act.cost !== "0" && (
+                                                                                                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">
+                                                                                                    {act.cost}
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <h4 className="font-black text-slate-900 text-sm leading-tight group-hover:text-emerald-700 transition-colors">{act.activity}</h4>
+                                                                                    <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                                                                                        <MapPin className="w-3 h-3 shrink-0" />
+                                                                                        <span className="truncate">{act.location}</span>
+                                                                                    </div>
+                                                                                    {act.notes && (
+                                                                                        <p className="mt-2 text-[10px] text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100/50 italic leading-relaxed">
+                                                                                            {act.notes}
+                                                                                        </p>
+                                                                                    )}
                                                                                 </div>
-                                                                                {act.notes && <p className="mt-2 text-[11px] text-amber-900/70 italic bg-amber-50/50 p-2 rounded-lg">{act.notes}</p>}
                                                                             </div>
-                                                                        </div>
-                                                                    </Card>
-                                                                </div>
-                                                            ))}
+                                                                        </Card>
+                                                                    </div>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
                                                 ))}
