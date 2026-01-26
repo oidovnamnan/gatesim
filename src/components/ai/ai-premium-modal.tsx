@@ -70,27 +70,32 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                     onClick={onClose}
                 >
                     <motion.div
-                        initial={{ y: "100%" }}
-                        animate={{ y: 0 }}
-                        exit={{ y: "100%" }}
+                        initial={{ y: "20%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "20%", opacity: 0 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-full max-w-md bg-slate-900 rounded-[32px] border border-white/10 overflow-hidden shadow-2xl relative"
+                        className="w-full max-w-sm bg-slate-950 rounded-[32px] border border-white/10 overflow-hidden shadow-2xl relative"
                     >
+                        {/* --- Mesh Gradient Accents --- */}
+                        <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
+                            <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-red-600/30 blur-[80px] rounded-full" />
+                            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-amber-600/20 blur-[80px] rounded-full" />
+                        </div>
                         {/* Close Button */}
                         <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors z-10">
                             <X className="w-5 h-5 text-slate-400" />
                         </button>
 
                         {/* Content */}
-                        <div className="p-6 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                        <div className="p-6 relative z-10 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             {step === "select" && (
-                                <div className="space-y-6">
+                                <div className="space-y-5">
                                     <div className="text-center space-y-2">
-                                        <div className="w-16 h-16 mx-auto bg-gradient-to-br from-amber-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 mb-4">
-                                            <Crown className="w-8 h-8 text-white" />
+                                        <div className="w-12 h-12 mx-auto bg-gradient-to-br from-amber-400 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/20 mb-3">
+                                            <Crown className="w-6 h-6 text-white" />
                                         </div>
-                                        <h2 className="text-2xl font-black text-white">GateSIM AI Premium</h2>
-                                        <p className="text-slate-400 text-sm font-medium">Аялалын ухаалаг туслахаа идэвхжүүлээрэй</p>
+                                        <h2 className="text-xl font-black text-white">AI Premium</h2>
+                                        <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Аялалын ухаалаг туслахаа идэвхжүүлээрэй</p>
                                     </div>
 
                                     {/* Features Grid */}
@@ -111,28 +116,28 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                                             <div
                                                 key={plan.id}
                                                 onClick={() => setSelectedPlan(plan.id)}
-                                                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all relative ${selectedPlan === plan.id ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
+                                                className={`p-3 rounded-2xl border-2 cursor-pointer transition-all relative ${selectedPlan === plan.id ? "border-red-600 bg-red-600/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
                                             >
                                                 {plan.popular && (
-                                                    <div className="absolute -top-3 right-4 bg-amber-500 text-black text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider">
-                                                        Popular
+                                                    <div className="absolute -top-2.5 right-4 bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-lg">
+                                                        Best Choice
                                                     </div>
                                                 )}
                                                 <div className="flex justify-between items-center">
                                                     <div>
-                                                        <div className="font-black text-white">{plan.label}</div>
-                                                        <div className="text-xs text-slate-400 font-medium">{plan.sub}</div>
+                                                        <div className="font-black text-white text-sm">{plan.label}</div>
+                                                        <div className="text-[10px] text-slate-400 font-bold">{plan.sub}</div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <div className="font-black text-amber-400">{plan.price.toLocaleString()}₮</div>
+                                                        <div className="font-black text-red-500 text-sm">{plan.price.toLocaleString()}₮</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <Button onClick={handlePurchase} className="w-full h-14 rounded-2xl bg-white text-slate-900 font-black text-lg hover:bg-slate-200">
-                                        Идэвхжүүлэх <ArrowRight className="w-5 h-5 ml-2" />
+                                    <Button onClick={handlePurchase} className="w-full h-12 rounded-xl bg-red-600 text-white font-black text-sm hover:bg-red-700 shadow-xl shadow-red-600/20">
+                                        Идэвхжүүлэх <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
                                 </div>
                             )}
@@ -168,9 +173,9 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                                     <div className="grid grid-cols-1 gap-2">
                                         <Button
                                             onClick={() => window.location.href = paymentData.invoice.qPay_shortUrl}
-                                            className="w-full h-14 rounded-2xl bg-white text-slate-900 font-black shadow-lg mb-2"
+                                            className="w-full h-12 rounded-xl bg-red-600 text-white font-black shadow-lg mb-2 hover:bg-red-700 transition-colors"
                                         >
-                                            <Smartphone className="w-5 h-5 mr-2" />
+                                            <Smartphone className="w-4 h-4 mr-2" />
                                             Банкны апп-аар төлөх (QPay)
                                         </Button>
 

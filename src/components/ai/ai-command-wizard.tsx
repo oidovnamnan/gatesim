@@ -102,22 +102,22 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
                     transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                    className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[40px] shadow-[0_40px_100px_-20px_rgba(220,38,38,0.3)] overflow-hidden"
+                    className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-[0_40px_100px_-20px_rgba(220,38,38,0.2)] overflow-hidden"
                 >
                     {/* --- Mesh Gradient Background Layer --- */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
                         <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-rose-500/20 blur-[100px] animate-pulse" />
                         <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-blue-600/20 blur-[100px] animate-pulse [animation-delay:1s]" />
                     </div>
 
-                    {/* Progress Bar (Vibrant) */}
-                    <div className="absolute top-0 left-0 w-full flex h-2 px-10 pt-10 gap-2">
+                    {/* Progress Bar (Compact Vibrant) */}
+                    <div className="absolute top-0 left-0 w-full flex h-1.5 px-8 pt-8 gap-1.5">
                         {steps.map((_, i) => (
                             <motion.div
                                 key={i}
                                 className={cn(
-                                    "h-1.5 flex-1 rounded-full transition-all duration-700",
-                                    i <= currentStep ? "bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" : "bg-slate-100 dark:bg-slate-800"
+                                    "h-1 flex-1 rounded-full transition-all duration-700",
+                                    i <= currentStep ? "bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.4)]" : "bg-slate-100 dark:bg-slate-800"
                                 )}
                             />
                         ))}
@@ -126,34 +126,34 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                     {/* Actions */}
                     <button
                         onClick={onClose}
-                        className="absolute top-8 right-8 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all z-10"
+                        className="absolute top-6 right-6 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all z-10"
                     >
-                        <X className="w-5 h-5 text-slate-400" />
+                        <X className="w-4 h-4 text-slate-400" />
                     </button>
 
-                    <div className="p-10 pt-24 pb-12 relative z-10">
+                    <div className="p-8 pt-16 pb-8 relative z-10">
                         {/* Question Section */}
-                        <div className="min-h-[200px]">
+                        <div className="min-h-[160px]">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={currentStep}
-                                    initial={{ x: 30, opacity: 0 }}
+                                    initial={{ x: 20, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: -30, opacity: 0 }}
-                                    transition={{ duration: 0.4, ease: "circOut" }}
-                                    className="space-y-8"
+                                    exit={{ x: -20, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "circOut" }}
+                                    className="space-y-6"
                                 >
-                                    <div className="space-y-4">
-                                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br shadow-lg", stepInfo.color)}>
-                                            <stepInfo.icon className="w-6 h-6 text-white" />
+                                    <div className="space-y-3">
+                                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-md", stepInfo.color)}>
+                                            <stepInfo.icon className="w-5 h-5 text-white" />
                                         </div>
-                                        <h2 className="text-3xl font-black tracking-tightest text-slate-900 dark:text-white leading-tight">
+                                        <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                                             {stepInfo.question}
                                         </h2>
                                     </div>
 
                                     {stepInfo.id === "purpose" ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                             {stepInfo.options?.map((opt) => {
                                                 const isActive = formData[stepInfo.id] === opt.id;
                                                 return (
@@ -165,14 +165,14 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                             setTimeout(handleNext, 400);
                                                         }}
                                                         className={cn(
-                                                            "flex flex-col items-center gap-2.5 p-4 rounded-3xl border-2 transition-all duration-300",
+                                                            "flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all duration-300",
                                                             isActive
-                                                                ? "border-red-600 bg-red-600 text-white shadow-xl shadow-red-200 dark:shadow-red-900/20 scale-105"
+                                                                ? "border-red-600 bg-red-600 text-white shadow-lg shadow-red-200 dark:shadow-red-900/20 scale-105"
                                                                 : cn("border-transparent hover:border-slate-200 dark:hover:border-slate-700", opt.bg)
                                                         )}
                                                     >
-                                                        <opt.icon className={cn("w-5 h-5", isActive ? "text-white" : opt.color)} />
-                                                        <span className={cn("text-[9px] font-black uppercase tracking-widest", isActive ? "text-white" : "text-slate-600 dark:text-slate-400")}>
+                                                        <opt.icon className={cn("w-4 h-4", isActive ? "text-white" : opt.color)} />
+                                                        <span className={cn("text-[8px] font-black uppercase tracking-wider", isActive ? "text-white" : "text-slate-600 dark:text-slate-400")}>
                                                             {opt.label}
                                                         </span>
                                                     </button>
@@ -187,11 +187,11 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                 value={formData[stepInfo.id]}
                                                 onChange={(e) => setFormData({ ...formData, [stepInfo.id]: e.target.value })}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-3 border-transparent rounded-[32px] p-7 text-2xl font-black text-slate-900 dark:text-white focus:border-red-600 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 shadow-inner"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl p-5 text-lg font-black text-slate-900 dark:text-white focus:border-red-600 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 shadow-inner"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
-                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
-                                                <Sparkles className="w-6 h-6 text-red-600 animate-pulse" />
+                                            <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                                                <Sparkles className="w-5 h-5 text-red-600 animate-pulse" />
                                             </div>
                                         </div>
                                     )}
@@ -200,16 +200,16 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                         </div>
 
                         {/* Footer */}
-                        <div className="mt-12 flex items-center justify-between">
+                        <div className="mt-8 flex items-center justify-between">
                             <button
                                 type="button"
                                 onClick={handleBack}
                                 className={cn(
-                                    "flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-all",
+                                    "flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-all",
                                     currentStep === 0 && "opacity-0 pointer-events-none"
                                 )}
                             >
-                                <ChevronLeft className="w-4 h-4" />
+                                <ChevronLeft className="w-3 h-3" />
                                 Буцах
                             </button>
 
@@ -218,10 +218,10 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     type="button"
                                     disabled={!formData[stepInfo.id]}
                                     onClick={handleNext}
-                                    className="h-16 bg-red-600 hover:bg-red-700 text-white rounded-[28px] px-10 font-black text-sm flex items-center gap-4 transition-all active:scale-95 disabled:opacity-30 shadow-xl shadow-red-200 dark:shadow-red-900/10"
+                                    className="h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl px-8 font-black text-xs flex items-center gap-3 transition-all active:scale-95 disabled:opacity-30 shadow-lg shadow-red-200 dark:shadow-red-900/10"
                                 >
                                     Дараах
-                                    <ArrowRight className="w-5 h-5" />
+                                    <ArrowRight className="w-4 h-4" />
                                 </Button>
                             )}
                         </div>
