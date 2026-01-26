@@ -1409,7 +1409,16 @@ export default function AITravelPlannerV2() {
                                                             </div>
                                                             <span className="text-xs font-bold tracking-wide uppercase">{isMongolian ? "Таны нислэг" : "Your Flight"}</span>
                                                         </div>
-                                                        <Badge className="bg-emerald-500 text-white border-none font-bold text-[10px] px-2">CONFIRMED</Badge>
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge className="bg-emerald-500 text-white border-none font-bold text-[10px] px-2">CONFIRMED</Badge>
+                                                            <button
+                                                                onClick={() => setSelectedFlight(null)}
+                                                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                                                                title={isMongolian ? "Устгах" : "Remove"}
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </div>
 
                                                     {/* Ticket Body */}
@@ -1453,14 +1462,24 @@ export default function AITravelPlannerV2() {
                                                             </div>
                                                         </div>
 
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => setSelectedFlight(null)}
-                                                            className="w-full h-9 border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 text-xs font-bold transition-all"
-                                                        >
-                                                            {isMongolian ? "Нислэг солих / Дахин хайх" : "Change Flight / Search Again"}
-                                                        </Button>
+                                                        <div className="flex gap-2">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setSelectedFlight(null)}
+                                                                className="flex-1 h-9 border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 text-[10px] font-bold transition-all"
+                                                            >
+                                                                {isMongolian ? "Солих" : "Change"}
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={handleNext}
+                                                                className="flex-[2] h-9 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2"
+                                                            >
+                                                                {isMongolian ? "Сонгох" : "Select"}
+                                                                <Check className="w-3 h-3" />
+                                                            </Button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
