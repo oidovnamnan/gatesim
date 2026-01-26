@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -413,6 +413,24 @@ export default function AITravelPlannerV2() {
         newRoute.splice(toIndex, 0, moved);
         setCityRoute(newRoute);
     };
+
+    // --- Initialize from URL Params (Wizard integration) ---
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const destParam = searchParams.get("destination");
+        const durParam = searchParams.get("duration");
+        const purpParam = searchParams.get("purpose");
+
+        if (destParam) setDestination(destParam);
+        if (durParam) setDuration(parseInt(durParam) || 5);
+        if (purpParam) setPurposes([purpParam]);
+
+        // If we have params, skip to city selection (Step 3)
+        if (destParam && durParam && purpParam) {
+            setStep(3);
+        }
+    }, [searchParams]);
 
     // Auto-distribute days when selectedCities or duration changes
     useEffect(() => {

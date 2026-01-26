@@ -7,6 +7,7 @@ import { getExchangeRates } from "@/lib/currency";
 import { auth } from "@/lib/auth";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 import { getOpenAIConfig } from "@/lib/ai-config";
+import { getForecast } from "@/lib/weather";
 
 // Country names
 const countryNames: Record<string, { en: string; mn: string }> = {
@@ -206,6 +207,19 @@ export async function POST(request: NextRequest) {
     const intlCost = estimateTransportCost(intlTransport || 'flight', destination);
     const interCityCostDesc = estimateInterCityCost(destination);
 
+    // --- Weather Context (New) ---
+    let weatherContext = "";
+    try {
+      const citiesToFetch = cityRoute && Array.isArray(cityRoute) ? cityRoute.map((c: any) => c.name) : [city];
+      const weatherData = await Promise.all(citiesToFetch.map(async (c: string) => {
+        const forecast = await getForecast(c);
+        return { city: c, forecast: forecast.slice(0, 3) }; // First 3 days
+      }));
+      weatherContext = `**LIVE WEATHER DATA (For Contextual Advice):**\n${JSON.stringify(weatherData)}`;
+    } catch (e) {
+      console.error("Weather fetch failed:", e);
+    }
+
     const pricingLogic = `
     **TRANSPORT PRICING (HARD CONSTRAINT):**
     - **International (${intlTransport}):** The estimated cost is **${intlCost.min} - ${intlCost.max} ${intlCost.currency}**. You MUST use a value within this range for the 'Departure from Ulaanbaatar' activity.
@@ -253,6 +267,7 @@ ${transportLogic}
 ${pricingLogic}
 
     ${groundingContext}
+    ${weatherContext}
 
 **CRITICAL INSTRUCTIONS:**
 1. **Multi-modal Logistics**: Plan the itinerary STRICTLY following the Transport Modes. 
@@ -262,7 +277,8 @@ ${pricingLogic}
 2. **Multi-City Logic**: You MUST follow the sequence and number of days specified in "City Sequence & Duration". Plan movements between cities on the transition days.
 3. **Accommodation**: Use the specific hotels provided. If a hotel name is "Өөрийн сонголт" or "My own choice", explicitly state that the traveler will arrange their own accommodation in that city.
 4. **Origin & Transport**: Day 1 MUST start with "Departure from Ulaanbaatar". Include specific details based on the selected International transport.
-5. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
+6. **Weather Awareness**: Use the provided WEATHER DATA to give smart, contextual advice in the activity descriptions and 'tips' field. For example, if it's rainy, suggest indoor activities or remind them to bring an umbrella. Combine this with the travel purpose for a truly personalized experience.
+7. **Language**: ${isMongolian ? "WRITE EVERYTHING IN MONGOLIAN." : "Write in English."}
     
 **ACCURACY & GROUND TRUTH (CRITICAL):**
 - YOU MUST prioritize the factual data provided in the "LIVE TRANSPORT DATA" and "VISA" sections above. 
