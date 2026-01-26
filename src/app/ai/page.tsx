@@ -125,43 +125,33 @@ export default function AIHubPage() {
 
     return (
         <div className="relative min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white selection:bg-slate-900 selection:text-white pb-32 overflow-x-hidden">
-            {/* --- Vibrant Luxury Background --- */}
+            {/* --- Elite Pro Background --- */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse [animation-delay:2s]" />
-                <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] contrast-150" />
+                <div className="absolute top-[-15%] right-[-10%] w-[70%] h-[70%] bg-red-600/[0.07] blur-[140px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-600/[0.05] blur-[120px] rounded-full animate-pulse [animation-delay:3s]" />
+                <div className="absolute inset-0 opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] contrast-150" />
             </div>
 
-            {/* --- Header --- */}
-            <header className="relative z-10 px-8 pt-20 pb-12">
-                <div className="max-w-xl mx-auto space-y-6">
+            {/* --- Pro Header --- */}
+            <header className="relative z-10 px-8 pt-24 pb-12">
+                <div className="max-w-xl mx-auto space-y-8">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-3"
+                        className="flex items-center gap-4"
                     >
-                        <div className="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center shadow-[0_8px_20px_rgba(220,38,38,0.3)]">
-                            <Bot className="w-5 h-5 text-white" />
+                        <div className="w-12 h-12 rounded-[22px] bg-red-600 flex items-center justify-center shadow-[0_12px_24px_-4px_rgba(220,38,38,0.4)] border border-white/20">
+                            <Bot className="w-6 h-6 text-white" />
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-[0.5em] text-red-600/60 dark:text-red-500/80">
-                            {isMongolian ? "Ухаалаг систем" : "GateSIM Intelligence"}
-                        </span>
+                        <div className="space-y-0.5">
+                            <h1 className="text-4xl font-black tracking-tightest leading-none text-slate-900 dark:text-white">AI Hub</h1>
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600/50 dark:text-red-500/70">Intelligence Professional</p>
+                        </div>
                     </motion.div>
-
-                    <div className="flex items-center justify-between">
-                        <h1 className="text-5xl font-black tracking-tightest leading-none bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-                            AI Hub
-                        </h1>
-                        {aiStatus?.isPremium && (
-                            <Badge className="bg-red-600 text-white px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-200 dark:shadow-red-900/20">
-                                Premium
-                            </Badge>
-                        )}
-                    </div>
                 </div>
             </header>
 
-            {/* --- Hero: Quick Start Action --- */}
+            {/* --- Hero: Liquid Elite Card --- */}
             <section className="relative z-10 px-8 mb-16">
                 <div className="max-w-xl mx-auto">
                     <motion.div
@@ -171,23 +161,28 @@ export default function AIHubPage() {
                     >
                         <Card
                             onClick={() => setIsWizardOpen(true)}
-                            className="group relative h-48 rounded-[48px] bg-slate-900 dark:bg-white border-none shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_40px_80px_-20px_rgba(255,255,255,0.1)] flex flex-col justify-end p-10 cursor-pointer overflow-hidden transition-all active:scale-[0.98]"
+                            className="group relative h-56 rounded-[56px] bg-slate-950 border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col justify-end p-12 cursor-pointer overflow-hidden transition-all active:scale-[0.97]"
                         >
-                            {/* Material Polish & Color Flow */}
-                            <div className="absolute inset-0 opacity-40 pointer-events-none bg-[radial-gradient(circle_at_2px_2px,rgba(220,38,38,0.3)_1px,transparent_0)] bg-[size:40px_40px]" />
-                            <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-bl from-red-600/30 to-transparent dark:from-red-600/10" />
+                            {/* Liquid Material Effects */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-red-600/40 via-transparent to-blue-600/20 opacity-40 group-hover:opacity-60 transition-opacity" />
+                            <div className="absolute top-0 right-0 w-[80%] h-full bg-[radial-gradient(circle_at_100%_0%,rgba(220,38,38,0.25)_0%,transparent_70%)]" />
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] contrast-150" />
 
-                            <div className="relative z-10 flex items-center justify-between">
-                                <div className="space-y-2">
-                                    <h2 className="text-3xl font-black text-white dark:text-slate-950 tracking-tight">
-                                        {isMongolian ? "Шинэ аялал эхлүүлэх" : "Start a Journey"}
+                            {/* Inner Glow Border */}
+                            <div className="absolute inset-0 rounded-[56px] border border-white/10" />
+
+                            <div className="relative z-10 flex items-end justify-between">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Ready to Assist</span>
+                                    </div>
+                                    <h2 className="text-4xl font-black text-white tracking-tightest leading-none">
+                                        {isMongolian ? "Шинэ аялал\nэхлүүлэх" : "Start New\nJourney"}
                                     </h2>
-                                    <p className="text-white/40 dark:text-slate-950/40 font-bold text-sm">
-                                        {isMongolian ? "Төгс төлөвлөгөөг AI-тай хамт" : "Plan with AI in seconds"}
-                                    </p>
                                 </div>
-                                <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center shadow-[0_0_40px_rgba(220,38,38,0.5)] group-hover:scale-110 transition-all">
-                                    <ArrowRight className="w-8 h-8 text-white" />
+                                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-all duration-500 group-hover:rotate-12">
+                                    <ArrowRight className="w-10 h-10 text-slate-950" />
                                 </div>
                             </div>
                         </Card>
@@ -195,9 +190,9 @@ export default function AIHubPage() {
                 </div>
             </section>
 
-            {/* --- Features Grid: Vibrant Tiles --- */}
+            {/* --- Features Grid: Material Tiles --- */}
             <section className="relative z-10 px-8 mb-16">
-                <div className="max-w-xl mx-auto grid grid-cols-2 gap-5">
+                <div className="max-w-xl mx-auto grid grid-cols-2 gap-6">
                     {aiFeatures.map((feature, idx) => (
                         <motion.div
                             key={feature.id}
@@ -206,13 +201,16 @@ export default function AIHubPage() {
                             transition={{ delay: 0.2 + idx * 0.05 }}
                         >
                             <Link href={feature.href}>
-                                <Card className="group relative h-full p-7 bg-white dark:bg-slate-900 border-2 border-slate-50 dark:border-slate-800 rounded-[40px] hover:border-red-600/30 transition-all duration-500 hover:shadow-2xl hover:shadow-red-500/5 hover:-translate-y-2">
-                                    <div className="w-14 h-14 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6 shadow-sm border border-slate-100 dark:border-slate-700 group-hover:bg-red-600 group-hover:shadow-[0_8px_20px_rgba(220,38,38,0.3)] transition-all">
-                                        <feature.icon className="w-6 h-6 text-slate-900 dark:text-white group-hover:text-white transition-colors" />
+                                <Card className="group relative h-full p-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/[0.03] rounded-[48px] shadow-sm hover:shadow-2xl hover:shadow-red-500/[0.07] transition-all duration-700 hover:-translate-y-3">
+                                    {/* Subtle Tile Textures */}
+                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-[48px] bg-[radial-gradient(circle_at_0%_0%,rgba(220,38,38,0.03)_0%,transparent_50%)]" />
+
+                                    <div className="w-16 h-16 rounded-[28px] bg-slate-50 dark:bg-white/[0.03] flex items-center justify-center mb-8 shadow-inner border border-slate-100 dark:border-white/[0.05] group-hover:bg-red-600 group-hover:border-red-500 group-hover:shadow-[0_12px_24px_-4px_rgba(220,38,38,0.3)] transition-all duration-500">
+                                        <feature.icon className="w-7 h-7 text-slate-900 dark:text-white group-hover:text-white transition-all duration-500 group-hover:scale-110" />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <h4 className="font-black text-[15px] text-slate-900 dark:text-white tracking-tight leading-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-none">
+                                    <div className="space-y-2">
+                                        <h4 className="font-black text-lg text-slate-900 dark:text-white tracking-tight leading-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
+                                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-tight">
                                             {isMongolian ? feature.description : feature.descriptionEn}
                                         </p>
                                     </div>
@@ -223,43 +221,47 @@ export default function AIHubPage() {
                 </div>
             </section>
 
-            {/* --- Status & Premium: Vibrant Banner --- */}
+            {/* --- Status & Premium: Dashboard Section --- */}
             <section className="relative z-10 px-8">
                 <div className="max-w-xl mx-auto">
-                    <Card className="p-10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-2xl border-2 border-slate-50 dark:border-slate-800 rounded-[48px] space-y-10 shadow-xl">
+                    <Card className="p-12 bg-white/50 dark:bg-[#0a0a0b] backdrop-blur-3xl border border-slate-100 dark:border-white/[0.03] rounded-[64px] space-y-12 shadow-2xl">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-red-600" />
-                                <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white">
-                                    {isMongolian ? "AI Хэрэглээний Хязгаар" : "AI Limit & Usage"}
+                            <div className="space-y-1">
+                                <h5 className="text-[12px] font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white flex items-center gap-3">
+                                    <Zap className="w-5 h-5 text-red-600" />
+                                    {isMongolian ? "System Usage" : "System Usage"}
                                 </h5>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-8">Enterprise Quota monitoring</p>
                             </div>
                             {!aiStatus?.isPremium && (
                                 <button
                                     onClick={() => setIsPremiumModalOpen(true)}
-                                    className="text-[11px] font-black uppercase tracking-widest text-red-600 hover:text-red-700 underline underline-offset-8 decoration-2"
+                                    className="px-6 py-3 rounded-2xl bg-red-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 active:scale-95"
                                 >
-                                    {isMongolian ? "Premium болох" : "Go Premium"}
+                                    {isMongolian ? "Go Pro" : "Go Pro"}
                                 </button>
                             )}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-10">
+                        <div className="grid grid-cols-1 gap-12">
                             {[
-                                { label: isMongolian ? "Аялал" : "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit, color: "bg-red-600" },
-                                { label: isMongolian ? "Тээвэр" : "Transit", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit, color: "bg-blue-600" },
-                                { label: isMongolian ? "Зураг" : "Poster", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit, color: "bg-purple-600" },
+                                { label: isMongolian ? "Төлөвлөлт / Intelligent Plans" : "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit, color: "from-red-600 to-rose-400" },
+                                { label: isMongolian ? "Төлбөр / Transit Analytics" : "Transit", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit, color: "from-blue-600 to-cyan-400" },
+                                { label: isMongolian ? "Медиа / Visual Assets" : "Poster", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit, color: "from-purple-600 to-pink-400" },
                             ].map((s, i) => (
-                                <div key={i} className="space-y-4">
+                                <div key={i} className="space-y-5">
                                     <div className="flex justify-between items-end">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{s.label}</span>
-                                        <span className="text-sm font-black text-slate-900 dark:text-white">{s.val}/{s.total}</span>
+                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">{s.label}</span>
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-2xl font-black text-slate-900 dark:text-white">{s.val}</span>
+                                            <span className="text-xs font-bold text-slate-400">/ {s.total}</span>
+                                        </div>
                                     </div>
-                                    <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-3 bg-slate-100 dark:bg-white/[0.03] rounded-full overflow-hidden p-0.5">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(s.val / (s.total || 1)) * 100}%` }}
-                                            className={cn("h-full", s.color)}
+                                            className={cn("h-full rounded-full bg-gradient-to-r shadow-lg", s.color)}
                                         />
                                     </div>
                                 </div>

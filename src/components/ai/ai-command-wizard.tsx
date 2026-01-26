@@ -118,14 +118,14 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                         <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-blue-600/20 blur-[100px] animate-pulse [animation-delay:1s]" />
                     </div>
 
-                    {/* Progress Bar (Compact Vibrant) */}
-                    <div className="absolute top-0 left-0 w-full flex h-1.5 px-8 pt-8 gap-1.5">
+                    {/* Progress Bar (Elite Pro Liquid) */}
+                    <div className="absolute top-0 left-0 w-full flex h-1 px-10 pt-10 gap-2">
                         {steps.map((_, i) => (
                             <motion.div
                                 key={i}
                                 className={cn(
-                                    "h-1 flex-1 rounded-full transition-all duration-700",
-                                    i <= currentStep ? "bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.4)]" : "bg-slate-100 dark:bg-slate-800"
+                                    "h-1 flex-1 rounded-full transition-all duration-1000",
+                                    i <= currentStep ? "bg-gradient-to-r from-red-600 to-rose-400 shadow-[0_0_15px_rgba(220,38,38,0.5)]" : "bg-slate-100 dark:bg-white/[0.05]"
                                 )}
                             />
                         ))}
@@ -145,10 +145,10 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={currentStep}
-                                    initial={{ x: 20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: -20, opacity: 0 }}
-                                    transition={{ duration: 0.3, ease: "circOut" }}
+                                    initial={{ x: 30, y: 10, opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                                    animate={{ x: 0, y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
+                                    exit={{ x: -30, y: -10, opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                                     className="space-y-6"
                                 >
                                     <div className="space-y-3">
