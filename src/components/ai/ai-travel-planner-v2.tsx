@@ -1929,10 +1929,13 @@ export default function AITravelPlannerV2() {
                                         {/* Hero Header */}
                                         <div className="relative h-[300px] sm:h-[400px] rounded-[40px] overflow-hidden shadow-2xl">
                                             <img
-                                                src={`https://source.unsplash.com/featured/?${encodeURIComponent(itinerary.city || destination)},travel`}
+                                                src={`https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=1200&sig=${encodeURIComponent(itinerary.city || destination)}&keywords=${encodeURIComponent(itinerary.city || destination)},cityscape,landmark,architecture`}
                                                 alt={itinerary.city || destination}
                                                 className="w-full h-full object-cover"
-                                                onError={(e) => { (e.target as any).src = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=1200"; }}
+                                                onError={(e) => {
+                                                    // Fallback to a structured query if the direct photo ID fails (it shouldn't, but safety first)
+                                                    (e.target as any).src = `https://source.unsplash.com/featured/1200x800?${encodeURIComponent(itinerary.city || destination)},cityscape,landmark`;
+                                                }}
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
                                             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 space-y-6">
