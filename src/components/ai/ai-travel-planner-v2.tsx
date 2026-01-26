@@ -950,7 +950,7 @@ export default function AITravelPlannerV2() {
     // --- Components for Steps ---
 
     const StepIndicator = () => (
-        <div className="flex items-center justify-center gap-0.5 mb-10 px-2">
+        <div className="flex items-center justify-center gap-0.5 mb-6 px-2">
             {[1, 2, 3, 4, 5, 6].map((num) => (
                 <div key={num} className="flex items-center">
                     <div
@@ -974,9 +974,9 @@ export default function AITravelPlannerV2() {
     );
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+        <div className="max-w-4xl mx-auto px-4 py-4 pb-12">
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-4 mb-4">
                 <Button
                     variant="ghost"
                     size="icon"
@@ -1007,21 +1007,21 @@ export default function AITravelPlannerV2() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
-                        <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
-                            <h2 className="text-2xl font-black">{isMongolian ? "1. Улс болон хугацаагаа сонгох" : "1. Select Destination & Duration"}</h2>
+                        <div className="space-y-1 text-center text-slate-900 border-b border-slate-100 pb-4 mb-4">
+                            <h2 className="text-xl font-black">{isMongolian ? "1. Улс болон хугацаагаа сонгох" : "1. Select Destination & Duration"}</h2>
                         </div>
 
                         {/* Destination & Date Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Destination Selection */}
-                            <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
+                            <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-3">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Очих улс" : "Destination"}</label>
                                 <Select value={destination} onValueChange={(val) => {
                                     setDestination(val);
                                 }}>
-                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-bold">
+                                    <SelectTrigger className="h-12 rounded-2xl bg-slate-50 border-slate-100 font-bold">
                                         <SelectValue placeholder={isMongolian ? "Улс сонгоно уу" : "Select Country"} />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1038,11 +1038,11 @@ export default function AITravelPlannerV2() {
                             </Card>
 
                             {/* Date Picker */}
-                            <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
+                            <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-3">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Аялах огноо" : "Travel Date"}</label>
                                 <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                     <PopoverTrigger asChild>
-                                        <Button variant="outline" className="w-full h-14 justify-start text-left font-bold rounded-2xl border-slate-100 bg-slate-50">
+                                        <Button variant="outline" className="w-full h-12 justify-start text-left font-bold rounded-2xl border-slate-100 bg-slate-50">
                                             <CalendarIcon className="mr-2 h-5 w-5 text-emerald-500" />
                                             {startDate ? format(startDate, "PPP") : (isMongolian ? "Огноо сонгох" : "Pick a date")}
                                         </Button>
@@ -1060,8 +1060,8 @@ export default function AITravelPlannerV2() {
                         </div>
 
                         {/* Duration & China Options */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-3">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Хонох өдөр" : "Duration"}</label>
                                 <div className="space-y-8 py-4 px-2">
                                     <div className="relative flex items-center group touch-none">
@@ -1132,7 +1132,7 @@ export default function AITravelPlannerV2() {
 
                             {/* China Distance - ONLY for CN */}
                             {destination === 'CN' && (
-                                <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-4 border-l-4 border-l-emerald-500 bg-emerald-50/20">
+                                <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-3 border-l-4 border-l-emerald-500 bg-emerald-50/20">
                                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                         <MapPin className="w-3 h-3 text-emerald-500" />
                                         {isMongolian ? "Хилээс очих зай" : "Distance from Border"}
@@ -1180,7 +1180,7 @@ export default function AITravelPlannerV2() {
                         </div>
 
                         {/* Travelers Card */}
-                        <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
+                        <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-4">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Аялагчид" : "Travelers"}</label>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-4">
@@ -1213,7 +1213,7 @@ export default function AITravelPlannerV2() {
                             </div>
                         </Card>
 
-                        <Button onClick={handleNext} className="w-full h-16 rounded-3xl bg-slate-900 hover:bg-black text-white text-base sm:text-lg font-black shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3">
+                        <Button onClick={handleNext} className="w-full h-14 rounded-3xl bg-slate-900 hover:bg-black text-white text-base font-black shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3">
                             {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
                             <ArrowRight className="w-5 h-5 sm:w-6 h-6" />
                         </Button>
@@ -1226,13 +1226,13 @@ export default function AITravelPlannerV2() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
-                        <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
-                            <h2 className="text-2xl font-black">{isMongolian ? "2. Аяллын зорилго, тээврээ тодорхойлох" : "2. Define Purpose & Transport"}</h2>
+                        <div className="space-y-1 text-center text-slate-900 border-b border-slate-100 pb-4 mb-4">
+                            <h2 className="text-xl font-black">{isMongolian ? "2. Аяллын зорилго, тээврээ тодорхойлох" : "2. Define Purpose & Transport"}</h2>
                         </div>
 
-                        <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
+                        <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-4">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Аяллын зорилго" : "Trip Purposes"}</label>
                             <div className="grid grid-cols-2 gap-3 pb-2 transition-all">
                                 {tripPurposes.map((p) => {
@@ -1305,7 +1305,7 @@ export default function AITravelPlannerV2() {
                         </Card>
 
                         {/* Granular Transport Selection */}
-                        <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
+                        <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-4">
                             <div className="space-y-1">
                                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isMongolian ? "Тээврийн сонголт" : "Transport Selection"}</label>
                                 <p className="text-[10px] text-slate-400 font-medium">{isMongolian ? "* Таны аяллын төлөвлөгөө эдгээр сонголтуудад тулгуурлан боловсрогдоно" : "* Your itinerary will be tailored based on these choices"}</p>
@@ -1530,7 +1530,7 @@ export default function AITravelPlannerV2() {
                             </div>
                         </Card>
 
-                        <Button onClick={handleNext} className="w-full h-16 rounded-3xl bg-slate-900 hover:bg-black text-white text-base sm:text-lg font-black shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3">
+                        <Button onClick={handleNext} className="w-full h-14 rounded-3xl bg-slate-900 hover:bg-black text-white text-base font-black shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3">
                             {isMongolian ? "Үргэлжлүүлэх" : "Continue"}
                             <ArrowRight className="w-5 h-5 sm:w-6 h-6" />
                         </Button>
@@ -1542,15 +1542,15 @@ export default function AITravelPlannerV2() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className="space-y-8"
+                        className="space-y-6"
                     >
-                        <div className="space-y-4 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
-                            <h2 className="text-2xl font-black">{isMongolian ? "3. Аяллын маршрут, хотуудаа төлөвлөх" : "3. Plan Your Route & Cities"}</h2>
+                        <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-4 mb-4">
+                            <h2 className="text-xl font-black">{isMongolian ? "3. Аяллын маршрут, хотуудаа төлөвлөх" : "3. Plan Your Route & Cities"}</h2>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2 space-y-6">
-                                <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="lg:col-span-2 space-y-4">
+                                <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-4">
                                     {/* AI Suggested Cities */}
                                     {(isSuggestingCities || suggestedCities.length > 0) && (
                                         <div className="space-y-3 pt-2">
@@ -1615,7 +1615,7 @@ export default function AITravelPlannerV2() {
                                         <div className="flex-1">
                                             {destination && CITY_SUGGESTIONS[destination] ? (
                                                 <Select value={city} onValueChange={(val) => { if (val === 'custom') setCity('custom'); else addCity(val); }}>
-                                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-bold">
+                                                    <SelectTrigger className="h-12 rounded-2xl bg-slate-50 border-slate-100 font-bold">
                                                         <SelectValue placeholder={isMongolian ? "Хот нэмэх" : "Add City"} />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -1717,8 +1717,8 @@ export default function AITravelPlannerV2() {
                                 </Card>
                             </div>
 
-                            <div className="space-y-6">
-                                <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
+                            <div className="space-y-4">
+                                <Card className="p-4 rounded-3xl border-slate-100 shadow-sm space-y-4">
                                     <div className="space-y-4">
                                         <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                             <DollarSign className="w-4 h-4" />
@@ -1761,10 +1761,10 @@ export default function AITravelPlannerV2() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
+                            className="space-y-6"
                         >
-                            <div className="space-y-4 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
-                                <h2 className="text-2xl font-black">{isMongolian ? "4. Зочид буудал, байрлах газраа сонгох" : "4. Choose Hotels & Accommodation"}</h2>
+                            <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-4 mb-4">
+                                <h2 className="text-xl font-black">{isMongolian ? "4. Зочид буудал, байрлах газраа сонгох" : "4. Choose Hotels & Accommodation"}</h2>
                             </div>
 
                             <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -1975,11 +1975,11 @@ export default function AITravelPlannerV2() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
+                            className="space-y-6"
                         >
-                            <div className="space-y-4 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
+                            <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-4 mb-4">
                                 <div className="space-y-1">
-                                    <h2 className="text-2xl font-black leading-tight">
+                                    <h2 className="text-xl font-black leading-tight">
                                         {isMongolian ? "5. Үзэх газрууд, үйл ажиллагаагаа сонгох" : "5. Select Activities & Experiences"}
                                     </h2>
                                     <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-center gap-1.5">
@@ -2141,7 +2141,7 @@ export default function AITravelPlannerV2() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="space-y-8 pb-20"
+                            className="space-y-6 pb-12"
                         >
                             {isGenerating ? (
                                 <div className="py-20 flex flex-col items-center justify-center space-y-8">
@@ -2193,7 +2193,7 @@ export default function AITravelPlannerV2() {
                                     </div>
                                 </div>
                             ) : itinerary ? (
-                                <div className="space-y-8">
+                                <div className="space-y-6">
                                     <style jsx global>{`
                                         @media print {
                                             /* Hide everything by default */
@@ -2221,9 +2221,9 @@ export default function AITravelPlannerV2() {
                                         }
                                     `}</style>
 
-                                    <div id="itinerary-root" className="space-y-10">
+                                    <div id="itinerary-root" className="space-y-6">
                                         {/* Hero Header */}
-                                        <div className="relative h-[300px] sm:h-[400px] rounded-[40px] overflow-hidden shadow-2xl">
+                                        <div className="relative h-[240px] sm:h-[300px] rounded-[40px] overflow-hidden shadow-2xl">
                                             <img
                                                 src={`https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=1200&sig=${encodeURIComponent(itinerary.city || destination)}&keywords=${encodeURIComponent(itinerary.city || destination)},cityscape,landmark,architecture`}
                                                 alt={itinerary.city || destination}
@@ -2234,16 +2234,16 @@ export default function AITravelPlannerV2() {
                                                 }}
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-                                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 space-y-6">
-                                                <div className="space-y-4 text-white">
-                                                    <Badge className="bg-emerald-500 text-white border-none px-4 py-1.5 rounded-full text-xs font-black shadow-lg shadow-emerald-500/20 uppercase tracking-widest">
+                                            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 space-y-4">
+                                                <div className="space-y-2 text-white">
+                                                    <Badge className="bg-emerald-500 text-white border-none px-3 py-1 rounded-full text-[10px] font-black shadow-lg shadow-emerald-500/20 uppercase tracking-widest">
                                                         {isMongolian ? "Төгс хөтөлбөр бэлэн боллоо" : "Perfect Itinerary Ready"}
                                                     </Badge>
-                                                    <h1 className="text-4xl sm:text-6xl font-black tracking-tight drop-shadow-md">
+                                                    <h1 className="text-3xl sm:text-5xl font-black tracking-tight drop-shadow-md">
                                                         {itinerary.city || destination}
                                                     </h1>
                                                 </div>
-                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                                     {[
                                                         { label: isMongolian ? "Хугацаа" : "Duration", value: `${itinerary.duration} ${isMongolian ? "өдөр" : "days"}`, icon: CalendarIcon },
                                                         { label: isMongolian ? "Нислэг" : "Flight", value: intlTransport === 'flight' ? "Yes" : "No", icon: Plane },
@@ -2262,8 +2262,8 @@ export default function AITravelPlannerV2() {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                                            <div className="lg:col-span-8 space-y-12">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                                            <div className="lg:col-span-8 space-y-8">
                                                 {itinerary.days?.map((day: any, dayIdx: number) => (
                                                     <div key={dayIdx} className="relative">
                                                         <div className="flex items-center gap-4 mb-6 sticky top-4 z-20 bg-white/90 backdrop-blur-md py-3 px-5 rounded-2xl border border-slate-100 shadow-sm">
@@ -2360,11 +2360,11 @@ export default function AITravelPlannerV2() {
                                                 <div className="sticky top-10 space-y-6">
                                                     {/* Actions */}
                                                     <div className="flex flex-col gap-3 no-print">
-                                                        <Button onClick={handleSaveTrip} disabled={isSavingTrip} className="h-16 rounded-[24px] bg-slate-900 text-white font-black text-lg">
+                                                        <Button onClick={handleSaveTrip} disabled={isSavingTrip} className="h-14 rounded-[24px] bg-slate-900 text-white font-black text-lg">
                                                             {isSavingTrip ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <Save className="w-5 h-5 mr-3" />}
                                                             {isMongolian ? "Төлөвлөгөө хадгалах" : "Save Plan"}
                                                         </Button>
-                                                        <Button onClick={handleDownloadPDF} className="h-16 rounded-[24px] bg-emerald-600 text-white font-black text-lg">
+                                                        <Button onClick={handleDownloadPDF} className="h-14 rounded-[24px] bg-emerald-600 text-white font-black text-lg">
                                                             <Download className="w-5 h-5 mr-3" />
                                                             {isMongolian ? "PDF Татах" : "Download PDF"}
                                                         </Button>

@@ -7,6 +7,7 @@ import { TopHeader } from "@/components/layout/top-header";
 import { MaintenanceGuard } from "@/components/layout/maintenance-guard";
 import { AIChat } from "@/components/ai/ai-chat";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { cn } from "@/lib/utils";
 
 interface ClientLayoutProps {
     children: React.ReactNode;
@@ -28,7 +29,12 @@ export function ClientLayout({ children }: ClientLayoutProps) {
             <div className="relative z-50">
                 <TopHeader />
             </div>
-            <div className="app-container relative z-10 pb-24 md:pb-0">
+            <div className={cn(
+                "app-container relative z-10 md:pb-0",
+                ((pathname?.startsWith("/ai/") && pathname !== "/ai") || pathname?.startsWith("/admin") || pathname?.startsWith("/package/") || pathname?.startsWith("/checkout") || pathname === "/profile")
+                    ? "pb-6"
+                    : "pb-24"
+            )}>
                 {children}
             </div>
             {/* Mobile Navigation */}
