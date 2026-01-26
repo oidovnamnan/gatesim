@@ -880,7 +880,7 @@ export default function AITravelPlannerV2() {
                         className="space-y-6"
                     >
                         <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Төлөвлөгөө эхлүүлэх" : "Start Planning"}</h2>
+                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын үндсэн мэдээлэл" : "Start Your Journey"}</h2>
                             <p className="text-slate-500">{isMongolian ? "Үндсэн мэдээллээ оруулна уу" : "Enter your core trip details"}</p>
                         </div>
 
@@ -1100,7 +1100,7 @@ export default function AITravelPlannerV2() {
                         className="space-y-6"
                     >
                         <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын зорилго ба тээвэр" : "Trip Intent & Transport"}</h2>
+                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын хэв маяг ба тээвэр" : "Travel Style & Transport"}</h2>
                             <p className="text-slate-500">{isMongolian ? "Аяллын зорилгоо тодорхойлж, тээврийн хэрэгслээ сонгоно уу" : "Define your trip purposes and select transport options"}</p>
                         </div>
 
@@ -1294,7 +1294,7 @@ export default function AITravelPlannerV2() {
                         className="space-y-8"
                     >
                         <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Маршрут боловсруулах" : "Plan Your Route"}</h2>
+                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын маршрут боловсруулах" : "Design Your Route"}</h2>
                             <p className="text-slate-500">{isMongolian ? "Аялах хотуудаа сонгож, хуваариа гаргана уу" : "Select cities and distribute your days"}</p>
                         </div>
 
@@ -1514,7 +1514,7 @@ export default function AITravelPlannerV2() {
                             className="space-y-8"
                         >
                             <div className="space-y-2 text-center">
-                                <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Хаана байрлах вэ?" : "Where to stay?"}</h2>
+                                <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Танд зориулсан шилдэг байршлууд" : "Premium Stay Selection"}</h2>
                                 <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                     {cityRoute.map((c) => (
                                         <button
@@ -1693,10 +1693,14 @@ export default function AITravelPlannerV2() {
                         >
                             <div className="space-y-4 text-center">
                                 <div className="space-y-1">
-                                    <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Юу хийх вэ?" : "What to do?"}</h2>
-                                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-center gap-1">
-                                        <Sparkles className="w-3 h-3" />
-                                        {isMongolian ? "Танд зориулсан тусгай санал" : "Tailored for your purposes"}
+                                    <h2 className="text-2xl font-black text-slate-900 leading-tight">
+                                        {isMongolian ? "Таны аяллыг тодорхойлох шилдэг газрууд" : "Discover the Heart of Your Journey"}
+                                    </h2>
+                                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-center gap-1.5">
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                        {isMongolian
+                                            ? "AI-аар таны сонирхолд 100% нийцүүлэн бэлтгэв"
+                                            : "AI-curated matching your travel goals 100%"}
                                     </p>
                                 </div>
                                 <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -1934,7 +1938,7 @@ export default function AITravelPlannerV2() {
                                             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 space-y-6">
                                                 <div className="space-y-4 text-white">
                                                     <Badge className="bg-emerald-500 text-white border-none px-4 py-1.5 rounded-full text-xs font-black shadow-lg shadow-emerald-500/20 uppercase tracking-widest">
-                                                        {isMongolian ? "Төлөвлөгөө бэлэн" : "Itinerary Ready"}
+                                                        {isMongolian ? "Төгс хөтөлбөр бэлэн боллоо" : "Perfect Itinerary Ready"}
                                                     </Badge>
                                                     <h1 className="text-4xl sm:text-6xl font-black tracking-tight drop-shadow-md">
                                                         {itinerary.city || destination}
