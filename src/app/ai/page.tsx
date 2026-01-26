@@ -151,18 +151,16 @@ export default function AIHubPage() {
                         </motion.div>
                         <h1 className="text-4xl font-black tracking-tighter flex items-center gap-4 text-white">
                             AI Hub
-                            <Sparkles className="w-7 h-7 text-blue-400 fill-blue-400/20 animate-pulse" />
                         </h1>
                     </div>
 
-                    <motion.button
-                        whileHover={{ scale: 1.05, rotate: 5 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl relative group"
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl relative"
                     >
-                        <div className="absolute inset-0 bg-blue-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <Bot className="w-7 h-7 text-blue-400 relative z-10" />
-                    </motion.button>
+                        <Bot className="w-7 h-7 text-blue-400" />
+                    </motion.div>
                 </div>
             </header>
 

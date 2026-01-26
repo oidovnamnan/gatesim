@@ -154,7 +154,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
             <motion.div
                 className={cn(
                     "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
-                    (isOpen || (pathname?.startsWith("/ai") && !pathname.endsWith("/ai"))) && "opacity-0 pointer-events-none"
+                    (isOpen || pathname === "/ai" || (pathname?.startsWith("/ai") && !pathname.endsWith("/ai"))) && "opacity-0 pointer-events-none"
                 )}
             >
                 {/* Enhanced Proactive Pulse */}
