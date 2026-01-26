@@ -428,6 +428,34 @@ export default function AITravelPlannerV2() {
     const [hotelStars, setHotelStars] = useState("all");
     const [hotelArea, setHotelArea] = useState("all");
 
+    // --- Flight State ---
+    const [flightOffers, setFlightOffers] = useState<any[]>([]);
+    const [selectedFlight, setSelectedFlight] = useState<any>(null);
+    const [isFlightLoading, setIsFlightLoading] = useState(false);
+
+    const fetchFlights = async () => {
+        setIsFlightLoading(true);
+        try {
+            const res = await fetch("/api/ai/flights", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    destination: destination,
+                    date: startDate,
+                    travelers: { adults, children }
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setFlightOffers(data.offers);
+            }
+        } catch (error) {
+            console.error("Flight fetch failed:", error);
+        } finally {
+            setIsFlightLoading(false);
+        }
+    };
+
     const isMongolian = language === "mn";
 
     const loadingMessages = isMongolian ? [
@@ -1312,9 +1340,77 @@ export default function AITravelPlannerV2() {
                                             );
                                         })}
                                     </div>
-                                </div>
 
-                                {/* Inter-city */}
+                                    {/* Flight Selection UI */}
+                                    {intlTransport === 'flight' && (
+                                        <div className="pt-2 animate-in fade-in slide-in-from-top-2">
+                                            {!selectedFlight ? (
+                                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs font-bold text-slate-500">{isMongolian ? "Нислэг сонгох" : "Select Flight"}</span>
+                                                        <Badge variant="outline" className="text-[10px] bg-white">UBN ➔ {destinations.find(d => d.code === destination)?.name || destination}</Badge>
+                                                    </div>
+
+                                                    {isFlightLoading ? (
+                                                        <div className="py-4 text-center space-y-2">
+                                                            <Loader2 className="w-6 h-6 animate-spin mx-auto text-emerald-500" />
+                                                            <p className="text-[10px] text-slate-400 font-bold">{isMongolian ? "Танд тохирох нислэг хайж байна..." : "Searching best flights for you..."}</p>
+                                                        </div>
+                                                    ) : flightOffers.length > 0 ? (
+                                                        <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
+                                                            {flightOffers.map((offer: any) => (
+                                                                <div
+                                                                    key={offer.id}
+                                                                    onClick={() => setSelectedFlight(offer)}
+                                                                    className="bg-white p-3 rounded-xl border border-slate-100 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer flex justify-between items-center group"
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-emerald-500 group-hover:bg-emerald-50 transition-colors">
+                                                                            <Plane className="w-4 h-4" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-xs font-black text-slate-800">{offer.airline} <span className="text-slate-400 font-medium">#{offer.id}</span></div>
+                                                                            <div className="text-[10px] text-slate-500 font-medium">{offer.departure.split('T')[1].substring(0, 5)} - {offer.arrival.split('T')[1].substring(0, 5)} • {offer.duration}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <div className="text-sm font-black text-emerald-600">{offer.price}</div>
+                                                                        <div className="text-[9px] text-slate-400 font-bold">{offer.stops === 0 ? (isMongolian ? 'Шууд' : 'Direct') : `${offer.stops} stop`}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            onClick={fetchFlights}
+                                                            variant="outline"
+                                                            className="w-full h-10 border-dashed border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-500 font-bold text-xs"
+                                                        >
+                                                            {isMongolian ? "Нислэг хайх" : "Find Flights"}
+                                                            <Search className="w-3.5 h-3.5 ml-2" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="bg-emerald-50/50 rounded-2xl p-3 border border-emerald-100 flex justify-between items-center group">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                                                            <Check className="w-5 h-5" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{isMongolian ? "Сонгогдсон нислэг" : "Selected Flight"}</div>
+                                                            <div className="text-sm font-black text-slate-900">{selectedFlight.airline} • {selectedFlight.price}</div>
+                                                            <div className="text-[10px] text-slate-500 font-medium">{selectedFlight.departure.split('T')[1].substring(0, 5)} - {selectedFlight.arrival.split('T')[1].substring(0, 5)}</div>
+                                                        </div>
+                                                    </div>
+                                                    <Button size="sm" variant="ghost" onClick={() => setSelectedFlight(null)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 h-8 w-8 rounded-full p-0">
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2 px-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
