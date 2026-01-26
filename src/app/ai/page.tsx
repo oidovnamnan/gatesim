@@ -125,31 +125,34 @@ export default function AIHubPage() {
 
     return (
         <div className="relative min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white selection:bg-slate-900 selection:text-white pb-32 overflow-x-hidden">
-            {/* --- Minimalist Background --- */}
-            <div className="absolute inset-0 pointer-events-none opacity-40">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+            {/* --- Luxury Background --- */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(120,119,198,0.08),rgba(255,255,255,0))]" />
+                <div className="absolute inset-0 opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] contrast-150" />
             </div>
 
             {/* --- Header --- */}
-            <header className="relative z-10 px-6 pt-12 pb-8">
-                <div className="max-w-xl mx-auto space-y-3">
+            <header className="relative z-10 px-8 pt-16 pb-12">
+                <div className="max-w-xl mx-auto space-y-4">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2.5"
                     >
-                        <Bot className="w-4 h-4 text-slate-900 dark:text-white" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">
+                        <div className="w-8 h-8 rounded-xl bg-slate-950 dark:bg-white flex items-center justify-center shadow-lg">
+                            <Bot className="w-4 h-4 text-white dark:text-slate-950" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
                             {isMongolian ? "Ухаалаг систем" : "GateSIM Intelligence"}
                         </span>
                     </motion.div>
 
                     <div className="flex items-center justify-between">
-                        <h1 className="text-3xl font-black tracking-tightest">
+                        <h1 className="text-4xl font-black tracking-tightest leading-none">
                             AI Hub
                         </h1>
                         {aiStatus?.isPremium && (
-                            <Badge className="bg-slate-900 text-white dark:bg-white dark:text-slate-950 px-2.5 py-0.5 rounded-full font-black text-[9px] uppercase">
+                            <Badge className="bg-slate-900 text-white dark:bg-white dark:text-slate-950 px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg">
                                 Premium
                             </Badge>
                         )}
@@ -158,7 +161,7 @@ export default function AIHubPage() {
             </header>
 
             {/* --- Hero: Quick Start Action --- */}
-            <section className="relative z-10 px-6 mb-12">
+            <section className="relative z-10 px-8 mb-14">
                 <div className="max-w-xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -167,13 +170,14 @@ export default function AIHubPage() {
                     >
                         <Card
                             onClick={() => setIsWizardOpen(true)}
-                            className="group relative h-40 rounded-[32px] bg-slate-900 dark:bg-white border-none shadow-xl flex flex-col justify-end p-6 cursor-pointer overflow-hidden transition-all active:scale-[0.98]"
+                            className="group relative h-44 rounded-[40px] bg-slate-950 dark:bg-white border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] flex flex-col justify-end p-8 cursor-pointer overflow-hidden transition-all active:scale-[0.98]"
                         >
-                            {/* Texture/Pattern */}
-                            <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_2px_2px,black_1px,transparent_0)] bg-[size:24px_24px]" />
+                            {/* Material Polish */}
+                            <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_2px_2px,black_1px,transparent_0)] bg-[size:32px_32px]" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent dark:from-white/10" />
 
                             <div className="relative z-10 flex items-center justify-between">
-                                <div className="space-y-0.5">
+                                <div className="space-y-1">
                                     <h2 className="text-2xl font-black text-white dark:text-slate-950 tracking-tight">
                                         {isMongolian ? "Шинэ аялал эхлүүлэх" : "Start a Journey"}
                                     </h2>
@@ -181,8 +185,8 @@ export default function AIHubPage() {
                                         {isMongolian ? "Төгс төлөвлөгөөг AI-тай хамт" : "Plan with AI in seconds"}
                                     </p>
                                 </div>
-                                <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-950 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                                    <ArrowRight className="w-6 h-6 text-slate-900 dark:text-white" />
+                                <div className="w-14 h-14 rounded-full bg-white dark:bg-slate-950 flex items-center justify-center shadow-xl group-hover:scale-105 transition-all group-hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                                    <ArrowRight className="w-7 h-7 text-slate-900 dark:text-white" />
                                 </div>
                             </div>
                         </Card>
@@ -191,8 +195,8 @@ export default function AIHubPage() {
             </section>
 
             {/* --- Features Grid: Minimalist Tiles --- */}
-            <section className="relative z-10 px-6 mb-12">
-                <div className="max-w-xl mx-auto grid grid-cols-2 gap-3">
+            <section className="relative z-10 px-8 mb-14">
+                <div className="max-w-xl mx-auto grid grid-cols-2 gap-4">
                     {aiFeatures.map((feature, idx) => (
                         <motion.div
                             key={feature.id}
@@ -201,13 +205,13 @@ export default function AIHubPage() {
                             transition={{ delay: 0.2 + idx * 0.05 }}
                         >
                             <Link href={feature.href}>
-                                <Card className="group relative h-full p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[28px] hover:bg-white dark:hover:bg-slate-800 transition-all duration-300">
-                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center mb-4 shadow-sm border border-slate-100 dark:border-slate-700 group-hover:scale-105 transition-transform">
+                                <Card className="group relative h-full p-6 bg-white/50 dark:bg-slate-900/30 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-[32px] hover:bg-white dark:hover:bg-slate-800 transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none hover:-translate-y-1">
+                                    <div className="w-11 h-11 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-5 shadow-inner border border-slate-100 dark:border-slate-700 group-hover:scale-110 transition-transform">
                                         <feature.icon className="w-5 h-5 text-slate-900 dark:text-white" />
                                     </div>
-                                    <div className="space-y-0.5">
-                                        <h4 className="font-black text-xs text-slate-900 dark:text-white tracking-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
-                                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-tight">
+                                    <div className="space-y-1">
+                                        <h4 className="font-black text-[13px] text-slate-900 dark:text-white tracking-tight leading-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">
                                             {isMongolian ? feature.description : feature.descriptionEn}
                                         </p>
                                     </div>
@@ -219,39 +223,39 @@ export default function AIHubPage() {
             </section>
 
             {/* --- Status & Premium: Clean Banner --- */}
-            <section className="relative z-10 px-6">
+            <section className="relative z-10 px-8">
                 <div className="max-w-xl mx-auto">
-                    <Card className="p-6 bg-slate-100/50 dark:bg-slate-900/40 border-none dark:border dark:border-slate-800 rounded-[32px] space-y-6">
+                    <Card className="p-8 bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-md border border-white/50 dark:border-slate-800 rounded-[40px] space-y-8 shadow-sm">
                         <div className="flex items-center justify-between">
-                            <h5 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                            <h5 className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">
                                 {isMongolian ? "AI Хэрэглээний Хязгаар" : "AI Limit & Usage"}
                             </h5>
                             {!aiStatus?.isPremium && (
                                 <button
                                     onClick={() => setIsPremiumModalOpen(true)}
-                                    className="text-[9px] font-black uppercase tracking-widest text-slate-900 dark:text-white hover:underline underline-offset-4 decoration-2"
+                                    className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white hover:underline underline-offset-8 decoration-2"
                                 >
                                     {isMongolian ? "Premium болох" : "Go Premium"}
                                 </button>
                             )}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-6">
+                        <div className="grid grid-cols-3 gap-8">
                             {[
                                 { label: isMongolian ? "Аялал" : "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit },
                                 { label: isMongolian ? "Тээвэр" : "Transit", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit },
                                 { label: isMongolian ? "Зураг" : "Poster", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit },
                             ].map((s, i) => (
-                                <div key={i} className="space-y-2">
+                                <div key={i} className="space-y-3">
                                     <div className="flex justify-between items-end">
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">{s.label}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{s.label}</span>
                                         <span className="text-xs font-black text-slate-900 dark:text-white">{s.val}/{s.total}</span>
                                     </div>
-                                    <div className="h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(s.val / (s.total || 1)) * 100}%` }}
-                                            className="h-full bg-slate-900 dark:bg-white"
+                                            className="h-full bg-slate-950 dark:bg-white"
                                         />
                                     </div>
                                 </div>
