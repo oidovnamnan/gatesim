@@ -125,94 +125,85 @@ export default function AIHubPage() {
 
     return (
         <div className="relative min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white selection:bg-slate-900 selection:text-white pb-32 overflow-x-hidden">
-            {/* --- Elite Pro Background --- */}
+            {/* --- Elite Compact Background --- */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-15%] right-[-10%] w-[70%] h-[70%] bg-red-600/[0.07] blur-[140px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-600/[0.05] blur-[120px] rounded-full animate-pulse [animation-delay:3s]" />
-                <div className="absolute inset-0 opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] contrast-150" />
+                <div className="absolute top-[-5%] right-[-5%] w-[40%] h-[40%] bg-red-600/[0.04] blur-[100px] rounded-full" />
+                <div className="absolute inset-0 opacity-[0.015] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] contrast-150" />
             </div>
 
-            {/* --- Pro Header --- */}
-            <header className="relative z-10 px-8 pt-24 pb-12">
-                <div className="max-w-xl mx-auto space-y-8">
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-4"
-                    >
-                        <div className="w-12 h-12 rounded-[22px] bg-red-600 flex items-center justify-center shadow-[0_12px_24px_-4px_rgba(220,38,38,0.4)] border border-white/20">
-                            <Bot className="w-6 h-6 text-white" />
+            {/* --- Compact Pro Header --- */}
+            <header className="relative z-10 px-6 pt-12 pb-6">
+                <div className="max-w-xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center shadow-lg border border-white/20">
+                            <Bot className="w-5 h-5 text-white" />
                         </div>
-                        <div className="space-y-0.5">
-                            <h1 className="text-4xl font-black tracking-tightest leading-none text-slate-900 dark:text-white">AI Hub</h1>
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600/50 dark:text-red-500/70">Intelligence Professional</p>
+                        <div>
+                            <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">AI Hub</h1>
+                            <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">Intelligence Desktop</p>
                         </div>
-                    </motion.div>
+                    </div>
+                    {aiStatus?.isPremium && (
+                        <Badge className="bg-red-600 text-white px-3 py-1 rounded-full font-black text-[8px] uppercase tracking-widest">
+                            Pro
+                        </Badge>
+                    )}
                 </div>
             </header>
 
-            {/* --- Hero: Liquid Elite Card --- */}
-            <section className="relative z-10 px-8 mb-16">
+            {/* --- Hero: Ultra Compact Pro Banner --- */}
+            <section className="relative z-10 px-6 mb-6">
                 <div className="max-w-xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
                     >
                         <Card
                             onClick={() => setIsWizardOpen(true)}
-                            className="group relative h-56 rounded-[56px] bg-slate-950 border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col justify-end p-12 cursor-pointer overflow-hidden transition-all active:scale-[0.97]"
+                            className="group relative h-28 rounded-3xl bg-slate-950 border border-white/5 shadow-2xl flex items-center justify-between px-8 cursor-pointer overflow-hidden transition-all active:scale-[0.98]"
                         >
-                            {/* Liquid Material Effects */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-red-600/40 via-transparent to-blue-600/20 opacity-40 group-hover:opacity-60 transition-opacity" />
-                            <div className="absolute top-0 right-0 w-[80%] h-full bg-[radial-gradient(circle_at_100%_0%,rgba(220,38,38,0.25)_0%,transparent_70%)]" />
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] contrast-150" />
-
-                            {/* Inner Glow Border */}
-                            <div className="absolute inset-0 rounded-[56px] border border-white/10" />
-
-                            <div className="relative z-10 flex items-end justify-between">
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Ready to Assist</span>
-                                    </div>
-                                    <h2 className="text-4xl font-black text-white tracking-tightest leading-none">
-                                        {isMongolian ? "Шинэ аялал\nэхлүүлэх" : "Start New\nJourney"}
-                                    </h2>
+                            <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 via-transparent to-blue-600/10 opacity-30" />
+                            <div className="relative z-10 space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40">AI Engine Ready</span>
                                 </div>
-                                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-all duration-500 group-hover:rotate-12">
-                                    <ArrowRight className="w-10 h-10 text-slate-950" />
-                                </div>
+                                <h2 className="text-xl font-black text-white tracking-tight">
+                                    {isMongolian ? "Шинэ аялал эхлүүлэх" : "Start New Journey"}
+                                </h2>
+                            </div>
+                            <div className="relative z-10 w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-xl group-hover:scale-105 transition-transform duration-500">
+                                <ArrowRight className="w-6 h-6 text-slate-950" />
                             </div>
                         </Card>
                     </motion.div>
                 </div>
             </section>
 
-            {/* --- Features Grid: Material Tiles --- */}
-            <section className="relative z-10 px-8 mb-16">
-                <div className="max-w-xl mx-auto grid grid-cols-2 gap-6">
+            {/* --- Features Grid: Pro Compact Tiles --- */}
+            <section className="relative z-10 px-6 mb-8">
+                <div className="max-w-xl mx-auto grid grid-cols-2 gap-4">
                     {aiFeatures.map((feature, idx) => (
                         <motion.div
                             key={feature.id}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 + idx * 0.05 }}
+                            transition={{ delay: 0.1 + idx * 0.05 }}
                         >
                             <Link href={feature.href}>
-                                <Card className="group relative h-full p-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/[0.03] rounded-[48px] shadow-sm hover:shadow-2xl hover:shadow-red-500/[0.07] transition-all duration-700 hover:-translate-y-3">
-                                    {/* Subtle Tile Textures */}
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-[48px] bg-[radial-gradient(circle_at_0%_0%,rgba(220,38,38,0.03)_0%,transparent_50%)]" />
-
-                                    <div className="w-16 h-16 rounded-[28px] bg-slate-50 dark:bg-white/[0.03] flex items-center justify-center mb-8 shadow-inner border border-slate-100 dark:border-white/[0.05] group-hover:bg-red-600 group-hover:border-red-500 group-hover:shadow-[0_12px_24px_-4px_rgba(220,38,38,0.3)] transition-all duration-500">
-                                        <feature.icon className="w-7 h-7 text-slate-900 dark:text-white group-hover:text-white transition-all duration-500 group-hover:scale-110" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h4 className="font-black text-lg text-slate-900 dark:text-white tracking-tight leading-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
-                                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-tight">
-                                            {isMongolian ? feature.description : feature.descriptionEn}
-                                        </p>
+                                <Card className="group relative h-full p-5 bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 rounded-2xl hover:border-red-600/30 transition-all hover:shadow-xl hover:-translate-y-1">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center border border-slate-100 dark:border-white/10 group-hover:bg-red-600 transition-colors shrink-0">
+                                            <feature.icon className="w-5 h-5 text-slate-900 dark:text-white group-hover:text-white transition-colors" />
+                                        </div>
+                                        <div className="space-y-1 flex-1 min-w-0">
+                                            <h4 className="font-black text-xs text-slate-900 dark:text-white tracking-tight truncate">
+                                                {isMongolian ? feature.title : feature.titleEn}
+                                            </h4>
+                                            <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider leading-none">
+                                                {isMongolian ? feature.description : feature.descriptionEn}
+                                            </p>
+                                        </div>
                                     </div>
                                 </Card>
                             </Link>
@@ -221,47 +212,41 @@ export default function AIHubPage() {
                 </div>
             </section>
 
-            {/* --- Status & Premium: Dashboard Section --- */}
-            <section className="relative z-10 px-8">
+            {/* --- Status & Premium: Control Center Style --- */}
+            <section className="relative z-10 px-6">
                 <div className="max-w-xl mx-auto">
-                    <Card className="p-12 bg-white/50 dark:bg-[#0a0a0b] backdrop-blur-3xl border border-slate-100 dark:border-white/[0.03] rounded-[64px] space-y-12 shadow-2xl">
+                    <Card className="p-6 bg-slate-50/50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-3xl space-y-6">
                         <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                                <h5 className="text-[12px] font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white flex items-center gap-3">
-                                    <Zap className="w-5 h-5 text-red-600" />
-                                    {isMongolian ? "System Usage" : "System Usage"}
-                                </h5>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-8">Enterprise Quota monitoring</p>
+                            <div className="flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-red-600" />
+                                <h5 className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white">Usage Monitoring</h5>
                             </div>
                             {!aiStatus?.isPremium && (
                                 <button
                                     onClick={() => setIsPremiumModalOpen(true)}
-                                    className="px-6 py-3 rounded-2xl bg-red-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 active:scale-95"
+                                    className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-[8px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-md active:scale-95"
                                 >
-                                    {isMongolian ? "Go Pro" : "Go Pro"}
+                                    Go Pro
                                 </button>
                             )}
                         </div>
 
-                        <div className="grid grid-cols-1 gap-12">
+                        <div className="grid grid-cols-3 gap-6">
                             {[
-                                { label: isMongolian ? "Төлөвлөлт / Intelligent Plans" : "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit, color: "from-red-600 to-rose-400" },
-                                { label: isMongolian ? "Төлбөр / Transit Analytics" : "Transit", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit, color: "from-blue-600 to-cyan-400" },
-                                { label: isMongolian ? "Медиа / Visual Assets" : "Poster", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit, color: "from-purple-600 to-pink-400" },
+                                { label: "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit, color: "bg-red-600" },
+                                { label: "Analytics", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit, color: "bg-blue-600" },
+                                { label: "Assets", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit, color: "bg-purple-600" },
                             ].map((s, i) => (
-                                <div key={i} className="space-y-5">
-                                    <div className="flex justify-between items-end">
-                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">{s.label}</span>
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-black text-slate-900 dark:text-white">{s.val}</span>
-                                            <span className="text-xs font-bold text-slate-400">/ {s.total}</span>
-                                        </div>
+                                <div key={i} className="space-y-2">
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">{s.label}</span>
+                                        <span className="text-[10px] font-black text-slate-900 dark:text-white">{s.val}</span>
                                     </div>
-                                    <div className="h-3 bg-slate-100 dark:bg-white/[0.03] rounded-full overflow-hidden p-0.5">
+                                    <div className="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(s.val / (s.total || 1)) * 100}%` }}
-                                            className={cn("h-full rounded-full bg-gradient-to-r shadow-lg", s.color)}
+                                            className={cn("h-full", s.color)}
                                         />
                                     </div>
                                 </div>

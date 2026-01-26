@@ -106,11 +106,11 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
 
                 {/* --- Vibrant Premium Modal --- */}
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    initial={{ scale: 0.9, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                    className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-[0_40px_100px_-20px_rgba(220,38,38,0.2)] overflow-hidden"
+                    exit={{ scale: 0.9, opacity: 0, y: 10 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="relative w-full max-w-[340px] bg-white dark:bg-zinc-900 rounded-3xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 dark:border-white/5 overflow-hidden"
                 >
                     {/* --- Mesh Gradient Background Layer --- */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
@@ -134,12 +134,12 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                     {/* Actions */}
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all z-10"
+                        className="absolute top-4 right-4 p-1.5 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-all z-10"
                     >
-                        <X className="w-4 h-4 text-slate-400" />
+                        <X className="w-3.5 h-3.5 text-slate-400" />
                     </button>
 
-                    <div className="p-8 pt-16 pb-8 relative z-10">
+                    <div className="p-6 pt-12 pb-6 relative z-10">
                         {/* Question Section */}
                         <div className="min-h-[160px]">
                             <AnimatePresence mode="wait">
@@ -152,10 +152,10 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     className="space-y-6"
                                 >
                                     <div className="space-y-3">
-                                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-md", stepInfo.color)}>
-                                            <stepInfo.icon className="w-5 h-5 text-white" />
+                                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br shadow-sm", stepInfo.color)}>
+                                            <stepInfo.icon className="w-4 h-4 text-white" />
                                         </div>
-                                        <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                                        <h2 className="text-base font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                                             {stepInfo.question}
                                         </h2>
                                     </div>
@@ -198,13 +198,12 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                 onChange={(e) => {
                                                     let val = e.target.value;
                                                     if (stepInfo.id === "duration") {
-                                                        // Prevent negative numbers and zero
                                                         if (parseInt(val) < 1) val = "1";
                                                     }
                                                     setFormData({ ...formData, [stepInfo.id]: val });
                                                 }}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl p-5 text-lg font-black text-slate-900 dark:text-white focus:border-red-600 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                className="w-full bg-slate-50 dark:bg-white/5 border border-transparent rounded-xl p-4 text-base font-black text-slate-900 dark:text-white focus:border-red-600 transition-all outline-none placeholder:text-slate-300"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
                                             <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
@@ -217,12 +216,12 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                         </div>
 
                         {/* Footer */}
-                        <div className="mt-8 flex items-center justify-between">
+                        <div className="mt-6 flex items-center justify-between">
                             <button
                                 type="button"
                                 onClick={handleBack}
                                 className={cn(
-                                    "flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-all",
+                                    "flex items-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-all",
                                     currentStep === 0 && "opacity-0 pointer-events-none"
                                 )}
                             >
@@ -235,10 +234,10 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     type="button"
                                     disabled={!formData[stepInfo.id]}
                                     onClick={handleNext}
-                                    className="h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl px-8 font-black text-xs flex items-center gap-3 transition-all active:scale-95 disabled:opacity-30 shadow-lg shadow-red-200 dark:shadow-red-900/10"
+                                    className="h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl px-6 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 disabled:opacity-30 shadow-lg"
                                 >
                                     Дараах
-                                    <ArrowRight className="w-4 h-4" />
+                                    <ArrowRight className="w-3.5 h-3.5" />
                                 </Button>
                             )}
                         </div>

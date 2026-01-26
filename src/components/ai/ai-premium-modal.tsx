@@ -74,7 +74,7 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: "20%", opacity: 0 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-full max-w-sm bg-slate-950 rounded-[32px] border border-white/10 overflow-hidden shadow-2xl relative"
+                        className="w-full max-w-[340px] bg-slate-950 rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative"
                     >
                         {/* --- Mesh Gradient Accents --- */}
                         <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
@@ -87,15 +87,15 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                         </button>
 
                         {/* Content */}
-                        <div className="p-6 relative z-10 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                        <div className="p-5 relative z-10 max-h-[85vh] overflow-y-auto custom-scrollbar">
                             {step === "select" && (
-                                <div className="space-y-5">
-                                    <div className="text-center space-y-2">
-                                        <div className="w-12 h-12 mx-auto bg-gradient-to-br from-amber-400 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/20 mb-3">
-                                            <Crown className="w-6 h-6 text-white" />
+                                <div className="space-y-4">
+                                    <div className="text-center space-y-1">
+                                        <div className="w-10 h-10 mx-auto bg-gradient-to-br from-amber-400 to-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-600/20 mb-2">
+                                            <Crown className="w-5 h-5 text-white" />
                                         </div>
-                                        <h2 className="text-xl font-black text-white">AI Premium</h2>
-                                        <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Аялалын ухаалаг туслахаа идэвхжүүлээрэй</p>
+                                        <h2 className="text-lg font-black text-white">AI Premium</h2>
+                                        <p className="text-slate-400 text-[9px] font-bold uppercase tracking-wider">Unlock Professional AI features</p>
                                     </div>
 
                                     {/* Features Grid */}
@@ -111,33 +111,33 @@ export function AIPremiumModal({ isOpen, onClose }: AIPremiumModalProps) {
                                     </div>
 
                                     {/* Plans */}
-                                    <div className="space-y-3">
+                                    <div className="space-y-2">
                                         {PLANS.map((plan) => (
                                             <div
                                                 key={plan.id}
                                                 onClick={() => setSelectedPlan(plan.id)}
-                                                className={`p-3 rounded-2xl border-2 cursor-pointer transition-all relative ${selectedPlan === plan.id ? "border-red-600 bg-red-600/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
+                                                className={`p-2.5 rounded-xl border-2 cursor-pointer transition-all relative ${selectedPlan === plan.id ? "border-red-600 bg-red-600/10" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
                                             >
                                                 {plan.popular && (
-                                                    <div className="absolute -top-2.5 right-4 bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-lg">
+                                                    <div className="absolute -top-2 right-3 bg-red-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest shadow-lg">
                                                         Best Choice
                                                     </div>
                                                 )}
-                                                <div className="flex justify-between items-center">
+                                                <div className="flex justify-between items-center text-xs">
                                                     <div>
-                                                        <div className="font-black text-white text-sm">{plan.label}</div>
-                                                        <div className="text-[10px] text-slate-400 font-bold">{plan.sub}</div>
+                                                        <div className="font-black text-white">{plan.label}</div>
+                                                        <div className="text-[9px] text-slate-400 font-bold">{plan.sub}</div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <div className="font-black text-red-500 text-sm">{plan.price.toLocaleString()}₮</div>
+                                                        <div className="font-black text-red-500">{plan.price.toLocaleString()}₮</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <Button onClick={handlePurchase} className="w-full h-12 rounded-xl bg-red-600 text-white font-black text-sm hover:bg-red-700 shadow-xl shadow-red-600/20">
-                                        Идэвхжүүлэх <ArrowRight className="w-4 h-4 ml-2" />
+                                    <Button onClick={handlePurchase} className="w-full h-10 rounded-xl bg-red-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-700 shadow-xl shadow-red-600/20">
+                                        Идэвхжүүлэх <ArrowRight className="w-3.5 h-3.5 ml-2" />
                                     </Button>
                                 </div>
                             )}
