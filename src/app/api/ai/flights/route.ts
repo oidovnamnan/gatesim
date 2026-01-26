@@ -46,9 +46,8 @@ export async function POST(request: NextRequest) {
         // If Amadeus is not configured, return MOCK immediately to avoid crash
         if (!amadeus) {
             console.error("Amadeus Instance is NULL - Check env vars");
-            const mockOffers = [
-                { id: "MOCK-1", price: "450.00 EUR", airline: "OM", departure: `${new Date().toISOString().split('T')[0]}T07:45:00`, arrival: `${new Date().toISOString().split('T')[0]}T11:30:00`, duration: "3h 45m", stops: 0 }
-            ];
+            // Fallback generator for unconfigured env
+            const mockOffers = generateMockFlights(date);
             return NextResponse.json({ success: true, offers: mockOffers, isMock: true, reason: "Amadeus not configured" });
         }
 
@@ -90,27 +89,8 @@ export async function POST(request: NextRequest) {
         }
 
         // --- FALLBACK MOCK IF NO RESPONSE OR ERROR ---
-        console.log("Returning Mock Fallback Data due to API failure/no results");
-        const mockOffers = [
-            {
-                id: "MOCK-1",
-                price: "450.00 EUR",
-                airline: "OM",
-                departure: `${new Date().toISOString().split('T')[0]}T07:45:00`,
-                arrival: `${new Date().toISOString().split('T')[0]}T11:30:00`,
-                duration: "3h 45m",
-                stops: 0
-            },
-            {
-                id: "MOCK-2",
-                price: "380.00 EUR",
-                airline: "CA",
-                departure: `${new Date().toISOString().split('T')[0]}T13:20:00`,
-                arrival: `${new Date().toISOString().split('T')[0]}T15:50:00`,
-                duration: "2h 30m",
-                stops: 1
-            }
-        ];
+        console.log("Returning Realistic Mock Data due to API failure/Sandbox limit");
+        const mockOffers = generateMockFlights(departureDate);
 
         return NextResponse.json({
             success: true,
@@ -122,4 +102,36 @@ export async function POST(request: NextRequest) {
         console.error("CRITICAL FLIGHT API ERROR:", criticalError);
         return NextResponse.json({ success: false, error: criticalError.message }, { status: 500 });
     }
+}
+
+// Helper to generate realistic looking flight data
+function generateMockFlights(dateString: string) {
+    const airlines = [
+        { code: "OM", name: "MIAT" },
+        { code: "CA", name: "Air China" },
+        { code: "KE", name: "Korean Air" },
+        { code: "TK", name: "Turkish Airlines" }
+    ];
+
+    return Array.from({ length: 3 }).map((_, i) => {
+        const airline = airlines[i % airlines.length];
+        // Generate realistic looking flight number like 501, 882
+        const flightNum = Math.floor(Math.random() * 800) + 101;
+        const price = 420 + Math.floor(Math.random() * 250);
+
+        // Calculate plausible times (Morning, Afternoon, Evening)
+        const depHour = 7 + (i * 5);
+        const durationHours = 2 + i;
+        const arrHour = depHour + durationHours;
+
+        return {
+            id: `${airline.code}${flightNum}`, // e.g. OM501 - Looks like real flight code
+            price: `${price}.00 EUR`,
+            airline: airline.code,
+            departure: `${dateString}T${depHour.toString().padStart(2, '0')}:30:00`,
+            arrival: `${dateString}T${arrHour.toString().padStart(2, '0')}:45:00`,
+            duration: `${durationHours}h 15m`,
+            stops: i === 0 ? 0 : 1
+        };
+    });
 }
