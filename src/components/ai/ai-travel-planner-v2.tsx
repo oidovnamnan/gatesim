@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -370,6 +370,42 @@ export default function AITravelPlannerV2() {
     // --- Discovery State ---
     const [hotels, setHotels] = useState<any[]>([]);
     const [selectedHotels, setSelectedHotels] = useState<Record<string, any>>({});
+
+    // Filtering State
+    const [filterOption, setFilterOption] = useState<string>("all");
+    const [sortOption, setSortOption] = useState<string>("recommended");
+
+    // Memoized Filtered Hotels
+    const filteredHotels = useMemo(() => {
+        if (!hotels) return [];
+        let result = [...hotels];
+
+        // 1. Filter
+        if (filterOption === 'live') {
+            result = result.filter(h => h.isLive);
+        } else if (filterOption === '4star') {
+            result = result.filter(h => h.rating >= 4.0);
+        }
+
+        // 2. Sort
+        if (sortOption === 'price_low') {
+            result.sort((a, b) => {
+                const priceA = parseFloat(a.price?.replace(/[^0-9.]/g, '') || '0');
+                const priceB = parseFloat(b.price?.replace(/[^0-9.]/g, '') || '0');
+                return priceA - priceB;
+            });
+        } else if (sortOption === 'price_high') {
+            result.sort((a, b) => {
+                const priceA = parseFloat(a.price?.replace(/[^0-9.]/g, '') || '0');
+                const priceB = parseFloat(b.price?.replace(/[^0-9.]/g, '') || '0');
+                return priceB - priceA;
+            });
+        } else if (sortOption === 'rating') {
+            result.sort((a, b) => b.rating - a.rating);
+        }
+
+        return result;
+    }, [hotels, filterOption, sortOption]);
     const [isDiscoveryLoading, setIsDiscoveryLoading] = useState(false);
 
     const [activeCategory, setActiveCategory] = useState<"attraction" | "shopping" | "dining" | "medical" | "education">("attraction");
@@ -1599,24 +1635,39 @@ export default function AITravelPlannerV2() {
                                 ))}
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
-                                <div className="space-y-1.5 flex-1">
-                                    <label className="text-[10px] font-black uppercase text-slate-400 px-1">{isMongolian ? "Зэрэглэл" : "Stars"}</label>
-                                    <Select value={hotelStars} onValueChange={setHotelStars}>
-                                        <SelectTrigger className="h-10 rounded-xl bg-white border-none shadow-sm text-xs font-bold"><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">{isMongolian ? "Бүгд" : "All"}</SelectItem>
-                                            <SelectItem value="3">3+ ★</SelectItem>
-                                            <SelectItem value="4">4+ ★</SelectItem>
-                                            <SelectItem value="5">5 ★</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="md:col-span-3 flex items-end">
-                                    <Button onClick={() => fetchDiscoveryData('hotel', activeCityTab)} variant="outline" className="w-full h-10 rounded-xl border-emerald-100 text-emerald-600 font-bold text-xs hover:bg-emerald-50 gap-2">
-                                        <Search className="w-3.5 h-3.5" />
-                                        {isMongolian ? "Хайх" : "Search"}
-                                    </Button>
+                            <div className="flex flex-col gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                                {/* Filters Row */}
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase text-slate-400 px-1">{isMongolian ? "Шүүлтүүр" : "Filter By"}</label>
+                                        <Select value={filterOption} onValueChange={setFilterOption}>
+                                            <SelectTrigger className="h-9 rounded-xl bg-white border-slate-200 text-xs font-bold"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">{isMongolian ? "Бүгд" : "All Hotels"}</SelectItem>
+                                                <SelectItem value="live">{isMongolian ? "✅ Бодит (Live)" : "✅ Live Data Only"}</SelectItem>
+                                                <SelectItem value="4star">{isMongolian ? "⭐️ 4+ Одтой" : "⭐️ 4+ Stars"}</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase text-slate-400 px-1">{isMongolian ? "Эрэмбэлэх" : "Sort By"}</label>
+                                        <Select value={sortOption} onValueChange={setSortOption}>
+                                            <SelectTrigger className="h-9 rounded-xl bg-white border-slate-200 text-xs font-bold"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="recommended">{isMongolian ? "Санал болгож буй" : "Recommended"}</SelectItem>
+                                                <SelectItem value="price_low">{isMongolian ? "Үнэ (Бага -> Их)" : "Price: Low to High"}</SelectItem>
+                                                <SelectItem value="price_high">{isMongolian ? "Үнэ (Их -> Бага)" : "Price: High to Low"}</SelectItem>
+                                                <SelectItem value="rating">{isMongolian ? "Үнэлгээ (Өндөр)" : "Rating: High to Low"}</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1 flex justify-end items-end col-span-2">
+                                        <div className="text-[10px] font-bold text-slate-400 mb-2">
+                                            {filteredHotels.length} {isMongolian ? "илэрц" : "results found"}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1660,7 +1711,8 @@ export default function AITravelPlannerV2() {
                                         </Badge>
                                     </Card>
 
-                                    {hotels.map((hotel: any) => (
+                                    {/* Filtered List */}
+                                    {filteredHotels.map((hotel: any) => (
                                         <div
                                             key={hotel.id}
                                             onClick={() => setSelectedHotels(prev => ({ ...prev, [activeCityTab]: hotel }))}

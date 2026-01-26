@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
             ? `Specific interest for this category: ${purposeDetails[purposes]}`
             : "";
 
-        const itemCount = type === 'hotel' ? 5 : 10;
+        const itemCount = type === 'hotel' ? 20 : 10;
 
         const systemPrompt = `You are an expert travel researcher and data provider. 
         Your task is to provide exactly ${itemCount} high-quality, REAL-WORLD suggestions for ${type} in ${city || destination}.
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
                     let amadeusHotels = await getHotelsInCity(resolvedCity);
 
                     if (amadeusHotels && amadeusHotels.length > 0) {
-                        amadeusOptions.push(...amadeusHotels.slice(0, 3).map((h: any) => ({
+                        amadeusOptions.push(...amadeusHotels.slice(0, 10).map((h: any) => ({
                             id: h.hotelId,
                             name: h.name,
                             description: `Real-time availability confirmed via Amadeus. Star rating: ${h.rating || 'N/A'}.`,
