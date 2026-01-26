@@ -148,7 +148,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                         )}
                                                     >
                                                         <OptIcon className="w-6 h-6 text-blue-500" />
-                                                        <span className="text-xs font-bold">{opt.label}</span>
+                                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{opt.label}</span>
                                                     </button>
                                                 );
                                             })}
@@ -161,7 +161,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                 value={formData[stepInfo.id]}
                                                 onChange={(e) => setFormData({ ...formData, [stepInfo.id]: e.target.value })}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 text-lg font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
                                         </div>
