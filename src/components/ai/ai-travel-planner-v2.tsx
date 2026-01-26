@@ -50,6 +50,8 @@ import {
     Wallet,
     Bed,
     User,
+    Star,
+    ArrowUpRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1659,56 +1661,66 @@ export default function AITravelPlannerV2() {
                                     </Card>
 
                                     {hotels.map((hotel: any) => (
-                                        <Card
+                                        <div
                                             key={hotel.id}
-                                            className={cn(
-                                                "overflow-hidden transition-all duration-300 cursor-pointer group border-2 relative",
-                                                selectedHotels[activeCityTab]?.id === hotel.id ? "border-emerald-500 bg-emerald-50" : "border-slate-100 hover:border-emerald-200"
-                                            )}
                                             onClick={() => setSelectedHotels(prev => ({ ...prev, [activeCityTab]: hotel }))}
-                                        >
-                                            {selectedHotels[activeCityTab]?.id === hotel.id && (
-                                                <div className="absolute top-3 left-3 z-10 bg-emerald-600 text-white p-1 rounded-full shadow-lg border-2 border-white"><Check className="w-4 h-4" /></div>
+                                            className={cn(
+                                                "flex gap-3 p-2 rounded-2xl border transition-all duration-300 cursor-pointer group bg-white",
+                                                selectedHotels[activeCityTab]?.id === hotel.id
+                                                    ? "border-emerald-500 shadow-md shadow-emerald-100 ring-1 ring-emerald-500"
+                                                    : "border-slate-100 hover:border-emerald-200 hover:shadow-sm"
                                             )}
-                                            <div className="aspect-video bg-slate-100 relative overflow-hidden">
-                                                <img src={hotel.imageUrl} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as any).src = `https://loremflickr.com/800/600/hotel,${encodeURIComponent(hotel.name.split(' ')[0])}`; }} />
-                                                <Badge className="absolute top-3 right-3 bg-white/95 text-emerald-600 font-black border-none shadow-sm text-sm py-1 px-3 rounded-full backdrop-blur-sm">{hotel.price}</Badge>
+                                        >
+                                            {/* Compact Image */}
+                                            <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden relative bg-slate-100">
+                                                <img
+                                                    src={hotel.imageUrl}
+                                                    alt={hotel.name}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    onError={(e) => { (e.target as any).src = `https://loremflickr.com/300/300/building,hotel,exterior,${encodeURIComponent(hotel.name.split(' ')[0])}`; }}
+                                                />
                                                 {hotel.isLive && (
-                                                    <div className="absolute top-3 left-3 bg-red-500 text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-lg uppercase tracking-wider animate-pulse">
-                                                        <div className="w-1 h-1 rounded-full bg-white" />
-                                                        <span>LIVE DATA</span>
+                                                    <div className="absolute top-1 left-1 bg-red-600/90 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm backdrop-blur-sm animate-pulse">
+                                                        LIVE
                                                     </div>
                                                 )}
-                                                {!hotel.isLive && hotel.rating >= 4.5 && (
-                                                    <div className="absolute top-3 left-3 bg-amber-400 text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-sm uppercase tracking-wider">
-                                                        <Sparkles className="w-2.5 h-2.5 fill-current" />
-                                                        <span>Premium</span>
+                                                {selectedHotels[activeCityTab]?.id === hotel.id && (
+                                                    <div className="absolute inset-0 bg-emerald-600/20 flex items-center justify-center backdrop-blur-[1px]">
+                                                        <Check className="w-8 h-8 text-white drop-shadow-md" />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="p-5 space-y-4">
-                                                <div className="space-y-1.5">
-                                                    <div className="flex justify-between items-start gap-4">
-                                                        <h4 className="font-black text-slate-900 text-base leading-tight group-hover:text-emerald-600 transition-colors">{hotel.name}</h4>
-                                                        <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg shrink-0 border border-amber-100/50">
-                                                            <span className="text-amber-600 text-xs font-black">{hotel.rating}</span>
-                                                            <Sparkles className="w-3 h-3 text-amber-500 fill-current" />
+
+                                            {/* Compact Details */}
+                                            <div className="flex-1 flex flex-col justify-between py-0.5">
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between items-start gap-2">
+                                                        <h4 className="font-bold text-slate-900 text-sm leading-tight line-clamp-2 group-hover:text-emerald-700 transition-colors">
+                                                            {hotel.name}
+                                                        </h4>
+                                                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100 font-bold px-1.5 py-0 rounded-md text-[10px] shrink-0">
+                                                            {hotel.price}
+                                                        </Badge>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-0.5 text-amber-500">
+                                                            <Star className="w-3 h-3 fill-current" />
+                                                            <span className="text-[10px] font-bold text-slate-700">{hotel.rating}</span>
+                                                        </div>
+                                                        <span className="text-slate-300 text-[10px]">•</span>
+                                                        <div className="flex items-center gap-0.5 text-slate-400">
+                                                            <MapPin className="w-3 h-3" />
+                                                            <span className="text-[10px] truncate max-w-[100px]">{hotel.distanceFromAirport?.split(' from ')[0] || "City Center"}</span>
                                                         </div>
                                                     </div>
-                                                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed font-medium">{hotel.description}</p>
+
+                                                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">
+                                                        {hotel.description}
+                                                    </p>
                                                 </div>
 
-                                                <div className="grid grid-cols-2 gap-3 items-center pt-2 border-t border-slate-50">
-                                                    {/* Airport Distance Badge */}
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-7 h-7 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100">
-                                                            <Plane className="w-3.5 h-3.5 text-slate-400" />
-                                                        </div>
-                                                        <span className="text-[10px] font-bold text-slate-400 truncate">
-                                                            {hotel.distanceFromAirport?.split(' from ')[0] || "Ойрхон"}
-                                                        </span>
-                                                    </div>
-
+                                                <div className="flex justify-end pt-2">
                                                     <a
                                                         href={hotel.isLive || (hotel.bookingUrl && !hotel.bookingUrl.includes('booking.com'))
                                                             ? (hotel.bookingUrl || `https://www.google.com/search?q=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`)
@@ -1717,14 +1729,14 @@ export default function AITravelPlannerV2() {
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         onClick={(e) => e.stopPropagation()}
-                                                        className="flex items-center justify-center gap-2 h-9 bg-slate-900 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black transition-all active:scale-95 group/btn"
+                                                        className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-0.5"
                                                     >
-                                                        {isMongolian ? "Захиалах" : "Book Now"}
-                                                        <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                                                        {isMongolian ? "Дэлгэрэнгүй харах" : "View Details"}
+                                                        <ArrowUpRight className="w-3 h-3" />
                                                     </a>
                                                 </div>
                                             </div>
-                                        </Card>
+                                        </div>
                                     ))}
                                 </div>
                             )}
@@ -2267,7 +2279,7 @@ export default function AITravelPlannerV2() {
                                 </div>
 
                                 {/* Details Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
