@@ -879,9 +879,8 @@ export default function AITravelPlannerV2() {
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="space-y-6"
                     >
-                        <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын үндсэн мэдээлэл" : "Start Your Journey"}</h2>
-                            <p className="text-slate-500">{isMongolian ? "Үндсэн мэдээллээ оруулна уу" : "Enter your core trip details"}</p>
+                        <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
+                            <h2 className="text-2xl font-black">{isMongolian ? "1. Улс болон хугацаагаа сонгох" : "1. Select Destination & Duration"}</h2>
                         </div>
 
                         {/* Destination & Date Cards */}
@@ -1099,9 +1098,8 @@ export default function AITravelPlannerV2() {
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="space-y-6"
                     >
-                        <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын хэв маяг ба тээвэр" : "Travel Style & Transport"}</h2>
-                            <p className="text-slate-500">{isMongolian ? "Аяллын зорилгоо тодорхойлж, тээврийн хэрэгслээ сонгоно уу" : "Define your trip purposes and select transport options"}</p>
+                        <div className="space-y-2 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
+                            <h2 className="text-2xl font-black">{isMongolian ? "2. Аяллын зорилго, тээврээ тодорхойлох" : "2. Define Purpose & Transport"}</h2>
                         </div>
 
                         <Card className="p-6 rounded-3xl border-slate-100 shadow-sm space-y-6">
@@ -1293,9 +1291,8 @@ export default function AITravelPlannerV2() {
                         exit={{ opacity: 0, x: -20 }}
                         className="space-y-8"
                     >
-                        <div className="space-y-2 text-center">
-                            <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Аяллын маршрут боловсруулах" : "Design Your Route"}</h2>
-                            <p className="text-slate-500">{isMongolian ? "Аялах хотуудаа сонгож, хуваариа гаргана уу" : "Select cities and distribute your days"}</p>
+                        <div className="space-y-4 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
+                            <h2 className="text-2xl font-black">{isMongolian ? "3. Аяллын маршрут, хотуудаа төлөвлөх" : "3. Plan Your Route & Cities"}</h2>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1513,27 +1510,28 @@ export default function AITravelPlannerV2() {
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-8"
                         >
-                            <div className="space-y-2 text-center">
-                                <h2 className="text-2xl font-black text-slate-900">{isMongolian ? "Танд зориулсан шилдэг байршлууд" : "Premium Stay Selection"}</h2>
-                                <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                                    {cityRoute.map((c) => (
-                                        <button
-                                            key={c.name}
-                                            onClick={() => {
-                                                setActiveCityTab(c.name);
-                                                fetchDiscoveryData('hotel', c.name);
-                                            }}
-                                            className={cn(
-                                                "px-4 py-2 rounded-2xl font-bold text-xs transition-all whitespace-nowrap border-2",
-                                                activeCityTab === c.name
-                                                    ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100"
-                                                    : "bg-white border-slate-50 text-slate-400 hover:border-slate-100"
-                                            )}
-                                        >
-                                            {c.name} {selectedHotels[c.name] && "✅"}
-                                        </button>
-                                    ))}
-                                </div>
+                            <div className="space-y-4 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
+                                <h2 className="text-2xl font-black">{isMongolian ? "4. Зочид буудал, байрлах газраа сонгох" : "4. Choose Hotels & Accommodation"}</h2>
+                            </div>
+
+                            <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                {cityRoute.map((c) => (
+                                    <button
+                                        key={c.name}
+                                        onClick={() => {
+                                            setActiveCityTab(c.name);
+                                            fetchDiscoveryData('hotel', c.name);
+                                        }}
+                                        className={cn(
+                                            "px-4 py-2 rounded-2xl font-bold text-xs transition-all whitespace-nowrap border-2",
+                                            activeCityTab === c.name
+                                                ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100"
+                                                : "bg-white border-slate-50 text-slate-400 hover:border-slate-100"
+                                        )}
+                                    >
+                                        {c.name} {selectedHotels[c.name] && "✅"}
+                                    </button>
+                                ))}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
@@ -1691,10 +1689,10 @@ export default function AITravelPlannerV2() {
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-8"
                         >
-                            <div className="space-y-4 text-center">
+                            <div className="space-y-4 text-center text-slate-900 border-b border-slate-100 pb-6 mb-8">
                                 <div className="space-y-1">
-                                    <h2 className="text-2xl font-black text-slate-900 leading-tight">
-                                        {isMongolian ? "Таны аяллыг тодорхойлох шилдэг газрууд" : "Discover the Heart of Your Journey"}
+                                    <h2 className="text-2xl font-black leading-tight">
+                                        {isMongolian ? "5. Үзэх газрууд, үйл ажиллагаагаа сонгох" : "5. Select Activities & Experiences"}
                                     </h2>
                                     <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center justify-center gap-1.5">
                                         <Sparkles className="w-3.5 h-3.5" />
@@ -2122,7 +2120,7 @@ export default function AITravelPlannerV2() {
                     )
                 }
             </AnimatePresence>
-        </div>
+        </div >
     );
 }
 
