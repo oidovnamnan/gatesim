@@ -52,6 +52,7 @@ import {
     User,
     Star,
     ArrowUpRight,
+    RefreshCcw,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1347,7 +1348,14 @@ export default function AITravelPlannerV2() {
                                             {!selectedFlight ? (
                                                 <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
                                                     <div className="flex justify-between items-center">
-                                                        <span className="text-xs font-bold text-slate-500">{isMongolian ? "Нислэг сонгох" : "Select Flight"}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs font-bold text-slate-500">{isMongolian ? "Нислэг сонгох" : "Select Flight"}</span>
+                                                            {flightOffers.length > 0 && (
+                                                                <Button variant="ghost" size="icon" onClick={fetchFlights} className="h-5 w-5 text-slate-400 hover:text-emerald-600 rounded-full" title={isMongolian ? "Дахин хайх" : "Refresh"}>
+                                                                    <RefreshCcw className="w-3 h-3" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
                                                         <Badge variant="outline" className="text-[10px] bg-white">UBN ➔ {destinations.find(d => d.code === destination)?.name || destination}</Badge>
                                                     </div>
 
@@ -1392,20 +1400,68 @@ export default function AITravelPlannerV2() {
                                                     )}
                                                 </div>
                                             ) : (
-                                                <div className="bg-emerald-50/50 rounded-2xl p-3 border border-emerald-100 flex justify-between items-center group">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                                                            <Check className="w-5 h-5" />
+                                                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm animate-in fade-in zoom-in-95">
+                                                    {/* Ticket Header */}
+                                                    <div className="bg-slate-900 p-3 flex justify-between items-center text-white">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="bg-emerald-500/20 p-1.5 rounded-lg">
+                                                                <Plane className="w-3.5 h-3.5 text-emerald-400" />
+                                                            </div>
+                                                            <span className="text-xs font-bold tracking-wide uppercase">{isMongolian ? "Таны нислэг" : "Your Flight"}</span>
                                                         </div>
-                                                        <div>
-                                                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{isMongolian ? "Сонгогдсон нислэг" : "Selected Flight"}</div>
-                                                            <div className="text-sm font-black text-slate-900">{selectedFlight.airline} • {selectedFlight.price}</div>
-                                                            <div className="text-[10px] text-slate-500 font-medium">{selectedFlight.departure.split('T')[1].substring(0, 5)} - {selectedFlight.arrival.split('T')[1].substring(0, 5)}</div>
-                                                        </div>
+                                                        <Badge className="bg-emerald-500 text-white border-none font-bold text-[10px] px-2">CONFIRMED</Badge>
                                                     </div>
-                                                    <Button size="sm" variant="ghost" onClick={() => setSelectedFlight(null)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 h-8 w-8 rounded-full p-0">
-                                                        <X className="w-4 h-4" />
-                                                    </Button>
+
+                                                    {/* Ticket Body */}
+                                                    <div className="p-4 space-y-4">
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <div className="text-lg font-black text-slate-900">{selectedFlight.price}</div>
+                                                                <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                                                                    {selectedFlight.airline}
+                                                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                                                    #{selectedFlight.id}
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-xs font-bold text-slate-900">{selectedFlight.duration}</div>
+                                                                <div className="text-[10px] text-slate-400 font-medium">
+                                                                    {selectedFlight.stops === 0 ? (isMongolian ? 'Шууд' : 'Direct') : `${selectedFlight.stops} stop(s)`}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Route Visual */}
+                                                        <div className="flex items-center justify-between gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                                            <div className="text-center">
+                                                                <div className="text-sm font-black text-slate-900">UBN</div>
+                                                                <div className="text-[10px] text-slate-500">{selectedFlight.departure.split('T')[1].substring(0, 5)}</div>
+                                                            </div>
+
+                                                            <div className="flex-1 flex flex-col items-center gap-1">
+                                                                <div className="w-full h-[1px] bg-slate-300 relative">
+                                                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-200 p-1 rounded-full">
+                                                                        <Plane className="w-3 h-3 text-slate-400 rotate-90" />
+                                                                    </div>
+                                                                </div>
+                                                                <span className="text-[9px] text-slate-400">{selectedFlight.date || format(new Date(), 'MMM dd')}</span>
+                                                            </div>
+
+                                                            <div className="text-center">
+                                                                <div className="text-sm font-black text-slate-900">{destinations.find(d => d.code === destination)?.name || "DEST"}</div>
+                                                                <div className="text-[10px] text-slate-500">{selectedFlight.arrival.split('T')[1].substring(0, 5)}</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => setSelectedFlight(null)}
+                                                            className="w-full h-9 border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 text-xs font-bold transition-all"
+                                                        >
+                                                            {isMongolian ? "Нислэг солих / Дахин хайх" : "Change Flight / Search Again"}
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
