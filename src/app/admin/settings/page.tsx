@@ -13,6 +13,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getAdminRole, canAccess } from "@/config/admin";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import { Lock, KeyRound } from "lucide-react";
 
 interface PricingSettings {
     usdToMnt: number;
@@ -25,6 +34,7 @@ interface PricingSettings {
     amadeusClientId?: string;
     amadeusClientSecret?: string;
     amadeusEnv?: 'test' | 'production';
+    adminPin?: string;
 }
 
 export default function SettingsPage() {
@@ -40,10 +50,13 @@ export default function SettingsPage() {
         preferredImageAI: 'openai',
         amadeusClientId: '',
         amadeusClientSecret: '',
-        amadeusEnv: 'test'
+        amadeusEnv: 'test',
+        adminPin: '0707' // Default PIN set to what user mentioned
     });
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isVerifyOpen, setIsVerifyOpen] = useState(false);
+    const [pinInput, setPinInput] = useState('');
 
     // Access Control
     useEffect(() => {
@@ -76,7 +89,8 @@ export default function SettingsPage() {
                 googleModelId: config.googleModelId || '',
                 amadeusClientId: config.amadeusClientId || '',
                 amadeusClientSecret: config.amadeusClientSecret || '',
-                amadeusEnv: config.amadeusEnv || 'test'
+                amadeusEnv: config.amadeusEnv || 'test',
+                adminPin: config.adminPin || '0707'
             }));
             setLoading(false);
         });
@@ -84,9 +98,24 @@ export default function SettingsPage() {
     }, []);
 
     const handleSave = async () => {
+        setIsVerifyOpen(true);
+    };
+
+    const confirmSave = async () => {
+        if (pinInput !== settings.adminPin) {
+            toast({
+                title: "Буруу код",
+                description: "Баталгаажуулах код таарахгүй байна.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         try {
             await updateSystemConfig(settings);
             setSaved(true);
+            setIsVerifyOpen(false);
+            setPinInput('');
             setTimeout(() => setSaved(false), 2000);
             toast({ title: "Settings Saved", description: "Pricing and System updates applied." });
         } catch (error) {
@@ -466,6 +495,66 @@ export default function SettingsPage() {
                     </Button>
                 </div>
             </Card>
+
+            {/* 5. Security - Баталгаажуулалт */}
+            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                        <KeyRound className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Аюулгүй Байдал (Security)</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Тохиргоо хадгалахад ашиглах баталгаажуулах код</p>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="max-w-xs space-y-2">
+                        <Label className="text-slate-700 dark:text-slate-300">Баталгаажуулах ПИН код</Label>
+                        <Input
+                            type="password"
+                            value={settings.adminPin}
+                            onChange={(e) => setSettings(s => ({ ...s, adminPin: e.target.value }))}
+                            className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-center text-xl tracking-widest"
+                            maxLength={8}
+                        />
+                        <p className="text-xs text-slate-500">Тохиргоо хадгалах бүрд энэ кодыг нэхэх болно. (Жишээ нь: 0707)</p>
+                    </div>
+                </div>
+            </Card>
+
+            <Dialog open={isVerifyOpen} onOpenChange={setIsVerifyOpen}>
+                <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Lock className="w-5 h-5 text-amber-500" />
+                            Баталгаажуулах шаардлагатай
+                        </DialogTitle>
+                        <DialogDescription>
+                            Өөрчлөлтийг хадгалахын тулд админ ПИН кодоо оруулна уу.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Input
+                            type="password"
+                            placeholder="ПИН код оруулна уу"
+                            value={pinInput}
+                            onChange={(e) => setPinInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && confirmSave()}
+                            className="text-center text-2xl tracking-widest font-mono"
+                            autoFocus
+                        />
+                    </div>
+                    <DialogFooter className="flex gap-2">
+                        <Button variant="outline" onClick={() => setIsVerifyOpen(false)}>
+                            Цуцлах
+                        </Button>
+                        <Button className="bg-amber-600 hover:bg-amber-700 text-white" onClick={confirmSave}>
+                            Баталгаажуулах
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <div className="flex items-center gap-2 p-4 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-300 text-sm">
                 <AlertCircle className="w-4 h-4" />
