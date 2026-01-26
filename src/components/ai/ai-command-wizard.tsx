@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     X, Sparkles, MapPin, Calendar, Rocket,
-    ArrowRight, Check, Bot, Zap, Sun, CloudRain
+    ArrowRight, Check, Bot, Zap, Sun, CloudRain, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,7 +21,7 @@ const steps = [
         id: "destination",
         question: "Хаашаа явахаар төлөвлөж байна?",
         questionEn: "Where are you planning to go?",
-        placeholder: "Улс эсвэл хотын нэр...",
+        placeholder: "Хотын нэр (ж.нь: Сөүл, Токио...)",
         icon: MapPin,
     },
     {
@@ -29,14 +29,14 @@ const steps = [
         question: "Хэд хоног аялах вэ?",
         questionEn: "How many days is your trip?",
         placeholder: "Хоногийн тоо...",
-        icon: Calendar,
+        icon: Clock,
     },
     {
         id: "purpose",
         question: "Аяллын үндсэн зорилго юу вэ?",
-        questionEn: "What is the main purpose of your trip?",
+        questionEn: "What is the main purpose?",
         options: [
-            { id: "tourist", label: "Жуулчлал", icon: Rocket },
+            { id: "tourist", label: "Жуулчлал", icon: MapPin },
             { id: "business", label: "Бизнес", icon: Zap },
             { id: "shopping", label: "Шопинг", icon: Sparkles },
             { id: "medical", label: "Эмчилгээ", icon: Sparkles },
@@ -76,78 +76,76 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    initial={{ scale: 0.95, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-slate-800 rounded-[32px] shadow-2xl overflow-hidden"
+                    exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                    className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
                 >
-                    {/* Header Glow */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+                    {/* Progress Bar (Minimal) */}
+                    <div className="absolute top-0 left-0 w-full flex h-1.5 px-6 pt-6 gap-1">
+                        {steps.map((_, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    "h-1 px-1 flex-1 rounded-full transition-all duration-300",
+                                    i <= currentStep ? "bg-slate-900 dark:bg-white" : "bg-slate-100 dark:bg-slate-800"
+                                )}
+                            />
+                        ))}
+                    </div>
 
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="absolute top-8 right-8 p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-10"
                     >
                         <X className="w-5 h-5 text-slate-400" />
                     </button>
 
-                    <div className="p-8 pt-12">
-                        {/* Progress */}
-                        <div className="flex gap-2 mb-8">
-                            {steps.map((_, i) => (
-                                <div
-                                    key={i}
-                                    className={cn(
-                                        "h-1 rounded-full transition-all duration-500",
-                                        i <= currentStep ? "w-8 bg-blue-500" : "w-4 bg-slate-200 dark:bg-slate-800"
-                                    )}
-                                />
-                            ))}
-                        </div>
-
+                    <div className="p-10 pt-20">
                         {/* Question Section */}
-                        <div className="min-h-[200px]">
+                        <div className="min-h-[220px]">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={currentStep}
-                                    initial={{ x: 20, opacity: 0 }}
+                                    initial={{ x: 10, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: -20, opacity: 0 }}
-                                    className="space-y-6"
+                                    exit={{ x: -10, opacity: 0 }}
+                                    className="space-y-8"
                                 >
-                                    <div className="flex items-center gap-3 text-blue-500">
-                                        <stepInfo.icon className="w-6 h-6" />
-                                        <span className="text-xs font-black uppercase tracking-widest opacity-60">Step {currentStep + 1}</span>
+                                    <div className="space-y-3">
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                            Step {currentStep + 1} of {steps.length}
+                                        </p>
+                                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                                            {stepInfo.question}
+                                        </h2>
                                     </div>
 
-                                    <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                                        {stepInfo.question}
-                                    </h2>
-
                                     {stepInfo.id === "purpose" ? (
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-2 gap-4">
                                             {stepInfo.options?.map((opt) => {
-                                                const OptIcon = opt.icon;
+                                                const isActive = formData[stepInfo.id] === opt.id;
                                                 return (
                                                     <button
-                                                        type="button"
                                                         key={opt.id}
+                                                        type="button"
                                                         onClick={() => {
                                                             setFormData({ ...formData, [stepInfo.id]: opt.id });
-                                                            handleNext();
+                                                            // Auto-next for selection
+                                                            setTimeout(handleNext, 200);
                                                         }}
                                                         className={cn(
-                                                            "flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all",
-                                                            formData[stepInfo.id] === opt.id
-                                                                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                                                                : "border-slate-100 dark:border-slate-800 hover:border-blue-200"
+                                                            "flex flex-col items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300",
+                                                            isActive
+                                                                ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
+                                                                : "border-slate-100 bg-white hover:border-slate-200 dark:border-slate-800 dark:bg-slate-800/50 dark:hover:border-slate-700"
                                                         )}
                                                     >
-                                                        <OptIcon className="w-6 h-6 text-blue-500" />
-                                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{opt.label}</span>
+                                                        <opt.icon className={cn("w-6 h-6", isActive ? "text-current" : "text-slate-400")} />
+                                                        <span className="text-xs font-black uppercase tracking-widest">{opt.label}</span>
                                                     </button>
                                                 );
                                             })}
@@ -160,7 +158,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                 value={formData[stepInfo.id]}
                                                 onChange={(e) => setFormData({ ...formData, [stepInfo.id]: e.target.value })}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+                                                className="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-2xl p-6 text-xl font-bold text-slate-900 dark:text-white focus:border-slate-900 dark:focus:border-white transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
                                         </div>
@@ -175,7 +173,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                 type="button"
                                 variant="ghost"
                                 onClick={handleBack}
-                                className={cn("rounded-xl font-bold", currentStep === 0 && "invisible")}
+                                className={cn("rounded-xl font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white", currentStep === 0 && "invisible")}
                             >
                                 Буцах
                             </Button>
@@ -185,17 +183,14 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     type="button"
                                     disabled={!formData[stepInfo.id]}
                                     onClick={handleNext}
-                                    className="bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 text-white rounded-xl px-10 h-14 font-black flex items-center gap-2 group shadow-xl"
+                                    className="h-14 bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white rounded-[20px] px-10 font-black text-sm flex items-center gap-3 transition-all active:scale-95 disabled:opacity-30"
                                 >
                                     Дараах
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="w-4 h-4" />
                                 </Button>
                             )}
                         </div>
                     </div>
-
-                    {/* AI Character Overlay (Subtle) */}
-                    <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full" />
                 </motion.div>
             </div>
         </AnimatePresence>

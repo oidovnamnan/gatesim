@@ -418,16 +418,20 @@ export default function AITravelPlannerV2() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
+        const isWizard = searchParams.get("wizard") === "true";
         const destParam = searchParams.get("destination");
         const durParam = searchParams.get("duration");
         const purpParam = searchParams.get("purpose");
 
         if (destParam) setDestination(destParam);
         if (durParam) setDuration(parseInt(durParam) || 5);
-        if (purpParam) setPurposes([purpParam]);
+        if (purpParam) {
+            // Normalize purpose to array
+            setPurposes([purpParam]);
+        }
 
-        // If we have params, skip to city selection (Step 3)
-        if (destParam && durParam && purpParam) {
+        // If we have minimum wizard data, skip to Step 3 (City Selection)
+        if (isWizard && destParam && durParam) {
             setStep(3);
         }
     }, [searchParams]);
