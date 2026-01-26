@@ -368,6 +368,7 @@ export default function AITravelPlannerV2() {
     const [itinerary, setItinerary] = useState<any>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [loadingPhase, setLoadingPhase] = useState(0);
+    const [progress, setProgress] = useState(0);
     const [isSavingTrip, setIsSavingTrip] = useState(false);
     const [showChecklist, setShowChecklist] = useState(false);
 
@@ -511,10 +512,25 @@ export default function AITravelPlannerV2() {
     useEffect(() => {
         if (isGenerating) {
             setLoadingPhase(0);
+            setProgress(0);
             const interval = setInterval(() => {
                 setLoadingPhase(p => (p + 1) % 4);
             }, 800);
-            return () => clearInterval(interval);
+
+            const progressInterval = setInterval(() => {
+                setProgress(prev => {
+                    if (prev >= 99) return 99;
+                    // Non-linear simulation: fast then slow
+                    const diff = 100 - prev;
+                    const step = Math.max(0.1, diff * 0.05);
+                    return Math.min(99, prev + step);
+                });
+            }, 150);
+
+            return () => {
+                clearInterval(interval);
+                clearInterval(progressInterval);
+            };
         }
     }, [isGenerating]);
 
@@ -1884,13 +1900,18 @@ export default function AITravelPlannerV2() {
                                         </AnimatePresence>
 
                                         {/* Progress Bar */}
-                                        <div className="w-48 h-1.5 bg-slate-100 rounded-full mx-auto overflow-hidden">
-                                            <motion.div
-                                                className="h-full bg-emerald-500 rounded-full"
-                                                initial={{ width: "0%" }}
-                                                animate={{ width: "100%" }}
-                                                transition={{ duration: 3.5, ease: "easeInOut", repeat: Infinity }}
-                                            />
+                                        <div className="space-y-4">
+                                            <div className="w-48 h-1.5 bg-slate-100 rounded-full mx-auto overflow-hidden">
+                                                <motion.div
+                                                    className="h-full bg-emerald-500 rounded-full"
+                                                    initial={{ width: "0%" }}
+                                                    animate={{ width: `${progress}%` }}
+                                                    transition={{ type: "spring", stiffness: 50, damping: 20 }}
+                                                />
+                                            </div>
+                                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                                {Math.floor(progress)}%
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
