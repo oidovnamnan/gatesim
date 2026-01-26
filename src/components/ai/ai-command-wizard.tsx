@@ -64,8 +64,16 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
     });
 
     const handleNext = () => {
-        const currentData = formData[steps[currentStep].id];
+        const stepId = steps[currentStep].id;
+        const currentData = formData[stepId];
+
         if (!currentData) return;
+
+        // Validation for duration
+        if (stepId === "duration") {
+            const val = parseInt(currentData);
+            if (isNaN(val) || val <= 0) return;
+        }
 
         if (currentStep < steps.length - 1) {
             setCurrentStep(prev => prev + 1);
@@ -184,10 +192,19 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                             <input
                                                 autoFocus
                                                 type={stepInfo.id === "duration" ? "number" : "text"}
+                                                min={stepInfo.id === "duration" ? "1" : undefined}
                                                 value={formData[stepInfo.id]}
-                                                onChange={(e) => setFormData({ ...formData, [stepInfo.id]: e.target.value })}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                onChange={(e) => {
+                                                    let val = e.target.value;
+                                                    if (stepInfo.id === "duration") {
+                                                        // Prevent negative numbers and zero
+                                                        if (parseInt(val) < 1) val = "1";
+                                                    }
+                                                    setFormData({ ...formData, [stepInfo.id]: val });
+                                                }}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl p-5 text-lg font-black text-slate-900 dark:text-white focus:border-red-600 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 shadow-inner"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl p-5 text-lg font-black text-slate-900 dark:text-white focus:border-red-600 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
                                             <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
