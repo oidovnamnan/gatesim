@@ -52,15 +52,13 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
         duration: "",
         purpose: "",
     });
-    const [isAnimating, setIsAnimating] = useState(false);
 
     const handleNext = () => {
+        const currentData = formData[steps[currentStep].id];
+        if (!currentData) return;
+
         if (currentStep < steps.length - 1) {
-            setIsAnimating(true);
-            setTimeout(() => {
-                setCurrentStep(prev => prev + 1);
-                setIsAnimating(false);
-            }, 300);
+            setCurrentStep(prev => prev + 1);
         } else {
             onComplete(formData);
         }
@@ -135,14 +133,15 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                 const OptIcon = opt.icon;
                                                 return (
                                                     <button
+                                                        type="button"
                                                         key={opt.id}
                                                         onClick={() => {
-                                                            setFormData({ ...formData, purpose: opt.id });
+                                                            setFormData({ ...formData, [stepInfo.id]: opt.id });
                                                             handleNext();
                                                         }}
                                                         className={cn(
                                                             "flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all",
-                                                            formData.purpose === opt.id
+                                                            formData[stepInfo.id] === opt.id
                                                                 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                                                                 : "border-slate-100 dark:border-slate-800 hover:border-blue-200"
                                                         )}
@@ -173,6 +172,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                         {/* Footer Actions */}
                         <div className="mt-12 flex items-center justify-between">
                             <Button
+                                type="button"
                                 variant="ghost"
                                 onClick={handleBack}
                                 className={cn("rounded-xl font-bold", currentStep === 0 && "invisible")}
@@ -182,9 +182,10 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
 
                             {stepInfo.id !== "purpose" && (
                                 <Button
+                                    type="button"
                                     disabled={!formData[stepInfo.id]}
                                     onClick={handleNext}
-                                    className="bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 text-white rounded-xl px-8 font-black flex items-center gap-2 group"
+                                    className="bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 text-white rounded-xl px-10 h-14 font-black flex items-center gap-2 group shadow-xl"
                                 >
                                     Дараах
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
