@@ -1710,7 +1710,10 @@ export default function AITravelPlannerV2() {
                                                     </div>
 
                                                     <a
-                                                        href={`https://www.awin1.com/cread.php?awinmid=18117&awinaffid=2735044&clickref=gatesim_ai&p=${encodeURIComponent(hotel.bookingUrl || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`)}`}
+                                                        href={hotel.isLive || (hotel.bookingUrl && !hotel.bookingUrl.includes('booking.com'))
+                                                            ? (hotel.bookingUrl || `https://www.google.com/search?q=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`)
+                                                            : `https://www.awin1.com/cread.php?awinmid=18117&awinaffid=2735044&clickref=gatesim_ai&p=${encodeURIComponent(hotel.bookingUrl || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + activeCityTab)}`)}`
+                                                        }
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         onClick={(e) => e.stopPropagation()}
