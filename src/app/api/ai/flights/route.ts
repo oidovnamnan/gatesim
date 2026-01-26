@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         const { destination, date, travelers } = body;
         console.log("Request Params:", { destination, date, travelers });
 
-        const amadeus = getAmadeus();
+        const amadeus = await getAmadeus();
 
         // If Amadeus is not configured, return MOCK immediately to avoid crash
         if (!amadeus) {

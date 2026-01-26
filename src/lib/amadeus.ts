@@ -1,12 +1,17 @@
 import Amadeus from 'amadeus';
+import { getSystemConfig } from './db';
 
 // Singleton instance to prevent multiple initializations
 let amadeusInstance: any = null;
 
-export function getAmadeus() {
+export async function getAmadeus() {
     if (!amadeusInstance) {
-        const clientId = process.env.AMADEUS_CLIENT_ID;
-        const clientSecret = process.env.AMADEUS_CLIENT_SECRET;
+        // Fetch config from DB first
+        const config = await getSystemConfig();
+
+        const clientId = config.amadeusClientId || process.env.AMADEUS_CLIENT_ID;
+        const clientSecret = config.amadeusClientSecret || process.env.AMADEUS_CLIENT_SECRET;
+        const env = config.amadeusEnv || process.env.AMADEUS_ENV || 'test';
 
         if (!clientId || !clientSecret) {
             console.error("[Amadeus] Missing API Keys. Flight/Hotel search will fail.");
@@ -16,7 +21,7 @@ export function getAmadeus() {
         amadeusInstance = new Amadeus({
             clientId,
             clientSecret,
-            // Automatically switches to production if keys are from production environment
+            hostname: env === 'production' ? 'production' : 'test'
         });
     }
     return amadeusInstance;
@@ -29,7 +34,7 @@ export function getAmadeus() {
  * @param departureTime Date string (YYYY-MM-DD)
  */
 export async function searchFlights(origin: string, destination: string, departureTime: string) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     try {
@@ -53,7 +58,7 @@ export async function searchFlights(origin: string, destination: string, departu
  * Useful when the user enters a city name instead of a code
  */
 export async function getCityCode(cityName: string) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     try {
@@ -74,7 +79,7 @@ export async function getCityCode(cityName: string) {
  * Get list of hotel IDs in a city
  */
 export async function getHotelsInCity(cityCode: string) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     try {
@@ -93,7 +98,7 @@ export async function getHotelsInCity(cityCode: string) {
  * @param hotelIds Array of hotel IDs (e.g. ['HLPAR401'])
  */
 export async function getHotelOffers(hotelIds: string[]) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     try {
@@ -126,7 +131,7 @@ const CITY_COORDINATES: Record<string, { latitude: number, longitude: number }> 
  * Get detailed city info including coordinates
  */
 export async function getCityDetails(cityName: string) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     // Use hardcoded fallback for Sandbox reliability
@@ -165,7 +170,7 @@ export async function getCityDetails(cityName: string) {
  * Get top attractions (Points of Interest) near coordinates
  */
 export async function getPointsOfInterest(latitude: number, longitude: number) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     try {
@@ -185,7 +190,7 @@ export async function getPointsOfInterest(latitude: number, longitude: number) {
  * Get bookable tours and activities near coordinates
  */
 export async function getToursAndActivities(latitude: number, longitude: number) {
-    const amadeus = getAmadeus();
+    const amadeus = await getAmadeus();
     if (!amadeus) return null;
 
     try {

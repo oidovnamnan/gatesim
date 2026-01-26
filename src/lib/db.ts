@@ -138,3 +138,8 @@ export function subscribeToSystemConfig(callback: (config: any) => void) {
 export async function updateSystemConfig(data: any) {
     await setDoc(doc(db, "system", "config"), data, { merge: true });
 }
+
+export async function getSystemConfig(): Promise<any> {
+    const snap = await getDoc(doc(db, "system", "config"));
+    return snap.exists() ? snap.data() : {};
+}

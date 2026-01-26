@@ -22,6 +22,9 @@ interface PricingSettings {
     googleApiKey?: string;
     preferredImageAI?: 'openai' | 'google';
     googleModelId?: string;
+    amadeusClientId?: string;
+    amadeusClientSecret?: string;
+    amadeusEnv?: 'test' | 'production';
 }
 
 export default function SettingsPage() {
@@ -34,7 +37,10 @@ export default function SettingsPage() {
         maintenanceMode: false,
         openaiApiKey: '',
         googleApiKey: '',
-        preferredImageAI: 'openai'
+        preferredImageAI: 'openai',
+        amadeusClientId: '',
+        amadeusClientSecret: '',
+        amadeusEnv: 'test'
     });
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -67,7 +73,10 @@ export default function SettingsPage() {
                 openaiApiKey: config.openaiApiKey || '',
                 googleApiKey: config.googleApiKey || '',
                 preferredImageAI: config.preferredImageAI || 'openai',
-                googleModelId: config.googleModelId || ''
+                googleModelId: config.googleModelId || '',
+                amadeusClientId: config.amadeusClientId || '',
+                amadeusClientSecret: config.amadeusClientSecret || '',
+                amadeusEnv: config.amadeusEnv || 'test'
             }));
             setLoading(false);
         });
@@ -241,6 +250,62 @@ export default function SettingsPage() {
                             <div className="space-y-2">
                                 <Label className="text-xs text-slate-500 dark:text-white/60">Username</Label>
                                 <Input value="GATE_SIM_TEST" disabled className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/50 h-8 text-xs font-mono" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Amadeus API */}
+                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-white/5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium text-slate-900 dark:text-white">Amadeus Travel API</span>
+                                {settings.amadeusEnv === 'production' ? (
+                                    <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">Production</Badge>
+                                ) : (
+                                    <Badge variant="secondary" className="text-amber-600 dark:text-amber-400 border-amber-400/20 bg-amber-400/10">Sandbox (Test)</Badge>
+                                )}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500 dark:text-white/60">Client ID</Label>
+                                <Input
+                                    value={settings.amadeusClientId || ''}
+                                    onChange={(e) => setSettings(s => ({ ...s, amadeusClientId: e.target.value }))}
+                                    className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-10 text-xs font-mono"
+                                    placeholder="Enter Amadeus API Key"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500 dark:text-white/60">Client Secret</Label>
+                                <Input
+                                    type="password"
+                                    value={settings.amadeusClientSecret || ''}
+                                    onChange={(e) => setSettings(s => ({ ...s, amadeusClientSecret: e.target.value }))}
+                                    className="bg-white dark:bg-transparent border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-10 text-xs font-mono"
+                                    placeholder="Enter Amadeus API Secret"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500 dark:text-white/60">Environment</Label>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant={settings.amadeusEnv === 'test' ? 'default' : 'outline'}
+                                        size="sm"
+                                        onClick={() => setSettings(s => ({ ...s, amadeusEnv: 'test' }))}
+                                        className="h-8 text-[10px]"
+                                    >
+                                        Sandbox
+                                    </Button>
+                                    <Button
+                                        variant={settings.amadeusEnv === 'production' ? 'default' : 'outline'}
+                                        size="sm"
+                                        onClick={() => setSettings(s => ({ ...s, amadeusEnv: 'production' }))}
+                                        className="h-8 text-[10px]"
+                                    >
+                                        Production
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
