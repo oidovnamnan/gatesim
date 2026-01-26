@@ -104,22 +104,22 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                         <X className="w-5 h-5 text-slate-400" />
                     </button>
 
-                    <div className="p-10 pt-20">
+                    <div className="p-8 pt-16">
                         {/* Question Section */}
-                        <div className="min-h-[220px]">
+                        <div className="min-h-[180px]">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={currentStep}
                                     initial={{ x: 10, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     exit={{ x: -10, opacity: 0 }}
-                                    className="space-y-8"
+                                    className="space-y-6"
                                 >
-                                    <div className="space-y-3">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                    <div className="space-y-2">
+                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
                                             Step {currentStep + 1} of {steps.length}
                                         </p>
-                                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                                        <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                                             {stepInfo.question}
                                         </h2>
                                     </div>
@@ -158,7 +158,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                 value={formData[stepInfo.id]}
                                                 onChange={(e) => setFormData({ ...formData, [stepInfo.id]: e.target.value })}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-2xl p-6 text-xl font-bold text-slate-900 dark:text-white focus:border-slate-900 dark:focus:border-white transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                                                className="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-2xl p-4 text-lg font-bold text-slate-900 dark:text-white focus:border-slate-900 dark:focus:border-white transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
                                         </div>
@@ -183,7 +183,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     type="button"
                                     disabled={!formData[stepInfo.id]}
                                     onClick={handleNext}
-                                    className="h-14 bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white rounded-[20px] px-10 font-black text-sm flex items-center gap-3 transition-all active:scale-95 disabled:opacity-30"
+                                    className="h-12 bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white rounded-[16px] px-8 font-black text-xs flex items-center gap-3 transition-all active:scale-95 disabled:opacity-30"
                                 >
                                     Дараах
                                     <ArrowRight className="w-4 h-4" />

@@ -131,25 +131,25 @@ export default function AIHubPage() {
             </div>
 
             {/* --- Header --- */}
-            <header className="relative z-10 px-6 pt-16 pb-12">
-                <div className="max-w-2xl mx-auto space-y-4">
+            <header className="relative z-10 px-6 pt-12 pb-8">
+                <div className="max-w-xl mx-auto space-y-3">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="flex items-center gap-2"
                     >
-                        <Bot className="w-5 h-5 text-slate-900 dark:text-white" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+                        <Bot className="w-4 h-4 text-slate-900 dark:text-white" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">
                             {isMongolian ? "Ухаалаг систем" : "GateSIM Intelligence"}
                         </span>
                     </motion.div>
 
                     <div className="flex items-center justify-between">
-                        <h1 className="text-5xl font-black tracking-tightest">
+                        <h1 className="text-3xl font-black tracking-tightest">
                             AI Hub
                         </h1>
                         {aiStatus?.isPremium && (
-                            <Badge className="bg-slate-900 text-white dark:bg-white dark:text-slate-950 px-3 py-1 rounded-full font-black text-[10px] uppercase">
+                            <Badge className="bg-slate-900 text-white dark:bg-white dark:text-slate-950 px-2.5 py-0.5 rounded-full font-black text-[9px] uppercase">
                                 Premium
                             </Badge>
                         )}
@@ -158,8 +158,8 @@ export default function AIHubPage() {
             </header>
 
             {/* --- Hero: Quick Start Action --- */}
-            <section className="relative z-10 px-6 mb-16">
-                <div className="max-w-2xl mx-auto">
+            <section className="relative z-10 px-6 mb-12">
+                <div className="max-w-xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -167,22 +167,22 @@ export default function AIHubPage() {
                     >
                         <Card
                             onClick={() => setIsWizardOpen(true)}
-                            className="group relative h-48 rounded-[40px] bg-slate-900 dark:bg-white border-none shadow-2xl flex flex-col justify-end p-8 cursor-pointer overflow-hidden transition-all active:scale-[0.98]"
+                            className="group relative h-40 rounded-[32px] bg-slate-900 dark:bg-white border-none shadow-xl flex flex-col justify-end p-6 cursor-pointer overflow-hidden transition-all active:scale-[0.98]"
                         >
                             {/* Texture/Pattern */}
                             <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_2px_2px,black_1px,transparent_0)] bg-[size:24px_24px]" />
 
                             <div className="relative z-10 flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <h2 className="text-3xl font-black text-white dark:text-slate-950 tracking-tight">
+                                <div className="space-y-0.5">
+                                    <h2 className="text-2xl font-black text-white dark:text-slate-950 tracking-tight">
                                         {isMongolian ? "Шинэ аялал эхлүүлэх" : "Start a Journey"}
                                     </h2>
-                                    <p className="text-white/50 dark:text-slate-950/50 font-bold text-sm">
-                                        {isMongolian ? "AI-тай хамт төгс төлөвлөгөө гаргаарай" : "Plan your dream trip with AI in seconds"}
+                                    <p className="text-white/40 dark:text-slate-950/40 font-bold text-xs">
+                                        {isMongolian ? "Төгс төлөвлөгөөг AI-тай хамт" : "Plan with AI in seconds"}
                                     </p>
                                 </div>
-                                <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-950 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                                    <ArrowRight className="w-8 h-8 text-slate-900 dark:text-white" />
+                                <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-950 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                                    <ArrowRight className="w-6 h-6 text-slate-900 dark:text-white" />
                                 </div>
                             </div>
                         </Card>
@@ -191,8 +191,8 @@ export default function AIHubPage() {
             </section>
 
             {/* --- Features Grid: Minimalist Tiles --- */}
-            <section className="relative z-10 px-6 mb-16">
-                <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
+            <section className="relative z-10 px-6 mb-12">
+                <div className="max-w-xl mx-auto grid grid-cols-2 gap-3">
                     {aiFeatures.map((feature, idx) => (
                         <motion.div
                             key={feature.id}
@@ -201,18 +201,15 @@ export default function AIHubPage() {
                             transition={{ delay: 0.2 + idx * 0.05 }}
                         >
                             <Link href={feature.href}>
-                                <Card className="group relative h-full p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[32px] hover:bg-white dark:hover:bg-slate-800 transition-all duration-300">
-                                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-6 shadow-sm border border-slate-100 dark:border-slate-700 group-hover:scale-105 transition-transform">
-                                        <feature.icon className="w-6 h-6 text-slate-900 dark:text-white" />
+                                <Card className="group relative h-full p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[28px] hover:bg-white dark:hover:bg-slate-800 transition-all duration-300">
+                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center mb-4 shadow-sm border border-slate-100 dark:border-slate-700 group-hover:scale-105 transition-transform">
+                                        <feature.icon className="w-5 h-5 text-slate-900 dark:text-white" />
                                     </div>
-                                    <div className="space-y-1">
-                                        <h4 className="font-black text-sm text-slate-900 dark:text-white tracking-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                                    <div className="space-y-0.5">
+                                        <h4 className="font-black text-xs text-slate-900 dark:text-white tracking-tight">{isMongolian ? feature.title : feature.titleEn}</h4>
+                                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-tight">
                                             {isMongolian ? feature.description : feature.descriptionEn}
                                         </p>
-                                    </div>
-                                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ArrowUpRight className="w-4 h-4 text-slate-300" />
                                     </div>
                                 </Card>
                             </Link>
@@ -223,37 +220,37 @@ export default function AIHubPage() {
 
             {/* --- Status & Premium: Clean Banner --- */}
             <section className="relative z-10 px-6">
-                <div className="max-w-2xl mx-auto">
-                    <Card className="p-8 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-[40px] space-y-8">
+                <div className="max-w-xl mx-auto">
+                    <Card className="p-6 bg-slate-100/50 dark:bg-slate-900/40 border-none dark:border dark:border-slate-800 rounded-[32px] space-y-6">
                         <div className="flex items-center justify-between">
-                            <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                AI Limit & Usage
+                            <h5 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                {isMongolian ? "AI Хэрэглээний Хязгаар" : "AI Limit & Usage"}
                             </h5>
                             {!aiStatus?.isPremium && (
                                 <button
                                     onClick={() => setIsPremiumModalOpen(true)}
-                                    className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white hover:underline underline-offset-4 decoration-2"
+                                    className="text-[9px] font-black uppercase tracking-widest text-slate-900 dark:text-white hover:underline underline-offset-4 decoration-2"
                                 >
                                     {isMongolian ? "Premium болох" : "Go Premium"}
                                 </button>
                             )}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-8">
+                        <div className="grid grid-cols-3 gap-6">
                             {[
                                 { label: isMongolian ? "Аялал" : "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit },
                                 { label: isMongolian ? "Тээвэр" : "Transit", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit },
                                 { label: isMongolian ? "Зураг" : "Poster", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit },
                             ].map((s, i) => (
-                                <div key={i} className="space-y-3">
+                                <div key={i} className="space-y-2">
                                     <div className="flex justify-between items-end">
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{s.label}</span>
-                                        <span className="text-sm font-black text-slate-900 dark:text-white">{s.val}/{s.total}</span>
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">{s.label}</span>
+                                        <span className="text-xs font-black text-slate-900 dark:text-white">{s.val}/{s.total}</span>
                                     </div>
                                     <div className="h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: `${(s.val / s.total) * 100}%` }}
+                                            animate={{ width: `${(s.val / (s.total || 1)) * 100}%` }}
                                             className="h-full bg-slate-900 dark:bg-white"
                                         />
                                     </div>
