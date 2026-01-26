@@ -2201,9 +2201,12 @@ export default function AITravelPlannerV2() {
                             <Badge className="mb-3 bg-emerald-500 text-white border-none px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
                                 {isMongolian ? "AI Танилцуулга" : "AI Insight"}
                             </Badge>
-                            <h2 className="text-2xl font-black text-white leading-tight">
+                            <DialogTitle className="text-2xl font-black text-white leading-tight">
                                 {isInsightLoading ? (isMongolian ? "Мэдээлэл цуглуулж байна..." : "Gathering insights...") : (isMongolian ? selectedInsight?.titleMn : selectedInsight?.title) || (isMongolian ? "Дэлгэрэнгүй" : "Details")}
-                            </h2>
+                            </DialogTitle>
+                            <DialogDescription className="sr-only">
+                                {isMongolian ? "Аяллын үйл ажиллагааны дэлгэрэнгүй мэдээлэл" : "Detailed information about the travel activity"}
+                            </DialogDescription>
                         </div>
                         <button
                             onClick={() => setIsInsightOpen(false)}
