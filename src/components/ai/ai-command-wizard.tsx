@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     X, Sparkles, MapPin, Calendar, Rocket,
-    ArrowRight, Check, Bot, Zap, Sun, CloudRain, Clock
+    ArrowRight, Check, Bot, Zap, Sun, CloudRain, Clock,
+    Utensils, Heart, Users, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -40,6 +41,12 @@ const steps = [
             { id: "business", label: "Бизнес", icon: Zap },
             { id: "shopping", label: "Шопинг", icon: Sparkles },
             { id: "medical", label: "Эмчилгээ", icon: Sparkles },
+            { id: "foodie", label: "Хоол", icon: Utensils },
+            { id: "relaxation", label: "Амралт", icon: Heart },
+            { id: "adventure", label: "Адал явдал", icon: Rocket },
+            { id: "family", label: "Гэр бүл", icon: Users },
+            { id: "education", label: "Боловсрол", icon: GraduationCap },
+            { id: "event", label: "Эвент", icon: Zap },
         ],
         icon: Sparkles,
     }
@@ -125,7 +132,7 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     </div>
 
                                     {stepInfo.id === "purpose" ? (
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                                             {stepInfo.options?.map((opt) => {
                                                 const isActive = formData[stepInfo.id] === opt.id;
                                                 return (
@@ -138,14 +145,14 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                             setTimeout(handleNext, 200);
                                                         }}
                                                         className={cn(
-                                                            "flex flex-col items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300",
+                                                            "flex flex-col items-center gap-2.5 p-3.5 rounded-2xl border-2 transition-all duration-300",
                                                             isActive
                                                                 ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
                                                                 : "border-slate-100 bg-white hover:border-slate-200 dark:border-slate-800 dark:bg-slate-800/50 dark:hover:border-slate-700"
                                                         )}
                                                     >
-                                                        <opt.icon className={cn("w-6 h-6", isActive ? "text-current" : "text-slate-400")} />
-                                                        <span className="text-xs font-black uppercase tracking-widest">{opt.label}</span>
+                                                        <opt.icon className={cn("w-5 h-5", isActive ? "text-current" : "text-slate-400")} />
+                                                        <span className="text-[9px] font-black uppercase tracking-wider">{opt.label}</span>
                                                     </button>
                                                 );
                                             })}
