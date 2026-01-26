@@ -6,7 +6,7 @@ import {
     X, Sparkles, MapPin, Calendar, Rocket,
     ArrowRight, Check, Bot, Zap, Sun, CloudRain, Clock,
     Utensils, Heart, Users, GraduationCap, ChevronLeft,
-    Search, Globe, Star
+    Globe, Star, Coffee, Plane, Compass, Music, Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ const steps = [
         questionEn: "Where are you planning to go?",
         placeholder: "Хотын нэр...",
         icon: Globe,
+        color: "from-blue-500 to-indigo-600",
     },
     {
         id: "duration",
@@ -31,24 +32,26 @@ const steps = [
         questionEn: "How many days is your trip?",
         placeholder: "Хоногийн тоо...",
         icon: Clock,
+        color: "from-emerald-500 to-teal-600",
     },
     {
         id: "purpose",
         question: "Аяллын үндсэн зорилго юу вэ?",
         questionEn: "What is the main purpose?",
         options: [
-            { id: "tourist", label: "Жуулчлал", icon: MapPin },
-            { id: "business", label: "Бизнес", icon: Zap },
-            { id: "shopping", label: "Шопинг", icon: Sparkles },
-            { id: "medical", label: "Эмчилгээ", icon: Sparkles },
-            { id: "foodie", label: "Хоол", icon: Utensils },
-            { id: "relaxation", label: "Амралт", icon: Heart },
-            { id: "adventure", label: "Адал явдал", icon: Rocket },
-            { id: "family", label: "Гэр бүл", icon: Users },
-            { id: "education", label: "Боловсрол", icon: GraduationCap },
-            { id: "event", label: "Эвент", icon: Star },
+            { id: "tourist", label: "Жуулчлал", icon: MapPin, color: "text-blue-500", bg: "bg-blue-50" },
+            { id: "business", label: "Бизнес", icon: Zap, color: "text-amber-500", bg: "bg-amber-50" },
+            { id: "shopping", label: "Шопинг", icon: Sparkles, color: "text-purple-500", bg: "bg-purple-50" },
+            { id: "medical", label: "Эмчилгээ", icon: CloudRain, color: "text-rose-500", bg: "bg-rose-50" },
+            { id: "foodie", label: "Хоол", icon: Utensils, color: "text-orange-500", bg: "bg-orange-50" },
+            { id: "relaxation", label: "Амралт", icon: Heart, color: "text-pink-500", bg: "bg-pink-50" },
+            { id: "adventure", label: "Адал явдал", icon: Rocket, color: "text-indigo-500", bg: "bg-indigo-50" },
+            { id: "family", label: "Гэр бүл", icon: Users, color: "text-cyan-500", bg: "bg-cyan-50" },
+            { id: "education", label: "Боловсрол", icon: GraduationCap, color: "text-violet-500", bg: "bg-violet-50" },
+            { id: "event", label: "Эвент", icon: Star, color: "text-yellow-500", bg: "bg-yellow-50" },
         ],
         icon: Sparkles,
+        color: "from-rose-500 to-red-600",
     }
 ];
 
@@ -84,73 +87,73 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
     return (
         <AnimatePresence>
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                {/* --- Backdrop --- */}
+                {/* --- Vibrant Backdrop --- */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
-                    className="absolute inset-0 bg-slate-950/40 backdrop-blur-[12px] transition-all"
+                    className="absolute inset-0 bg-slate-950/60 backdrop-blur-[12px]"
                 />
 
-                {/* --- Luxury Modal Container --- */}
+                {/* --- Vibrant Premium Modal --- */}
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    className="relative w-full max-w-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-[48px] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.3)] border border-white/20 dark:border-slate-800/30 overflow-hidden"
+                    transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                    className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[40px] shadow-[0_40px_100px_-20px_rgba(220,38,38,0.3)] overflow-hidden"
                 >
-                    {/* Noise Texture Overaly */}
-                    <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] contrast-150" />
+                    {/* --- Mesh Gradient Background Layer --- */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+                        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-rose-500/20 blur-[100px] animate-pulse" />
+                        <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-blue-600/20 blur-[100px] animate-pulse [animation-delay:1s]" />
+                    </div>
 
-                    {/* Progress Bar (Ultra Thin Luxury) */}
-                    <div className="absolute top-0 left-0 w-full flex h-1.5 px-12 pt-10 gap-1.5">
+                    {/* Progress Bar (Vibrant) */}
+                    <div className="absolute top-0 left-0 w-full flex h-2 px-10 pt-10 gap-2">
                         {steps.map((_, i) => (
                             <motion.div
                                 key={i}
-                                layoutId={`progress-${i}`}
                                 className={cn(
-                                    "h-1 flex-1 rounded-full transition-all duration-700",
-                                    i <= currentStep ? "bg-slate-900 dark:bg-white" : "bg-slate-100 dark:bg-slate-800"
+                                    "h-1.5 flex-1 rounded-full transition-all duration-700",
+                                    i <= currentStep ? "bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" : "bg-slate-100 dark:bg-slate-800"
                                 )}
                             />
                         ))}
                     </div>
 
-                    {/* Close Action */}
+                    {/* Actions */}
                     <button
                         onClick={onClose}
-                        className="absolute top-10 right-10 p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all z-10 group"
+                        className="absolute top-8 right-8 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all z-10"
                     >
-                        <X className="w-5 h-5 text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors" />
+                        <X className="w-5 h-5 text-slate-400" />
                     </button>
 
-                    <div className="p-10 pt-24 pb-12">
+                    <div className="p-10 pt-24 pb-12 relative z-10">
                         {/* Question Section */}
-                        <div className="min-h-[220px]">
+                        <div className="min-h-[200px]">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={currentStep}
-                                    initial={{ x: 20, opacity: 0, filter: "blur(10px)" }}
-                                    animate={{ x: 0, opacity: 1, filter: "blur(0px)" }}
-                                    exit={{ x: -20, opacity: 0, filter: "blur(10px)" }}
-                                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                    initial={{ x: 30, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ x: -30, opacity: 0 }}
+                                    transition={{ duration: 0.4, ease: "circOut" }}
                                     className="space-y-8"
                                 >
                                     <div className="space-y-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="p-2 rounded-xl bg-slate-950 dark:bg-white shrink-0">
-                                                <stepInfo.icon className="w-4 h-4 text-white dark:text-slate-950" />
-                                            </div>
-                                            <h2 className="text-3xl font-black tracking-tightest text-slate-900 dark:text-white leading-[1.1]">
-                                                {stepInfo.question}
-                                            </h2>
+                                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br shadow-lg", stepInfo.color)}>
+                                            <stepInfo.icon className="w-6 h-6 text-white" />
                                         </div>
+                                        <h2 className="text-3xl font-black tracking-tightest text-slate-900 dark:text-white leading-tight">
+                                            {stepInfo.question}
+                                        </h2>
                                     </div>
 
                                     {stepInfo.id === "purpose" ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                             {stepInfo.options?.map((opt) => {
                                                 const isActive = formData[stepInfo.id] === opt.id;
                                                 return (
@@ -159,58 +162,50 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                                         type="button"
                                                         onClick={() => {
                                                             setFormData({ ...formData, [stepInfo.id]: opt.id });
-                                                            setTimeout(handleNext, 300);
+                                                            setTimeout(handleNext, 400);
                                                         }}
                                                         className={cn(
-                                                            "flex flex-col items-center gap-3 p-4 rounded-3xl border-2 transition-all duration-500 relative group overflow-hidden",
+                                                            "flex flex-col items-center gap-2.5 p-4 rounded-3xl border-2 transition-all duration-300",
                                                             isActive
-                                                                ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900 shadow-xl scale-105"
-                                                                : "border-slate-50 bg-slate-50/50 hover:border-slate-200 dark:border-slate-800 dark:bg-slate-800/30 dark:hover:border-slate-700"
+                                                                ? "border-red-600 bg-red-600 text-white shadow-xl shadow-red-200 dark:shadow-red-900/20 scale-105"
+                                                                : cn("border-transparent hover:border-slate-200 dark:hover:border-slate-700", opt.bg)
                                                         )}
                                                     >
-                                                        {isActive && (
-                                                            <motion.div
-                                                                layoutId="active-glow"
-                                                                className="absolute inset-0 bg-white/10 dark:bg-black/5"
-                                                            />
-                                                        )}
-                                                        <opt.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", isActive ? "text-current" : "text-slate-400")} />
-                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{opt.label}</span>
+                                                        <opt.icon className={cn("w-5 h-5", isActive ? "text-white" : opt.color)} />
+                                                        <span className={cn("text-[9px] font-black uppercase tracking-widest", isActive ? "text-white" : "text-slate-600 dark:text-slate-400")}>
+                                                            {opt.label}
+                                                        </span>
                                                     </button>
                                                 );
                                             })}
                                         </div>
                                     ) : (
-                                        <div className="group relative">
+                                        <div className="relative group">
                                             <input
                                                 autoFocus
                                                 type={stepInfo.id === "duration" ? "number" : "text"}
                                                 value={formData[stepInfo.id]}
                                                 onChange={(e) => setFormData({ ...formData, [stepInfo.id]: e.target.value })}
                                                 placeholder={stepInfo.placeholder}
-                                                className="w-full bg-slate-50 dark:bg-slate-800/30 border-2 border-slate-100 dark:border-slate-800 rounded-[28px] p-6 text-xl font-black text-slate-900 dark:text-white focus:border-slate-950 dark:focus:border-white transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                                className="w-full bg-slate-50 dark:bg-slate-800 border-3 border-transparent rounded-[32px] p-7 text-2xl font-black text-slate-900 dark:text-white focus:border-red-600 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 shadow-inner"
                                                 onKeyDown={(e) => e.key === "Enter" && formData[stepInfo.id] && handleNext()}
                                             />
-                                            {formData[stepInfo.id] && (
-                                                <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-white flex items-center justify-center animate-in zoom-in-50 duration-300">
-                                                        <Check className="w-4 h-4 text-white dark:text-slate-900" />
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                                                <Sparkles className="w-6 h-6 text-red-600 animate-pulse" />
+                                            </div>
                                         </div>
                                     )}
                                 </motion.div>
                             </AnimatePresence>
                         </div>
 
-                        {/* Footer Actions (Luxury Compact) */}
+                        {/* Footer */}
                         <div className="mt-12 flex items-center justify-between">
                             <button
                                 type="button"
                                 onClick={handleBack}
                                 className={cn(
-                                    "flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all",
+                                    "flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-all",
                                     currentStep === 0 && "opacity-0 pointer-events-none"
                                 )}
                             >
@@ -223,10 +218,10 @@ export function AICommandWizard({ isOpen, onClose, onComplete }: AICommandWizard
                                     type="button"
                                     disabled={!formData[stepInfo.id]}
                                     onClick={handleNext}
-                                    className="h-14 bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white rounded-[24px] px-10 font-black text-xs flex items-center gap-3 transition-all active:scale-95 disabled:opacity-20 shadow-2xl shadow-slate-900/10 dark:shadow-white/5"
+                                    className="h-16 bg-red-600 hover:bg-red-700 text-white rounded-[28px] px-10 font-black text-sm flex items-center gap-4 transition-all active:scale-95 disabled:opacity-30 shadow-xl shadow-red-200 dark:shadow-red-900/10"
                                 >
                                     Дараах
-                                    <ArrowRight className="w-4 h-4" />
+                                    <ArrowRight className="w-5 h-5" />
                                 </Button>
                             )}
                         </div>
