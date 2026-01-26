@@ -1673,7 +1673,13 @@ export default function AITravelPlannerV2() {
                                             <div className="aspect-video bg-slate-100 relative overflow-hidden">
                                                 <img src={hotel.imageUrl} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as any).src = `https://loremflickr.com/800/600/hotel,${encodeURIComponent(hotel.name.split(' ')[0])}`; }} />
                                                 <Badge className="absolute top-3 right-3 bg-white/95 text-emerald-600 font-black border-none shadow-sm text-sm py-1 px-3 rounded-full backdrop-blur-sm">{hotel.price}</Badge>
-                                                {hotel.rating >= 4.5 && (
+                                                {hotel.isLive && (
+                                                    <div className="absolute top-3 left-3 bg-red-500 text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-lg uppercase tracking-wider animate-pulse">
+                                                        <div className="w-1 h-1 rounded-full bg-white" />
+                                                        <span>LIVE DATA</span>
+                                                    </div>
+                                                )}
+                                                {!hotel.isLive && hotel.rating >= 4.5 && (
                                                     <div className="absolute top-3 left-3 bg-amber-400 text-white text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-sm uppercase tracking-wider">
                                                         <Sparkles className="w-2.5 h-2.5 fill-current" />
                                                         <span>Premium</span>
@@ -1849,6 +1855,11 @@ export default function AITravelPlannerV2() {
                                             <div className="p-4 flex gap-4 flex-1">
                                                 <div className="w-20 h-20 rounded-2xl bg-slate-100 shrink-0 overflow-hidden relative shadow-sm">
                                                     <img src={activity.imageUrl} alt={activity.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as any).src = `https://loremflickr.com/200/200/travel,${encodeURIComponent(activity.name.split(' ')[0])}`; }} />
+                                                    {activity.isLive && (
+                                                        <div className="absolute top-1 left-1 bg-red-500 text-white text-[6px] font-black px-1 py-0.5 rounded-full flex items-center gap-0.5 shadow-lg uppercase tracking-tight animate-pulse z-10">
+                                                            <span>LIVE</span>
+                                                        </div>
+                                                    )}
                                                     {selectedActivities.some(a => a.id === activity.id) && (
                                                         <div className="absolute inset-0 bg-emerald-600/20 flex items-center justify-center">
                                                             <Check className="w-8 h-8 text-white drop-shadow-md" />

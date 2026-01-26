@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 import { getOpenAIConfig } from "@/lib/ai-config";
 import { getForecast } from "@/lib/weather";
-import { getAmadeusFlightContext } from "@/lib/ai/amadeus-grounding";
+import { getAmadeusFlightContext, getAmadeusHotelContext, getAmadeusActivityContext } from "@/lib/ai/amadeus-grounding";
 
 // Country names
 const countryNames: Record<string, { en: string; mn: string }> = {
@@ -221,11 +221,16 @@ export async function POST(request: NextRequest) {
       console.error("Weather fetch failed:", e);
     }
 
-    // --- Amadeus Real-time Flight Context (New) ---
+    // --- Amadeus Real-time Context (New) ---
     let amadeusContext = "";
+    let amadeusHotelContext = "";
+    let amadeusActivityContext = "";
+
     if (intlTransport === "flight") {
       amadeusContext = await getAmadeusFlightContext(destination);
     }
+    amadeusHotelContext = await getAmadeusHotelContext(destination);
+    amadeusActivityContext = await getAmadeusActivityContext(destination);
 
     const pricingLogic = `
     **TRANSPORT PRICING (HARD CONSTRAINT):**
@@ -276,6 +281,8 @@ ${pricingLogic}
     ${groundingContext}
     ${weatherContext}
     ${amadeusContext}
+    ${amadeusHotelContext}
+    ${amadeusActivityContext}
 
 **CRITICAL INSTRUCTIONS:**
 1. **Multi-modal Logistics**: Plan the itinerary STRICTLY following the Transport Modes. 

@@ -69,3 +69,101 @@ export async function getCityCode(cityName: string) {
         return null;
     }
 }
+
+/**
+ * Get list of hotel IDs in a city
+ */
+export async function getHotelsInCity(cityCode: string) {
+    const amadeus = getAmadeus();
+    if (!amadeus) return null;
+
+    try {
+        const response = await amadeus.referenceData.locations.hotels.byCity.get({
+            cityCode: cityCode
+        });
+        return response.data;
+    } catch (error) {
+        console.error("[Amadeus] Hotel list fetch failed:", error);
+        return null;
+    }
+}
+
+/**
+ * Get pricing and availability for specific hotels
+ * @param hotelIds Array of hotel IDs (e.g. ['HLPAR401'])
+ */
+export async function getHotelOffers(hotelIds: string[]) {
+    const amadeus = getAmadeus();
+    if (!amadeus) return null;
+
+    try {
+        const response = await amadeus.shopping.hotelOffersSearch.get({
+            hotelIds: hotelIds.join(','),
+            adults: '1'
+        });
+        return response.data;
+    } catch (error) {
+        // This often fails in Sandbox if there are no test offers for those specific hotels
+        console.warn("[Amadeus] Hotel offers fetch failed/empty:", error);
+        return null;
+    }
+}
+
+/**
+ * Get detailed city info including coordinates
+ */
+export async function getCityDetails(cityName: string) {
+    const amadeus = getAmadeus();
+    if (!amadeus) return null;
+
+    try {
+        const response = await amadeus.referenceData.locations.get({
+            keyword: cityName,
+            subType: Amadeus.location.city,
+        });
+        return response.data[0] || null;
+    } catch (error) {
+        console.error("[Amadeus] City details fetch failed:", error);
+        return null;
+    }
+}
+
+/**
+ * Get top attractions (Points of Interest) near coordinates
+ */
+export async function getPointsOfInterest(latitude: number, longitude: number) {
+    const amadeus = getAmadeus();
+    if (!amadeus) return null;
+
+    try {
+        const response = await amadeus.referenceData.locations.pointsOfInterest.get({
+            latitude,
+            longitude,
+            radius: 10 // 10km radius
+        });
+        return response.data;
+    } catch (error) {
+        console.error("[Amadeus] POI fetch failed:", error);
+        return null;
+    }
+}
+
+/**
+ * Get bookable tours and activities near coordinates
+ */
+export async function getToursAndActivities(latitude: number, longitude: number) {
+    const amadeus = getAmadeus();
+    if (!amadeus) return null;
+
+    try {
+        const response = await amadeus.shopping.activities.get({
+            latitude,
+            longitude,
+            radius: 10
+        });
+        return response.data;
+    } catch (error) {
+        console.error("[Amadeus] Activities fetch failed:", error);
+        return null;
+    }
+}
