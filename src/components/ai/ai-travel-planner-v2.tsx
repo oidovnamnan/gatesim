@@ -2210,9 +2210,10 @@ export default function AITravelPlannerV2() {
                         </div>
                         <button
                             onClick={() => setIsInsightOpen(false)}
-                            className="absolute top-6 right-6 z-30 w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md flex items-center justify-center text-white transition-all"
+                            className="absolute top-6 right-6 z-30 w-12 h-12 rounded-full bg-white shadow-2xl flex items-center justify-center text-slate-900 hover:scale-110 active:scale-95 transition-all group"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-6 h-6" />
+                            <span className="sr-only">Close</span>
                         </button>
                     </div>
 
@@ -2308,9 +2309,15 @@ export default function AITravelPlannerV2() {
                         )}
                     </div>
 
-                    <div className="p-6 border-t border-slate-50 bg-slate-50/50 flex justify-between items-center">
-                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">GateSIM AI Curator</p>
-                        <Button onClick={() => setIsInsightOpen(false)} className="rounded-2xl h-10 px-6 bg-slate-900 font-bold">
+                    <div className="p-6 border-t border-slate-100 bg-white flex justify-between items-center shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)]">
+                        <div className="flex flex-col">
+                            <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] leading-none mb-1">GateSIM AI</p>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">Smart Travel Curator</p>
+                        </div>
+                        <Button
+                            onClick={() => setIsInsightOpen(false)}
+                            className="rounded-2xl h-12 px-10 bg-slate-900 hover:bg-emerald-600 text-white font-black text-sm shadow-xl shadow-slate-900/10 hover:shadow-emerald-500/20 transition-all active:scale-95"
+                        >
                             {isMongolian ? "Ойлголоо" : "Got it"}
                         </Button>
                     </div>
