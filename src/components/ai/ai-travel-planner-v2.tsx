@@ -1374,8 +1374,8 @@ export default function AITravelPlannerV2() {
                                             </div>
 
                                             {isSuggestingCities ? (
-                                                <div className="flex gap-2 pb-1">
-                                                    {[1, 2, 3].map(i => <div key={i} className="h-20 w-full bg-slate-50 animate-pulse rounded-2xl shrink-0 border border-slate-100" />)}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1">
+                                                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 w-full bg-slate-50/50 animate-pulse rounded-2xl border border-slate-100" />)}
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
