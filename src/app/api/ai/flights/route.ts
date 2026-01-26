@@ -28,21 +28,35 @@ const AIRPORT_CODES: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
     try {
-        const { destination, date, travelers } = await request.json();
+        console.log("--- FLIGHT SEARCH REQUEST STARTED ---");
 
-        const amadeus = getAmadeus();
-        if (!amadeus) {
-            return NextResponse.json({ success: false, error: "Amadeus not configured" }, { status: 500 });
+        let body;
+        try {
+            body = await request.json();
+        } catch (e) {
+            console.error("Failed to parse request JSON");
+            return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 });
         }
 
-        const destinationCode = AIRPORT_CODES[destination] || "PEK"; // Default to Beijing if unknown
-        const departureDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        const { destination, date, travelers } = body;
+        console.log("Request Params:", { destination, date, travelers });
 
-        // Amadeus Sandbox often has limited routes. Try UBN (New) first, fallback logic or different hubs might be needed.
-        // For Sandbox purposes, let's try a major route if UBN fails or use a known working origin for testing if needed.
+        const amadeus = getAmadeus();
+
+        // If Amadeus is not configured, return MOCK immediately to avoid crash
+        if (!amadeus) {
+            console.error("Amadeus Instance is NULL - Check env vars");
+            const mockOffers = [
+                { id: "MOCK-1", price: "450.00 EUR", airline: "OM", departure: `${new Date().toISOString().split('T')[0]}T07:45:00`, arrival: `${new Date().toISOString().split('T')[0]}T11:30:00`, duration: "3h 45m", stops: 0 }
+            ];
+            return NextResponse.json({ success: true, offers: mockOffers, isMock: true, reason: "Amadeus not configured" });
+        }
+
+        const destinationCode = AIRPORT_CODES[destination] || "PEK";
+        const departureDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         const originCode = 'UBN';
 
-        console.log(`Searching flights: ${originCode} -> ${destinationCode} on ${departureDate} for ${travelers?.adults || 1} adults`);
+        console.log(`Searching Amadeus: ${originCode} -> ${destinationCode} on ${departureDate}`);
 
         let response;
         try {
@@ -54,48 +68,34 @@ export async function POST(request: NextRequest) {
                 max: 5
             });
         } catch (searchError: any) {
-            console.error("Primary search failed, retrying with ULN (Old Code)...", searchError?.response?.result || searchError.message);
-            // Fallback to old code if UBN fails (common in some systems)
-            try {
-                response = await amadeus.shopping.flightOffersSearch.get({
-                    originLocationCode: 'ULN',
-                    destinationLocationCode: destinationCode,
-                    departureDate: departureDate,
-                    adults: travelers?.adults || 1,
-                    max: 5
-                });
-            } catch (retryError: any) {
-                // Absolute backup for SANDBOX: Search LON -> NYC to prove connectivity if route is unsupported
-                console.warn("Route unsupported in Sandbox? Returning mock/sandbox fallback data for demo.");
-                throw retryError; // Let outer catch handle it, or return mock
-            }
+            console.error("Primary search failed:", searchError.message);
+            // We swallow this error and let the logic proceed to "if (response)" check, which will fail and trigger fallback
         }
 
-        const offers = response.data.map((offer: any) => {
-            const segment = offer.itineraries[0].segments[0];
-            return {
-                id: offer.id,
-                price: `${offer.price.total} ${offer.price.currency}`,
-                airline: segment.carrierCode, // In real app, map code to name
-                departure: segment.departure.at,
-                arrival: segment.arrival.at,
-                duration: offer.itineraries[0].duration.replace('PT', '').replace('H', 'h ').replace('M', 'm'),
-                stops: offer.itineraries[0].segments.length - 1
-            };
-        });
+        if (response && response.data) {
+            console.log(`Amadeus returned ${response.data.length} flights`);
+            const offers = response.data.map((offer: any) => {
+                const segment = offer.itineraries[0].segments[0];
+                return {
+                    id: offer.id,
+                    price: `${offer.price.total} ${offer.price.currency}`,
+                    airline: segment.carrierCode,
+                    departure: segment.departure.at,
+                    arrival: segment.arrival.at,
+                    duration: offer.itineraries[0].duration.replace('PT', '').replace('H', 'h ').replace('M', 'm'),
+                    stops: offer.itineraries[0].segments.length - 1
+                };
+            });
+            return NextResponse.json({ success: true, offers });
+        }
 
-        return NextResponse.json({ success: true, offers });
-
-    } catch (error: any) {
-        console.error("Flight search error (likely Sandbox limit):", error.message);
-
-        // --- SANDBOX/DEMO FALLBACK ---
-        // Since Amadeus Sandbox likely doesn't support UBN routes, we return a realistic mock.
+        // --- FALLBACK MOCK IF NO RESPONSE OR ERROR ---
+        console.log("Returning Mock Fallback Data due to API failure/no results");
         const mockOffers = [
             {
                 id: "MOCK-1",
                 price: "450.00 EUR",
-                airline: "OM", // MIAT Mongolian Airlines
+                airline: "OM",
                 departure: `${new Date().toISOString().split('T')[0]}T07:45:00`,
                 arrival: `${new Date().toISOString().split('T')[0]}T11:30:00`,
                 duration: "3h 45m",
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
             {
                 id: "MOCK-2",
                 price: "380.00 EUR",
-                airline: "CA", // Air China
+                airline: "CA",
                 departure: `${new Date().toISOString().split('T')[0]}T13:20:00`,
                 arrival: `${new Date().toISOString().split('T')[0]}T15:50:00`,
                 duration: "2h 30m",
@@ -115,7 +115,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             offers: mockOffers,
-            isMock: true // Flag to UI might be useful later
+            isMock: true
         });
+
+    } catch (criticalError: any) {
+        console.error("CRITICAL FLIGHT API ERROR:", criticalError);
+        return NextResponse.json({ success: false, error: criticalError.message }, { status: 500 });
     }
 }
