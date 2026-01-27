@@ -634,17 +634,17 @@ export default function ContentManagerPage() {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 p-1">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                    <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
                         GateSIM Prompt Studio
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
                         Create AI-powered marketing assets with precision
                     </p>
                 </div>
-                <Link href="/admin/content/hub">
-                    <Button variant="outline" className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10">
+                <Link href="/admin/content/hub" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full sm:w-auto border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10">
                         <ImageIcon className="w-4 h-4 mr-2" />
                         Open AI Hub Gallery
                     </Button>
@@ -652,12 +652,14 @@ export default function ContentManagerPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="generate">Text to Image</TabsTrigger>
-                    <TabsTrigger value="fusion">Fusion Studio (New)</TabsTrigger>
-                    <TabsTrigger value="variation">Image Variation (Remix)</TabsTrigger>
-                    <TabsTrigger value="reverse">Image to Prompt</TabsTrigger>
-                </TabsList>
+                <div className="overflow-x-auto pb-1 -mx-1 px-1 custom-scrollbar">
+                    <TabsList className="flex w-max min-w-full sm:grid sm:grid-cols-4 mb-6">
+                        <TabsTrigger value="generate" className="px-4">Text to Image</TabsTrigger>
+                        <TabsTrigger value="fusion" className="px-4">Fusion Studio (New)</TabsTrigger>
+                        <TabsTrigger value="variation" className="px-4 text-nowrap">Image Variation</TabsTrigger>
+                        <TabsTrigger value="reverse" className="px-4 text-nowrap">Image to Prompt</TabsTrigger>
+                    </TabsList>
+                </div>
 
                 <TabsContent value="generate" className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
