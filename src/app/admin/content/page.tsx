@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 import {
     ImagePlus,
     Download,
@@ -38,6 +40,7 @@ import {
     Eraser,
     Save,
     ExternalLink,
+    User,
     Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
@@ -395,6 +398,15 @@ export default function ContentManagerPage() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isEnhancing, setIsEnhancing] = useState(false);
 
+    // Fusion Studio States
+    const [fusionSourceFile, setFusionSourceFile] = useState<File | null>(null);
+    const [fusionSourceUrl, setFusionSourceUrl] = useState<string | null>(null);
+    const [fusionRefFile, setFusionRefFile] = useState<File | null>(null);
+    const [fusionRefUrl, setFusionRefUrl] = useState<string | null>(null);
+    const [fusionMode, setFusionMode] = useState<"face" | "background" | "style">("face");
+    const [isFusing, setIsFusing] = useState(false);
+    const [fusionPrompt, setFusionPrompt] = useState("");
+
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -642,6 +654,7 @@ export default function ContentManagerPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="generate">Text to Image</TabsTrigger>
+                    <TabsTrigger value="fusion">Fusion Studio (New)</TabsTrigger>
                     <TabsTrigger value="variation">Image Variation (Remix)</TabsTrigger>
                     <TabsTrigger value="reverse">Image to Prompt</TabsTrigger>
                 </TabsList>
@@ -1490,6 +1503,241 @@ export default function ContentManagerPage() {
                                         <p className="text-sm">Upload an image on the left to start</p>
                                     </div>
                                 )}
+                            </Card>
+                        </div>
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="fusion" className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Left: Fusion Controls */}
+                        <div className="space-y-6">
+                            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
+                                <h2 className="font-bold text-lg flex items-center gap-2">
+                                    <Layers className="w-5 h-5 text-purple-500" />
+                                    Fusion Configuration
+                                </h2>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>1. Select Fusion Mode</Label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {[
+                                                { id: 'face', label: 'Face Reference', icon: User },
+                                                { id: 'background', label: 'BG Swap', icon: ImageIcon },
+                                                { id: 'style', label: 'Style Fusion', icon: Palette },
+                                            ].map(m => {
+                                                const Icon = m.icon;
+                                                return (
+                                                    <button
+                                                        key={m.id}
+                                                        onClick={() => setFusionMode(m.id as any)}
+                                                        className={cn(
+                                                            "p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
+                                                            fusionMode === m.id ? "border-purple-500 bg-purple-50 dark:bg-purple-900/10 text-purple-600" : "border-slate-100 dark:border-slate-800 text-slate-400"
+                                                        )}
+                                                    >
+                                                        <Icon className="w-5 h-5" />
+                                                        <span className="text-[10px] font-bold uppercase">{m.label}</span>
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>2. Upload Source Image (Subject/Body)</Label>
+                                        <div
+                                            className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center hover:border-purple-400 transition-colors cursor-pointer bg-slate-50/50 dark:bg-slate-950/20"
+                                            onClick={() => document.getElementById('fusion-source')?.click()}
+                                        >
+                                            {fusionSourceUrl ? (
+                                                <img src={fusionSourceUrl} className="h-48 mx-auto rounded-lg object-contain shadow-sm" alt="Source" />
+                                            ) : (
+                                                <div className="py-8">
+                                                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                                                    <p className="text-xs text-slate-500">Subject/Base Image</p>
+                                                </div>
+                                            )}
+                                            <input
+                                                id="fusion-source"
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const f = e.target.files?.[0];
+                                                    if (f) {
+                                                        setFusionSourceFile(f);
+                                                        setFusionSourceUrl(URL.createObjectURL(f));
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>3. Upload Reference Image ({fusionMode === 'face' ? 'Face' : fusionMode === 'background' ? 'Location' : 'Style'})</Label>
+                                        <div
+                                            className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center hover:border-purple-400 transition-colors cursor-pointer bg-slate-50/50 dark:bg-slate-950/20"
+                                            onClick={() => document.getElementById('fusion-ref')?.click()}
+                                        >
+                                            {fusionRefUrl ? (
+                                                <img src={fusionRefUrl} className="h-48 mx-auto rounded-lg object-contain shadow-sm" alt="Reference" />
+                                            ) : (
+                                                <div className="py-8">
+                                                    <Sparkles className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                                                    <p className="text-xs text-slate-500">Reference Image</p>
+                                                </div>
+                                            )}
+                                            <input
+                                                id="fusion-ref"
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const f = e.target.files?.[0];
+                                                    if (f) {
+                                                        setFusionRefFile(f);
+                                                        setFusionRefUrl(URL.createObjectURL(f));
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 pt-2">
+                                        <Label>4. Additional Fusion Prompt (Optional)</Label>
+                                        <Textarea
+                                            placeholder="Explicit instructions for the AI..."
+                                            value={fusionPrompt}
+                                            onChange={(e) => setFusionPrompt(e.target.value)}
+                                            className="h-20 text-xs"
+                                        />
+                                    </div>
+
+                                    <Button
+                                        className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-black shadow-xl disabled:opacity-50"
+                                        disabled={!fusionSourceFile || !fusionRefFile || isFusing}
+                                        onClick={async () => {
+                                            if (!fusionSourceFile || !fusionRefFile) return;
+                                            setIsFusing(true);
+                                            try {
+                                                const formData = new FormData();
+                                                formData.append("source", fusionSourceFile);
+                                                formData.append("reference", fusionRefFile);
+                                                formData.append("mode", fusionMode);
+                                                formData.append("prompt", fusionPrompt);
+
+                                                const res = await fetch("/api/admin/poster/fusion", {
+                                                    method: "POST",
+                                                    body: formData
+                                                });
+                                                const data = await res.json();
+                                                if (!res.ok) throw new Error(data.error || "Fusion failed");
+
+                                                setPoster({
+                                                    imageUrl: data.imageUrl,
+                                                    captionMN: data.captionMN,
+                                                    captionEN: data.captionEN,
+                                                    hashtags: data.hashtags,
+                                                    provider: "openai"
+                                                });
+                                                toast({ title: "Fusion Complete!", description: "Dynamic content synthesized." });
+                                            } catch (err: any) {
+                                                toast({ title: "Fusion Error", description: err.message, variant: "destructive" });
+                                            } finally {
+                                                setIsFusing(false);
+                                            }
+                                        }}
+                                    >
+                                        {isFusing ? (
+                                            <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Synthesizing Masterpiece...</>
+                                        ) : (
+                                            <><Wand2 className="w-5 h-5 mr-2" /> Execute AI Fusion</>
+                                        )}
+                                    </Button>
+
+                                    {(fusionSourceUrl || fusionRefUrl) && (
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full text-[10px] h-8 text-slate-400 hover:text-red-500"
+                                            onClick={() => {
+                                                setFusionSourceFile(null);
+                                                setFusionSourceUrl(null);
+                                                setFusionRefFile(null);
+                                                setFusionRefUrl(null);
+                                                setFusionPrompt("");
+                                            }}
+                                        >
+                                            Reset Fusion Inputs
+                                        </Button>
+                                    )}
+                                </div>
+                            </Card>
+                        </div>
+
+                        {/* Right: Fusion Result Preview */}
+                        <div className="space-y-6">
+                            <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[400px] flex flex-col relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl rounded-full -mr-16 -mt-16" />
+
+                                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <Sparkles className="w-5 h-5 text-purple-500" />
+                                    Fusion Result Preview
+                                </h3>
+
+                                {poster && activeTab === 'fusion' ? (
+                                    <div className="flex-1 space-y-4">
+                                        <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl bg-black">
+                                            <img
+                                                src={poster.imageUrl}
+                                                className="w-full h-auto cursor-zoom-in group-hover:scale-105 transition-transform duration-700"
+                                                alt="Fusion Result"
+                                                onClick={() => setSelectedImage(poster.imageUrl)}
+                                            />
+                                            <div className="absolute top-3 right-3 flex gap-2">
+                                                <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20" onClick={() => downloadPoster(poster)}>
+                                                    <Download className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
+                                            <div className="flex justify-between items-center">
+                                                <Badge variant="outline" className="text-[10px] font-bold uppercase py-0 text-purple-600 border-purple-200">FUSION SUCCESS</Badge>
+                                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => autoSaveToHub(poster)}>
+                                                    <Save className="w-3 h-3" />
+                                                </Button>
+                                            </div>
+                                            <p className="text-xs font-medium text-slate-700 dark:text-slate-300 leading-relaxed italic">
+                                                "{poster.captionEN}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl text-slate-300 bg-slate-50/30 dark:bg-slate-950/20">
+                                        <div className="relative">
+                                            <ImageIcon className="w-16 h-16 opacity-10" />
+                                            {isFusing && <Loader2 className="absolute inset-0 w-16 h-16 animate-spin text-purple-500/20" />}
+                                        </div>
+                                        <p className="text-sm font-medium mt-4">Waiting for Fusion Execution...</p>
+                                        <p className="text-[10px] mt-1 text-slate-400">Combine two images to create something unique</p>
+                                    </div>
+                                )}
+                            </Card>
+
+                            <Card className="p-4 bg-purple-600 text-white rounded-2xl shadow-xl shadow-purple-500/20 border-none">
+                                <div className="flex items-start gap-4">
+                                    <div className="bg-white/20 p-2 rounded-xl">
+                                        <Lightbulb className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-sm uppercase tracking-wider mb-1">Elite Fusion Tip</h4>
+                                        <p className="text-[11px] leading-relaxed opacity-90 font-medium">
+                                            For best results, use a clear high-res face for **Face Reference** or a clean environment photo for **BG Swap**. The AI will synthesize a masterpiece combining both concepts while maintaining GateSIM branding.
+                                        </p>
+                                    </div>
+                                </div>
                             </Card>
                         </div>
                     </div>
