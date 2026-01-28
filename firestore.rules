@@ -16,7 +16,11 @@ service cloud.firestore {
       // Hardcoded superadmins list matching the server-side list
       return isAuthenticated() && (
         request.auth.token.email == 'admin@originals.mn' || 
-        request.auth.token.email == 'oidovnamnan7@gmail.com'
+        request.auth.token.email == 'oidovnamnan7@gmail.com' ||
+        request.auth.token.email == 'admin@gatesim.mn' ||
+        request.auth.token.email == 'suren@gatesim.mn' ||
+        request.auth.token.email == 'nsurenoidov@gmail.com' ||
+        request.auth.token.email == 'admin@gatesim.travel'
       );
     }
 
@@ -81,6 +85,12 @@ service cloud.firestore {
     // ADMIN_NOTIFICATIONS - Admin only
     match /admin_notifications/{notifId} {
       allow read, write: if isAdmin();
+    }
+    
+    // AI_STAFF - Public read, Admin write
+    match /aiStaff/{staffId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Global default: Deny all
