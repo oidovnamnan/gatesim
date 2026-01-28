@@ -56,7 +56,13 @@ export async function POST(request: NextRequest) {
             qrText: invoice.qr_text,
             qrImage: invoice.qr_image,
             shortUrl: invoice.qPay_shortUrl,
-            deeplinks: invoice.urls,
+            deeplinks: invoice.urls.map(url => {
+                // Fix for Khan Bank "Item not found" error on Android
+                if (url.name.toLowerCase().includes('khan') && url.link.includes('khanbank://payment')) {
+                    return { ...url, link: url.link.replace('khanbank://payment', 'khanbank://q') };
+                }
+                return url;
+            }),
             amountMNT,
             amountUSD: amount,
         });
@@ -79,7 +85,7 @@ export async function POST(request: NextRequest) {
                 qrImage: "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=GATESIM_DEMO_PAYMENT",
                 shortUrl: "https://qpay.mn/demo",
                 deeplinks: [
-                    { name: "Khan Bank", description: "ХААН Банк", logo: "https://v1.qpay.mn/khanbank.png", link: "khanbank://payment" },
+                    { name: "Khan Bank", description: "ХААН Банк", logo: "https://v1.qpay.mn/khanbank.png", link: "khanbank://q" },
                     { name: "Golomt Bank", description: "Голомт Банк", logo: "https://v1.qpay.mn/golomt.png", link: "golomt://payment" },
                     { name: "TDB", description: "ХХБ", logo: "https://v1.qpay.mn/tdb.png", link: "tdb://payment" },
                     { name: "State Bank", description: "Төрийн Банк", logo: "https://v1.qpay.mn/statebank.png", link: "statebank://payment" },

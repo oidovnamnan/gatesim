@@ -74,7 +74,15 @@ export async function POST(req: Request) {
         return NextResponse.json({
             success: true,
             orderId: orderId,
-            invoice: invoice
+            invoice: {
+                ...invoice,
+                urls: invoice.urls.map(url => {
+                    if (url.name.toLowerCase().includes('khan') && url.link.includes('khanbank://payment')) {
+                        return { ...url, link: url.link.replace('khanbank://payment', 'khanbank://q') };
+                    }
+                    return url;
+                })
+            }
         });
 
 
