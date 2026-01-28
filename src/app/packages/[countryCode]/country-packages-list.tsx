@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/providers/language-provider";
 import { MobileHeader } from "@/components/layout/mobile-header";
+import { useRouter } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import { Loader2, Clock, Search, Filter, Globe } from "lucide-react";
 import {
@@ -40,6 +41,7 @@ interface Props {
 
 export function CountryPackagesList({ packages, countryCode }: Props) {
     const { t } = useTranslation();
+    const router = useRouter();
     const [durationFilter, setDurationFilter] = useState<"short" | "medium" | "long" | null>(null);
     const [isUnlimitedFilter, setIsUnlimitedFilter] = useState(false);
     const [typeFilter, setTypeFilter] = useState<"new" | "topup">("new");
@@ -121,12 +123,10 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
     const hasMore = displayCount < filteredPackages.length;
 
     return (
-        <div className="bg-background min-h-screen">
-            <MobileHeader title={t(`country_${countryCode}`)} showBack />
-
+        <div className="bg-background min-h-screen pb-32 md:pb-8">
             {/* Sticky Filters Header */}
             <div className={cn(
-                "sticky top-14 z-30 bg-background/80 backdrop-blur-xl px-4 border-b border-border shadow-sm",
+                "sticky top-0 z-30 bg-background/80 backdrop-blur-xl px-4 border-b border-border shadow-sm",
                 "py-3 space-y-3"
             )}>
                 {/* Search within country */}
@@ -164,18 +164,31 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
                         </SelectContent>
                     </Select>
 
-                    <button
-                        onClick={() => setIsUnlimitedFilter(!isUnlimitedFilter)}
-                        className={cn(
-                            "h-11 px-3 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-2",
-                            isUnlimitedFilter
-                                ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
-                                : "bg-muted/50 text-foreground border-border hover:bg-accent"
-                        )}
+                    <Select
+                        value={countryCode || "all"}
+                        onValueChange={(v) => {
+                            if (v === "all") router.push("/packages");
+                            else router.push(`/packages/${v}`);
+                        }}
                     >
-                        <span className="text-lg">∞</span>
-                        {t("unlimited")}
-                    </button>
+                        <SelectTrigger className="h-11 bg-muted/50 border-border rounded-xl text-xs font-bold focus:ring-red-500/20 px-3">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                <Globe className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                                <span className="truncate">
+                                    {t(`country_${countryCode}`)}
+                                </span>
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t("allCountries")}</SelectItem>
+                            {popularCountries.map((country) => (
+                                <SelectItem key={country.code} value={country.code}>
+                                    <span className="mr-2">{country.flag}</span>
+                                    {t(`country_${country.code}`)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 

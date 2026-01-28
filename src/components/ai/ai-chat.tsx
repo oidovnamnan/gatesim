@@ -112,23 +112,25 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     useEffect(() => {
         const action = searchParams.get("ai");
 
-        if (action === "install") {
-            const deviceType = detectDeviceType();
-            const guide = (installationGuides as any)[deviceType] || installationGuides.generic;
+        if (action === "install" || action === "chat") {
+            if (action === "install") {
+                const deviceType = detectDeviceType();
+                const guide = (installationGuides as any)[deviceType] || installationGuides.generic;
+
+                const guideMessage: AIMessage = {
+                    id: `guide-${Date.now()}`,
+                    role: "assistant",
+                    content: guide,
+                    timestamp: new Date(),
+                };
+
+                setMessages(prev => {
+                    if (prev.length > 0 && prev[prev.length - 1].content === guide) return prev;
+                    return [...prev, guideMessage];
+                });
+            }
 
             setIsOpen(true);
-
-            const guideMessage: AIMessage = {
-                id: `guide-${Date.now()}`,
-                role: "assistant",
-                content: guide,
-                timestamp: new Date(),
-            };
-
-            setMessages(prev => {
-                if (prev.length > 0 && prev[prev.length - 1].content === guide) return prev;
-                return [...prev, guideMessage];
-            });
 
             const newParams = new URLSearchParams(searchParams.toString());
             newParams.delete("ai");
@@ -150,11 +152,11 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
     return (
         <>
-            {/* Floating button - Always Rendered */}
+            {/* Floating button - Only show on Home page */}
             <motion.div
                 className={cn(
                     "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
-                    (isOpen || pathname === "/ai" || (pathname?.startsWith("/ai") && !pathname.endsWith("/ai"))) && "opacity-0 pointer-events-none"
+                    (isOpen || pathname !== "/") && "opacity-0 pointer-events-none"
                 )}
             >
                 {/* Enhanced Proactive Pulse */}

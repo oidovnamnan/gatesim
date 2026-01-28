@@ -33,6 +33,15 @@ import { useRouter } from "next/navigation";
 // Restored & Cleaned AI features
 const aiFeatures = [
     {
+        id: "chat",
+        icon: Bot,
+        title: "AI Туслах",
+        titleEn: "AI Assistant",
+        description: "Асуултанд хариулах туслах",
+        descriptionEn: "Chat with your travel assistant",
+        href: "/ai?ai=chat",
+    },
+    {
         id: "planner",
         icon: Map,
         title: "Аялал Төлөвлөгч",
