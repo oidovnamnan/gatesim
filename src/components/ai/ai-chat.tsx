@@ -246,7 +246,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         />
 
                         {/* Status Dot */}
-                        <div className="absolute top-1.5 right-1.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm z-10" />
+                        <div className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-lg z-10" />
                     </motion.button>
                 </div>
             </motion.div>
