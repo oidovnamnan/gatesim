@@ -221,37 +221,23 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                 )}
             >
                 <div className="relative group cursor-grab active:cursor-grabbing">
-                    {/* Radiating Ripple Effect (The "Life" Spark) */}
+                    {/* Premium Aurora Glow Effect */}
                     <motion.div
                         animate={{
-                            scale: [1, 1.4, 1.6],
-                            opacity: [0.3, 0.1, 0],
+                            rotate: [0, 360],
+                            scale: [1, 1.15, 1],
+                            opacity: [0.3, 0.5, 0.3]
                         }}
                         transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut",
+                            rotate: { duration: 15, repeat: Infinity, ease: "linear" },
+                            scale: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+                            opacity: { duration: 5, repeat: Infinity, ease: "easeInOut" }
                         }}
                         className={cn(
-                            "absolute inset-0 rounded-full",
-                            pathname === "/ai" ? "bg-indigo-400" : "bg-red-400"
-                        )}
-                    />
-
-                    {/* Premium Glow Effect */}
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.1, 1],
-                            opacity: [0.2, 0.4, 0.2]
-                        }}
-                        transition={{
-                            duration: 4,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className={cn(
-                            "absolute inset-0 rounded-full blur-2xl transition-colors",
-                            pathname === "/ai" ? "bg-indigo-500/30" : "bg-red-500/30"
+                            "absolute -inset-4 rounded-full blur-2xl transition-colors",
+                            pathname === "/ai"
+                                ? "bg-gradient-to-tr from-indigo-500/40 via-purple-500/40 to-blue-400/40"
+                                : "bg-gradient-to-tr from-red-500/40 via-rose-400/40 to-orange-400/40"
                         )}
                     />
 
