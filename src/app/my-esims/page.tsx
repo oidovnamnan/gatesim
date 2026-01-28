@@ -59,75 +59,82 @@ function EsimCard({ order, onSelect, isSelecting, isSelected, onToggleSelect }: 
             <div
                 onClick={() => isSelecting ? onToggleSelect?.() : onSelect()}
                 className={cn(
-                    "bg-white rounded-2xl p-5 shadow-sm border transition-all cursor-pointer group active:scale-[0.98] relative overflow-hidden",
-                    isSelected ? "border-red-500 bg-red-50/10 ring-1 ring-red-500/20 shadow-md" : "border-slate-100 hover:shadow-md hover:border-blue-200"
+                    "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border transition-all cursor-pointer group active:scale-[0.98] relative overflow-hidden",
+                    isSelected
+                        ? "border-red-500 bg-red-50/10 ring-1 ring-red-500/20 shadow-md"
+                        : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
                 )}
             >
                 {isSelecting && (
                     <div className="absolute top-4 right-4 z-10">
                         {isSelected ? (
                             <div className="bg-red-500 rounded-full p-1 shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Check className="h-3 w-3 text-white" />
                             </div>
                         ) : (
-                            <div className="w-6 h-6 rounded-full border-2 border-slate-300 bg-white/50" />
+                            <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white/50" />
                         )}
                     </div>
                 )}
-                <div className="flex items-start gap-4">
-                    <div className="text-4xl shadow-sm rounded-xl overflow-hidden bg-slate-50">{flag}</div>
-                    <div className="flex-1 min-w-0 pt-1">
-                        <div className="flex items-center flex-wrap gap-2 mb-1">
-                            <h3 className="font-bold text-slate-900 truncate text-lg">
+
+                <div className="flex items-center gap-4">
+                    {/* Compact Flag */}
+                    <div className="w-11 h-11 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-xl shadow-sm border border-slate-100 dark:border-slate-700 flex-shrink-0">
+                        {flag}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-black text-slate-900 dark:text-white truncate text-sm">
                                 {t(`country_${order.countryCode}`)}
                             </h3>
-                            {order.isTopUp && (
-                                <Badge className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0">🔄 {t("topUp")}</Badge>
-                            )}
                             <Badge
                                 variant="secondary"
                                 className={cn(
-                                    "px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider",
-                                    isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                                        isProcessing ? "bg-blue-50 text-blue-600 border-blue-100" :
-                                            "bg-slate-100 text-slate-500 border-slate-200"
+                                    "px-1.5 py-0 text-[8px] uppercase font-black tracking-widest leading-none h-4 border-none",
+                                    isActive ? "bg-emerald-500/10 text-emerald-600" :
+                                        isProcessing ? "bg-blue-500/10 text-blue-600" :
+                                            "bg-slate-100 dark:bg-slate-800 text-slate-400"
                                 )}
                             >
                                 {isActive ? t("statusActive") : isProcessing ? t("statusPending") : t("statusCompleted")}
                             </Badge>
                         </div>
-                        <p className="text-sm text-slate-500 font-medium">{order.packageName}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight truncate">
+                            {order.packageName}
+                        </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-blue-500 transition-colors" />
+
+                    <div className="flex items-center gap-2">
+                        {isActive && (
+                            <div className="text-right hidden sm:block">
+                                <p className="text-xs font-black text-slate-900 dark:text-white leading-none">
+                                    {(parseFloat(order.data) - order.dataUsed).toFixed(1)} GB
+                                </p>
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Left</p>
+                            </div>
+                        )}
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
+                    </div>
                 </div>
 
                 {isActive && (
-                    <div className="mt-5 pt-4 border-t border-slate-100">
-                        {/* Data usage bar */}
-                        {(() => {
-                            const usagePercent = (order.dataUsed / (parseFloat(order.data) || 1)) * 100;
-                            return (
-                                <>
-                                    <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
-                                        <span>{t("dataUsage")}</span>
-                                        <span className="text-slate-900">{order.dataUsed} GB <span className="text-slate-400 font-normal">/ {order.data}</span></span>
-                                    </div>
-                                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all"
-                                            style={{ width: `${Math.min(usagePercent, 100)}%` }}
-                                        />
-                                    </div>
-                                </>
-                            );
-                        })()}
-
-                        {/* Remaining days */}
-                        <div className="flex items-center gap-2 text-sm bg-amber-50 text-amber-900/80 px-3 py-2 rounded-xl border border-amber-100/50">
-                            <Clock className="h-4 w-4 text-amber-500" />
-                            <span className="font-medium">
+                    <div className="mt-4 pt-3 border-t border-slate-50 dark:border-slate-800/50">
+                        <div className="flex items-center justify-between mb-1.5 px-0.5">
+                            <div className="flex items-center gap-1 text-[9px] font-black text-slate-500 uppercase tracking-wider">
+                                <Clock className="h-3 w-3 text-amber-500" />
                                 {t("daysRemaining").replace("{count}", order.daysRemaining.toString())}
+                            </div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase">
+                                {Math.round((order.dataUsed / (parseFloat(order.data) || 1)) * 100)}%
                             </span>
+                        </div>
+                        <div className="h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${Math.min((order.dataUsed / (parseFloat(order.data) || 1)) * 100, 100)}%` }}
+                                className="h-full bg-slate-900 dark:bg-white rounded-full"
+                            />
                         </div>
                     </div>
                 )}
