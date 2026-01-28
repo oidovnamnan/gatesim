@@ -43,9 +43,14 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
     const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
     const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
-    const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [sortBy, setSortBy] = useState<SortOption>("price-asc");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(searchParams.get("country")?.toUpperCase() || null);
+    const [packageType, setPackageType] = useState<"new" | "topup">(
+        searchParams.get("type") === "topup" ? "topup" : "new"
+    );
+
+    // Number of packages to show per page
+    const PACKAGES_PER_PAGE = 20;
 
     // Parse duration from URL (short, medium, long)
     const urlDuration = searchParams.get("duration");
@@ -75,6 +80,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
     useEffect(() => {
         const country = searchParams.get("country");
         const duration = searchParams.get("duration");
+        const type = searchParams.get("type");
 
         if (country) {
             setSelectedCountry(country.toUpperCase());
@@ -82,19 +88,29 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         if (duration && (duration === "short" || duration === "medium" || duration === "long")) {
             setSelectedDuration(duration);
         }
+        if (type === "topup" || type === "new") {
+            setPackageType(type as "new" | "topup");
+        }
     }, [searchParams]);
 
     const filteredPackages = useMemo(() => {
         let packages = [...initialPackages];
 
-        // 1. Filter by country first (to enable smart deduplication)
+        // 1. Filter by Package Type (New vs Top-up)
+        if (packageType === "topup") {
+            packages = packages.filter(pkg => pkg.isTopUp);
+        } else {
+            packages = packages.filter(pkg => !pkg.isTopUp);
+        }
+
+        // 2. Filter by country first (to enable smart deduplication)
         if (selectedCountry) {
             packages = packages.filter((pkg) =>
                 pkg.countries.includes(selectedCountry)
             );
         }
 
-        // 2. Deduplicate: Group by relevant scope+data+duration, keep only the cheapest
+        // 3. Deduplicate: Group by relevant scope+data+duration, keep only the cheapest
         const packageGroups = new Map<string, Package>();
         packages.forEach(pkg => {
             let scopeKey = selectedCountry ? selectedCountry : [...pkg.countries].sort().join(",");
@@ -107,7 +123,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         });
         packages = Array.from(packageGroups.values());
 
-        // 3. Filter by search (using debounced query for performance)
+        // 4. Filter by search (using debounced query for performance)
         if (debouncedQuery) {
             const query = debouncedQuery.toLowerCase();
             packages = packages.filter(
@@ -129,7 +145,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             );
         }
 
-        // 4. Filter by duration
+        // 5. Filter by duration
         if (selectedDuration) {
             packages = packages.filter((pkg) => {
                 if (pkg.validityDays === -1) return true;
@@ -160,8 +176,6 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
         }
 
         // FINAL STEP: Transform data for UI (Smart Titles & Reordering)
-        // This makes sure if someone searches "Italy", even a "Europe" package 
-        // will show up as "Italy + 30 countries" so the user isn't confused.
         const activeSearch = debouncedQuery?.toLowerCase();
 
         return packages.map(pkg => {
@@ -206,12 +220,12 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
             return pkg;
         });
-    }, [initialPackages, debouncedQuery, selectedCountry, selectedDuration, sortBy, t]);
+    }, [initialPackages, debouncedQuery, selectedCountry, selectedDuration, sortBy, t, packageType]);
 
     // Reset display count when filters change
     useEffect(() => {
         setDisplayCount(PACKAGES_PER_PAGE);
-    }, [debouncedQuery, selectedCountry, selectedDuration, sortBy]);
+    }, [debouncedQuery, selectedCountry, selectedDuration, sortBy, packageType]);
 
     // Load more when scrolling to bottom
     const loadMore = useCallback(() => {
@@ -248,8 +262,34 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
             <div className={cn(
                 "sticky top-14 md:top-0 z-30 bg-background/80 backdrop-blur-xl px-4 border-b border-border shadow-sm",
-                (selectedCountry || selectedDuration) ? "py-2 space-y-2" : "py-3 space-y-3"
+                "py-3 space-y-3"
             )}>
+                {/* Package Type Switcher */}
+                <div className="flex p-1 bg-muted rounded-xl gap-1">
+                    <button
+                        onClick={() => setPackageType("new")}
+                        className={cn(
+                            "flex-1 py-1.5 px-3 rounded-[10px] text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5",
+                            packageType === "new"
+                                ? "bg-white text-red-600 shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        <span>✨</span> {t("newEsim")}
+                    </button>
+                    <button
+                        onClick={() => setPackageType("topup")}
+                        className={cn(
+                            "flex-1 py-1.5 px-3 rounded-[10px] text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5",
+                            packageType === "topup"
+                                ? "bg-white text-amber-600 shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        <span>🔄</span> {t("topUp")}
+                    </button>
+                </div>
+
                 {/* Search bar - only show when no filters applied */}
                 {!selectedCountry && !selectedDuration && (
                     <div className="flex gap-2">
@@ -343,72 +383,46 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
             </div>
 
             <div className="px-4 py-4 space-y-4">
+                {/* Banner Section */}
+                <div className={cn(
+                    "relative overflow-hidden rounded-[20px] p-6 text-white shadow-xl",
+                    packageType === "new"
+                        ? "bg-gradient-to-br from-red-600 via-red-500 to-rose-400"
+                        : "bg-gradient-to-br from-amber-600 via-amber-500 to-orange-400"
+                )}>
+                    <div className="relative z-10">
+                        <h2 className="text-xl font-black mb-1">{t(packageType === "new" ? "newPackagesBannerTitle" : "topUpPackagesBannerTitle")}</h2>
+                        <p className="text-xs text-white/90 leading-relaxed font-medium max-w-[85%]">{t(packageType === "new" ? "newPackagesBannerDesc" : "topUpPackagesBannerDesc")}</p>
+                    </div>
+                    {/* Abstract Shapes for the glass look */}
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-2xl" />
+                    <div className="absolute right-10 bottom-0 w-16 h-16 bg-white/10 rounded-full blur-xl" />
+                </div>
+
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-foreground font-bold pl-1">
                         {t("packagesFound").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
                     </p>
-
-                    <div className="flex bg-white/50 rounded-xl p-1">
-                        <button
-                            onClick={() => setViewMode("grid")}
-                            className={cn(
-                                "p-2 transition-all flex items-center justify-center w-9 h-9",
-                                viewMode === "grid" ? "text-red-600 scale-110" : "text-slate-400 hover:text-slate-600"
-                            )}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                        </button>
-                        <button
-                            onClick={() => setViewMode("list")}
-                            className={cn(
-                                "p-2 transition-all flex items-center justify-center w-9 h-9",
-                                viewMode === "list" ? "text-red-600 scale-110" : "text-slate-400 hover:text-slate-600"
-                            )}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                        </button>
-                    </div>
                 </div>
 
                 <AnimatePresence mode="popLayout">
-                    {viewMode === "grid" ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            {displayedPackages.map((pkg) => (
-                                <motion.div
-                                    key={pkg.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <PackageCard
-                                        {...pkg}
-                                        contextualCountry={selectedCountry || undefined}
-                                        className="bg-white/60 border-white/60 shadow-sm"
-                                    />
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {displayedPackages.map((pkg) => (
-                                <motion.div
-                                    key={pkg.id}
-                                    layout
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <PackageCardCompact
-                                        {...pkg}
-                                        contextualCountry={selectedCountry || undefined}
-                                    />
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {displayedPackages.map((pkg) => (
+                            <motion.div
+                                key={pkg.id}
+                                layout
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <PackageCardCompact
+                                    {...pkg}
+                                    contextualCountry={selectedCountry || undefined}
+                                />
+                            </motion.div>
+                        ))}
+                    </div>
                 </AnimatePresence>
 
                 {hasMore && (
