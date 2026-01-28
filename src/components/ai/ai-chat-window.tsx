@@ -12,6 +12,7 @@ import {
     Mic,
     MicOff,
     MapPin,
+    Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -209,15 +210,22 @@ export function AIChatWindow({
             {!hideHeader && (
                 <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-md shadow-red-500/20">
-                            <Bot className="h-5 w-5 text-white" />
+                        <div className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center shadow-md",
+                            mode === "sales" ? "bg-gradient-to-br from-red-600 to-rose-400 shadow-red-500/20" : "bg-gradient-to-tl from-indigo-600 to-purple-500 shadow-indigo-500/20"
+                        )}>
+                            {mode === "sales" ? (
+                                <Zap className="h-5 w-5 text-white" />
+                            ) : (
+                                <Bot className="h-5 w-5 text-white" />
+                            )}
                         </div>
                         <div>
                             <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                                {t("aiTitle")}
+                                {mode === "sales" ? "Симний мэргэжилтэн" : "Аяллын туслах"}
                             </h3>
-                            <p className="text-xs text-slate-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px]">
-                                {isGuest ? t("aiGuestMode") : t("aiDescription")}
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                {mode === "sales" ? "Sim Card Advisor" : "Smart Travel Guide"}
                             </p>
                         </div>
                     </div>

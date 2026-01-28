@@ -22,6 +22,8 @@ interface RateLimitData {
 const rateLimitMap = new Map<string, RateLimitData>();
 
 const MODE_PROMPTS: Record<string, string> = {
+    sales: "Та GateSIM-ийн сим борлуулалт, зөвлөгөө өгөх мэргэжилтэн юм. Таны гол зорилго бол хэрэглэгчийн утас eSIM дэмждэг эсэхийг шалгах, тэдэнд хамгийн хямд, тохиромжтой дата багцыг санал болгох юм. [SEARCH_PACKAGES: country=CODE] команд ашиглан багц хайж өгөөрэй.",
+    travel: "Та аялалын ухаалаг туслах юм. Аялалын төлөвлөгөө гаргах, сонирхолтой газруудыг санал болгох, орчуулга хийх, соёлын зөвлөгөө өгөхөд анхаарна уу. [TRANSIT_ROUTE: to=NAME] команд ашиглан зам зааж өгч болно.",
     tourist: "You are a helpful tourist guide. Focus on sightseeing, culture, and fun. Suggest popular spots.",
     business: "You are a business travel assistant. Focus on efficiency, wifi spots, taxi receipts, and quick transport.",
     medical: "You are a medical travel assistant. PRIORITIZE health and safety. Help find hospitals, pharmacies, and translating symptoms. Be serious and concise.",

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Bot } from "lucide-react";
+import { Sparkles, Bot, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslation } from "@/providers/language-provider";
@@ -33,22 +33,31 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         const modeParam = searchParams.get("mode");
         if (modeParam) return modeParam;
 
-        if (!path) return "tourist";
+        if (path === "/") return "sales";
+        if (path === "/ai") return "travel";
+
+        if (!path) return "sales";
         if (path.includes("/medical") || path.includes("/hospitals")) return "medical";
         if (path.includes("/student") || path.includes("/campus")) return "student";
         if (path.includes("/shopping") || path.includes("/vat") || path.includes("/prices")) return "shopping";
         if (path.includes("/business") || path.includes("/expenses")) return "business";
-        return "tourist";
+        return "sales";
     };
 
     const currentMode = getModeFromPath(pathname);
 
-    const greetingVariants = [
-        t("aiGreeting1"),
-        t("aiGreeting2"),
-        t("aiGreeting3"),
-        t("aiGreeting4")
-    ];
+    const greetingVariants = {
+        sales: [
+            "Сайн байна уу! Би танд тохирох eSIM багц олоход туслах уу? 📱",
+            "GateSIM-д тавтай морил! Таны утас eSIM дэмждэг үү? 🌐",
+            "Аялалдаа бэлэн үү? Хамгийн хурдан дата багцыг хамтдаа ольё! ✨"
+        ],
+        travel: [
+            "Сайн байна уу! Би таны аялалыг хөнгөвчлөх AI туслах байна. 🗺️",
+            "Аялалын төлөвлөгөө, орчуулга эсвэл замын мэдээлэл хэрэгтэй юу? ✈️",
+            "Хаашаа аялах гэж байна? Би танд маршрут гаргахад туслах уу? 📍"
+        ]
+    };
 
     // Helper functions
     function detectDevice(): string {
@@ -88,12 +97,15 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
         const device = detectDevice();
         const compatible = isEsimCompatible(device);
+        const isAiHub = pathname === "/ai";
 
-        let initialMessage = greetingVariants[Math.floor(Math.random() * greetingVariants.length)];
-
+        let initialMessage = "";
         if (!compatible) {
             initialMessage = t("aiCompatibilityWarning").replace("{device}", device);
             setIsOpen(true);
+        } else {
+            const variants = isAiHub ? greetingVariants.travel : greetingVariants.sales;
+            initialMessage = variants[Math.floor(Math.random() * variants.length)];
         }
 
         setMessages([
@@ -106,7 +118,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         ]);
 
         sessionStorage.setItem("ai_greeted", "true");
-    }, []);
+    }, [pathname]); // Re-greet on page switch if not greeted yet (or refresh logic)
 
     // Handle URL parameters
     useEffect(() => {
@@ -152,23 +164,44 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
     return (
         <>
-            {/* Floating button - Only show on Home page */}
+            {/* Floating Draggable Button */}
             <motion.div
+                drag
+                dragConstraints={{ left: -300, right: 0, top: -500, bottom: 0 }}
+                dragElastic={0.1}
+                dragMomentum={false}
                 className={cn(
                     "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
-                    (isOpen || pathname !== "/") && "opacity-0 pointer-events-none"
+                    (isOpen || (pathname !== "/" && pathname !== "/ai")) && "opacity-0 pointer-events-none"
                 )}
             >
-                <motion.button
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsOpen(true)}
-                    className="relative w-14 h-14 rounded-full gradient-primary shadow-2xl flex items-center justify-center border-2 border-white dark:border-slate-900 touch-none group"
-                >
-                    <Bot className="h-7 w-7 text-white transition-transform group-hover:scale-110" />
-                </motion.button>
+                <div className="relative group cursor-grab active:cursor-grabbing">
+                    {/* Premium Glow Effect */}
+                    <div className="absolute inset-0 bg-red-500/30 rounded-full blur-xl group-hover:bg-red-500/50 transition-colors animate-pulse" />
+
+                    <motion.button
+                        initial={{ scale: 0, rotate: -45 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setIsOpen(true)}
+                        className={cn(
+                            "relative w-16 h-16 rounded-2xl shadow-2xl flex items-center justify-center border-2 border-white/50 backdrop-blur-md transition-all",
+                            pathname === "/ai"
+                                ? "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                                : "bg-gradient-to-br from-red-600 via-red-500 to-rose-400"
+                        )}
+                    >
+                        {pathname === "/ai" ? (
+                            <Bot className="h-8 w-8 text-white stroke-[2.5]" />
+                        ) : (
+                            <Zap className="h-8 w-8 text-white stroke-[2.5]" />
+                        )}
+
+                        {/* Status Dot */}
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+                    </motion.button>
+                </div>
             </motion.div>
 
             {/* Heavy Window - Lazy Loaded */}
