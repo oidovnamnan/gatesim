@@ -2,9 +2,16 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, Search, Loader2 } from "lucide-react";
+import { Filter, Search, Loader2, Globe, Clock, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PackageCard, PackageCardCompact } from "@/components/packages/package-card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { popularCountries } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useInView } from "react-intersection-observer";
@@ -305,80 +312,49 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     </div>
                 )}
 
-                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
-                    <button
-                        onClick={() => setSelectedDuration(null)}
-                        className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
-                            !selectedDuration
-                                ? "bg-slate-800 text-white border-slate-800 shadow-md"
-                                : "bg-muted text-foreground border-border hover:bg-accent"
-                        )}
+                <div className="grid grid-cols-2 gap-2">
+                    <Select
+                        value={selectedDuration || "all"}
+                        onValueChange={(v) => setSelectedDuration(v === "all" ? null : v)}
                     >
-                        {t("all")}
-                    </button>
-                    <button
-                        onClick={() => setSelectedDuration("short")}
-                        className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
-                            selectedDuration === "short"
-                                ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                                : "bg-muted text-foreground border-border hover:bg-accent"
-                        )}
-                    >
-                        {t("duration1_7")}
-                    </button>
-                    <button
-                        onClick={() => setSelectedDuration("medium")}
-                        className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
-                            selectedDuration === "medium"
-                                ? "bg-purple-600 text-white border-purple-600 shadow-md"
-                                : "bg-muted text-foreground border-border hover:bg-accent"
-                        )}
-                    >
-                        {t("duration8_15")}
-                    </button>
-                    <button
-                        onClick={() => setSelectedDuration("long")}
-                        className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
-                            selectedDuration === "long"
-                                ? "bg-emerald-600 text-white border-emerald-600 shadow-md"
-                                : "bg-muted text-foreground border-border hover:bg-accent"
-                        )}
-                    >
-                        {t("duration15Plus")}
-                    </button>
-                </div>
+                        <SelectTrigger className="h-11 bg-muted/50 border-border rounded-xl text-xs font-bold focus:ring-red-500/20 px-3">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                                <span className="truncate">
+                                    {selectedDuration ? t(`duration${selectedDuration === 'short' ? '1_7' : selectedDuration === 'medium' ? '8_15' : '15Plus'}`) : t("all")}
+                                </span>
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t("all")}</SelectItem>
+                            <SelectItem value="short">{t("duration1_7")}</SelectItem>
+                            <SelectItem value="medium">{t("duration8_15")}</SelectItem>
+                            <SelectItem value="long">{t("duration15Plus")}</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
-                    <button
-                        onClick={() => setSelectedCountry(null)}
-                        className={cn(
-                            "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
-                            !selectedCountry
-                                ? "bg-red-600 text-white border-red-600 shadow-lg shadow-red-500/20"
-                                : "bg-muted text-foreground border-border hover:bg-accent"
-                        )}
+                    <Select
+                        value={selectedCountry || "all"}
+                        onValueChange={(v) => setSelectedCountry(v === "all" ? null : v)}
                     >
-                        {t("allCountries")}
-                    </button>
-                    {popularCountries.map((country) => (
-                        <button
-                            key={country.code}
-                            onClick={() => setSelectedCountry(country.code)}
-                            className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
-                                selectedCountry === country.code
-                                    ? "bg-slate-800 text-white border-slate-800 shadow-lg"
-                                    : "bg-muted text-foreground border-border hover:bg-accent"
-                            )}
-                        >
-                            <span className="text-sm">{country.flag}</span>
-                            {t(`country_${country.code}`)}
-                        </button>
-                    ))}
+                        <SelectTrigger className="h-11 bg-muted/50 border-border rounded-xl text-xs font-bold focus:ring-red-500/20 px-3">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                <Globe className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                                <span className="truncate">
+                                    {selectedCountry ? t(`country_${selectedCountry}`) : t("allCountries")}
+                                </span>
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t("allCountries")}</SelectItem>
+                            {popularCountries.map((country) => (
+                                <SelectItem key={country.code} value={country.code}>
+                                    <span className="mr-2">{country.flag}</span>
+                                    {t(`country_${country.code}`)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
