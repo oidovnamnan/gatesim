@@ -221,7 +221,7 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     <Select value={selectedDuration || "all"} onValueChange={(v) => setSelectedDuration(v === "all" ? null : v)}>
                         <SelectTrigger className="h-11 bg-muted/50 border-border rounded-xl text-xs font-bold px-3">
                             <div className="flex items-center gap-2 overflow-hidden">
-                                <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                                <span className="truncate text-muted-foreground mr-1">Хугацаа:</span>
                                 <span className="truncate">{selectedDuration ? t(`duration${selectedDuration === 'short' ? '1_7' : selectedDuration === 'medium' ? '8_15' : '15Plus'}`) : t("all")}</span>
                             </div>
                         </SelectTrigger>

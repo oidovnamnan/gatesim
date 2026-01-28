@@ -150,7 +150,7 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
                     >
                         <SelectTrigger className="h-11 bg-muted/50 border-border rounded-xl text-xs font-bold focus:ring-red-500/20 px-3">
                             <div className="flex items-center gap-2 overflow-hidden">
-                                <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                                <span className="truncate text-muted-foreground mr-1">Хугацаа:</span>
                                 <span className="truncate">
                                     {durationFilter ? t(`duration${durationFilter === 'short' ? '1_7' : durationFilter === 'medium' ? '8_15' : '15Plus'}`) : t("all")}
                                 </span>
