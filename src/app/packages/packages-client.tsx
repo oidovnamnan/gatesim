@@ -261,14 +261,8 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
 
     return (
         <div className="min-h-screen pb-32 md:pb-8 bg-background">
-            <div className="md:hidden bg-white/30 backdrop-blur-md sticky top-0 z-40 border-b border-white/20 shadow-sm">
-                <div className="h-14 flex items-center justify-center relative px-4">
-                    <h1 className="text-lg font-bold text-slate-900 drop-shadow-sm">{t("packages")}</h1>
-                </div>
-            </div>
-
             <div className={cn(
-                "sticky top-14 md:top-0 z-30 bg-background/80 backdrop-blur-xl px-4 border-b border-border shadow-sm",
+                "sticky top-0 z-30 bg-background/80 backdrop-blur-xl px-4 border-b border-border shadow-sm",
                 "py-3 space-y-3"
             )}>
                 {/* Package Type Switcher */}

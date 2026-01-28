@@ -26,7 +26,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
     return (
         <MaintenanceGuard>
             {/* Desktop & Mobile Header */}
-            <div className="relative z-50">
+            <div className={cn("relative z-50", pathname === "/packages" && "hidden md:block")}>
                 <TopHeader />
             </div>
             <div className={cn(
