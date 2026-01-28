@@ -22,12 +22,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCountryFlag, cn } from "@/lib/utils";
-import { collection, query, where, orderBy, onSnapshot, documentId } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, documentId, doc, updateDoc, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/providers/auth-provider";
 import { Order } from "@/types/db";
 import { useTranslation } from "@/providers/language-provider";
 import { useGuestOrderStore } from "@/store/guest-order-store";
+import { Trash2, Square, CheckSquare } from "lucide-react";
 
 // Helper to format date
 const formatDate = (timestamp: number) => {
@@ -39,9 +40,12 @@ type TabType = "active" | "history";
 interface EsimCardProps {
     order: any;
     onSelect: () => void;
+    isSelecting?: boolean;
+    isSelected?: boolean;
+    onToggleSelect?: () => void;
 }
 
-function EsimCard({ order, onSelect }: EsimCardProps) {
+function EsimCard({ order, onSelect, isSelecting, isSelected, onToggleSelect }: EsimCardProps) {
     const { t } = useTranslation();
     const flag = getCountryFlag(order.countryCode);
     const isActive = order.status === "COMPLETED" && order.daysRemaining > 0;
@@ -53,9 +57,23 @@ function EsimCard({ order, onSelect }: EsimCardProps) {
             animate={{ opacity: 1, y: 0 }}
         >
             <div
-                onClick={onSelect}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group active:scale-[0.98]"
+                onClick={() => isSelecting ? onToggleSelect?.() : onSelect()}
+                className={cn(
+                    "bg-white rounded-2xl p-5 shadow-sm border transition-all cursor-pointer group active:scale-[0.98] relative overflow-hidden",
+                    isSelected ? "border-red-500 bg-red-50/10 ring-1 ring-red-500/20 shadow-md" : "border-slate-100 hover:shadow-md hover:border-blue-200"
+                )}
             >
+                {isSelecting && (
+                    <div className="absolute top-4 right-4 z-10">
+                        {isSelected ? (
+                            <div className="bg-red-500 rounded-full p-1 shadow-lg">
+                                <Check className="h-4 w-4 text-white" />
+                            </div>
+                        ) : (
+                            <div className="w-6 h-6 rounded-full border-2 border-slate-300 bg-white/50" />
+                        )}
+                    </div>
+                )}
                 <div className="flex items-start gap-4">
                     <div className="text-4xl shadow-sm rounded-xl overflow-hidden bg-slate-50">{flag}</div>
                     <div className="flex-1 min-w-0 pt-1">
@@ -365,6 +383,9 @@ export default function MyEsimsPage() {
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [isSelecting, setIsSelecting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (authLoading) return;
@@ -468,11 +489,12 @@ export default function MyEsimsPage() {
                         iccid: esim.iccid || "Pending...",
                         createdAt: formatDate(data.createdAt),
                         isTopUp: pkg.isTopUp || false,
+                        hidden: data.hidden || false,
                         raw: data
                     };
                 });
 
-                setOrders(formattedOrders);
+                setOrders(formattedOrders.filter(o => !o.hidden));
                 setLoading(false);
             }, (error) => {
                 console.error("Error fetching guest orders:", error);
@@ -572,11 +594,12 @@ export default function MyEsimsPage() {
                     iccid: esim.iccid || "Pending...",
                     createdAt: formatDate(data.createdAt),
                     isTopUp: pkg.isTopUp || false,
+                    hidden: data.hidden || false,
                     raw: data
                 };
             });
 
-            setOrders(formattedOrders);
+            setOrders(formattedOrders.filter(o => !o.hidden));
             setLoading(false);
         };
 
@@ -627,6 +650,50 @@ export default function MyEsimsPage() {
 
     const displayOrders = activeTab === "active" ? activeOrders : historyOrders;
 
+    const toggleSelect = (id: string) => {
+        const newSet = new Set(selectedIds);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setSelectedIds(newSet);
+    };
+
+    const selectAll = () => {
+        if (selectedIds.size === historyOrders.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(historyOrders.map(o => o.id)));
+        }
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`${selectedIds.size} багцыг түүхээс устгах уу?`)) return;
+
+        setIsDeleting(true);
+        try {
+            const batch = writeBatch(db);
+            selectedIds.forEach(id => {
+                const docRef = doc(db, "orders", id);
+                batch.update(docRef, { hidden: true });
+            });
+            await batch.commit();
+            setIsSelecting(false);
+            setSelectedIds(new Set());
+        } catch (error) {
+            console.error("Error deleting orders:", error);
+            alert("Алдаа гарлаа. Дахин оролдоно уу.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === "active") {
+            setIsSelecting(false);
+            setSelectedIds(new Set());
+        }
+    }, [activeTab]);
+
     return (
         <div className="min-h-screen bg-background pb-24 md:pt-28">
             <div className="md:hidden">
@@ -662,7 +729,33 @@ export default function MyEsimsPage() {
                     >
                         {t("history")} ({historyOrders.length})
                     </button>
+                    {activeTab === "history" && historyOrders.length > 0 && (
+                        <button
+                            onClick={() => setIsSelecting(!isSelecting)}
+                            className={cn(
+                                "hidden md:flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold ml-4 border transition-all",
+                                isSelecting ? "bg-red-50 text-red-600 border-red-200" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                            )}
+                        >
+                            {isSelecting ? t("cancel") : t("select")}
+                        </button>
+                    )}
                 </div>
+                {activeTab === "history" && historyOrders.length > 0 && (
+                    <div className="md:hidden mt-4">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsSelecting(!isSelecting)}
+                            className={cn(
+                                "w-full rounded-xl font-bold h-11",
+                                isSelecting ? "bg-red-50 text-red-600 border-red-200" : "bg-white text-slate-600 border-slate-200"
+                            )}
+                        >
+                            {isSelecting ? t("cancel") : t("select")}
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="container mx-auto px-4 md:px-6">
@@ -688,6 +781,9 @@ export default function MyEsimsPage() {
                                 key={order.id}
                                 order={order}
                                 onSelect={() => setSelectedOrder(order)}
+                                isSelecting={isSelecting}
+                                isSelected={selectedIds.has(order.id)}
+                                onToggleSelect={() => toggleSelect(order.id)}
                             />
                         ))}
                     </div>
@@ -715,6 +811,53 @@ export default function MyEsimsPage() {
                     </div>
                 )}
             </div>
+
+            {/* Multi-selection bar */}
+            <AnimatePresence>
+                {isSelecting && (
+                    <motion.div
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 100, opacity: 0 }}
+                        className="fixed bottom-24 left-4 right-4 z-[60] flex items-center justify-between bg-slate-900/90 backdrop-blur-md text-white p-4 rounded-3xl shadow-2xl border border-white/20 max-w-2xl mx-auto"
+                    >
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={selectAll}
+                                className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+                            >
+                                {selectedIds.size === historyOrders.length ? (
+                                    <CheckSquare className="h-5 w-5" />
+                                ) : (
+                                    <Square className="h-5 w-5" />
+                                )}
+                                <span className="text-sm font-bold">{t("selectAll")}</span>
+                            </button>
+                            <span className="text-sm font-bold border-l border-white/20 pl-4">
+                                {selectedIds.size} сонгосон
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                size="sm"
+                                disabled={selectedIds.size === 0 || isDeleting}
+                                onClick={handleDeleteSelected}
+                                className="bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold px-4 h-10 border-none"
+                            >
+                                {isDeleting ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <>
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        {t("delete")}
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <AnimatePresence>
                 {selectedOrder && (
