@@ -33,100 +33,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        let unsubscribeFirebase: (() => void) | undefined;
-
         const syncAuth = async () => {
             // 1. If NextAuth Session exists, sync with Firebase
             if (status === "authenticated" && session?.user) {
-                console.log("AuthProvider: NextAuth Session Active", session.user.email);
+                const userId = (session.user as any).id || "unknown";
 
-                // Set local state immediately for UI responsiveness
-                const mappedUser = {
-                    uid: (session.user as any).id || "unknown",
-                    email: session.user.email,
-                    displayName: session.user.name,
-                    photoURL: session.user.image,
-                    emailVerified: true,
-                } as unknown as User;
+                // Only update local state if it's different from current state
+                // Use a functional update or refer to current state if possible, 
+                // but checking userId vs the current user state is the most reliable
+                if (!user || user.uid !== userId) {
+                    console.log("AuthProvider: User session updated", session.user.email);
 
-                setUser(mappedUser);
-                setUserData({
-                    uid: (session.user as any).id || "unknown",
-                    email: session.user.email || "",
-                    displayName: session.user.name || "User",
-                    role: (session.user as any).role || "user", // Ensure role is captured
-                    createdAt: Date.now(),
-                    updatedAt: Date.now()
-                });
-                setLoading(false);
+                    const mappedUser = {
+                        uid: userId,
+                        email: session.user.email,
+                        displayName: session.user.name,
+                        photoURL: session.user.image,
+                        emailVerified: true,
+                    } as unknown as User;
 
-                // --- Firebase Custom Token Sync (Optional) ---
-                // Skip if Admin SDK is not configured (missing FIREBASE_PRIVATE_KEY)
-                // This prevents slow loading and 500 errors on production
-                const SKIP_FIREBASE_SYNC = process.env.NEXT_PUBLIC_SKIP_FIREBASE_SYNC === 'true';
-
-                if (SKIP_FIREBASE_SYNC) {
-                    console.log("AuthProvider: Firebase sync disabled via NEXT_PUBLIC_SKIP_FIREBASE_SYNC");
-                    return;
+                    setUser(mappedUser);
+                    setUserData({
+                        uid: userId,
+                        email: session.user.email || "",
+                        displayName: session.user.name || "User",
+                        role: (session.user as any).role || "user",
+                        createdAt: Date.now(),
+                        updatedAt: Date.now()
+                    });
+                    setLoading(false);
                 }
 
+                // --- Firebase Custom Token Sync ---
+                const SKIP_FIREBASE_SYNC = process.env.NEXT_PUBLIC_SKIP_FIREBASE_SYNC === 'true';
+                if (SKIP_FIREBASE_SYNC) return;
+
                 try {
-                    // Check if already signed in to Firebase as the same user
                     const currentUser = auth.currentUser;
-                    if (currentUser && currentUser.uid === ((session.user as any).id)) {
-                        console.log("AuthProvider: Already signed in to Firebase");
+                    if (currentUser && currentUser.uid === userId) {
+                        // Already signed in to Firebase, nothing to do
                         return;
                     }
 
-                    console.log("AuthProvider: Fetching Custom Token...");
-
-                    // Add timeout to prevent slow loading
+                    console.log("AuthProvider: Syncing with Firebase...");
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
                     const res = await fetch("/api/auth/firebase", { signal: controller.signal });
                     clearTimeout(timeoutId);
 
-                    if (!res.ok) {
-                        console.warn("AuthProvider: Custom Token API unavailable, continuing without Firebase Auth");
-                        return;
-                    }
+                    if (!res.ok) return;
 
                     const { token } = await res.json();
                     if (token) {
                         const { signInWithCustomToken } = await import("firebase/auth");
                         await signInWithCustomToken(auth, token);
-                        console.log("AuthProvider: ✅ Signed in with Custom Token");
+                        console.log("AuthProvider: ✅ Firebase Auth synced");
                     }
                 } catch (error: any) {
-                    if (error.name === 'AbortError') {
-                        console.warn("AuthProvider: Custom Token fetch timed out, continuing without Firebase Auth");
-                    } else {
-                        console.warn("AuthProvider: Custom Token unavailable, continuing with NextAuth only");
-                    }
+                    // Silently fail or log once to avoid clutter
                 }
                 return;
             }
 
-            // 2. If no NextAuth session, we could be in a logged-out state OR purely client-side state (unlikely with this setup)
+            // 2. Logged out state
             if (status === "unauthenticated") {
-                console.log("AuthProvider: No NextAuth Session. Checking Firebase...");
-                // Ensure Firebase is also signed out if NextAuth is
-                if (auth.currentUser) {
-                    await firebaseSignOut(auth);
+                if (user !== null) {
+                    console.log("AuthProvider: Clearing session");
+                    if (auth.currentUser) {
+                        await firebaseSignOut(auth);
+                    }
+                    setUser(null);
+                    setUserData(null);
                 }
-                setUser(null);
-                setUserData(null);
                 setLoading(false);
             }
         };
 
         syncAuth();
-
-        // Still listen to Firebase changes to keep `user` state strictly in sync if token expires/refreshes
-        // But mainly rely on session for initial load
-        return () => { };
-    }, [session, status]);
+    }, [session, status, user]);
 
     const signInWithGoogle = async () => {
         try {
