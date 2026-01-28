@@ -14,6 +14,7 @@ import {
     LogOut,
     UserCog,
     Shield,
+    ShieldCheck,
     Package,
     ImagePlus,
     Image as ImageIcon
@@ -55,6 +56,12 @@ const sidebarItems = [
         title: "AI Control",
         href: "/admin/ai",
         icon: Bot,
+        resource: 'ai' as const,
+    },
+    {
+        title: "Manager's Office",
+        href: "/admin/office",
+        icon: ShieldCheck,
         resource: 'ai' as const,
     },
     {

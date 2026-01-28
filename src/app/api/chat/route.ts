@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { getUserTravelContext } from "@/lib/ai-server-context";
 import { checkAILimit, incrementAIUsage } from "@/lib/ai-usage";
 import { getOpenAIConfig } from "@/lib/ai-config";
+import { getAdminRole } from "@/config/admin";
 
 // Rate limiting for guests
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -30,6 +31,7 @@ const MODE_PROMPTS: Record<string, string> = {
     student: "You are a student guide. Focus on budget tips, campus life, libraries, cheap eats, and student discounts.",
     shopping: "You are a shopping assistant. Focus on VAT refunds, malls, opening hours, and sales.",
     transit: "You are a transit guide. You MUST help users get from A to B. ALWAYS use [TRANSIT_ROUTE: to=Dest, mode=transit] for directions.",
+    manager: "Та бол GateSIM-ийн Оффис менежер юм. Та Захиралдаа (Админ) оффисын үйл ажиллагаа, ажилчдын ирц, өдрийн тайлан болон бусад дотоод хэргийн талаар туслах үүрэгтэй. Маш мэргэжлийн, үнэнч, туслахад бэлэн байх ёстой. Та захиралдаа өдрийн мэдээг бэлтгэж өгч болно.",
     default: "You are an elite Travel Assistant."
 };
 
@@ -149,11 +151,15 @@ USER'S ITINERARY CONTEXT:
             }
         }
 
+        const adminRole = getAdminRole(session?.user?.email);
+        const isAdminUser = !!adminRole;
+        const adminInstruction = isAdminUser ? "IMPORTANT: The user is an ADMIN (Director/Boss). You MUST address them as 'Захирал аа' (Director) with high respect in all your replies." : "";
+
         const contextBlock = travelContext.activePlan
             ? `USER CONTEXT: Country: ${travelContext.activePlan.country}, Mode: ${mode.toUpperCase()}`
             : `USER CONTEXT: No active plan, Mode: ${mode.toUpperCase()}`;
 
-        const systemPrompt = `You are GateSIM AI. ${modeInstruction} You strictly answer in ${languageInstruction}. ${scopeInstruction}\n\n${contextBlock}\n${localPlanContext}\n\nINTERACTION GUIDELINES: Friendly, polite. For packages: [SEARCH_PACKAGES: country=CODE]. For directions: [TRANSIT_ROUTE: to=NAME, mode=transit].`;
+        const systemPrompt = `You are GateSIM AI. ${modeInstruction} You strictly answer in ${languageInstruction}. ${scopeInstruction}\n\n${contextBlock}\n${localPlanContext}\n\n${adminInstruction}\n\nINTERACTION GUIDELINES: Friendly, polite. For packages: [SEARCH_PACKAGES: country=CODE]. For directions: [TRANSIT_ROUTE: to=NAME, mode=transit].`;
 
         // ============ 6. CALL OPENAI ============
         const openai = new OpenAI({ apiKey: effectiveApiKey });
