@@ -221,16 +221,55 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                 )}
             >
                 <div className="relative group cursor-grab active:cursor-grabbing">
+                    {/* Radiating Ripple Effect (The "Life" Spark) */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.4, 1.6],
+                            opacity: [0.3, 0.1, 0],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                        className={cn(
+                            "absolute inset-0 rounded-full",
+                            pathname === "/ai" ? "bg-indigo-400" : "bg-red-400"
+                        )}
+                    />
+
                     {/* Premium Glow Effect */}
-                    <div className={cn(
-                        "absolute inset-0 rounded-full blur-xl transition-colors animate-pulse",
-                        pathname === "/ai" ? "bg-indigo-500/20" : "bg-red-500/20"
-                    )} />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.1, 1],
+                            opacity: [0.2, 0.4, 0.2]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className={cn(
+                            "absolute inset-0 rounded-full blur-2xl transition-colors",
+                            pathname === "/ai" ? "bg-indigo-500/30" : "bg-red-500/30"
+                        )}
+                    />
 
                     <motion.button
                         initial={{ scale: 0, rotate: -45 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        whileHover={{ scale: 1.1 }}
+                        animate={{
+                            scale: 1,
+                            rotate: 0,
+                            y: [0, -8, 0], // Floating motion
+                        }}
+                        transition={{
+                            y: {
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            },
+                        }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsOpen(true)}
                         className={cn(
@@ -238,12 +277,38 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                             pathname === "/ai" ? "ring-2 ring-indigo-50/50" : "ring-2 ring-red-50/50"
                         )}
                     >
-                        <Image
-                            src={activeStaff?.image || (pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png")}
-                            alt={activeStaff?.name || "AI Assistant"}
-                            fill
-                            className="object-cover"
-                        />
+                        <motion.div
+                            animate={{
+                                rotate: [0, -2, 2, -2, 0], // Subtle wiggle to attract attention every few seconds
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                repeatDelay: 2
+                            }}
+                            className="relative w-full h-full"
+                        >
+                            <Image
+                                src={activeStaff?.image || (pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png")}
+                                alt={activeStaff?.name || "AI Assistant"}
+                                fill
+                                className="object-cover"
+                            />
+
+                            {/* Shimmer Light Sweep Effect */}
+                            <motion.div
+                                animate={{
+                                    left: ['-100%', '200%']
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    repeatDelay: 4,
+                                    ease: "linear"
+                                }}
+                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 -z-0"
+                            />
+                        </motion.div>
 
                         {/* Status Dot */}
                         <div className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-lg z-10" />
