@@ -6,8 +6,6 @@ export async function FeaturedSection() {
     // Fetch data - this part is async and will be suspended
     const allProducts = await getMobiMatterProducts();
 
-    const popularCodes = ["JP", "KR", "CN", "TH", "US", "SG", "VN", "TR", "EU"]; // Added EU
-
     // Helper for names
     const getCountryName = (c: string) => {
         const names: Record<string, string> = {
@@ -19,52 +17,47 @@ export async function FeaturedSection() {
         return names[c] || c;
     }
 
+    const sortedByPrice = [...allProducts].sort((a, b) => a.price - b.price);
+
     // Curated Selection Logic
     const featuredPackages: typeof allProducts = [];
     const usedSkus = new Set<string>();
 
-    const sortedByPop = allProducts.sort((a, b) => a.price - b.price);
-
-    // 1. Force add 1 Europe Package
-    const euPackage = sortedByPop.find(p => p.countries.includes("EU") || (p.countries.includes("FR") && p.countries.length > 5));
-    if (euPackage) {
-        featuredPackages.push(euPackage);
-        usedSkus.add(euPackage.sku);
-    }
-
-    // 2. Force add 1 Multi-Country Asia Package
-    const asiaCodes = ["SG", "TH", "MY", "ID", "VN", "PH"];
-    const asiaPackage = sortedByPop.find(p =>
-        !usedSkus.has(p.sku) &&
-        p.countries.length > 3 &&
-        asiaCodes.some(c => p.countries.includes(c))
-    );
-    if (asiaPackage) {
-        featuredPackages.push(asiaPackage);
-        usedSkus.add(asiaPackage.sku);
-    }
-
-    // 3. Fill the rest with Top Single Destinations
-    const singleDestinations = ["JP", "KR", "CN", "US", "TR", "VN", "TH"];
-    for (const code of singleDestinations) {
-        if (featuredPackages.length >= 6) break;
-        const pkg = sortedByPop.find(p =>
+    // Helper to add unique package
+    const addPackage = (code: string, isSingle = true) => {
+        const pkg = sortedByPrice.find(p =>
             !usedSkus.has(p.sku) &&
             p.countries.includes(code) &&
-            p.countries.length === 1
+            (isSingle ? p.countries.length === 1 : p.countries.length > 1) &&
+            !p.isTopUp
         );
         if (pkg) {
             featuredPackages.push(pkg);
             usedSkus.add(pkg.sku);
         }
+    };
+
+    // 1. Top 3 Most Popular (JP, KR, CN)
+    ["JP", "KR", "CN"].forEach(code => addPackage(code));
+
+    // 2. Europe Multi-country
+    const euPackage = sortedByPrice.find(p =>
+        !usedSkus.has(p.sku) &&
+        (p.countries.includes("EU") || (p.countries.includes("FR") && p.countries.length > 5))
+    );
+    if (euPackage) {
+        featuredPackages.push(euPackage);
+        usedSkus.add(euPackage.sku);
     }
 
-    // 4. Fallback filler
-    if (featuredPackages.length < 6) {
-        const fillers = sortedByPop.filter(p =>
-            !usedSkus.has(p.sku) &&
-            popularCodes.some(c => p.countries.includes(c))
-        ).slice(0, 6 - featuredPackages.length);
+    // 3. Top Single Destinations
+    ["TH", "US", "SG", "VN", "TR", "AE", "HK"].forEach(code => {
+        if (featuredPackages.length < 10) addPackage(code);
+    });
+
+    // 4. Fill to 10 with any remaining popular items
+    if (featuredPackages.length < 10) {
+        const fillers = sortedByPrice.filter(p => !usedSkus.has(p.sku) && !p.isTopUp).slice(0, 10 - featuredPackages.length);
         featuredPackages.push(...fillers);
     }
 
