@@ -179,8 +179,8 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                 <div className="relative group cursor-grab active:cursor-grabbing">
                     {/* Premium Glow Effect */}
                     <div className={cn(
-                        "absolute inset-0 rounded-2xl blur-xl transition-colors animate-pulse",
-                        pathname === "/ai" ? "bg-indigo-500/30" : "bg-red-500/30"
+                        "absolute inset-0 rounded-full blur-xl transition-colors animate-pulse",
+                        pathname === "/ai" ? "bg-indigo-500/20" : "bg-red-500/20"
                     )} />
 
                     <motion.button
@@ -190,10 +190,8 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsOpen(true)}
                         className={cn(
-                            "relative w-16 h-16 rounded-2xl shadow-2xl overflow-hidden border-2 border-white backdrop-blur-md transition-all",
-                            pathname === "/ai"
-                                ? "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                                : "bg-gradient-to-br from-red-600 via-red-500 to-rose-400"
+                            "relative w-16 h-16 rounded-full shadow-2xl overflow-hidden border-2 border-white bg-white backdrop-blur-md transition-all",
+                            pathname === "/ai" ? "ring-2 ring-indigo-50/50" : "ring-2 ring-red-50/50"
                         )}
                     >
                         <Image
@@ -204,7 +202,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         />
 
                         {/* Status Dot */}
-                        <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm z-10" />
+                        <div className="absolute top-1.5 right-1.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm z-10" />
                     </motion.button>
                 </div>
             </motion.div>

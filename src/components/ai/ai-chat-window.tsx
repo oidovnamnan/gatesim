@@ -212,8 +212,7 @@ export function AIChatWindow({
                 <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
                     <div className="flex items-center gap-3">
                         <div className={cn(
-                            "w-12 h-12 rounded-2xl overflow-hidden shadow-md relative",
-                            mode === "sales" ? "border-red-100" : "border-indigo-100"
+                            "w-12 h-12 rounded-full overflow-hidden shadow-sm relative border border-slate-100 bg-white",
                         )}>
                             <Image
                                 src={mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png"}
@@ -231,32 +230,34 @@ export function AIChatWindow({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={onClose}
-                        className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center transition-all hover:bg-slate-200 text-slate-600"
+                        className="rounded-xl hover:bg-slate-100 transition-colors"
                     >
-                        <X className="h-5 w-5" />
-                    </button>
+                        <X className="h-5 w-5 text-slate-500" />
+                    </Button>
                 </div>
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-slate-50/50">
-                {messages.map((msg) => (
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar scrolling-touch">
+                {messages.map((msg, idx) => (
                     <motion.div
                         key={msg.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={cn(
-                            "flex gap-3",
-                            msg.role === "user" && "flex-row-reverse"
+                            "flex items-start gap-3",
+                            msg.role === "user" ? "flex-row-reverse" : "flex-row"
                         )}
                     >
                         <div
                             className={cn(
-                                "w-9 h-9 rounded-xl flex-shrink-0 relative overflow-hidden shadow-sm",
+                                "w-9 h-9 rounded-full flex-shrink-0 relative overflow-hidden shadow-sm",
                                 msg.role === "assistant"
-                                    ? "bg-white border-2 border-white"
+                                    ? "bg-white border border-slate-100"
                                     : "gradient-primary"
                             )}
                         >
