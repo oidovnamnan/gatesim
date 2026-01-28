@@ -1,0 +1,103 @@
+[
+    {
+        "id": "staff_1",
+        "name": "Ану",
+        "image": "/assets/ai/staff/staff_1.png",
+        "roles": [
+            "sales"
+        ],
+        "isActive": true,
+        "isDefaultSales": true,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_2",
+        "name": "Мишээл",
+        "image": "/assets/ai/staff/staff_2.png",
+        "roles": [
+            "travel"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": true
+    },
+    {
+        "id": "staff_3",
+        "name": "Солонго",
+        "image": "/assets/ai/staff/staff_3.png",
+        "roles": [
+            "travel",
+            "sales"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_4",
+        "name": "Болор",
+        "image": "/assets/ai/staff/staff_4.png",
+        "roles": [
+            "sales"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_5",
+        "name": "Оюун",
+        "image": "/assets/ai/staff/staff_5.png",
+        "roles": [
+            "sales"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_6",
+        "name": "Бодлоо",
+        "image": "/assets/ai/staff/staff_6.png",
+        "roles": [
+            "travel"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_7",
+        "name": "Энхлэн",
+        "image": "/assets/ai/staff/staff_7.png",
+        "roles": [
+            "travel"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_8",
+        "name": "Саруул",
+        "image": "/assets/ai/staff/staff_8.png",
+        "roles": [
+            "travel",
+            "sales"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    },
+    {
+        "id": "staff_9",
+        "name": "Наран",
+        "image": "/assets/ai/staff/staff_9.png",
+        "roles": [
+            "sales"
+        ],
+        "isActive": true,
+        "isDefaultSales": false,
+        "isDefaultTravel": false
+    }
+]

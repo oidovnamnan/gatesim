@@ -34,6 +34,7 @@ interface AIChatWindowProps {
     className?: string;
     hideHeader?: boolean;
     quickActions?: { label: string; value: string; icon?: React.ReactNode }[];
+    activeStaff?: { name: string; image: string } | null;
 }
 
 export function AIChatWindow({
@@ -47,7 +48,8 @@ export function AIChatWindow({
     tripContext = null,
     className,
     hideHeader = false,
-    quickActions
+    quickActions,
+    activeStaff
 }: AIChatWindowProps) {
     const { data: session } = useSession();
     const { t, language } = useTranslation();
@@ -215,15 +217,15 @@ export function AIChatWindow({
                             "w-12 h-12 rounded-full overflow-hidden shadow-sm relative border border-slate-100 bg-white",
                         )}>
                             <Image
-                                src={mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png"}
-                                alt="AI Avatar"
+                                src={activeStaff?.image || (mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png")}
+                                alt={activeStaff?.name || "AI Avatar"}
                                 fill
                                 className="object-cover"
                             />
                         </div>
                         <div>
                             <h3 className="font-black text-slate-900 leading-none mb-1">
-                                {mode === "sales" ? "Симний мэргэжилтэн" : "Аяллын туслах"}
+                                {activeStaff?.name || (mode === "sales" ? "Симний мэргэжилтэн" : "Аяллын туслах")}
                             </h3>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                                 {mode === "sales" ? "Sim Card Advisor" : "Smart Travel Guide"}
@@ -263,7 +265,7 @@ export function AIChatWindow({
                         >
                             {msg.role === "assistant" ? (
                                 <Image
-                                    src={mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png"}
+                                    src={activeStaff?.image || (mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png")}
                                     alt="Assistant"
                                     fill
                                     className="object-cover"

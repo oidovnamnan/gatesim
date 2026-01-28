@@ -58,6 +58,12 @@ const sidebarItems = [
         resource: 'ai' as const,
     },
     {
+        title: "AI Staff",
+        href: "/admin/ai-staff",
+        icon: Users,
+        resource: 'ai' as const,
+    },
+    {
         title: "Content Studio",
         href: "/admin/content",
         icon: ImagePlus,

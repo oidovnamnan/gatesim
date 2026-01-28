@@ -9,6 +9,9 @@ import { useTranslation } from "@/providers/language-provider";
 import { AIMessage, installationGuides } from "@/lib/ai-assistant";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { collection, query, where, getDocs, limit, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Badge } from "@/components/ui/badge";
 
 // Lazy load the Heavy Window Component
 const AIChatWindow = dynamic(() => import("./ai-chat-window").then(mod => mod.AIChatWindow), {
@@ -28,6 +31,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<AIMessage[]>([]);
+    const [activeStaff, setActiveStaff] = useState<{ name: string; image: string } | null>(null);
 
     // Derive mode from pathname
     const getModeFromPath = (path: string | null) => {
@@ -151,6 +155,34 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         }
     }, [searchParams, router]);
 
+    // Fetch active staff profile
+    useEffect(() => {
+        const field = pathname === "/ai" ? "isDefaultTravel" : "isDefaultSales";
+        const q = query(
+            collection(db, "aiStaff"),
+            where(field, "==", true),
+            limit(1)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                const data = snapshot.docs[0].data();
+                setActiveStaff({
+                    name: data.name,
+                    image: data.image
+                });
+            } else {
+                // Fallback to defaults
+                setActiveStaff({
+                    name: pathname === "/ai" ? "Мишээл" : "Ану",
+                    image: pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png"
+                });
+            }
+        });
+
+        return () => unsubscribe();
+    }, [pathname]);
+
     // Body scroll lock
     useEffect(() => {
         if (isOpen) {
@@ -195,8 +227,8 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         )}
                     >
                         <Image
-                            src={pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png"}
-                            alt="AI Assistant"
+                            src={activeStaff?.image || (pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png")}
+                            alt={activeStaff?.name || "AI Assistant"}
                             fill
                             className="object-cover"
                         />
@@ -218,6 +250,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         country={country}
                         isPremium={isPremium}
                         mode={currentMode}
+                        activeStaff={activeStaff}
                     />
                 )}
             </AnimatePresence>
