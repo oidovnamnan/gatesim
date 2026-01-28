@@ -12,19 +12,19 @@ interface SimCardFlagProps {
 
 const sizeConfig = {
     sm: {
-        width: 80, height: 50, // Standard small
-        chipSize: 12, chipX: 58, chipY: 18,
-        outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
+        width: 64, height: 40, // Reduced from 80x50
+        chipSize: 10, chipX: 46, chipY: 14,
+        outlinePadding: 1.5, outlineRadius: 2, outlineWidth: 0.8
     },
     md: {
-        width: 120, height: 75, // Standard medium (3:2 approx)
-        chipSize: 18, chipX: 95, chipY: 28,
-        outlinePadding: 2, outlineRadius: 4, outlineWidth: 1
+        width: 90, height: 56, // Reduced from 120x75
+        chipSize: 14, chipX: 70, chipY: 20,
+        outlinePadding: 2, outlineRadius: 3, outlineWidth: 1
     },
     lg: {
-        width: 180, height: 112,
-        chipSize: 32, chipX: 145, chipY: 42,
-        outlinePadding: 3, outlineRadius: 6, outlineWidth: 1.5
+        width: 150, height: 94, // Reduced from 180x112
+        chipSize: 26, chipX: 120, chipY: 34,
+        outlinePadding: 3, outlineRadius: 5, outlineWidth: 1.5
     },
 };
 

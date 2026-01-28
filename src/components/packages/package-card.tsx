@@ -278,7 +278,7 @@ export function PackageCard({
                             <SimCardFlag
                                 countryCode={primaryCountry}
                                 size="md"
-                                className="mt-3"
+                                className="mt-6"
                             />
                             <div className="flex-1 min-w-0">
                                 <h3 className={cn(
