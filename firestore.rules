@@ -15,12 +15,13 @@ service cloud.firestore {
     function isAdmin() {
       // Hardcoded superadmins list matching the server-side list
       return isAuthenticated() && (
-        request.auth.token.email == 'admin@originals.mn' || 
-        request.auth.token.email == 'oidovnamnan7@gmail.com' ||
-        request.auth.token.email == 'admin@gatesim.mn' ||
-        request.auth.token.email == 'suren@gatesim.mn' ||
-        request.auth.token.email == 'nsurenoidov@gmail.com' ||
-        request.auth.token.email == 'admin@gatesim.travel'
+        request.auth.token.email.lower() == 'admin@originals.mn' || 
+        request.auth.token.email.lower() == 'oidovnamnan7@gmail.com' ||
+        request.auth.token.email.lower() == 'admin@gatesim.mn' ||
+        request.auth.token.email.lower() == 'suren@gatesim.mn' ||
+        request.auth.token.email.lower() == 'nsurenoidov@gmail.com' ||
+        request.auth.token.email.lower() == 'admin@gatesim.travel' ||
+        request.auth.token.email.lower() == 'admin@gatesim.mn'
       );
     }
 

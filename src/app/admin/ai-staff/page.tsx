@@ -80,9 +80,13 @@ export default function AIStaffPage() {
             }
 
             await batch.commit();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error loading defaults:", error);
-            alert("Алдаа гарлаа.");
+            if (error.code === 'permission-denied') {
+                alert("Хандах эрх хүрэлцэхгүй байна. Firebase Rules-ээ шинэчилнэ үү эсвэл түр хүлээнэ үү.");
+            } else {
+                alert("Алдаа гарлаа: " + error.message);
+            }
         } finally {
             setIsSaving(false);
         }
