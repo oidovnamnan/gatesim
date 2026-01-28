@@ -3,88 +3,89 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // =====================================================
-    // TEMPORARY PERMISSIVE RULES
-    // 
-    // These rules are designed to work WITHOUT Firebase Auth
-    // because the Custom Token flow is broken due to missing
-    // Admin SDK credentials (org policy blocks key creation).
-    //
-    // Security is enforced at the API layer (NextAuth sessions).
-    // 
-    // TODO: Once Admin SDK credentials are available, switch
-    // back to the secure rules in firestore.rules.secure
-    // =====================================================
+    // Auth helpers
+    function isAuthenticated() {
+      return request.auth != null;
+    }
     
-    // PRODUCTS - Public catalog, anyone can read
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      // Hardcoded superadmins list matching the server-side list
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@originals.mn' || 
+        request.auth.token.email == 'oidovnamnan7@gmail.com'
+      );
+    }
+
+    // PRODUCTS - Public reading, admin writing
     match /products/{productId} {
       allow read: if true;
-      allow write: if false; // Only server can write
+      allow write: if isAdmin();
     }
-    
-    // SYSTEM CONFIG - Public settings (AI config, etc)
+
+    // SYSTEM - Public reading, admin writing
     match /system/{docId} {
       allow read: if true;
-      allow write: if false; // Only server can write
+      allow write: if isAdmin();
     }
-    
-    // USERS - Allow authenticated session handling
-    // Security: API validates NextAuth session
+
+    // USERS - User can read/write their own profile
     match /users/{userId} {
-      allow read: if true;
-      allow create, update: if true;
-      allow delete: if false;
+      allow read, write: if isOwner(userId) || isAdmin();
     }
-    
-    // ORDERS - Core business data
-    // Security: API validates NextAuth session + user ownership
+
+    // ORDERS - User can read their own orders. Admin can do anything.
     match /orders/{orderId} {
-      allow read: if true;
-      allow create, update: if true;
-      allow delete: if false;
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
-    
-    // TRIPS - User trip planning
+
+    // TRIPS - User ownership
     match /trips/{tripId} {
-      allow read: if true;
-      allow create, update, delete: if true;
+      allow read, write, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated();
     }
-    
-    // SESSIONS - Presence analytics
+
+    // SESSIONS - Presence analytics (Everyone can create/write their own, Admin can read)
     match /sessions/{sessionId} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow write, create, delete: if true; // Analytics usually doesn't require hard auth
     }
-    
-    // PUSH_SUBSCRIPTIONS - Notification tokens
+
+    // PUSH_SUBSCRIPTIONS - User ownership
     match /push_subscriptions/{userId} {
-      allow read, write: if true;
+      allow read, write: if isOwner(userId) || isAdmin();
     }
-    
-    // ADMIN_PUSH_SUBSCRIPTIONS
+
+    // ADMIN_PUSH_SUBSCRIPTIONS - Admin only
     match /admin_push_subscriptions/{userId} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
     }
-    
-    // AI_HUB - Content studio items
+
+    // AI_HUB - Admin only
     match /ai_hub/{docId} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
     }
-    
-    // AI_CONFIG
+
+    // AI_CONFIG - Public read, Admin write
     match /ai_config/{docId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isAdmin();
     }
-    
-    // ADMIN_NOTIFICATIONS
+
+    // ADMIN_NOTIFICATIONS - Admin only
     match /admin_notifications/{notifId} {
-      allow read, write: if true;
+      allow read, write: if isAdmin();
     }
-    
-    // Default: Allow read for any other collections
-    // This ensures the app doesn't break
+
+    // Global default: Deny all
     match /{document=**} {
-      allow read: if true;
+      allow read: if isAdmin();
       allow write: if false;
     }
   }
