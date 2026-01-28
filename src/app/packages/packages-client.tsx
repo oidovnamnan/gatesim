@@ -265,47 +265,20 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                 "sticky top-0 z-30 bg-background/80 backdrop-blur-xl px-4 border-b border-border shadow-sm",
                 "py-3 space-y-3"
             )}>
-                {/* Package Type Switcher */}
-                <div className="flex p-1 bg-muted rounded-xl gap-1">
-                    <button
-                        onClick={() => setPackageType("new")}
-                        className={cn(
-                            "flex-1 py-1.5 px-3 rounded-[10px] text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5",
-                            packageType === "new"
-                                ? "bg-white text-red-600 shadow-sm"
-                                : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        <span>✨</span> {t("newEsim")}
-                    </button>
-                    <button
-                        onClick={() => setPackageType("topup")}
-                        className={cn(
-                            "flex-1 py-1.5 px-3 rounded-[10px] text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5",
-                            packageType === "topup"
-                                ? "bg-white text-amber-600 shadow-sm"
-                                : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        <span>🔄</span> {t("topUp")}
-                    </button>
+                {/* Search bar - Always visible at top */}
+                <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                        <input
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={t("searchPackagesPlaceholder")}
+                            className="w-full pl-4 pr-10 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-red-500/20 placeholder:text-muted-foreground transition-all"
+                        />
+                        <Search className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                    </div>
                 </div>
 
-                {/* Search bar - only show when no filters applied */}
-                {!selectedCountry && !selectedDuration && (
-                    <div className="flex gap-2">
-                        <div className="flex-1 relative">
-                            <input
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={t("searchPackagesPlaceholder")}
-                                className="w-full pl-4 pr-10 py-2.5 bg-muted border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-red-500/20 placeholder:text-muted-foreground"
-                            />
-                            <Filter className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                        </div>
-                    </div>
-                )}
-
+                {/* Filters Row */}
                 <div className="grid grid-cols-2 gap-2">
                     <Select
                         value={selectedDuration || "all"}
@@ -369,10 +342,38 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                     <div className="absolute right-10 bottom-0 w-16 h-16 bg-white/10 rounded-full blur-xl" />
                 </div>
 
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-foreground font-bold pl-1">
-                        {t("packagesFound").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
-                    </p>
+                <div className="space-y-4">
+                    {/* Package Type Switcher - Moved here above the list */}
+                    <div className="flex p-1 bg-muted/50 border border-border backdrop-blur-sm rounded-xl gap-1 shadow-sm">
+                        <button
+                            onClick={() => setPackageType("new")}
+                            className={cn(
+                                "flex-1 py-1.5 px-3 rounded-[10px] text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5",
+                                packageType === "new"
+                                    ? "bg-white text-red-600 shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <span>✨</span> {t("newEsim")}
+                        </button>
+                        <button
+                            onClick={() => setPackageType("topup")}
+                            className={cn(
+                                "flex-1 py-1.5 px-3 rounded-[10px] text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5",
+                                packageType === "topup"
+                                    ? "bg-white text-amber-600 shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <span>🔄</span> {t("topUp")}
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-foreground font-bold pl-1">
+                            {t("packagesFound").replace("{count}", `${displayedPackages.length} / ${filteredPackages.length}`)}
+                        </p>
+                    </div>
                 </div>
 
                 <AnimatePresence mode="popLayout">
