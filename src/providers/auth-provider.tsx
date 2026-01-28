@@ -60,7 +60,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 });
                 setLoading(false);
 
-                // --- KEY CHANGE: Sign in to Firebase with Custom Token ---
+                // --- Firebase Custom Token Sync (Optional) ---
+                // Skip if Admin SDK is not configured (missing FIREBASE_PRIVATE_KEY)
+                // This prevents slow loading and 500 errors on production
+                const SKIP_FIREBASE_SYNC = process.env.NEXT_PUBLIC_SKIP_FIREBASE_SYNC === 'true';
+
+                if (SKIP_FIREBASE_SYNC) {
+                    console.log("AuthProvider: Firebase sync disabled via NEXT_PUBLIC_SKIP_FIREBASE_SYNC");
+                    return;
+                }
+
                 try {
                     // Check if already signed in to Firebase as the same user
                     const currentUser = auth.currentUser;
@@ -70,12 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     }
 
                     console.log("AuthProvider: Fetching Custom Token...");
-                    const res = await fetch("/api/auth/firebase");
+
+                    // Add timeout to prevent slow loading
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+                    const res = await fetch("/api/auth/firebase", { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
                     if (!res.ok) {
-                        const errData = await res.json();
-                        console.warn("AuthProvider: Failed to fetch token", errData);
-                        // If server is missing keys, we can't do much. 
-                        // But we still show the UI as "logged in" via NextAuth.
+                        console.warn("AuthProvider: Custom Token API unavailable, continuing without Firebase Auth");
                         return;
                     }
 
@@ -85,8 +98,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         await signInWithCustomToken(auth, token);
                         console.log("AuthProvider: ✅ Signed in with Custom Token");
                     }
-                } catch (error) {
-                    console.error("AuthProvider: Custom Token Sync Error", error);
+                } catch (error: any) {
+                    if (error.name === 'AbortError') {
+                        console.warn("AuthProvider: Custom Token fetch timed out, continuing without Firebase Auth");
+                    } else {
+                        console.warn("AuthProvider: Custom Token unavailable, continuing with NextAuth only");
+                    }
                 }
                 return;
             }

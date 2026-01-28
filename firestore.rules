@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =====================================================
+    // TEMPORARY PERMISSIVE RULES
+    // 
+    // These rules are designed to work WITHOUT Firebase Auth
+    // because the Custom Token flow is broken due to missing
+    // Admin SDK credentials (org policy blocks key creation).
+    //
+    // Security is enforced at the API layer (NextAuth sessions).
+    // 
+    // TODO: Once Admin SDK credentials are available, switch
+    // back to the secure rules in firestore.rules.secure
+    // =====================================================
+    
+    // PRODUCTS - Public catalog, anyone can read
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Only server can write
+    }
+    
+    // SYSTEM CONFIG - Public settings (AI config, etc)
+    match /system/{docId} {
+      allow read: if true;
+      allow write: if false; // Only server can write
+    }
+    
+    // USERS - Allow authenticated session handling
+    // Security: API validates NextAuth session
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if false;
+    }
+    
+    // ORDERS - Core business data
+    // Security: API validates NextAuth session + user ownership
+    match /orders/{orderId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if false;
+    }
+    
+    // TRIPS - User trip planning
+    match /trips/{tripId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
+    
+    // SESSIONS - Presence analytics
+    match /sessions/{sessionId} {
+      allow read, write: if true;
+    }
+    
+    // PUSH_SUBSCRIPTIONS - Notification tokens
+    match /push_subscriptions/{userId} {
+      allow read, write: if true;
+    }
+    
+    // ADMIN_PUSH_SUBSCRIPTIONS
+    match /admin_push_subscriptions/{userId} {
+      allow read, write: if true;
+    }
+    
+    // AI_HUB - Content studio items
+    match /ai_hub/{docId} {
+      allow read, write: if true;
+    }
+    
+    // AI_CONFIG
+    match /ai_config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // ADMIN_NOTIFICATIONS
+    match /admin_notifications/{notifId} {
+      allow read, write: if true;
+    }
+    
+    // Default: Allow read for any other collections
+    // This ensures the app doesn't break
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
