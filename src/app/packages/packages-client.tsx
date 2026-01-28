@@ -242,6 +242,13 @@ export default function PackagesClient({ initialPackages }: PackagesClientProps)
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">{t("allCountries")}</SelectItem>
+                            {/* If selected country isn't in popular list, add it dynamically */}
+                            {selectedCountry && !popularCountries.find(c => c.code === selectedCountry) && (
+                                <SelectItem value={selectedCountry}>
+                                    <span className="mr-2">📍</span>
+                                    {t(`country_${selectedCountry}`)}
+                                </SelectItem>
+                            )}
                             {popularCountries.map((country) => (
                                 <SelectItem key={country.code} value={country.code}>
                                     <span className="mr-2">{country.flag}</span>

@@ -181,6 +181,13 @@ export function CountryPackagesList({ packages, countryCode }: Props) {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">{t("allCountries")}</SelectItem>
+                            {/* Special case: If current country is not in popular list, add it */}
+                            {!popularCountries.find(c => c.code === countryCode) && countryCode && (
+                                <SelectItem value={countryCode}>
+                                    <span className="mr-2">📍</span>
+                                    {t(`country_${countryCode}`)}
+                                </SelectItem>
+                            )}
                             {popularCountries.map((country) => (
                                 <SelectItem key={country.code} value={country.code}>
                                     <span className="mr-2">{country.flag}</span>
