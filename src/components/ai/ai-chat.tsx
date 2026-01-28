@@ -2,12 +2,13 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Bot, Zap } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslation } from "@/providers/language-provider";
 import { AIMessage, installationGuides } from "@/lib/ai-assistant";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 // Lazy load the Heavy Window Component
 const AIChatWindow = dynamic(() => import("./ai-chat-window").then(mod => mod.AIChatWindow), {
@@ -177,7 +178,10 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
             >
                 <div className="relative group cursor-grab active:cursor-grabbing">
                     {/* Premium Glow Effect */}
-                    <div className="absolute inset-0 bg-red-500/30 rounded-full blur-xl group-hover:bg-red-500/50 transition-colors animate-pulse" />
+                    <div className={cn(
+                        "absolute inset-0 rounded-2xl blur-xl transition-colors animate-pulse",
+                        pathname === "/ai" ? "bg-indigo-500/30" : "bg-red-500/30"
+                    )} />
 
                     <motion.button
                         initial={{ scale: 0, rotate: -45 }}
@@ -186,20 +190,21 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsOpen(true)}
                         className={cn(
-                            "relative w-16 h-16 rounded-2xl shadow-2xl flex items-center justify-center border-2 border-white/50 backdrop-blur-md transition-all",
+                            "relative w-16 h-16 rounded-2xl shadow-2xl overflow-hidden border-2 border-white backdrop-blur-md transition-all",
                             pathname === "/ai"
                                 ? "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                                 : "bg-gradient-to-br from-red-600 via-red-500 to-rose-400"
                         )}
                     >
-                        {pathname === "/ai" ? (
-                            <Bot className="h-8 w-8 text-white stroke-[2.5]" />
-                        ) : (
-                            <Zap className="h-8 w-8 text-white stroke-[2.5]" />
-                        )}
+                        <Image
+                            src={pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png"}
+                            alt="AI Assistant"
+                            fill
+                            className="object-cover"
+                        />
 
                         {/* Status Dot */}
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+                        <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm z-10" />
                     </motion.button>
                 </div>
             </motion.div>

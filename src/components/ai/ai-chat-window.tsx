@@ -14,6 +14,7 @@ import {
     MapPin,
     Zap
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -211,17 +212,18 @@ export function AIChatWindow({
                 <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
                     <div className="flex items-center gap-3">
                         <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center shadow-md",
-                            mode === "sales" ? "bg-gradient-to-br from-red-600 to-rose-400 shadow-red-500/20" : "bg-gradient-to-tl from-indigo-600 to-purple-500 shadow-indigo-500/20"
+                            "w-12 h-12 rounded-2xl overflow-hidden shadow-md relative",
+                            mode === "sales" ? "border-red-100" : "border-indigo-100"
                         )}>
-                            {mode === "sales" ? (
-                                <Zap className="h-5 w-5 text-white" />
-                            ) : (
-                                <Bot className="h-5 w-5 text-white" />
-                            )}
+                            <Image
+                                src={mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png"}
+                                alt="AI Avatar"
+                                fill
+                                className="object-cover"
+                            />
                         </div>
                         <div>
-                            <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                            <h3 className="font-black text-slate-900 leading-none mb-1">
                                 {mode === "sales" ? "Симний мэргэжилтэн" : "Аяллын туслах"}
                             </h3>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
@@ -252,16 +254,21 @@ export function AIChatWindow({
                     >
                         <div
                             className={cn(
-                                "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm",
+                                "w-9 h-9 rounded-xl flex-shrink-0 relative overflow-hidden shadow-sm",
                                 msg.role === "assistant"
-                                    ? "bg-white border border-slate-200"
+                                    ? "bg-white border-2 border-white"
                                     : "gradient-primary"
                             )}
                         >
                             {msg.role === "assistant" ? (
-                                <Sparkles className="h-4 w-4 text-red-500" />
+                                <Image
+                                    src={mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png"}
+                                    alt="Assistant"
+                                    fill
+                                    className="object-cover"
+                                />
                             ) : (
-                                <User className="h-4 w-4 text-white" />
+                                <User className="h-5 w-5 text-white" />
                             )}
                         </div>
                         <div
