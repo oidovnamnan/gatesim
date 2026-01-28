@@ -51,17 +51,24 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
     const currentMode = getModeFromPath(pathname);
 
-    const greetingVariants = {
-        sales: [
-            "Сайн байна уу! Би танд тохирох eSIM багц олоход туслах уу? 📱",
-            "GateSIM-д тавтай морил! Таны утас eSIM дэмждэг үү? 🌐",
-            "Аялалдаа бэлэн үү? Хамгийн хурдан дата багцыг хамтдаа ольё! ✨"
-        ],
-        travel: [
-            "Сайн байна уу! Би таны аялалыг хөнгөвчлөх AI туслах байна. 🗺️",
-            "Аялалын төлөвлөгөө, орчуулга эсвэл замын мэдээлэл хэрэгтэй юу? ✈️",
-            "Хаашаа аялах гэж байна? Би танд маршрут гаргахад туслах уу? 📍"
-        ]
+    const getGreetings = (name: string, isTravel: boolean) => {
+        const sales = [
+            `Сайн байна уу! Намайг ${name} гэдэг. Гадаадад явахдаа датаны асуудалгүй аялахад тань би туслах уу? 📱`,
+            `Сайн уу? ${name} байна. GateSIM-д тавтай морил! Танд тохирох eSIM багцыг хамтдаа ольё. 🌟`,
+            `Сайн байна уу? ${name} байна. Танд өнөөдөр ямар улсын eSIM хэрэгтэй байна, би шалгаад өгөх үү? ✨`,
+            `Сайн уу? ${name} байна. Би танд хамгийн хямд бөгөөд хурдан дата багцуудыг санал болгож чадна шүү. 🌐`,
+            `Сайн байна уу! ${name} байна. Танд үйлчлэхдээ баяртай байна. Таны утас eSIM дэмждэг үү? 😊`
+        ];
+
+        const travel = [
+            `Сайн байна уу! Би таны аяллын туслах ${name} байна. Орчуулга эсвэл замын мэдээлэл хэрэгтэй юу? 🗺️`,
+            `Сайн уу? ${name} байна. Таны аяллыг илүү сонирхолтой болгох зөвлөгөөнүүд надад байна шүү. ✈️`,
+            `Хаашаа аялах гэж байна? Намайг ${name} гэдэг, би таны аяллын бүх асуултад хариулахад бэлэн байна. 📍`,
+            `Сайн уу, аялагч аа! ${name} байна. Танд өнөөдөр юугаар туслах вэ? 🌍`,
+            `Сайн байна уу? GateSIM-ийн аяллын зөвлөх ${name} байна. Танд туслахдаа үргэлж баяртай байх болно! ✨`
+        ];
+
+        return isTravel ? travel : sales;
     };
 
     // Helper functions
@@ -95,8 +102,13 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         return "generic";
     }
 
-    // Initialize triggers
+    // Initialize welcome message when chat opens
     useEffect(() => {
+        if (!isOpen) return;
+
+        // If we already have messages, don't re-welcome
+        if (messages.length > 0) return;
+
         const hasGreeted = sessionStorage.getItem("ai_greeted");
         if (hasGreeted) return;
 
@@ -107,9 +119,9 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         let initialMessage = "";
         if (!compatible) {
             initialMessage = t("aiCompatibilityWarning").replace("{device}", device);
-            setIsOpen(true);
         } else {
-            const variants = isAiHub ? greetingVariants.travel : greetingVariants.sales;
+            const name = activeStaff?.name || (isAiHub ? "Мишээл" : "Ану");
+            const variants = getGreetings(name, isAiHub);
             initialMessage = variants[Math.floor(Math.random() * variants.length)];
         }
 
@@ -123,7 +135,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         ]);
 
         sessionStorage.setItem("ai_greeted", "true");
-    }, [pathname]); // Re-greet on page switch if not greeted yet (or refresh logic)
+    }, [isOpen, activeStaff, pathname]);
 
     // Handle URL parameters
     useEffect(() => {
