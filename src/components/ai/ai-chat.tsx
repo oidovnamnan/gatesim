@@ -184,10 +184,10 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                     image: data.image
                 });
             } else {
-                // Fallback to defaults
+                // Fallback to defaults (Anu and Misheel - Mongolian staff)
                 setActiveStaff({
                     name: pathname === "/ai" ? "Мишээл" : "Ану",
-                    image: pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png"
+                    image: pathname === "/ai" ? "/assets/ai/staff/staff_2.png" : "/assets/ai/staff/staff_1.png"
                 });
             }
         });
@@ -275,7 +275,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
                             className="relative w-full h-full"
                         >
                             <Image
-                                src={activeStaff?.image || (pathname === "/ai" ? "/assets/ai/travel-guide.png" : "/assets/ai/sim-expert.png")}
+                                src={activeStaff?.image || (pathname === "/ai" ? "/assets/ai/staff/staff_2.png" : "/assets/ai/staff/staff_1.png")}
                                 alt={activeStaff?.name || "AI Assistant"}
                                 fill
                                 className="object-cover"

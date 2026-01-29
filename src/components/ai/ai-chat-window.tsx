@@ -217,7 +217,7 @@ export function AIChatWindow({
                             "w-12 h-12 rounded-full overflow-hidden shadow-sm relative border border-slate-100 bg-white",
                         )}>
                             <Image
-                                src={activeStaff?.image || (mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png")}
+                                src={activeStaff?.image || (mode === "sales" ? "/assets/ai/staff/staff_1.png" : "/assets/ai/staff/staff_2.png")}
                                 alt={activeStaff?.name || "AI Avatar"}
                                 fill
                                 className="object-cover"
@@ -225,7 +225,7 @@ export function AIChatWindow({
                         </div>
                         <div>
                             <h3 className="font-black text-slate-900 leading-none mb-1">
-                                {activeStaff?.name || (mode === "sales" ? "Симний мэргэжилтэн" : "Аяллын туслах")}
+                                {activeStaff?.name || (mode === "sales" ? "Ану" : "Мишээл")}
                             </h3>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                                 {mode === "sales" ? "Sim Card Advisor" : "Smart Travel Guide"}
@@ -265,7 +265,7 @@ export function AIChatWindow({
                         >
                             {msg.role === "assistant" ? (
                                 <Image
-                                    src={activeStaff?.image || (mode === "sales" ? "/assets/ai/sim-expert.png" : "/assets/ai/travel-guide.png")}
+                                    src={activeStaff?.image || (mode === "sales" ? "/assets/ai/staff/staff_1.png" : "/assets/ai/staff/staff_2.png")}
                                     alt="Assistant"
                                     fill
                                     className="object-cover"
