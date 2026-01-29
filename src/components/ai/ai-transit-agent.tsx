@@ -36,9 +36,7 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
         if (contextLoaded) return;
 
         const savedPlan = sessionStorage.getItem("gateSIM_activePlan");
-        let initialMsg = isMongolian
-            ? "Сайн байна уу? Би таны Нийтийн Тээврийн туслах байна. Та хаашаа явах вэ?"
-            : "Hello, I'm your Transit Assistant. Where would you like to go?";
+        let initialMsg = t("transitGreetingDefault");
 
         if (savedPlan) {
             try {
@@ -49,13 +47,9 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
                     : plan.data.days?.[0]?.activities?.map((a: any) => a.location).slice(0, 3);
 
                 if (locations && locations.length > 0) {
-                    initialMsg = isMongolian
-                        ? `Таны төлөвлөгөөнд байгаа "${locations[0]}" руу хүрэх замыг зааж өгөх үү?`
-                        : `Should I guide you to "${locations[0]}" from your itinerary?`;
+                    initialMsg = t("transitGreetingItinerary").replace("{location}", locations[0]);
                 } else if (plan.destination) {
-                    initialMsg = isMongolian
-                        ? `Таны "${plan.destination}" аяллын замд туслах уу?`
-                        : `Need help getting around in "${plan.destination}"?`;
+                    initialMsg = t("transitGreetingDestination").replace("{destination}", plan.destination);
                 }
             } catch (e) {
                 console.error("Error parsing plan for transit agent", e);
@@ -79,10 +73,10 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
                 <div>
                     <h1 className="text-2xl font-bold flex items-center gap-2">
                         <Bus className="w-6 h-6 text-blue-500" />
-                        {isMongolian ? "Нийтийн Тээврийн Хөтөч" : "Transit Guide"}
+                        {t("transitGuideTitle")}
                     </h1>
                     <p className="text-slate-500 text-sm">
-                        {isMongolian ? "Хамгийн дөт, хямд замыг олоорой" : "Find the fastest and cheapest routes"}
+                        {t("transitGuideSubtitle")}
                     </p>
                 </div>
             </div>
@@ -102,18 +96,18 @@ export function AITransitAgent({ className }: AITransitAgentProps) {
                     hideHeader={true}
                     quickActions={[
                         {
-                            label: isMongolian ? "Ойрхон буудал" : "Nearest Station",
-                            value: isMongolian ? "Хамгийн ойр автобусны буудал хаана байна?" : "Where is the nearest bus station?",
+                            label: t("nearestStationAction"),
+                            value: t("nearestStationQuery"),
                             icon: <MapPin className="w-3.5 h-3.5" />
                         },
                         {
-                            label: isMongolian ? "Эмнэлэг рүү" : "To Hospital",
-                            value: isMongolian ? "Хамгийн ойр эмнэлэг рүү яаж очих вэ?" : "How do I get to the nearest hospital?",
+                            label: t("toHospitalAction"),
+                            value: t("toHospitalQuery"),
                             icon: <Navigation className="w-3.5 h-3.5" />
                         },
                         {
-                            label: isMongolian ? "Метроны зураг" : "Subway Map",
-                            value: isMongolian ? "Метроны зураг харуулна уу" : "Show me the subway map",
+                            label: t("subwayMapAction"),
+                            value: t("subwayMapQuery"),
                             icon: <Train className="w-3.5 h-3.5" />
                         }
                     ]}

@@ -7,8 +7,7 @@ import Link from "next/link";
 import { useTranslation } from "@/providers/language-provider";
 
 export default function PosterPage() {
-    const { language } = useTranslation();
-    const isMongolian = language === "mn";
+    const { t } = useTranslation();
 
     return (
         <div className="min-h-screen pb-32 md:pb-8">
@@ -27,10 +26,10 @@ export default function PosterPage() {
                         </div>
                         <div>
                             <h1 className="font-bold text-lg">
-                                {isMongolian ? "Аялалын Дурсамж" : "Travel Memory"}
+                                {t("memoryArtTitle")}
                             </h1>
                             <p className="text-xs text-muted-foreground">
-                                {isMongolian ? "Зургаа постер болгох" : "Turn photo into poster"}
+                                {t("memoryArtSubtitle")}
                             </p>
                         </div>
                     </div>

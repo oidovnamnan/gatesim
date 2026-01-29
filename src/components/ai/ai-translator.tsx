@@ -35,9 +35,9 @@ const languages = [
 
 // Input modes
 const inputModes = [
-    { id: "text", icon: Type, label: "Текст", labelEn: "Text" },
-    { id: "voice", icon: Mic, label: "Дуу", labelEn: "Voice" },
-    { id: "camera", icon: Camera, label: "Камер", labelEn: "Camera" },
+    { id: "text", icon: Type, key: "translatorTextMode" },
+    { id: "voice", icon: Mic, key: "translatorVoiceMode" },
+    { id: "camera", icon: Camera, key: "translatorCameraMode" },
 ];
 
 interface AITranslatorProps {
@@ -45,9 +45,8 @@ interface AITranslatorProps {
 }
 
 export function AITranslator({ className }: AITranslatorProps) {
-    const { language: appLang } = useTranslation();
+    const { t, language: appLang } = useTranslation();
     const { error: toastError, info: toastInfo } = useToast();
-    const isMongolian = appLang === "mn";
 
     const [inputMode, setInputMode] = useState<"text" | "voice" | "camera">("text");
     const [sourceLang, setSourceLang] = useState("en");
@@ -91,8 +90,8 @@ export function AITranslator({ className }: AITranslatorProps) {
             if (data.success) {
                 setTranslatedText(data.translatedText);
             } else {
-                setTranslatedText("Translation failed");
-                toastError("Translation failed");
+                setTranslatedText(t("translationFailed"));
+                toastError(t("translationFailed"));
             }
         } catch (error) {
             console.error("Translation error:", error);
@@ -163,9 +162,9 @@ export function AITranslator({ className }: AITranslatorProps) {
         } catch (error: any) {
             console.error("Camera error:", error);
             if (error.name === 'NotAllowedError') {
-                toastError(isMongolian ? "Камерын эрх олгогдоогүй байна. Settings хэсгээс зөвшөөрнө үү." : "Camera permission denied. Please allow access in settings.");
+                toastError(appLang === "mn" ? "Камерын эрх олгогдоогүй байна. Settings хэсгээс зөвшөөрнө үү." : "Camera permission denied. Please allow access in settings.");
             } else {
-                toastError(isMongolian ? "Камер нээхзд алдаа гарлаа." : "Cannot access camera.");
+                toastError(appLang === "mn" ? "Камер нээхзд алдаа гарлаа." : "Cannot access camera.");
             }
         }
     };
@@ -257,7 +256,7 @@ export function AITranslator({ className }: AITranslatorProps) {
                             )}
                         >
                             <Icon className="w-4 h-4" />
-                            {isMongolian ? mode.label : mode.labelEn}
+                            {t(mode.key as any)}
                         </button>
                     );
                 })}
@@ -335,7 +334,7 @@ export function AITranslator({ className }: AITranslatorProps) {
             <Card className="p-4">
                 <div className="flex items-center justify-between mb-2">
                     <Badge variant="outline" className="text-xs">
-                        {languages.find(l => l.code === sourceLang)?.flag} {isMongolian ? "Оролт" : "Input"}
+                        {languages.find(l => l.code === sourceLang)?.flag} {t("translatorInputLabel")}
                     </Badge>
                     <div className="flex gap-2">
                         {inputMode === "voice" && (
@@ -360,7 +359,7 @@ export function AITranslator({ className }: AITranslatorProps) {
                 <textarea
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder={isMongolian ? "Орчуулах текстээ бичнэ үү..." : "Enter text to translate..."}
+                    placeholder={t("translatorPlaceholder")}
                     className="w-full h-32 bg-transparent resize-none focus:outline-none text-lg"
                 />
             </Card>
@@ -376,7 +375,7 @@ export function AITranslator({ className }: AITranslatorProps) {
                 ) : (
                     <Languages className="w-5 h-5 mr-2" />
                 )}
-                {isMongolian ? "Орчуулах" : "Translate"}
+                {t("translatorBtn")}
             </Button>
 
             {/* Output Area */}
@@ -388,7 +387,7 @@ export function AITranslator({ className }: AITranslatorProps) {
                     <Card className="p-4 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30">
                         <div className="flex items-center justify-between mb-2">
                             <Badge className="text-xs bg-purple-500">
-                                {languages.find(l => l.code === targetLang)?.flag} {isMongolian ? "Гаралт" : "Output"}
+                                {languages.find(l => l.code === targetLang)?.flag} {t("translatorOutputLabel")}
                             </Badge>
                             <div className="flex gap-2">
                                 <button

@@ -164,7 +164,7 @@ export function ExpenseScanner({ onSave, trigger, customCategories = [], onAddCa
             <Dialog open={createCategoryOpen} onOpenChange={setCreateCategoryOpen}>
                 <DialogContent className="bg-white/90 backdrop-blur-2xl border border-white/20 p-6 rounded-[32px] shadow-2xl max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="text-center font-black text-slate-900">New Category</DialogTitle>
+                        <DialogTitle className="text-center font-black text-slate-900">{t("newCategory")}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="flex items-center justify-center">
@@ -173,7 +173,7 @@ export function ExpenseScanner({ onSave, trigger, customCategories = [], onAddCa
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label className="uppercase text-[10px] font-black tracking-widest text-slate-400 pl-1">Name</Label>
+                            <Label className="uppercase text-[10px] font-black tracking-widest text-slate-400 pl-1">{t("categoryName")}</Label>
                             <Input
                                 placeholder="e.g. Gaming"
                                 className="h-12 bg-slate-50 border-slate-200 rounded-xl font-bold"
@@ -186,7 +186,7 @@ export function ExpenseScanner({ onSave, trigger, customCategories = [], onAddCa
                             onClick={handleCreateCategory}
                             disabled={!newCategoryName}
                         >
-                            Create Category
+                            {t("createCategory")}
                         </Button>
                     </div>
                 </DialogContent>
@@ -368,7 +368,7 @@ export function ExpenseScanner({ onSave, trigger, customCategories = [], onAddCa
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">Category</Label>
+                                    <Label className="text-[9px] text-slate-400 font-black uppercase tracking-widest pl-1">{t("adminRoles")}</Label>
                                     <Select
                                         value={formData.category}
                                         onValueChange={(v) => {

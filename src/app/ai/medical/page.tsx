@@ -7,8 +7,7 @@ import Link from "next/link";
 import { useTranslation } from "@/providers/language-provider";
 
 export default function MedicalPlannerPage() {
-    const { language } = useTranslation();
-    const isMongolian = language === "mn";
+    const { t } = useTranslation();
 
     return (
         <div className="min-h-screen pb-32 md:pb-8">
@@ -27,10 +26,10 @@ export default function MedicalPlannerPage() {
                         </div>
                         <div>
                             <h1 className="font-bold text-lg">
-                                {isMongolian ? "Эмчилгээний Аялал" : "Medical Travel"}
+                                {t("medicalTravelTitle")}
                             </h1>
                             <p className="text-xs text-muted-foreground">
-                                {isMongolian ? "Солонгос, Тайланд, Турк, Энэтхэг" : "Korea, Thailand, Turkey, India"}
+                                {t("medicalTravelSubtitle")}
                             </p>
                         </div>
                     </div>

@@ -46,8 +46,7 @@ interface TravelMemoryPosterProps {
 }
 
 export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
-    const { language } = useTranslation();
-    const isMongolian = language === "mn";
+    const { t, language } = useTranslation();
 
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [selectedFilter, setSelectedFilter] = useState("original");
@@ -119,7 +118,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                 if (!blob) return;
                 const file = new File([blob], "travel-memory.png", { type: "image/png" });
                 await navigator.share({
-                    title: isMongolian ? "Аялалын дурсамж" : "Travel Memory",
+                    title: t("memoryArtTitle"),
                     files: [file],
                 });
             });
@@ -247,10 +246,10 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                 <Upload className="w-8 h-8 text-white" />
                             </div>
                             <h3 className="font-bold text-lg mb-1">
-                                {isMongolian ? "Зураг хуулах" : "Upload Photo"}
+                                {t("uploadPhotoTitle")}
                             </h3>
                             <p className="text-xs text-muted-foreground">
-                                {isMongolian ? "Төхөөрөмжөөс сонгох" : "Choose from device"}
+                                {t("uploadPhotoDesc")}
                             </p>
                         </div>
 
@@ -266,10 +265,10 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                 <Camera className="w-8 h-8 text-white" />
                             </div>
                             <h3 className="font-bold text-lg mb-1">
-                                {isMongolian ? "Зураг дарах" : "Take Photo"}
+                                {t("takePhotoTitle")}
                             </h3>
                             <p className="text-xs text-muted-foreground">
-                                {isMongolian ? "Камер нээх" : "Open camera"}
+                                {t("takePhotoDesc")}
                             </p>
                         </div>
                     </div>
@@ -334,7 +333,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                         ) : (
                             <Sparkles className="w-5 h-5 mr-2" />
                         )}
-                        {isMongolian ? "AI-р сайжруулах" : "AI Enhance"}
+                        {t("aiEnhanceBtn")}
                         {enhancedImage && <Check className="w-4 h-4 ml-2" />}
                     </Button>
 
@@ -342,7 +341,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                     <div>
                         <h3 className="font-bold mb-3 flex items-center gap-2">
                             <Palette className="w-4 h-4" />
-                            {isMongolian ? "Шүүлтүүр" : "Filter"}
+                            {t("filterLabel")}
                         </h3>
                         <div className="flex gap-2 overflow-x-auto pb-2">
                             {filterPresets.map((filter) => (
@@ -359,7 +358,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                             : "bg-muted text-muted-foreground"
                                     )}
                                 >
-                                    {isMongolian ? filter.name : filter.nameEn}
+                                    {language === "mn" ? filter.name : filter.nameEn}
                                 </button>
                             ))}
                         </div>
@@ -369,7 +368,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                     <div className="space-y-3">
                         <h3 className="font-bold flex items-center gap-2">
                             <Type className="w-4 h-4" />
-                            {isMongolian ? "Текст нэмэх" : "Add Text"}
+                            {t("addTextTitle")}
                         </h3>
                         <input
                             type="text"
@@ -378,7 +377,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                 setOverlayText(e.target.value);
                                 setTimeout(renderCanvas, 100);
                             }}
-                            placeholder={isMongolian ? "Гарчиг..." : "Title..."}
+                            placeholder={t("titlePlaceholder")}
                             className="w-full px-4 py-3 rounded-xl border bg-background"
                         />
                         <div className="grid grid-cols-2 gap-3">
@@ -389,7 +388,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                     setLocationText(e.target.value);
                                     setTimeout(renderCanvas, 100);
                                 }}
-                                placeholder={isMongolian ? "📍 Байршил" : "📍 Location"}
+                                placeholder={t("locationPlaceholder")}
                                 className="px-4 py-3 rounded-xl border bg-background"
                             />
                             <input
@@ -399,7 +398,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                     setDateText(e.target.value);
                                     setTimeout(renderCanvas, 100);
                                 }}
-                                placeholder={isMongolian ? "📅 Огноо" : "📅 Date"}
+                                placeholder={t("datePlaceholder")}
                                 className="px-4 py-3 rounded-xl border bg-background"
                             />
                         </div>
@@ -420,7 +419,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                                             : "bg-muted text-muted-foreground"
                                     )}
                                 >
-                                    {isMongolian ? pos.label : pos.labelEn}
+                                    {language === "mn" ? pos.label : pos.labelEn}
                                 </button>
                             ))}
                         </div>
@@ -433,7 +432,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                             className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500"
                         >
                             <Download className="w-5 h-5 mr-2" />
-                            {isMongolian ? "Татах" : "Download"}
+                            {t("downloadBtn")}
                         </Button>
                         <Button
                             onClick={sharePoster}
@@ -441,7 +440,7 @@ export function TravelMemoryPoster({ className }: TravelMemoryPosterProps) {
                             className="flex-1 py-5 rounded-2xl"
                         >
                             <Share2 className="w-5 h-5 mr-2" />
-                            {isMongolian ? "Хуваалцах" : "Share"}
+                            {t("shareBtn")}
                         </Button>
                     </div>
                 </>

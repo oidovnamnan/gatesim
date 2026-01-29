@@ -81,8 +81,7 @@ interface AIMedicalPlannerProps {
 }
 
 export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
-    const { language } = useTranslation();
-    const isMongolian = language === "mn";
+    const { t, language } = useTranslation();
 
     const [treatment, setTreatment] = useState("cosmetic");
     const [destination, setDestination] = useState("KR");
@@ -138,7 +137,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
             <Card className="p-4 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30">
                 <h3 className="font-bold mb-3 flex items-center gap-2">
                     <Heart className="w-5 h-5 text-green-500" />
-                    {isMongolian ? "Эмчилгээний Аялалын Улсууд" : "Medical Tourism Destinations"}
+                    {t("medicalDestinationsTitle")}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {medicalDestinations.map((dest) => (
@@ -153,7 +152,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                             )}
                         >
                             <span className="text-2xl">{dest.flag}</span>
-                            <p className="font-bold text-sm mt-1">{isMongolian ? dest.name : dest.nameEn}</p>
+                            <p className="font-bold text-sm mt-1">{language === "mn" ? dest.name : language === "en" ? dest.nameEn : dest.nameEn}</p>
                             <p className="text-xs opacity-70">{dest.specialty}</p>
                             <Badge variant={destination === dest.code ? "secondary" : "outline"} className="mt-1 text-xs">
                                 {dest.priceLevel}
@@ -166,7 +165,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
             {/* Treatment Type */}
             <div>
                 <h3 className="font-bold mb-3">
-                    {isMongolian ? "Эмчилгээний төрөл" : "Treatment Type"}
+                    {t("treatmentTypeTitle")}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                     {treatmentTypes.map((t) => {
@@ -183,7 +182,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                                 )}
                             >
                                 <Icon className="w-6 h-6" />
-                                {isMongolian ? t.label : t.labelEn}
+                                {language === "mn" ? t.label : t.labelEn}
                                 <span className="text-xs opacity-70">{t.desc}</span>
                             </button>
                         );
@@ -194,12 +193,12 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
             {/* Additional Info */}
             <div>
                 <h3 className="font-bold mb-3">
-                    {isMongolian ? "Нэмэлт мэдээлэл (заавал биш)" : "Additional Info (optional)"}
+                    {t("additionalInfoOptional")}
                 </h3>
                 <textarea
                     value={additionalInfo}
                     onChange={(e) => setAdditionalInfo(e.target.value)}
-                    placeholder={isMongolian ? "Жишээ: Давхар зовлоны мэдээлэл, тусгай шаардлага..." : "Example: Double eyelid surgery, specific requirements..."}
+                    placeholder={t("additionalInfoPlaceholder")}
                     className="w-full px-4 py-3 rounded-xl border bg-background text-sm h-24 resize-none"
                 />
             </div>
@@ -215,7 +214,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                 ) : (
                     <Sparkles className="w-5 h-5 mr-2" />
                 )}
-                {isMongolian ? "Эмчилгээний аяллын төлөвлөгөө үүсгэх" : "Generate Medical Trip Plan"}
+                {t("generateMedicalPlanBtn")}
             </Button>
 
             {/* Generated Itinerary */}
@@ -232,10 +231,10 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                                 <div>
                                     <h3 className="font-bold text-lg flex items-center gap-2">
                                         {medicalDestinations.find(d => d.code === itinerary.destination)?.flag}
-                                        {isMongolian ? "Эмчилгээний Аялал" : "Medical Trip"}
+                                        {t("medicalTripSummary")}
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
-                                        {itinerary.duration} {isMongolian ? "хоногийн төлөвлөгөө" : "day plan"}
+                                        {t("dayPlanCount").replace("{count}", itinerary.duration.toString())}
                                     </p>
                                 </div>
                                 <Badge className="bg-green-500 text-lg px-4 py-2">
@@ -252,7 +251,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                             <Card className="p-4">
                                 <h4 className="font-bold mb-3 flex items-center gap-2">
                                     <Stethoscope className="w-5 h-5 text-green-500" />
-                                    {isMongolian ? "Эмнэлгийн мэдээлэл" : "Hospital Information"}
+                                    {t("hospitalInfoLabel")}
                                 </h4>
                                 <div className="space-y-2 text-sm">
                                     <p className="font-bold">{itinerary.hospitalInfo.name}</p>
@@ -274,7 +273,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                             <Card className="p-4">
                                 <h4 className="font-bold mb-3 flex items-center gap-2">
                                     <FileText className="w-5 h-5 text-green-500" />
-                                    {isMongolian ? "Урьдчилсан бэлтгэл" : "Pre-Trip Checklist"}
+                                    {t("preTripChecklistLabel")}
                                 </h4>
                                 <ul className="space-y-2">
                                     {itinerary.preTripChecklist.map((item, idx) => (
@@ -301,7 +300,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                                         <div className="text-left">
                                             <h4 className="font-bold">{day.title}</h4>
                                             <p className="text-xs text-muted-foreground">
-                                                {day.activities.length} {isMongolian ? "үйл ажиллагаа" : "activities"}
+                                                {t("activitiesCount").replace("{count}", day.activities.length.toString())}
                                             </p>
                                         </div>
                                     </div>
@@ -360,7 +359,7 @@ export function AIMedicalPlanner({ className }: AIMedicalPlannerProps) {
                             <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/30">
                                 <h4 className="font-bold mb-3 flex items-center gap-2">
                                     <Calendar className="w-5 h-5 text-blue-500" />
-                                    {isMongolian ? "Нөхөн сэргэлт" : "Recovery"}: {itinerary.recovery.duration}
+                                    {t("recoveryLabel")}: {itinerary.recovery.duration}
                                 </h4>
                                 <ul className="space-y-2">
                                     {itinerary.recovery.tips.map((tip, idx) => (

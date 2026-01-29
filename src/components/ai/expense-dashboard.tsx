@@ -131,11 +131,11 @@ export function ExpenseDashboard() {
                     </motion.button>
                     <div className="flex-1">
                         <h1 className="text-3xl font-black tracking-tighter text-slate-900 leading-none">
-                            Budget<span className="text-blue-600">.</span>
+                            {t("budgetTitle")}<span className="text-blue-600">.</span>
                         </h1>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1.5 flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                            AI Expense Control
+                            {t("budgetSubtitle")}
                         </p>
                     </div>
                     {expenses.length > 0 && (
@@ -178,7 +178,7 @@ export function ExpenseDashboard() {
                             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/5 backdrop-blur-md">
                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse" />
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
-                                    {t("totalSpent") || "Total Spent"}
+                                    {t("totalSpent")}
                                 </p>
                             </div>
                             {/* Chip Icon */}
@@ -209,7 +209,7 @@ export function ExpenseDashboard() {
                                 <div className="flex gap-1">
                                     {[1, 2, 3, 4].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/50" />)}
                                 </div>
-                                <span className="text-[10px] font-mono tracking-widest text-white/70 ml-1">EXPENSE</span>
+                                <span className="text-[10px] font-mono tracking-widest text-white/70 ml-1">{t("expenseLabel")}</span>
                             </div>
                         </div>
 
@@ -235,11 +235,11 @@ export function ExpenseDashboard() {
                         <div className="flex items-center gap-2">
                             <div className="h-1 w-6 bg-blue-600 rounded-full" />
                             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                {t("recentExpenses") || "Recent History"}
+                                {t("recentExpenses")}
                             </h3>
                         </div>
                         <Badge variant="outline" className="bg-white border-slate-100 text-[10px] font-black text-slate-400 py-0.5 h-auto">
-                            {expenses.length} ITEMS
+                            {t("itemsCount").replace("{count}", expenses.length.toString())}
                         </Badge>
                     </div>
 
@@ -260,8 +260,8 @@ export function ExpenseDashboard() {
                                         <div className="w-16 h-16 bg-slate-100 group-hover:bg-blue-50 rounded-[22px] flex items-center justify-center mx-auto mb-4 border border-white group-hover:border-blue-100 transition-colors">
                                             <Plus className="w-6 h-6 text-slate-300 group-hover:text-blue-500 transition-colors" />
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-lg tracking-tight group-hover:text-blue-600 transition-colors">No history found</h4>
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 group-hover:text-blue-400 transition-colors">Tap to scan a receipt</p>
+                                        <h4 className="font-black text-slate-900 text-lg tracking-tight group-hover:text-blue-600 transition-colors">{t("noHistoryFound")}</h4>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 group-hover:text-blue-400 transition-colors">{t("tapToScan")}</p>
                                     </motion.button>
                                 }
                             />
