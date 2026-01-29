@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, writeBatch, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useTranslation } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -44,6 +45,7 @@ interface AIStaff {
 }
 
 export default function AIStaffPage() {
+    const { t } = useTranslation();
     const [staff, setStaff] = useState<AIStaff[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -83,9 +85,9 @@ export default function AIStaffPage() {
         } catch (error: any) {
             console.error("Error loading defaults:", error);
             if (error.code === 'permission-denied') {
-                alert("Хандах эрх хүрэлцэхгүй байна. Firebase Rules-ээ шинэчилнэ үү эсвэл түр хүлээнэ үү.");
+                alert(t("adminStaffPermissionDenied"));
             } else {
-                alert("Алдаа гарлаа: " + error.message);
+                alert(t("error") + ": " + error.message);
             }
         } finally {
             setIsSaving(false);
@@ -142,7 +144,7 @@ export default function AIStaffPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Энэ ажилтныг устгах үү?")) return;
+        if (!confirm(t("confirmDelete"))) return;
         try {
             await updateDoc(doc(db, "aiStaff", id), { isActive: false });
         } catch (error) {
@@ -169,11 +171,11 @@ export default function AIStaffPage() {
                             </div>
                             <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-md px-4 py-1.5 rounded-full font-black tracking-widest text-[10px]">
                                 <Sparkles className="h-3.5 w-3.5 mr-2 text-yellow-300 animate-pulse" />
-                                DIGITAL OFFICE
+                                {t("adminAiStaffSubtitle")}
                             </Badge>
                         </div>
                         <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-none">
-                            AI Ажилчдын <br /> <span className="text-blue-200">удирдлага</span>
+                            {t("adminAiStaffTitle")}
                         </h1>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -184,11 +186,11 @@ export default function AIStaffPage() {
                             className="bg-white text-blue-700 hover:bg-blue-50 border-none shadow-xl h-14 px-8 rounded-2xl font-black transition-all hover:scale-105"
                         >
                             {isSaving ? <Loader2 className="h-5 w-5 animate-spin mr-3" /> : <RotateCcw className="h-5 w-5 mr-3" />}
-                            Ажилчдыг ачаалах
+                            {t("adminLoadDefaults")}
                         </Button>
                         <Button className="bg-indigo-500/20 hover:bg-indigo-500/40 text-white border border-white/20 backdrop-blur-xl shadow-xl h-14 px-8 rounded-2xl font-black transition-all hover:scale-105">
                             <Plus className="h-5 w-5 mr-3" />
-                            Шинэ дүр нэмэх
+                            {t("adminAddNew")}
                         </Button>
                     </div>
                 </div>
@@ -199,29 +201,33 @@ export default function AIStaffPage() {
                 <div className="lg:col-span-5 relative group">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                     <Input
-                        placeholder="Ажилтны нэрээр хайх..."
-                        className="pl-14 h-14 bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl font-bold text-lg"
+                        placeholder={t("adminSearchStaff")}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-14 h-16 bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl text-lg focus-visible:ring-2 focus-visible:ring-blue-500/50"
                     />
                 </div>
-                <div className="lg:col-span-7">
-                    <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 overflow-x-auto no-scrollbar">
-                        {(['all', 'sales', 'travel', 'manager'] as const).map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={cn(
-                                    "flex-1 min-w-[140px] px-6 py-3.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all",
-                                    activeTab === tab
-                                        ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-lg"
-                                        : "text-slate-500 hover:text-slate-700"
-                                )}
-                            >
-                                {tab === 'all' ? 'Бүх ажилчид' : tab === 'sales' ? 'Симний мэргэжилтэн' : tab === 'travel' ? 'AI Hub / Аяллын хөтөч' : 'Оффис менежер'}
-                            </button>
-                        ))}
-                    </div>
+                <div className="lg:col-span-7 flex flex-wrap gap-3">
+                    {[
+                        { id: "all", label: t("adminAllStaff"), icon: Users },
+                        { id: "sales", label: t("adminSales"), icon: Briefcase },
+                        { id: "travel", label: t("adminTravel"), icon: Compass },
+                        { id: "manager", label: t("adminManager"), icon: ShieldCheck }
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={cn(
+                                "flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-sm transition-all shadow-sm",
+                                activeTab === tab.id
+                                    ? "bg-blue-600 text-white shadow-blue-500/20 scale-105"
+                                    : "bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            )}
+                        >
+                            <tab.icon className="h-4 w-4" />
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -229,13 +235,13 @@ export default function AIStaffPage() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-32 bg-white/50 dark:bg-slate-900/50 rounded-[3rem] border border-slate-200 dark:border-slate-800">
                     <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
-                    <p className="mt-8 text-slate-500 font-black tracking-[0.2em] uppercase text-[10px]">Мэдээлэл уншиж байна...</p>
+                    <p className="mt-8 text-slate-500 font-black tracking-[0.2em] uppercase text-[10px]">{t("aiStatusReading")}</p>
                 </div>
             ) : filteredStaff.length === 0 ? (
                 <div className="text-center py-32 bg-white dark:bg-slate-900/50 rounded-[4rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
                     <Users className="h-12 w-12 text-slate-300 mx-auto mb-8" />
-                    <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-3">Ажилтан олдсонгүй</h3>
-                    <Button onClick={handleLoadDefaults} className="bg-blue-600 mt-6 rounded-2xl h-16 px-12 font-black text-lg">Захирал аа, эхлүүлцгээе!</Button>
+                    <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-3">{t("aiStaffNotFound")}</h3>
+                    <Button onClick={handleLoadDefaults} className="bg-blue-600 mt-6 rounded-2xl h-16 px-12 font-black text-lg">{t("aiStaffStart")}</Button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
@@ -257,26 +263,26 @@ export default function AIStaffPage() {
                                         <div className="absolute inset-0 flex flex-col justify-end p-8 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                                             <div className="space-y-3">
                                                 <button onClick={() => setAsDefault(person, 'sales')} className={cn("w-full h-10 rounded-2xl font-black text-[10px] uppercase tracking-widest backdrop-blur-xl transition-all flex items-center justify-center gap-3", person.isDefaultSales ? "bg-red-500 text-white shadow-xl" : "bg-white/20 text-white")}>
-                                                    <Monitor className="h-4 w-4" /> Home Advisor
+                                                    <Monitor className="h-4 w-4" /> {t("adminHomeAdvisor")}
                                                 </button>
                                                 <button onClick={() => setAsDefault(person, 'travel')} className={cn("w-full h-10 rounded-2xl font-black text-[10px] uppercase tracking-widest backdrop-blur-xl transition-all flex items-center justify-center gap-3", person.isDefaultTravel ? "bg-blue-500 text-white shadow-xl" : "bg-white/20 text-white")}>
-                                                    <Compass className="h-4 w-4" /> Hub Specialist
+                                                    <Compass className="h-4 w-4" /> {t("adminHubSpecialist")}
                                                 </button>
                                                 <button onClick={() => setAsDefault(person, 'manager')} className={cn("w-full h-10 rounded-2xl font-black text-[10px] uppercase tracking-widest backdrop-blur-xl transition-all flex items-center justify-center gap-3", person.isDefaultManager ? "bg-emerald-500 text-white shadow-xl" : "bg-white/20 text-white")}>
-                                                    <ShieldCheck className="h-4 w-4" /> Office Manager
+                                                    <ShieldCheck className="h-4 w-4" /> {t("adminOfficeManager")}
                                                 </button>
                                             </div>
                                         </div>
 
                                         <div className="absolute top-4 right-4 flex flex-col gap-1 scale-75 origin-top-right">
-                                            {person.isDefaultSales && <Badge className="bg-red-500 text-white border-none">HOME SALES</Badge>}
-                                            {person.isDefaultTravel && <Badge className="bg-blue-500 text-white border-none">HUB GUIDE</Badge>}
-                                            {person.isDefaultManager && <Badge className="bg-emerald-500 text-white border-none">MANAGER</Badge>}
+                                            {person.isDefaultSales && <Badge className="bg-red-500 text-white border-none">{t("adminHomeSales")}</Badge>}
+                                            {person.isDefaultTravel && <Badge className="bg-blue-500 text-white border-none">{t("adminHubGuide")}</Badge>}
+                                            {person.isDefaultManager && <Badge className="bg-emerald-500 text-white border-none">{t("adminManager")}</Badge>}
                                         </div>
 
                                         <div className="absolute bottom-6 left-8 right-8 group-hover:opacity-0 transition-opacity">
                                             <h3 className="text-2xl font-black text-white leading-none mb-1 tracking-tighter">{person.name}</h3>
-                                            <p className="text-[10px] text-blue-200 font-extrabold uppercase tracking-[0.2em]">GateSIM Expert</p>
+                                            <p className="text-[10px] text-blue-200 font-extrabold uppercase tracking-[0.2em]">{t("adminExpert")}</p>
                                         </div>
                                     </div>
 
@@ -291,13 +297,13 @@ export default function AIStaffPage() {
                                         <div className="space-y-3">
                                             <div className="flex flex-wrap gap-2">
                                                 <button onClick={() => toggleRole(person, 'sales')} className={cn("flex-1 px-4 py-3 rounded-xl text-[10px] font-black border-2", person.roles.includes('sales') ? "bg-red-50 text-red-600 border-red-100" : "bg-slate-50 text-slate-400 border-slate-50")}>
-                                                    SALES {person.roles.includes('sales') && <Check className="h-3 w-3 inline ml-1" />}
+                                                    {t("adminSales")} {person.roles.includes('sales') && <Check className="h-3 w-3 inline ml-1" />}
                                                 </button>
                                                 <button onClick={() => toggleRole(person, 'travel')} className={cn("flex-1 px-4 py-3 rounded-xl text-[10px] font-black border-2", person.roles.includes('travel') ? "bg-indigo-50 text-indigo-600 border-indigo-100" : "bg-slate-50 text-slate-400 border-slate-50")}>
-                                                    TRAVEL {person.roles.includes('travel') && <Check className="h-3 w-3 inline ml-1" />}
+                                                    {t("adminTravel")} {person.roles.includes('travel') && <Check className="h-3 w-3 inline ml-1" />}
                                                 </button>
                                                 <button onClick={() => toggleRole(person, 'manager')} className={cn("flex-1 px-4 py-3 rounded-xl text-[10px] font-black border-2", person.roles.includes('manager') ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-50 text-slate-400 border-slate-50")}>
-                                                    MANAGER {person.roles.includes('manager') && <Check className="h-3 w-3 inline ml-1" />}
+                                                    {t("adminManager")} {person.roles.includes('manager') && <Check className="h-3 w-3 inline ml-1" />}
                                                 </button>
                                             </div>
                                         </div>

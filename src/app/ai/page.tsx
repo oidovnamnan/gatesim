@@ -35,62 +35,49 @@ const aiFeatures = [
     {
         id: "planner",
         icon: Map,
-        title: "Аялал Төлөвлөгч",
-        titleEn: "Trip Planner",
-        description: "Маршрут болон төлөвлөгөө боловсруулах",
-        descriptionEn: "Smart itinerary and route planning",
+        titleKey: "aiFeaturePlannerTitle",
+        descriptionKey: "aiFeaturePlannerDesc",
         href: "/ai/planner",
     },
     {
         id: "transit",
         icon: Bus,
-        title: "Нийтийн Тээвэр",
-        titleEn: "Transit Guide",
-        description: "Цэвэрхэн, хялбар замын хөтөч",
-        descriptionEn: "Seamless navigation with AI",
+        titleKey: "aiFeatureTransitTitle",
+        descriptionKey: "aiFeatureTransitDesc",
         href: "/ai/transit",
     },
     {
         id: "translator",
         icon: Languages,
-        title: "Орчуулагч",
-        titleEn: "Translator",
-        description: "Дуут болон бичгэн орчуулга",
-        descriptionEn: "Voice and text translation",
+        titleKey: "aiFeatureTranslatorTitle",
+        descriptionKey: "aiFeatureTranslatorDesc",
         href: "/ai/translator",
     },
     {
         id: "poster",
         icon: LucideImage,
-        title: "Аялалын Дурсамж",
-        titleEn: "Memory Art",
-        description: "Зургийг арт болгож хувиргах",
-        descriptionEn: "Turn photos into AI art",
+        titleKey: "aiFeaturePosterTitle",
+        descriptionKey: "aiFeaturePosterDesc",
         href: "/ai/poster",
     },
     {
         id: "expense",
         icon: ShoppingBag,
-        title: "Зардал Хөтлөгч",
-        titleEn: "Expense Tracker",
-        description: "Аялалын зардлаа хялбар удирдах",
-        descriptionEn: "Smart travel expense management",
+        titleKey: "aiFeatureExpenseTitle",
+        descriptionKey: "aiFeatureExpenseDesc",
         href: "/ai/expenses",
     },
     {
         id: "medical",
         icon: Stethoscope,
-        title: "Эмчилгээний Туслах",
-        titleEn: "Medical Assistant",
-        description: "Эмнэлэг хайх, шинж тэмдэг тайлбарлах",
-        descriptionEn: "Find clinics and explain symptoms",
+        titleKey: "aiFeatureMedicalTitle",
+        descriptionKey: "aiFeatureMedicalDesc",
         href: "/ai/medical",
     },
 ];
 
 export default function AIHubPage() {
-    const { language } = useTranslation();
-    const isMongolian = language === "mn";
+    const { t } = useTranslation();
     const router = useRouter();
 
     const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
@@ -139,8 +126,8 @@ export default function AIHubPage() {
                             <Bot className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">AI Hub</h1>
-                            <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">Intelligence Desktop</p>
+                            <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">{t("aiHubTitle")}</h1>
+                            <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">{t("aiHubSubtitle")}</p>
                         </div>
                     </div>
                     {aiStatus?.isPremium && (
@@ -166,10 +153,10 @@ export default function AIHubPage() {
                             <div className="relative z-10 space-y-1">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40">AI Engine Ready</span>
+                                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40">{t("aiHubEngineReady")}</span>
                                 </div>
                                 <h2 className="text-xl font-black text-white tracking-tight">
-                                    {isMongolian ? "Шинэ аялал эхлүүлэх" : "Start New Journey"}
+                                    {t("aiHubStartJourney")}
                                 </h2>
                             </div>
                             <div className="relative z-10 w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-xl group-hover:scale-105 transition-transform duration-500">
@@ -198,10 +185,10 @@ export default function AIHubPage() {
                                         </div>
                                         <div className="space-y-1 flex-1 min-w-0">
                                             <h4 className="font-black text-xs text-slate-900 dark:text-white tracking-tight truncate">
-                                                {isMongolian ? feature.title : feature.titleEn}
+                                                {t(feature.titleKey)}
                                             </h4>
                                             <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider leading-none">
-                                                {isMongolian ? feature.description : feature.descriptionEn}
+                                                {t(feature.descriptionKey)}
                                             </p>
                                         </div>
                                     </div>
@@ -219,23 +206,23 @@ export default function AIHubPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Zap className="w-4 h-4 text-red-600" />
-                                <h5 className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white">Usage Monitoring</h5>
+                                <h5 className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white">{t("aiHubUsageMonitoring")}</h5>
                             </div>
                             {!aiStatus?.isPremium && (
                                 <button
                                     onClick={() => setIsPremiumModalOpen(true)}
                                     className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-[8px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-md active:scale-95"
                                 >
-                                    Go Pro
+                                    {t("aiHubGoPro")}
                                 </button>
                             )}
                         </div>
 
                         <div className="grid grid-cols-3 gap-6">
                             {[
-                                { label: "Plans", val: aiStatus?.remainingPlans, total: aiStatus?.planLimit, color: "bg-red-600" },
-                                { label: "Analytics", val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit, color: "bg-blue-600" },
-                                { label: "Assets", val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit, color: "bg-purple-600" },
+                                { label: t("aiHubPlans"), val: aiStatus?.remainingPlans, total: aiStatus?.planLimit, color: "bg-red-600" },
+                                { label: t("aiHubAnalytics"), val: aiStatus?.remainingTransit, total: aiStatus?.transitLimit, color: "bg-blue-600" },
+                                { label: t("aiHubAssets"), val: aiStatus?.remainingPoster, total: aiStatus?.posterLimit, color: "bg-purple-600" },
                             ].map((s, i) => (
                                 <div key={i} className="space-y-2">
                                     <div className="flex justify-between items-baseline">
