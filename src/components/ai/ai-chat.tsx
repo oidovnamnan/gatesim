@@ -31,7 +31,11 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<AIMessage[]>([]);
-    const [activeStaff, setActiveStaff] = useState<{ name: string; image: string } | null>(null);
+    const [activeStaff, setActiveStaff] = useState<{ name: string; image: string } | null>(
+        pathname?.startsWith("/ai")
+            ? { name: "Мишээл", image: "/assets/ai/staff/staff_2.png" }
+            : { name: "Ану", image: "/assets/ai/staff/staff_1.png" }
+    );
 
     // Derive mode from pathname
     const getModeFromPath = (path: string | null) => {
@@ -169,7 +173,7 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
 
     // Fetch active staff profile
     useEffect(() => {
-        const field = pathname === "/ai" ? "isDefaultTravel" : "isDefaultSales";
+        const field = pathname?.startsWith("/ai") ? "isDefaultTravel" : "isDefaultSales";
         const q = query(
             collection(db, "aiStaff"),
             where(field, "==", true),
@@ -186,8 +190,8 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
             } else {
                 // Fallback to defaults (Anu and Misheel - Mongolian staff)
                 setActiveStaff({
-                    name: pathname === "/ai" ? "Мишээл" : "Ану",
-                    image: pathname === "/ai" ? "/assets/ai/staff/staff_2.png" : "/assets/ai/staff/staff_1.png"
+                    name: pathname?.startsWith("/ai") ? "Мишээл" : "Ану",
+                    image: pathname?.startsWith("/ai") ? "/assets/ai/staff/staff_2.png" : "/assets/ai/staff/staff_1.png"
                 });
             }
         });
@@ -207,17 +211,20 @@ export function AIChat({ country, isPremium = false }: AIChatProps) {
         };
     }, [isOpen]);
 
+    const isAiHub = pathname === "/ai" || pathname?.startsWith("/ai/");
+
     return (
         <>
             {/* Floating Draggable Button */}
             <motion.div
                 drag
-                dragConstraints={{ left: -300, right: 0, top: -500, bottom: 0 }}
+                dragConstraints={isAiHub ? { left: 0, right: 300, top: -500, bottom: 0 } : { left: -300, right: 0, top: -500, bottom: 0 }}
                 dragElastic={0.1}
                 dragMomentum={false}
                 className={cn(
-                    "fixed bottom-44 right-4 z-50 transition-opacity duration-300",
-                    (isOpen || (pathname !== "/" && pathname !== "/ai")) && "opacity-0 pointer-events-none"
+                    "fixed bottom-44 z-50 transition-all duration-500",
+                    isAiHub ? "left-4" : "right-4",
+                    (isOpen || (pathname !== "/" && !pathname?.startsWith("/ai"))) && "opacity-0 pointer-events-none"
                 )}
             >
                 <div className="relative group cursor-grab active:cursor-grabbing">
